@@ -765,11 +765,27 @@ def smooth_hidden(H: np.ndarray, window: int, renormalize: bool = True) -> np.nd
     return out / np.maximum(np.linalg.norm(out, axis=1, keepdims=True), 1e-12)
 
 
-def load_model(model_path: str, dtype: str = "float32"):
+def load_model(model_path: str, dtype: str = "float32",
+               load_in_4bit: bool = False):
+    """加载模型。load_in_4bit=True 时按 DS-20261019-016 规格：
+    NF4 4-bit 权重 + FP16 compute dtype（compute dtype 同时决定
+    KV cache dtype → 达成「4-bit 权重 + FP16 KV Cache」口径）。
+    4-bit 仅支持 CUDA（bitsandbytes 限制），内部走 device_map="auto"。"""
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    dt = {"float32": torch.float32, "bfloat16": torch.bfloat16, "float16": torch.float16}[dtype]
     tok = AutoTokenizer.from_pretrained(model_path)
+    if load_in_4bit:
+        from transformers import BitsAndBytesConfig
+        bnb = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path, quantization_config=bnb, device_map="auto")
+        model.eval()
+        return tok, model
+    dt = {"float32": torch.float32, "bfloat16": torch.bfloat16, "float16": torch.float16}[dtype]
     model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=dt)
     model.eval()
     return tok, model
@@ -782,6 +798,9 @@ def main() -> int:
     ap.add_argument("--hf-endpoint", default=os.environ.get("HF_ENDPOINT", ""),
                     help="如 https://hf-mirror.com（国内镜像）")
     ap.add_argument("--dtype", default="float32", choices=["float32", "bfloat16", "float16"])
+    ap.add_argument("--load-in-4bit", action="store_true",
+                    help="DS-20261019-016 规格：NF4 4-bit 权重 + FP16 compute"
+                         "（KV cache 亦为 FP16）；仅 CUDA 可用（需 bitsandbytes）")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--ctx", type=int, default=2048)
     ap.add_argument("--paragraphs", type=int, default=8)
@@ -878,9 +897,13 @@ def main() -> int:
     t_start = time.time()
 
     # ---- 0. 加载模型 ----
-    print(f"[load] {args.model} dtype={args.dtype}", flush=True)
-    tok, model = load_model(args.model, args.dtype)
-    model.to(args.device)
+    print(f"[load] {args.model} dtype={args.dtype}"
+          + (" (4bit NF4 + FP16 compute/KV, DS-20261019-016 规格)"
+             if args.load_in_4bit else ""), flush=True)
+    tok, model = load_model(args.model, args.dtype,
+                            load_in_4bit=args.load_in_4bit)
+    if not args.load_in_4bit:
+        model.to(args.device)   # 4-bit 走 device_map="auto"，不可 .to()
     n_params = sum(p.numel() for p in model.parameters())
     print(f"[load] 参数量 {n_params/1e6:.1f}M，层数 {model.config.num_hidden_layers}，"
           f"hidden {model.config.hidden_size}", flush=True)

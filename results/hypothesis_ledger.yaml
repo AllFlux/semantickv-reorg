@@ -6,13 +6,13 @@
 #   - refuted 且 ds_admitted_refutation=false → 列为「待 DS 承认」开放项（DS-D4 WARN）
 #   - DS 在后续评审显式承认被数据推翻的假设后，将 ds_admitted_refutation 置 true
 #
-# 当前状态（2026-10-18 R9 · DS-20261018-011-WB1 intake）：H-DS14 已封卷——DS 于
-# DS-20261018-011 显式承认被数据推翻（ds_admitted_refutation=true，DS-D4 开放项清零），
-# 0.5B 压缩侧全部终止，唯一战场 = Kaggle 7B。H-DS15 pending（DS-011 口径：捕获失败或
-# 延迟 >200% → 弃在线插件转离线 HARD-KV）。H-DS17 pending（DS-011 新登记：Router
-# <50M 且 <0.5ms；>2ms 或 >10% KV 显存 → 退回 GSC 质心检索）。H-DS10 pending（7B 门禁）。
-# 更早：H-DS7/H-DS8 已于 DS-20261018-007 承认，H-DS9 confirmed。R8 修复 D2 校验器
-# （gqa_alignment_check 验证结果专属分支）后 GREEN-WITH-WARN。
+# 当前状态（2026-10-19 R10 · DS-20261019-016-WB1 intake）：H-DS14 已封卷——DS 于
+# DS-20261018-011 显式承认、DS-20261019-016 再次确认（ds_admitted_refutation=true，
+# DS-D4 开放项清零），0.5B 压缩侧全部终止，唯一战场 = Kaggle 7B。H-DS15 pending
+# （DS-016 口径不变：捕获失败或 p99 >200% → 弃在线插件转离线 HARD-KV）。H-DS17 pending
+# （Router <50M 且 <0.5ms；>2ms 或 >10% KV 显存 → 退回 GSC 质心检索）。H-DS10 pending
+# （7B 门禁）。DS-016 collaboration_audit：GREEN（接口预留达标；WB2 Router .pt 未送达，
+# 先用随机空壳测延迟）。更早：H-DS7/H-DS8 已于 DS-20261018-007 承认，H-DS9 confirmed。
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
@@ -131,7 +131,7 @@ hypotheses:
     status: refuted
     evidence_file: "results/gqa_alignment_check.json"
     ds_admitted_refutation: true
-    fate_note: "WB1 对齐验证 3/3 PASS ALIGNED（T1 repeat_kv 约定 / T2 importance h_q//n_rep / T3 hybrid≡topk 端到端等价）——对齐错误不存在，无修复可做；E1.5 26.05% 即正确 GQA 真实值，仍 <45% → 维持转 7B 决议。DS 于 DS-20261018-011-WB1 正式封卷：确认驳回、『小幅回升』因前提不成立未发生，0.5B 不再内耗，直接转 Kaggle 7B。"
+    fate_note: "WB1 对齐验证 3/3 PASS ALIGNED（T1 repeat_kv 约定 / T2 importance h_q//n_rep / T3 hybrid≡topk 端到端等价）——对齐错误不存在，无修复可做；E1.5 26.05% 即正确 GQA 真实值，仍 <45% → 维持转 7B 决议。DS 于 DS-20261018-011-WB1 正式封卷，DS-20261019-016-WB1 再次确认：确认驳回、『小幅回升』预判作废、26.05% 为 0.5B 真实物理极限，0.5B 不再内耗，直接转 Kaggle 7B。"
 
   - id: H-DS15
     source_review: DS-20261018-009-WB1
@@ -141,7 +141,7 @@ hypotheses:
     status: pending
     evidence_file: ""
     ds_admitted_refutation: false
-    fate_note: "DS-20261018-011：① Router 空壳已按 DS 规格封装并注册 load_external_router（learned_router.py，纯 Linear+ReLU，导出 .pt，WB2 训练完直接 load_state_dict）；② Kaggle 实机排雷入 notebook Step 3：T4 跑 7B 裸基线时挂随机初始化 Router 空壳，验证 CUDA Graph 不被破坏 + 测 Router 基础延迟；③ 前置门禁 = 7B 无压缩基线 ≥2/3 needle 命中。实机 bench 待 Kaggle T4。"
+    fate_note: "DS-20261018-011 / DS-20261019-016 口径（两轮一致）：① Router 空壳已按 DS 规格封装并注册 load_external_router（learned_router.py，纯 Linear+ReLU，导出 .pt，WB2 训练完直接 load_state_dict）；② Kaggle 实机排雷入 notebook Step 3：T4 跑 7B 裸基线时挂随机初始化 Router 空壳，验证 CUDA Graph 不被破坏 + 测 Router 基础延迟；③ 前置门禁 = 7B 无压缩基线 ≥2/3 needle 命中。DS-016 collaboration_audit 评 GREEN（等价性 7.2e-07 PASS 达标），协同待办 = WB2 Router .pt 未送达（DS 已催），期间用随机空壳。实机 bench 待 Kaggle T4。"
 
   - id: H-DS17
     source_review: DS-20261018-011-WB1
