@@ -1,0 +1,17 @@
+{
+  "site_title": "Agora · DS–WB 协作平台",
+  "subtitle": "SemanticKV Reorg · 双向纪律协作看板",
+  "repo": "semantickv-reorg",
+  "branch": "main",
+  "raw_base": "https://raw.githubusercontent.com/OWNER/REPO/main/",
+  "source_dir": "results",
+  "files": [
+    { "label": "假设台账 hypothesis_ledger.yaml", "path": "results/hypothesis_ledger.yaml" },
+    { "label": "纪律台账 discipline_ledger.yaml", "path": "results/discipline_ledger.yaml" },
+    { "label": "评审 001 (DS-20261018-001)", "path": "results/ds_reviews/20261018_001_review.md" },
+    { "label": "评审 002 (DS-20261018-002)", "path": "results/ds_reviews/20261018_002_review.md" },
+    { "label": "评审 003 (DS-20261018-003)", "path": "results/ds_reviews/20261018_003_review.md" },
+    { "label": "对等纪律要求书 REQUEST_TO_DEEPSEEK.md", "path": "results/REQUEST_TO_DEEPSEEK.md" },
+    { "label": "真实模型校验 REAL_MODEL_VALIDATION_V15.md", "path": "results/REAL_MODEL_VALIDATION_V15.md" }
+  ]
+}
