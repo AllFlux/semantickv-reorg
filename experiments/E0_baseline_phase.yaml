@@ -1,0 +1,165 @@
+meta:
+  id: E0
+  version: 0.2.1
+  title: 基线复现、相位敏感性测量与真实分布阈值校准（环境准入实验）
+  stage: 0
+  depends_on: []
+  status: registered
+  owner: workbuddy
+  seed: 0
+  changelog: |
+    v0.2.1（v0.2.0 真实模型验证后的度量决策，results/REAL_MODEL_VALIDATION_V15.md）：
+      - 新增假设 h0d/h1d：余弦相似度在真实 LLM 隐空间上系统性失效（各向异性），
+        分组度量必须换 centered（减全局均值再归一化）或白化；
+      - 新增 metric_decision 段：centered vs cosine vs l2 三方对照的实测裁定
+        （2048 token Qwen2.5-0.5B：ARI_topic 0.332 vs 0.108 vs 0.127）；
+      - calibration.knn_distribution_analysis 增加 metric 维度（原只有 (k,tau) 网格）。
+    v0.2.0 (用户调整三)：
+      - 新增 calibration 段：E0 除测相位差外，还必须提取真实数据 embedding
+        跑 kNN 分布分析，重新校准 tau 与 k；
+      - 新增假设 h0c/h1c：合成高斯混合上校准的 tau=0.3 在真实多尺度流形
+        分布上可能不再适用（碎片化风险），校准结果写入下游实验卡；
+      - log_fields / artifacts 增加校准产物字段。
+    v0.1.0：初版（仅相位差复现）。
+  note: >
+    E0 的「证伪」对象不是设计假设，而是实验环境本身：
+    若复现不出已知的固定分块相位敏感性，说明流水线/测量有 bug，全部后续实验暂停。
+    同时，E0 承担环境准入第二职责：真实数据 embedding 的 kNN 分布是合成
+    高斯混合无法模拟的（多尺度、流形、重尾），在其上校准 GSC 的 tau 与 k。
+
+hypotheses:
+  h0: 固定分块 KV 压缩不存在系统性相位敏感性（最好/最差位置准确率差 < 4pp）
+  h1: 固定分块压缩存在周期性相位敏感性（差 ≥ 4pp，且周期 ≈ 分块步长）
+  h0c: 合成高斯混合上校准的超参（tau=0.3, k=16）在真实 LLM embedding 上同样适用
+  h1c: |
+    真实 LLM embedding 呈多尺度流形分布（话题内余弦约 0.7~0.9，跨话题约 0.1~0.3，
+    且存在多尺度层级），合成数据的均匀高斯混合系统性高估可分性。
+    预期 tau=0.3 在真实长文本上导致互 kNN 互通率过低、群数碎片化
+    （fragmentation_rate 显著高于合成基线），需要重校准 tau 与 k。
+  h0d: 余弦相似度适合作为 GSC 分组度量（跨话题余弦低到可分）
+  h1d: |
+    余弦相似度在真实 LLM 隐空间系统性失效：残差流累积 + 低秩偏置（W^O 降维、
+    残差复制、下一词预测目标）使隐状态集中于「窄锥」，跨话题余弦仍高达 0.7+，
+    方向余弦无区分度（各向异性）。分组度量必须 centered（减全局均值再归一化）
+    或白化；l2/幅值感知度量只修正范数混淆、不修正方向坍缩，预期无效。
+
+config:
+  model: V4.1-Flash-1017
+  arms:
+    - fixed_block_native   # 被测：V4.1-Flash 原生固定分块压缩
+    - full_kv              # 参照：不压缩
+  datasets: [longbench_retrieval_subsets]
+  context_lengths: [131072]
+  phase_scan:
+    enabled: true
+    step_tokens: 1
+  seeds: 3
+  max_seeds: 5
+
+metrics:
+  primary: phase_gap_pp           # 位置扫描中最好/最差位置准确率差（百分点）
+  direction: higher_is_better     # E0 特殊：差值越大=现象复现越充分
+  secondary: [scan_period_tokens, kv_compression_ratio]
+
+thresholds:
+  pass_line: 4.0                  # 相位差 ≥ 4pp 视为复现成功
+  falsify_line: 2.0               # CI 完全低于 2pp -> 环境问题，暂停全部实验
+
+stopping_rule:
+  type: sequential
+  ci_level: 0.95
+  check_every: "1 seed"
+  max_seeds: 5
+  outcomes:
+    pass: "95% CI 完全高于 4pp，进入 E1"
+    fail: "95% CI 完全低于 2pp，修复环境后重跑 E0"
+    inconclusive: "跨线停留，扩种子或检查测量代码"
+
+# ---------------------------------------------------------------------
+# 调整三新增：真实分布阈值校准（环境准入第二职责）
+# ---------------------------------------------------------------------
+calibration:
+  purpose: >
+    合成高斯混合的 embedding 分布与真实 LLM 隐状态分布存在系统性差异
+    （多尺度流形、话题边界模糊、句子级/段落级多粒度结构）。在合成数据上
+    调好的 tau / k 不能直接搬到真实环境，否则互 kNN 互通率崩塌导致群碎片化。
+    E0 必须先在真实数据上完成校准，再解锁 E1。
+  embedding_source:
+    what: "prefill 阶段目标层隐状态（与 AnchorBasedSemanticGrouper 同源）"
+    how: "对 datasets 中每个样本跑一次 prefill，用 forward hook 抽取
+          (N, d) 隐状态（L2 归一化）；至少覆盖 3 个数据集 × 2 个上下文长度"
+    anchor_grouper_reuse: true   # 复用 src/semantickv/anchor_grouper.py 的
+                                 # PrefillCapture / hook 机制抽取隐状态
+  knn_distribution_analysis:
+    k_grid: [8, 12, 16, 24, 32]           # 候选 k
+    tau_grid: [0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 0.93, 0.95, 0.97]  # 候选 tau（v0.2.1 上限扩到 0.97：真实数据甜点被压到硬边界）
+    metric_grid: [cosine, centered, l2]   # v0.2.1：各向异性假设的度量消融
+    sample_cap_tokens: 100000             # 每个数据集最多采样 token 数（kNN 成本 O(N^2)）
+    outputs:
+      - knn_sim_quantiles     # 每 (k, dataset) 的 top-k 余弦相似度分位数 p1/p5/p25/p50/p75/p95
+      - mutual_knn_rate       # 互 kNN 互通率（合成基线约 0.40，见 CPU 报告）
+      - fragmentation_rate    # 互 kNN + 连通分量后，小群（< min_size）token 占比
+      - n_groups_at_tau       # 每个 tau 下 GSC 完整流水线的群数与群大小分布
+      - ari_topic_at_metric   # v0.2.1：每个度量下分组对话题结构的 ARI（裁定指标）
+  metric_decision:  # v0.2.1 实测裁定（2048 token Qwen2.5-0.5B，results/REAL_MODEL_VALIDATION_V15.md）
+    measured:
+      - {metric: cosine,  ari_topic: 0.108, n_groups: 15}
+      - {metric: centered, ari_topic: 0.332, n_groups: 33}   # 选定
+      - {metric: l2,      ari_topic: 0.127, n_groups: 16}
+    verdict: >
+      centered 度量 ARI 为 cosine 的 3.1 倍、l2 的 2.6 倍，端到端 argmax 一致率
+      同样领先（28% vs 3% vs 21%）。h1d 证实：余弦因各向异性失效；l2 只修正范数
+      混淆不修正方向坍缩，无效。GSC 默认度量改为 centered（mock_grouper 的
+      metric="cosine" 默认值保留——mock 是合成各向同性分布，不适用此结论）。
+  decision_rules:
+    # 校准产物如何反哺下游实验卡
+    tau_selection: "取使 fragmentation_rate <= 0.10 且 n_groups 落在
+                    [N/2048, N/256] 区间的最大 tau（越大约束越松、群越粗）"
+    k_selection: "取使 mutual_knn_rate >= 0.45 的最小 k（互通率越高越抗碎片化）"
+    downstream_writeback:
+      - "experiments/E1_semantic_grouping.yaml: config.tau, config.k"
+      - "src/semantickv/mock_grouper.py 默认参数不改（mock 是合成分布），
+          真实实现（anchor_grouper 填充后）使用校准值"
+      - "results/calibration_E0.json: 全量分布统计 + 选定 (tau, k) + 理由"
+  acceptance:
+    pass: "校准完成且选定 (tau, k)，fragmentation_rate <= 0.10"
+    fail: "任意 tau 下 fragmentation_rate > 0.20 -> 分布假设有误，
+           回退到层级分组（先粗后细）而不是单层 GSC"
+    inconclusive: "fragmentation_rate 落在 (0.10, 0.20] -> 记录并在 E1 双轨验证
+                   （合成参数 vs 校准参数）"
+
+update_rules:
+  on_fail:
+    - "检查位置扫描步长与分块边界的对齐"
+    - "核对准确率统计是否按位置聚合"
+    - "修复后必须重跑 E0 才能解锁后续实验"
+  on_calibration_fail:
+    - "检查隐状态层选择（试 layer_idx=-2/-4，不同层流形结构不同）"
+    - "检查是否混入了系统提示/模板 token（其分布与正文不同，应剔除）"
+    - "仍碎片化 -> 启用层级 GSC（二级分组），并更新 EXPERIMENT_PLAN.md 的设计表"
+  on_pass:
+    - "记录实测相位差与周期，作为 E1 的对照基线"
+    - "校准 (tau, k) 写入 results/calibration_E0.json 并回填 E1 卡"
+  changelog: results/CHANGELOG.md
+
+artifacts:
+  code_commit: ""
+  data_version: ""
+  log_fields: [position, accuracy, block_size, phase_offset]
+  calibration_artifacts:
+    - results/calibration_E0.json          # kNN 分布统计 + 选定超参
+    - results/calibration_embeddings_stats.json  # 各数据集隐状态范数/维度统计
+
+mock:  # CPU 冒烟参数（仅验证流水线，不作为证据）
+  n_tokens: 20000
+  dim: 768
+  n_topics: 32
+  pass_line: 0.90
+  falsify_line: 0.80
+  # 合成分布下校准的参照值（真实环境预期偏离这些数字）
+  synthetic_reference:
+    tau: 0.3
+    k: 16
+    mutual_knn_rate: 0.40
+    fragmentation_rate: 0.0      # 合成数据话题分离充分，几乎无碎片
+    ari: 1.0

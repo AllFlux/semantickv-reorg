@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# 本地环境 / 临时
+.DS_Store
+*.log
+.venv/

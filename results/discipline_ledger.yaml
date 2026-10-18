@@ -1,0 +1,105 @@
+meta:
+  protocol: DISCIPLINE.md §六
+  rounds: []
+  last_round: R3
+  last_run: '2026-10-18T16:29:09'
+rounds:
+- round: R1
+  timestamp: '2026-10-18T15:15:47'
+  checks:
+  - check: D1 契约优先
+    status: PASS
+    detail: --check-interfaces 全部通过
+  - check: D2 负面结果归档
+    status: PASS
+    detail: 清单 7 项全部在档
+  - check: D3 环境隔离
+    status: PASS
+    detail: 14 个结果文件全部带环境标签
+  - check: D4 参数冻结
+    status: PASS
+    detail: mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1
+  - check: D5 格式统一
+    status: PASS
+    detail: 3 份报告三段式齐全
+  summary:
+    pass: 5
+    warn: 0
+    fail: 0
+    verdict: GREEN
+- round: R2
+  timestamp: '2026-10-18T15:41:07'
+  checks:
+  - check: D1 契约优先
+    status: PASS
+    detail: --check-interfaces 全部通过
+  - check: D2 负面结果归档
+    status: PASS
+    detail: 清单 7 项全部在档
+  - check: D3 环境隔离
+    status: PASS
+    detail: 14 个结果文件全部带环境标签
+  - check: D4 参数冻结
+    status: PASS
+    detail: mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1
+  - check: D5 格式统一
+    status: PASS
+    detail: 4 份报告三段式齐全
+  - check: DS-D1 指令结构化
+    status: PASS
+    detail: 全部 DS 评审符合模板（frontmatter+三段式）
+  - check: DS-D2 假设可证伪+来源
+    status: PASS
+    detail: 全部假设带可证伪标准与数据来源
+  - check: DS-D3 引用可核查
+    status: PASS
+    detail: DS 跨域/文献断言均登记可核查来源（或无外部引用）
+  - check: DS-D4 结论对齐数据
+    status: WARN
+    detail: '被数据推翻但未显式承认的假设（待 DS 下一轮承认）: [''H-DS1'', ''H-DS2'', ''H-DS3'']'
+  - check: DS-D5 假设台账状态
+    status: PASS
+    detail: 6 条假设状态合法
+  summary:
+    pass: 9
+    warn: 1
+    fail: 0
+    verdict: GREEN-WITH-WARN
+- round: R3
+  timestamp: '2026-10-18T16:29:09'
+  checks:
+  - check: D1 契约优先
+    status: PASS
+    detail: --check-interfaces 全部通过
+  - check: D2 负面结果归档
+    status: PASS
+    detail: 清单 7 项全部在档
+  - check: D3 环境隔离
+    status: PASS
+    detail: 14 个结果文件全部带环境标签
+  - check: D4 参数冻结
+    status: PASS
+    detail: mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1
+  - check: D5 格式统一
+    status: PASS
+    detail: 4 份报告三段式齐全
+  - check: DS-D1 指令结构化
+    status: PASS
+    detail: 全部 DS 评审符合模板（frontmatter+三段式）
+  - check: DS-D2 假设可证伪+来源
+    status: PASS
+    detail: 全部假设带可证伪标准与数据来源
+  - check: DS-D3 引用可核查
+    status: PASS
+    detail: DS 跨域/文献断言均登记可核查来源（或无外部引用）
+  - check: DS-D4 结论对齐数据
+    status: PASS
+    detail: refuted 假设均有数据证据；已承认或无需承认
+  - check: DS-D5 假设台账状态
+    status: PASS
+    detail: 6 条假设状态合法
+  summary:
+    pass: 10
+    warn: 0
+    fail: 0
+    verdict: GREEN

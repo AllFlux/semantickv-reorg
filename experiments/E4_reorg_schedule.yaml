@@ -1,0 +1,127 @@
+meta:
+  id: E4
+  version: 0.2.1
+  title: 重组经济性：每轮全量 vs 阈值触发 vs 阈值+max_stale 兜底
+  stage: 4
+  depends_on: [E3]
+  status: registered
+  owner: workbuddy
+  seed: 0
+  changelog: |
+    v0.2.1（纪律机制化 + 矩阵重建，2026-10-18）：
+      - mock.cpu_result 补齐 K=3/alpha=0.9 行（原矩阵缺该格），
+        实测 max_freshness/max_structure 双 0.0000、耗时 28.5s；
+      - Pareto 点由 K=3+alpha=0.8 修正为 K=3+alpha=0.9（旧结论保留
+        在 v0.2.0 条目与 CPU_SIM_REPORT.md 表格中，按纪律 2 不删除）；
+      - 矩阵改由 cpu_sim/run_maxstale_matrix.py 机制化生成（带 environment
+        环境标签 + 复现性校验，前 5 行实质指标逐位复现）。
+    v0.2.0 (CPU 模拟驱动)：
+      - 新增对照臂 threshold_max_stale2 / threshold_max_stale3（用户调整一）；
+      - 新增假设 H4b：max_stale 硬约束必须与 EMA 系数 alpha 联合校准，
+        单独 max_stale 不足以把新鲜度误差压回 0.05；
+      - config 新增 ema_alpha / max_stale_k 两个联合参数；
+      - mock 段写入 CPU 实测：K=2/alpha=0.3 峰值 0.19（未过线），
+        Pareto 点为 K=3 + alpha=0.8（峰值 0.0442，耗时 38% of per_turn；
+        v0.2.1 修正为 K=3 + alpha=0.9，双误差归零）。
+    v0.1.0：初版（per_turn_full / threshold_trigger / periodic_k 三臂）。
+
+hypotheses:
+  h0: 每轮全量重组不经济（开销 >prefill 20%，或无吞吐收益）
+  h1: 每轮全量重组经济可控（开销 ≤10%，解码吞吐 ≥1.5x，P99 不升）
+  h4b: |
+    仅靠阈值触发的 partial 更新无法把边新鲜度误差维持在 0.05 以下
+    （EMA 滞后 (1-alpha)·Δw，单步即可达 0.14~0.19）；
+    引入 max_stale_turns=K 硬约束（距上次 full 超 K 轮强制 full）后，
+    误差上界由 max(K 步 partial 累积, 单步 (1-alpha)·Δw) 共同决定。
+    预期：K=3 且 alpha>=0.8 时新鲜度误差 ≤0.05，同时总耗时
+    显著低于 per_turn_full，形成 Pareto 最优。
+    （注意：CPU 模拟已证伪「K=2 + alpha=0.3 即可 ≤0.05」的朴素预期，
+     真实环境必须以 H4b 的联合参数形式重新验证。）
+
+config:
+  model: V4.1-Flash-1017
+  arms:
+    - no_reorg            # 基线：不重组
+    - per_turn_full       # 每轮边界全量重组
+    - threshold_trigger   # 阈值触发 + 局部增量（无 max_stale，已知不可行，作对照）
+    - periodic_k          # 每 K 轮全量 + 周期内增量
+    - threshold_max_stale2  # 阈值触发 + max_stale=2 硬约束（用户预期臂）
+    - threshold_max_stale3  # 阈值触发 + max_stale=3 硬约束（CPU 模拟 Pareto 臂）
+  schedule_k: 4
+  drift_threshold: 0.15
+  max_stale_k: [2, 3]        # max_stale 臂的 K 取值
+  ema_alpha: [0.3, 0.8, 0.9] # 联合校准：EMA 系数必须与 K 一起扫
+  datasets: [multiturn_dialogue_10turn, mtbench_multiturn]
+  context_lengths: [32768]
+  kv_budget_ratio: 0.10
+  seeds: 3
+  max_seeds: 5
+
+metrics:
+  primary: decode_throughput_speedup   # 相对 no_reorg 的解码吞吐倍数
+  direction: higher_is_better
+  secondary: [reorg_overhead_pct, p99_latency_delta_pct, edge_freshness_err]
+
+thresholds:
+  pass_line: 1.5
+  falsify_line: 1.0
+  auxiliary:
+    reorg_overhead_pct:      {pass_max: 10.0, falsify_min: 20.0}
+    p99_latency_delta_pct:   {pass_max: 10.0, falsify_min: 20.0}
+    edge_freshness_err:      {pass_max: 0.05, falsify_min: 0.10}
+  # max_stale 臂的判定（CPU 模拟先行，真实环境复核）
+  max_stale_arm:
+    pass: "max_freshness_err <= 0.05 且 total_time_s <= 0.5 * per_turn_full"
+    falsify: "max_freshness_err > 0.10，或提速不足 1.5x"
+    inconclusive: "误差落在 (0.05, 0.10] 或提速落在 (0.5, 0.7] -> 加大 alpha 或 K 重扫"
+
+stopping_rule:
+  type: sequential
+  ci_level: 0.95
+  check_every: "1 seed"
+  max_seeds: 5
+  outcomes:
+    pass: "吞吐 CI 完全高于 1.5x，且三项辅助指标不触碰证伪线"
+    fail: "开销 >20%，或吞吐无提升，或 P99 升 >20% -> 重组不经济"
+    inconclusive: "跨线停留，扩种子"
+
+update_rules:
+  on_fail:
+    - "全量重组异步化（写屏障回放移出关键解码路径）"
+    - "阈值触发 + delta merge"
+    - "仍高 -> 改为每 K 轮重组（periodic_k 臂）"
+    - "max_stale 臂单独失效 -> 按 H4b 联合调 alpha 与 K（CPU 模拟 Pareto 点 K=3/alpha=0.9，v0.2.1 修正）"
+  on_pass:
+    - "确定重组策略，进入 E5"
+  changelog: results/CHANGELOG.md
+
+artifacts:
+  code_commit: ""
+  data_version: ""
+  log_fields: [turn, decision, reason, drift, reorg_ms, freshness_err, structure_err, throughput, p99_ms]
+
+mock:
+  n_tokens: 20000
+  dim: 768
+  n_topics: 32
+  # 代理阈值：CPU 模拟用「新鲜度误差 + 相对 per_turn 耗时比」代替真实吞吐
+  pass_line: 0.90
+  falsify_line: 0.80
+  proxy_metrics:
+    freshness_pass: 0.05      # max_freshness_err 通过线（对齐真实环境）
+    time_ratio_pass: 0.50     # total_time_s / per_turn_total 通过线
+  cpu_result:  # 实测见 results/turns_maxstale_matrix.json
+    per_turn_full: {total_time_s: 74.74, max_freshness_err: 0.0}
+    threshold_trigger: {total_time_s: 16.52, max_freshness_err: 0.2265, verdict: "fail（误差超证伪线）"}
+    periodic_k4: {total_time_s: 17.44, max_freshness_err: 0.1902, verdict: "fail（误差超证伪线）"}
+    threshold_max_stale2_alpha0.3: {total_time_s: 39.89, max_freshness_err: 0.1902, verdict: "fail（用户朴素预期未成立）"}
+    threshold_max_stale2_alpha0.8: {total_time_s: 38.46, max_freshness_err: 0.0819, verdict: "inconclusive（单步偏大）"}
+    threshold_max_stale2_alpha0.9: {total_time_s: 38.51, max_freshness_err: 0.0639, verdict: "inconclusive"}
+    threshold_max_stale3_alpha0.3: {total_time_s: 28.73, max_freshness_err: 0.1830, verdict: "fail"}
+    threshold_max_stale3_alpha0.8: {total_time_s: 28.28, max_freshness_err: 0.0442, verdict: "pass（v0.2.1 前的最优臂）"}
+    threshold_max_stale3_alpha0.9: {total_time_s: 28.5, max_freshness_err: 0.0, max_structure_err: 0.0, verdict: "pass（v0.2.1 新 Pareto：双误差归零）"}
+  conclusion: |
+    max_stale 是必要非充分条件：K 决定 full 间隔上界，alpha 决定单步
+    partial 的滞后量级，两者必须联合校准。CPU 模拟 Pareto 点为
+    K=3 + alpha=0.9（v0.2.1 修正；v0.2.0 及以前为 K=3 + alpha=0.8，
+    因原矩阵缺 alpha=0.9 列）；真实环境 H4b 需要重新扫 (K, alpha) 网格。

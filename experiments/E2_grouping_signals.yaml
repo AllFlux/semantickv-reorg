@@ -1,0 +1,67 @@
+meta:
+  id: E2
+  version: 0.1.0
+  title: 分组信号对比：锚点 vs GSC vs ClusterKV
+  stage: 2
+  depends_on: [E1]
+  status: registered
+  owner: workbuddy
+  seed: 0
+
+hypotheses:
+  h0: 锚点与可学习聚类在漂移和开销上无差异
+  h1: 锚点漂移最低且开销 ≤ GSC 的 1.5 倍（锚点优先）
+
+config:
+  model: V4.1-Flash-1017
+  arms:
+    - anchor_grouping     # 模型自发语义锚点
+    - gsc_grouping        # 图式稀疏聚类（本仓库 mock 同族）
+    - clusterkv_grouping  # 可学习聚类
+  datasets: [longbench_full, multiturn_dialogue_10turn]
+  context_lengths: [32768]
+  kv_budget_ratio: 0.10
+  turns: 10
+  seeds: 3
+  max_seeds: 5
+
+metrics:
+  primary: multiturn_drift_pp     # 10 轮后群划分/性能漂移（百分点）
+  direction: lower_is_better
+  secondary: [grouping_overhead_ms, phase_gap_pp]
+
+thresholds:
+  pass_line: 2.0      # 锚点 10 轮漂移 ≤ 2pp
+  falsify_line: 5.0   # CI 完全高于 5pp -> 锚点优先被否定
+  auxiliary:
+    grouping_overhead_ratio_vs_gsc: {pass_max: 1.5, falsify_min: 3.0}
+
+stopping_rule:
+  type: sequential
+  ci_level: 0.95
+  check_every: "1 seed"
+  max_seeds: 5
+  outcomes:
+    pass: "锚点 drift CI 完全低于 2pp 且开销比 ≤1.5x"
+    fail: "可学习聚类在 drift 与开销上均不劣于锚点 -> 否定锚点优先"
+    inconclusive: "跨线停留，扩种子"
+
+update_rules:
+  on_fail:
+    - "若可学习聚类全面不劣 -> 切换为 GSC/ClusterKV 作为默认分组信号"
+    - "若锚点仍优 -> 保留锚点，记录对照数据"
+  on_pass:
+    - "锚点设为默认信号，进入 E3/E5"
+  changelog: results/CHANGELOG.md
+
+artifacts:
+  code_commit: ""
+  data_version: ""
+  log_fields: [signal, group_count, drift_pp, overhead_ms, reassignment_rate]
+
+mock:
+  n_tokens: 20000
+  dim: 768
+  n_topics: 32
+  pass_line: 0.90
+  falsify_line: 0.80

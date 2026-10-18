@@ -1,0 +1,67 @@
+meta:
+  id: E1
+  version: 0.1.0
+  title: 语义分组替换固定分块（单轮，无群间边）
+  stage: 1
+  depends_on: [E0]
+  status: registered
+  owner: workbuddy
+  seed: 0
+
+hypotheses:
+  h0: 同等 KV 预算下，语义分组不优于固定分块
+  h1: 同等 KV 预算下，语义分组优于固定分块（准确率 +≥2pp，相位差 ≤3pp）
+
+config:
+  model: V4.1-Flash-1017
+  arms:
+    - fixed_block_native     # 基线
+    - semantic_grouping      # 被测：GSC/锚点分组 + 群内合并，无群间边
+  datasets: [longbench_full, ruler]
+  context_lengths: [32768, 131072]
+  kv_budget_ratio: 0.10
+  seeds: 3
+  max_seeds: 5
+
+metrics:
+  primary: longbench_avg_delta_pp   # 语义分组 − 固定分块（百分点）
+  direction: higher_is_better
+  secondary: [phase_gap_pp, prefill_overhead_pct, intra_group_sim]
+
+thresholds:
+  pass_line: 2.0      # 平均准确率提升 ≥ 2pp
+  falsify_line: 0.0   # CI 完全 ≤ 0 -> 否定 H1
+  auxiliary:
+    phase_gap_pp:      {pass_max: 3.0, falsify_min: 5.0}
+    prefill_overhead_pct: {pass_max: 10.0, falsify_min: 20.0}
+
+stopping_rule:
+  type: sequential
+  ci_level: 0.95
+  check_every: "1 seed"
+  max_seeds: 5
+  outcomes:
+    pass: "主指标 CI 完全高于 +2pp，且辅助指标不触碰证伪线"
+    fail: "主指标 CI 完全 ≤ 0，或任一辅助指标触碰证伪线"
+    inconclusive: "跨线停留至最大种子，标记风险后进入下一阶段"
+
+update_rules:
+  on_fail:
+    - "检查分组纯度（群内语义方差）与锚点探测质量"
+    - "切换分组信号：分隔符 -> GSC -> ClusterKV"
+    - "仍失败 -> 否定「语义分组在检索任务优于固定分块」，固定分块保留为检索基线"
+  on_pass:
+    - "记录最优分组信号与 KV 预算，带入 E3"
+  changelog: results/CHANGELOG.md
+
+artifacts:
+  code_commit: ""
+  data_version: ""
+  log_fields: [group_count, group_sizes, intra_sim, kv_bytes, prefill_ms]
+
+mock:
+  n_tokens: 20000
+  dim: 768
+  n_topics: 32
+  pass_line: 0.90
+  falsify_line: 0.80

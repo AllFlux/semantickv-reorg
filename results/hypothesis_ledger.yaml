@@ -1,0 +1,79 @@
+# hypothesis_ledger.yaml — DeepSeek 侧假设台账（DISCIPLINE.md §DeepSeek 对等纪律）
+#
+# 闭环规则：
+#   - 每条 DS 评审中的预判/处方入此台账，带 status(pending/confirmed/refuted)
+#   - status != pending 时 evidence_file 必须指向存在的 WB 结果文件
+#   - refuted 且 ds_admitted_refutation=false → 列为「待 DS 承认」开放项（DS-D4 WARN）
+#   - DS 在后续评审显式承认被数据推翻的假设后，将 ds_admitted_refutation 置 true
+#
+# 当前状态（2026-10-18 R3）：H-DS1/H-DS2/H-DS3 已被真实数据推翻，且 DS 已于
+# DS-20261018-004 显式承认（ds_admitted_refutation=true），开放项清零。见 discipline_ledger.yaml R3 GREEN。
+
+meta:
+  protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
+  total: 6
+  confirmed: 2
+  refuted: 3
+  pending: 1
+  open_items_for_ds: []   # refuted 且 ds_admitted_refutation=false —— R3 起已全部显式承认
+
+hypotheses:
+  - id: H-DS1
+    source_review: DS-20261018-001
+    statement: "Top-K + 层级压缩后 cos 从 0.42 飙升到 0.85 以上"
+    falsifiable_criterion: "Qwen2.5-0.5B/2048/V1.5 下端到端 final_hidden cos ≥ 0.85"
+    data_source: "results/real_model_v15_topk8.json"
+    status: refuted
+    evidence_file: "results/real_model_v15_topk8.json"
+    ds_admitted_refutation: true
+    fate_note: "实测 cos 最高 0.765（topk K=8），方向成立但量级未达 0.85；argmax 2.32%→42.6%。DS 于 DS-20261018-004 显式承认被数据推翻（0.85 为盲目乐观，0.765 已是 KV 压缩下的真实物理上限）。"
+
+  - id: H-DS2
+    source_review: DS-20261018-002
+    statement: "argmax 一致率从 2.32% 飙升到 80% 以上"
+    falsifiable_criterion: "Qwen2.5-0.5B/2048/V1.5 下 logits argmax 一致率 ≥ 80%"
+    data_source: "results/real_model_v15_topk8.json"
+    status: refuted
+    evidence_file: "results/real_model_v15_topk8.json"
+    ds_admitted_refutation: true
+    fate_note: "实测 argmax 一致率最高 42.6%（topk K=8），未达 80%；0.5B/2048 容量受限，需 7B 复核。DS 于 DS-20261018-004 显式承认：80% 对首次修正策略过于激进，42.6% 已是跨越式提升。"
+
+  - id: H-DS3
+    source_review: DS-20261018-002
+    statement: "调度 Pareto 组合 K=3（最大陈旧 3 轮）+ α=0.8（EMA 快收敛）"
+    falsifiable_criterion: "(K=3, α=0.8) 为 max_stale×α 网格中唯一 max_freshness_err ≤ 0.05 且耗时最低的 Pareto 点"
+    data_source: "results/turns_maxstale_matrix.json"
+    status: refuted
+    evidence_file: "results/turns_maxstale_matrix.json"
+    ds_admitted_refutation: true
+    fate_note: "全矩阵 6 格重建后 K=3/α=0.9 双误差均 0.0000 且耗时更低（28.5s）；原 K=3/α=0.8（峰值 0.0442）非 Pareto 点，原矩阵缺该格致误判。DS 于 DS-20261018-004 显式承认：局部缺格导致 Pareto 误判，0.9 才是真正 Pareto 点。"
+
+  - id: H-DS4
+    source_review: DS-20261018-002
+    statement: "先白化再聚类（Mean-Centering），或备选 L1/秩度量；不要迷信 L2"
+    falsifiable_criterion: "centered 度量分组质量(ARI_topic)优于 cosine；l2 无归一化下不优于 centered"
+    data_source: "results/REAL_MODEL_VALIDATION_V15.md"
+    status: confirmed
+    evidence_file: "results/REAL_MODEL_VALIDATION_V15.md"
+    ds_admitted_refutation: false
+    fate_note: "实测 ARI_topic：centered=0.332 ≫ cosine=0.108 ≈ l2=0.127；裁定 centered 为默认度量。"
+
+  - id: H-DS5
+    source_review: DS-20261018-002
+    statement: "真实显存须实降 30% 以上才算工程有效；勿用合成高斯替代真实隐空间"
+    falsifiable_criterion: "7B 真实模型 max_memory_allocated/reserved 下降 ≥ 30%"
+    data_source: "results/real_model_v15.json"
+    status: pending
+    evidence_file: ""
+    ds_admitted_refutation: false
+    fate_note: "0.5B 端 KV 记账节省 44.7%（>30%）初步支持方向；7B 真实显存(memory_reserved)门控待 Kaggle 复核。"
+
+  - id: H-DS6
+    source_review: DS-20261018-003
+    statement: "双方恪守五大合作纪律 + 交接协议 + 防幻觉核查分工"
+    falsifiable_criterion: "WB 侧存在逐条机械检验器且每轮产出台账；交接协议被遵守"
+    data_source: "results/discipline_ledger.yaml"
+    status: confirmed
+    evidence_file: "results/discipline_ledger.yaml"
+    ds_admitted_refutation: false
+    fate_note: "已落地 DISCIPLINE.md + check_discipline.py + discipline_ledger.yaml（R1 GREEN）。"

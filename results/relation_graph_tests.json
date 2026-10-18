@@ -1,0 +1,69 @@
+{
+  "environment": {
+    "kind": "cpu-synthetic",
+    "device": "cpu",
+    "dtype": "float64",
+    "model": "synthetic-mock",
+    "ctx": null,
+    "platform": "Linux-6.6.117-45.11.6.tl4.x86_64-x86_64-with-glibc2.39",
+    "note": "合成数据 CPU 模拟；仅验证流水线机械正确性，不构成对 GPU/真实模型结论的证据"
+  },
+  "tests": {
+    "T1_gsc_ari": {
+      "pass": true,
+      "detail": "ARI=1.000 (n_groups=16, truth=16)"
+    },
+    "T2_partial_old_labels_preserved": {
+      "pass": true,
+      "detail": "n_groups 8 -> 13"
+    },
+    "T2_partial_new_clusters_small": {
+      "pass": true,
+      "detail": "新群数=5（未匹配 token=994，应≈5 个新话题而非逐 token 成群）"
+    },
+    "T2_partial_covers_all": {
+      "pass": true,
+      "detail": "N=6000"
+    },
+    "T3_top_p_edges": {
+      "pass": true,
+      "detail": "edges=30 (G*p/2=24, G*p=48)"
+    },
+    "T3_no_self_loops": {
+      "pass": true,
+      "detail": ""
+    },
+    "T4_delta_nonempty": {
+      "pass": true,
+      "detail": "added=12 updated=18 removed=0"
+    },
+    "T4_ema_applied": {
+      "pass": true,
+      "detail": "n_edges=42"
+    },
+    "T5_merge_idempotent": {
+      "pass": true,
+      "detail": "edges 42 -> 42"
+    },
+    "T6_lww_rejects_stale": {
+      "pass": true,
+      "detail": "(0,1) -> (0.5, 5)（应保持 turn=5）"
+    },
+    "T6_lww_accepts_fresh": {
+      "pass": true,
+      "detail": "(0,1) -> (0.9900000095367432, 7)（应更新为 turn=7, w≈0.99）"
+    },
+    "T7_freshness_zero_on_identical": {
+      "pass": true,
+      "detail": "err=0.00e+00"
+    },
+    "T8_decay_prunes": {
+      "pass": true,
+      "detail": "edges 30 -> 0"
+    },
+    "T8b_active_groups_scoped_decay": {
+      "pass": true,
+      "detail": "未活跃群关联边保留 26/26"
+    }
+  }
+}

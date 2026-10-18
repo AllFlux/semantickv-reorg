@@ -1,0 +1,268 @@
+{
+  "config": {
+    "model": "/tmp/hf_models/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "hf_endpoint": "",
+    "dtype": "float32",
+    "device": "cpu",
+    "ctx": 2048,
+    "paragraphs": 8,
+    "repeats": 6,
+    "target_layer": 12,
+    "group_layer": "final",
+    "smooth_window": 8,
+    "reps_per_group": 4,
+    "k": 16,
+    "k_grid": "8,16",
+    "tau_grid": "0.3,0.5,0.7,0.9,0.93,0.95,0.97",
+    "top_p": 10,
+    "needle": "请注意，一个重要事实：小王最喜欢的数字是 42。",
+    "needle_positions": "0.5",
+    "question": "小王最喜欢的数字是多少？请只回答数字：",
+    "max_new_tokens": 8,
+    "out": "results/real_model_validation.json",
+    "skip_needle": false
+  },
+  "stages": {
+    "gsc_scan": {
+      "k_grid": [
+        8,
+        16
+      ],
+      "tau_grid": [
+        0.3,
+        0.5,
+        0.7,
+        0.9,
+        0.93,
+        0.95,
+        0.97
+      ],
+      "rows": [
+        {
+          "k": 8,
+          "tau": 0.3,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 8,
+          "tau": 0.5,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 8,
+          "tau": 0.7,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 8,
+          "tau": 0.9,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 8,
+          "tau": 0.93,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 8,
+          "tau": 0.95,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 8,
+          "tau": 0.97,
+          "n_groups": 15,
+          "ari_topic": 0.1079,
+          "ari_occurrence": 0.0596,
+          "fragmentation": 0.0,
+          "intra_sim": 0.8325
+        },
+        {
+          "k": 16,
+          "tau": 0.3,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 16,
+          "tau": 0.5,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 16,
+          "tau": 0.7,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 16,
+          "tau": 0.9,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 16,
+          "tau": 0.93,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 16,
+          "tau": 0.95,
+          "n_groups": 1,
+          "ari_topic": 0.0,
+          "ari_occurrence": 0.0,
+          "fragmentation": 0.0,
+          "intra_sim": 0.716
+        },
+        {
+          "k": 16,
+          "tau": 0.97,
+          "n_groups": 13,
+          "ari_topic": 0.091,
+          "ari_occurrence": 0.0442,
+          "fragmentation": 0.0,
+          "intra_sim": 0.8193
+        }
+      ]
+    },
+    "fidelity": {
+      "target_layer": 12,
+      "n_tokens": 2048,
+      "v0_reorder_invariance": {
+        "mean": 0.9999999999999493,
+        "p05": 0.9999999999999216,
+        "min": 0.9999999999994051,
+        "std": 2.2213934398390146e-14
+      },
+      "kv_bytes_original_per_layer": 2097152,
+      "sweep": [
+        {
+          "k": 8,
+          "tau": 0.97,
+          "n_groups": 15,
+          "compression_ratio": 136.5,
+          "v1_group_mean": {
+            "mean": 0.5036610720060378,
+            "p05": 0.2817744199646695,
+            "min": -0.31280839273810807,
+            "std": 0.12386114966615067
+          },
+          "v2_relation_masked": {
+            "mean": 0.5041709417529352,
+            "p05": 0.2817744199646695,
+            "min": -0.3175876273347735,
+            "std": 0.1240349523993457
+          },
+          "v3_reps": {
+            "mean": 0.4337081081444878,
+            "p05": 0.18187026749869628,
+            "min": -0.21409742937360454,
+            "std": 0.14458245402956837
+          },
+          "v3_slots": 60,
+          "v3_compression": 34.1
+        },
+        {
+          "k": 16,
+          "tau": 0.97,
+          "n_groups": 13,
+          "compression_ratio": 157.5,
+          "v1_group_mean": {
+            "mean": 0.48904603579110206,
+            "p05": 0.20780746894249877,
+            "min": -0.3063161720053369,
+            "std": 0.13783327307934032
+          },
+          "v2_relation_masked": {
+            "mean": 0.4892174521551452,
+            "p05": 0.21016057705510194,
+            "min": -0.3063161720053369,
+            "std": 0.13749317568025396
+          },
+          "v3_reps": {
+            "mean": 0.42781655087406323,
+            "p05": 0.1364279866781227,
+            "min": -0.22955343305157316,
+            "std": 0.15056000408290976
+          },
+          "v3_slots": 52,
+          "v3_compression": 39.4
+        }
+      ]
+    },
+    "needle": [
+      {
+        "position_frac": 0.5,
+        "needle_token_pos": 1024,
+        "original_answer": "1.414213",
+        "original_hit": false,
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.41993662279080995,
+            "p05": 0.09705273501845246,
+            "min": -0.056223318910289685,
+            "std": 0.15231879005358326
+          },
+          "logits_argmax_agreement": 0.0232
+        },
+        "compressed_answer": "1. 10.0",
+        "compressed_hit": false,
+        "n_groups": 44,
+        "kv_compression": 47.1,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        }
+      }
+    ]
+  },
+  "model": {
+    "path": "/tmp/hf_models/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "params_m": 494.0,
+    "n_layers": 24,
+    "hidden": 896
+  },
+  "prefill_peak_rss_mb": 4143.7,
+  "wall_time_s": 111.3
+}

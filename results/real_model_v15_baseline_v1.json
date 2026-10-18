@@ -1,0 +1,252 @@
+{
+  "config": {
+    "model": "/tmp/hf_models/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "hf_endpoint": "",
+    "dtype": "float32",
+    "device": "cpu",
+    "ctx": 2048,
+    "paragraphs": 8,
+    "repeats": 6,
+    "target_layer": 12,
+    "group_layer": "final",
+    "smooth_window": 8,
+    "reps_per_group": 4,
+    "strategy": "v1",
+    "compress_mode": "flat_mean",
+    "topk_per_group": 4,
+    "sink_tokens": 0,
+    "window_tokens": 0,
+    "compress_layers": "all",
+    "metric": "cosine",
+    "kmean_renorm": "none",
+    "group_score_prior": "none",
+    "k": 16,
+    "k_grid": "8",
+    "tau_grid": "0.97",
+    "top_p": 10,
+    "needle": "请注意，一个重要事实：小王最喜欢的数字是 42。",
+    "needle_positions": "0.15,0.5,0.85",
+    "question": "小王最喜欢的数字是多少？请只回答数字：",
+    "max_new_tokens": 8,
+    "out": "results/real_model_v15_baseline_v1.json",
+    "skip_needle": false,
+    "baseline_only": false
+  },
+  "stages": {
+    "gsc_scan": {
+      "k_grid": [
+        8
+      ],
+      "tau_grid": [
+        0.97
+      ],
+      "rows": [
+        {
+          "k": 8,
+          "tau": 0.97,
+          "n_groups": 15,
+          "ari_topic": 0.1079,
+          "ari_occurrence": 0.0596,
+          "fragmentation": 0.0,
+          "intra_sim": 0.8325
+        }
+      ]
+    },
+    "fidelity": {
+      "target_layer": 12,
+      "n_tokens": 2048,
+      "v0_reorder_invariance": {
+        "mean": 0.9999999999999567,
+        "p05": 0.9999999999999369,
+        "min": 0.9999999999998364,
+        "std": 1.1487264983923671e-14
+      },
+      "kv_bytes_original_per_layer": 2097152,
+      "sweep": [
+        {
+          "k": 8,
+          "tau": 0.97,
+          "n_groups": 15,
+          "compression_ratio": 136.5,
+          "v1_group_mean": {
+            "mean": 0.5036610967585088,
+            "p05": 0.28177448843474007,
+            "min": -0.3128084044332181,
+            "std": 0.12386116268980635
+          },
+          "v2_relation_masked": {
+            "mean": 0.5041709659647482,
+            "p05": 0.28177448843474007,
+            "min": -0.31758771062641933,
+            "std": 0.12403496590376138
+          },
+          "v3_reps": {
+            "mean": 0.43370811490319694,
+            "p05": 0.18187043740315206,
+            "min": -0.21409716585778443,
+            "std": 0.14458245944842935
+          },
+          "v3_slots": 60,
+          "v3_compression": 34.1,
+          "v15": {
+            "flat_mean_sink": {
+              "mean": 0.5036610967585088,
+              "p05": 0.28177448843474007,
+              "min": -0.3128084044332181,
+              "std": 0.12386116268980635
+            },
+            "flat_mean_sink_causal": {
+              "mean": 0.5160131108731253,
+              "p05": 0.2751812498747775,
+              "min": -0.3185753253357582,
+              "std": 0.13234230394051646
+            },
+            "weighted_sink": {
+              "mean": 0.05591589821589085,
+              "p05": -0.18563717194134666,
+              "min": -0.3369363606477968,
+              "std": 0.17549202389378857
+            },
+            "topk_sink": {
+              "mean": 0.3307640500595421,
+              "p05": -0.0471001299700137,
+              "min": -0.19701575585471076,
+              "std": 0.2452686697639538
+            },
+            "n_priv": 0,
+            "topk_slots": 60,
+            "flat_sink_compression": 136.5,
+            "topk_compression": 34.1
+          }
+        }
+      ]
+    },
+    "needle": [
+      {
+        "position_frac": 0.15,
+        "needle_token_pos": 307,
+        "original_answer": "42。",
+        "original_hit": true,
+        "strategy": {
+          "mode": "flat_mean",
+          "metric": "cosine",
+          "compress_layers": "all",
+          "n_compressed_layers": 24,
+          "sink_tokens": 0,
+          "window_tokens": 0,
+          "topk_per_group": 4
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.46960736848856127,
+            "p05": 0.06472102146757423,
+            "min": -0.031084672028671576,
+            "std": 0.17397228530951842
+          },
+          "logits_argmax_agreement": 0.0328
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 0.3,
+          "slots_per_compressed_layer": 12,
+          "n_compressed_layers": 24,
+          "saving_pct": 99.4
+        },
+        "compressed_answer": "1000000",
+        "compressed_hit": false,
+        "n_groups": 12,
+        "kv_compression": 172.8,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        }
+      },
+      {
+        "position_frac": 0.5,
+        "needle_token_pos": 1024,
+        "original_answer": "1.414213",
+        "original_hit": false,
+        "strategy": {
+          "mode": "flat_mean",
+          "metric": "cosine",
+          "compress_layers": "all",
+          "n_compressed_layers": 24,
+          "sink_tokens": 0,
+          "window_tokens": 0,
+          "topk_per_group": 4
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.45270615879756126,
+            "p05": 0.05770099662670771,
+            "min": -0.04764335536519276,
+            "std": 0.17438420949070116
+          },
+          "logits_argmax_agreement": 0.026
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 0.4,
+          "slots_per_compressed_layer": 16,
+          "n_compressed_layers": 24,
+          "saving_pct": 99.2
+        },
+        "compressed_answer": "\"Hello, 2019",
+        "compressed_hit": false,
+        "n_groups": 16,
+        "kv_compression": 129.6,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        }
+      },
+      {
+        "position_frac": 0.85,
+        "needle_token_pos": 1740,
+        "original_answer": "42。计算机具有指数级加速",
+        "original_hit": true,
+        "strategy": {
+          "mode": "flat_mean",
+          "metric": "cosine",
+          "compress_layers": "all",
+          "n_compressed_layers": 24,
+          "sink_tokens": 0,
+          "window_tokens": 0,
+          "topk_per_group": 4
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.4852059466292647,
+            "p05": 0.12849414230854025,
+            "min": -0.04770861225346653,
+            "std": 0.16364180539037476
+          },
+          "logits_argmax_agreement": 0.0289
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 0.3,
+          "slots_per_compressed_layer": 14,
+          "n_compressed_layers": 24,
+          "saving_pct": 99.3
+        },
+        "compressed_answer": "2018年1月",
+        "compressed_hit": false,
+        "n_groups": 14,
+        "kv_compression": 148.1,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        }
+      }
+    ]
+  },
+  "model": {
+    "path": "/tmp/hf_models/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "params_m": 494.0,
+    "n_layers": 24,
+    "hidden": 896
+  },
+  "prefill_peak_rss_mb": 4140.6,
+  "wall_time_s": 106.9
+}

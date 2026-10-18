@@ -1,0 +1,136 @@
+{
+  "environment": {
+    "kind": "cpu-synthetic",
+    "device": "cpu",
+    "dtype": "float64",
+    "model": "synthetic-mock",
+    "ctx": null,
+    "platform": "Linux-6.6.117-45.11.6.tl4.x86_64-x86_64-with-glibc2.39",
+    "note": "合成数据 CPU 模拟；仅验证流水线机械正确性，不构成对 GPU/真实模型结论的证据"
+  },
+  "meta": {
+    "machine": "AMD EPYC 9K65 192-core (32 visible), no GPU",
+    "mem_note": "free 显示 123GB（宿主），但 cgroup 上限 8GB——500k 全量生成曾在此触发 OOM(kill 137)，已改分块生成",
+    "cgroup_limit_mb": 8192.0,
+    "backend": "torch matmul + topk（8 线程；实测快于 faiss-cpu 5-14 倍）",
+    "threads": 8,
+    "wall_time_s": 706.3
+  },
+  "results": [
+    {
+      "N": 10000,
+      "d": 768,
+      "project_dim": null,
+      "k": 16,
+      "topics": 32,
+      "total_s": 1.5422,
+      "stage_s": {
+        "project": 0.0,
+        "knn": 0.8002,
+        "mutual_prune": 0.0249,
+        "components": 0.3607,
+        "label_prop": 0.3464,
+        "merge_small": 0.01,
+        "total": 1.5422
+      },
+      "n_groups": 32,
+      "n_mutual_edges": 62646,
+      "intra_sim": 0.8391594886779785,
+      "ari_vs_truth": 1.0,
+      "peak_rss_mb": 662.6,
+      "rss_delta_mb": 94.9
+    },
+    {
+      "N": 50000,
+      "d": 768,
+      "project_dim": null,
+      "k": 16,
+      "topics": 32,
+      "total_s": 18.5513,
+      "stage_s": {
+        "project": 0.0,
+        "knn": 18.283,
+        "mutual_prune": 0.2011,
+        "components": 0.0078,
+        "label_prop": 0.0097,
+        "merge_small": 0.0496,
+        "total": 18.5513
+      },
+      "n_groups": 32,
+      "n_mutual_edges": 221704,
+      "intra_sim": 0.8386756181716919,
+      "ari_vs_truth": 1.0,
+      "peak_rss_mb": 914.8,
+      "rss_delta_mb": 143.1
+    },
+    {
+      "N": 100000,
+      "d": 768,
+      "project_dim": null,
+      "k": 16,
+      "topics": 32,
+      "total_s": 67.7781,
+      "stage_s": {
+        "project": 0.0,
+        "knn": 67.2558,
+        "mutual_prune": 0.4117,
+        "components": 0.015,
+        "label_prop": 0.0218,
+        "merge_small": 0.0738,
+        "total": 67.7781
+      },
+      "n_groups": 32,
+      "n_mutual_edges": 387214,
+      "intra_sim": 0.8385515809059143,
+      "ari_vs_truth": 1.0,
+      "peak_rss_mb": 1623.7,
+      "rss_delta_mb": 640.9
+    },
+    {
+      "N": 128000,
+      "d": 768,
+      "project_dim": null,
+      "k": 16,
+      "topics": 32,
+      "total_s": 112.6306,
+      "stage_s": {
+        "project": 0.0,
+        "knn": 111.9009,
+        "mutual_prune": 0.5825,
+        "components": 0.0181,
+        "label_prop": 0.0246,
+        "merge_small": 0.1044,
+        "total": 112.6306
+      },
+      "n_groups": 32,
+      "n_mutual_edges": 470046,
+      "intra_sim": 0.8386098146438599,
+      "ari_vs_truth": 1.0,
+      "peak_rss_mb": 1901.7,
+      "rss_delta_mb": 851.3
+    },
+    {
+      "N": 500000,
+      "d": 768,
+      "project_dim": 128,
+      "k": 16,
+      "topics": 32,
+      "total_s": 495.073,
+      "stage_s": {
+        "project": 0.5212,
+        "knn": 484.1033,
+        "mutual_prune": 9.2427,
+        "components": 0.1105,
+        "label_prop": 0.2567,
+        "merge_small": 0.8385,
+        "total": 495.073
+      },
+      "n_groups": 32,
+      "n_mutual_edges": 1877442,
+      "intra_sim": 0.8428149223327637,
+      "ari_vs_truth": 1.0,
+      "peak_rss_mb": 4247.2,
+      "rss_delta_mb": 2096.4
+    }
+  ]
+}

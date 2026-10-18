@@ -1,0 +1,1009 @@
+{
+  "environment": {
+    "kind": "cpu-synthetic",
+    "device": "cpu",
+    "dtype": "float64",
+    "model": "synthetic-mock",
+    "ctx": null,
+    "platform": "Linux-6.6.117-45.11.6.tl4.x86_64-x86_64-with-glibc2.39",
+    "note": "合成数据 CPU 模拟；max_stale × α 参数矩阵（seed=7 与原矩阵一致）"
+  },
+  "grid": {
+    "max_stale_turns": [
+      2,
+      3
+    ],
+    "ema_alpha": [
+      0.3,
+      0.8,
+      0.9
+    ]
+  },
+  "modes": [
+    {
+      "mode": "threshold:K=2",
+      "params": {
+        "turns": 10,
+        "N0": 20000,
+        "per_turn": 2000,
+        "d": 768,
+        "base_topics": 32,
+        "k": 16,
+        "drift_threshold": 0.15,
+        "periodic_k": 4,
+        "max_stale_turns": 2,
+        "ema_alpha": 0.3
+      },
+      "rows": [
+        {
+          "turn": 0,
+          "action": "init_fit",
+          "time_s": 0.0,
+          "n_groups": 32,
+          "n_edges": 182,
+          "freshness": null,
+          "peak_rss_mb": 803.7
+        },
+        {
+          "turn": 1,
+          "drift": 0.0909,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.091 超半阈值",
+          "time_s": 0.575,
+          "n_groups": 35,
+          "n_edges": 213,
+          "freshness": 0.14587,
+          "structure": 0.04225,
+          "peak_rss_mb": 946.2
+        },
+        {
+          "turn": 2,
+          "drift": 0.0833,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.083 未触线）",
+          "time_s": 3.853,
+          "n_groups": 38,
+          "n_edges": 222,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 946.2
+        },
+        {
+          "turn": 3,
+          "drift": 0.0769,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.077 超半阈值",
+          "time_s": 0.54,
+          "n_groups": 41,
+          "n_edges": 258,
+          "freshness": 0.1902,
+          "structure": 0.06589,
+          "peak_rss_mb": 1137.7
+        },
+        {
+          "turn": 4,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 5.407,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1137.7
+        },
+        {
+          "turn": 5,
+          "drift": 0.0667,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.067 低于触发线",
+          "time_s": 0.001,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1137.7
+        },
+        {
+          "turn": 6,
+          "drift": 0.0625,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.062 未触线）",
+          "time_s": 6.591,
+          "n_groups": 50,
+          "n_edges": 295,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1137.7
+        },
+        {
+          "turn": 7,
+          "drift": 0.0588,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.059 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 50,
+          "n_edges": 295,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1137.7
+        },
+        {
+          "turn": 8,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 9.31,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1137.7
+        },
+        {
+          "turn": 9,
+          "drift": 0.0526,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.053 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1137.7
+        },
+        {
+          "turn": 10,
+          "drift": 0.05,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.050 未触线）",
+          "time_s": 11.228,
+          "n_groups": 62,
+          "n_edges": 366,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1137.7
+        }
+      ],
+      "summary": {
+        "total_time_s": 37.51,
+        "peak_rss_mb": 1137.7,
+        "n_full": 5,
+        "n_partial": 2,
+        "n_none": 3,
+        "final_freshness_err": 0.0,
+        "max_freshness_err": 0.1902,
+        "final_structure_err": 0.0,
+        "max_structure_err": 0.06589,
+        "final_n_groups": 62,
+        "final_n_edges": 366,
+        "graph_timings_s": {
+          "build_full_s": 0.011,
+          "observe_s": 0.0002,
+          "merge_s": 0.0
+        }
+      }
+    },
+    {
+      "mode": "threshold:K=2",
+      "params": {
+        "turns": 10,
+        "N0": 20000,
+        "per_turn": 2000,
+        "d": 768,
+        "base_topics": 32,
+        "k": 16,
+        "drift_threshold": 0.15,
+        "periodic_k": 4,
+        "max_stale_turns": 2,
+        "ema_alpha": 0.8
+      },
+      "rows": [
+        {
+          "turn": 0,
+          "action": "init_fit",
+          "time_s": 0.0,
+          "n_groups": 32,
+          "n_edges": 182,
+          "freshness": null,
+          "peak_rss_mb": 970.0
+        },
+        {
+          "turn": 1,
+          "drift": 0.0909,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.091 超半阈值",
+          "time_s": 0.474,
+          "n_groups": 35,
+          "n_edges": 213,
+          "freshness": 0.04168,
+          "structure": 0.04225,
+          "peak_rss_mb": 1024.7
+        },
+        {
+          "turn": 2,
+          "drift": 0.0833,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.083 未触线）",
+          "time_s": 3.857,
+          "n_groups": 38,
+          "n_edges": 222,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1024.7
+        },
+        {
+          "turn": 3,
+          "drift": 0.0769,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.077 超半阈值",
+          "time_s": 0.507,
+          "n_groups": 41,
+          "n_edges": 258,
+          "freshness": 0.08189,
+          "structure": 0.06589,
+          "peak_rss_mb": 1089.2
+        },
+        {
+          "turn": 4,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 5.014,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1089.2
+        },
+        {
+          "turn": 5,
+          "drift": 0.0667,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.067 低于触发线",
+          "time_s": 0.001,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1089.2
+        },
+        {
+          "turn": 6,
+          "drift": 0.0625,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.062 未触线）",
+          "time_s": 7.147,
+          "n_groups": 50,
+          "n_edges": 295,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1135.4
+        },
+        {
+          "turn": 7,
+          "drift": 0.0588,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.059 低于触发线",
+          "time_s": 0.003,
+          "n_groups": 50,
+          "n_edges": 295,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1135.4
+        },
+        {
+          "turn": 8,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 9.671,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1186.0
+        },
+        {
+          "turn": 9,
+          "drift": 0.0526,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.053 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1186.0
+        },
+        {
+          "turn": 10,
+          "drift": 0.05,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.050 未触线）",
+          "time_s": 11.312,
+          "n_groups": 62,
+          "n_edges": 366,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1186.0
+        }
+      ],
+      "summary": {
+        "total_time_s": 37.99,
+        "peak_rss_mb": 1186.0,
+        "n_full": 5,
+        "n_partial": 2,
+        "n_none": 3,
+        "final_freshness_err": 0.0,
+        "max_freshness_err": 0.08189,
+        "final_structure_err": 0.0,
+        "max_structure_err": 0.06589,
+        "final_n_groups": 62,
+        "final_n_edges": 366,
+        "graph_timings_s": {
+          "build_full_s": 0.0111,
+          "observe_s": 0.0003,
+          "merge_s": 0.0
+        }
+      }
+    },
+    {
+      "mode": "threshold:K=2",
+      "params": {
+        "turns": 10,
+        "N0": 20000,
+        "per_turn": 2000,
+        "d": 768,
+        "base_topics": 32,
+        "k": 16,
+        "drift_threshold": 0.15,
+        "periodic_k": 4,
+        "max_stale_turns": 2,
+        "ema_alpha": 0.9
+      },
+      "rows": [
+        {
+          "turn": 0,
+          "action": "init_fit",
+          "time_s": 0.0,
+          "n_groups": 32,
+          "n_edges": 182,
+          "freshness": null,
+          "peak_rss_mb": 862.8
+        },
+        {
+          "turn": 1,
+          "drift": 0.0909,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.091 超半阈值",
+          "time_s": 0.468,
+          "n_groups": 35,
+          "n_edges": 204,
+          "freshness": 1e-05,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 2,
+          "drift": 0.0833,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.083 未触线）",
+          "time_s": 3.814,
+          "n_groups": 38,
+          "n_edges": 222,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 3,
+          "drift": 0.0769,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.077 超半阈值",
+          "time_s": 0.55,
+          "n_groups": 41,
+          "n_edges": 242,
+          "freshness": 0.06393,
+          "structure": 0.00413,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 4,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 5.13,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 5,
+          "drift": 0.0667,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.067 低于触发线",
+          "time_s": 0.001,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 6,
+          "drift": 0.0625,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.062 未触线）",
+          "time_s": 7.269,
+          "n_groups": 50,
+          "n_edges": 295,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 7,
+          "drift": 0.0588,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.059 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 50,
+          "n_edges": 295,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 8,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 9.246,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 9,
+          "drift": 0.0526,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.053 低于触发线",
+          "time_s": 0.001,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 10,
+          "drift": 0.05,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 2 轮 ≥ K=2（drift=0.050 未触线）",
+          "time_s": 11.356,
+          "n_groups": 62,
+          "n_edges": 366,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1182.4
+        }
+      ],
+      "summary": {
+        "total_time_s": 37.84,
+        "peak_rss_mb": 1182.4,
+        "n_full": 5,
+        "n_partial": 2,
+        "n_none": 3,
+        "final_freshness_err": 0.0,
+        "max_freshness_err": 0.06393,
+        "final_structure_err": 0.0,
+        "max_structure_err": 0.00413,
+        "final_n_groups": 62,
+        "final_n_edges": 366,
+        "graph_timings_s": {
+          "build_full_s": 0.0112,
+          "observe_s": 0.0002,
+          "merge_s": 0.0
+        }
+      }
+    },
+    {
+      "mode": "threshold:K=3",
+      "params": {
+        "turns": 10,
+        "N0": 20000,
+        "per_turn": 2000,
+        "d": 768,
+        "base_topics": 32,
+        "k": 16,
+        "drift_threshold": 0.15,
+        "periodic_k": 4,
+        "max_stale_turns": 3,
+        "ema_alpha": 0.3
+      },
+      "rows": [
+        {
+          "turn": 0,
+          "action": "init_fit",
+          "time_s": 0.0,
+          "n_groups": 32,
+          "n_edges": 182,
+          "freshness": null,
+          "peak_rss_mb": 970.0
+        },
+        {
+          "turn": 1,
+          "drift": 0.0909,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.091 超半阈值",
+          "time_s": 0.527,
+          "n_groups": 35,
+          "n_edges": 213,
+          "freshness": 0.14587,
+          "structure": 0.04225,
+          "peak_rss_mb": 1024.7
+        },
+        {
+          "turn": 2,
+          "drift": 0.0833,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.083 超半阈值",
+          "time_s": 0.577,
+          "n_groups": 38,
+          "n_edges": 242,
+          "freshness": 0.18305,
+          "structure": 0.08264,
+          "peak_rss_mb": 1088.7
+        },
+        {
+          "turn": 3,
+          "drift": 0.0769,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 3 轮 ≥ K=3（drift=0.077 未触线）",
+          "time_s": 4.874,
+          "n_groups": 41,
+          "n_edges": 241,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1088.7
+        },
+        {
+          "turn": 4,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 5.383,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1089.0
+        },
+        {
+          "turn": 5,
+          "drift": 0.0667,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.067 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1089.0
+        },
+        {
+          "turn": 6,
+          "drift": 0.0625,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.062 低于触发线",
+          "time_s": 0.003,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1089.0
+        },
+        {
+          "turn": 7,
+          "drift": 0.0588,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 3 轮 ≥ K=3（drift=0.059 未触线）",
+          "time_s": 8.807,
+          "n_groups": 53,
+          "n_edges": 313,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1163.5
+        },
+        {
+          "turn": 8,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 9.812,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1163.5
+        },
+        {
+          "turn": 9,
+          "drift": 0.0526,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.053 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1163.5
+        },
+        {
+          "turn": 10,
+          "drift": 0.05,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.050 低于触发线",
+          "time_s": 0.006,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1163.5
+        }
+      ],
+      "summary": {
+        "total_time_s": 29.99,
+        "peak_rss_mb": 1163.5,
+        "n_full": 4,
+        "n_partial": 2,
+        "n_none": 4,
+        "final_freshness_err": 0.0,
+        "max_freshness_err": 0.18305,
+        "final_structure_err": 0.0,
+        "max_structure_err": 0.08264,
+        "final_n_groups": 56,
+        "final_n_edges": 327,
+        "graph_timings_s": {
+          "build_full_s": 0.0104,
+          "observe_s": 0.0002,
+          "merge_s": 0.0
+        }
+      }
+    },
+    {
+      "mode": "threshold:K=3",
+      "params": {
+        "turns": 10,
+        "N0": 20000,
+        "per_turn": 2000,
+        "d": 768,
+        "base_topics": 32,
+        "k": 16,
+        "drift_threshold": 0.15,
+        "periodic_k": 4,
+        "max_stale_turns": 3,
+        "ema_alpha": 0.8
+      },
+      "rows": [
+        {
+          "turn": 0,
+          "action": "init_fit",
+          "time_s": 0.0,
+          "n_groups": 32,
+          "n_edges": 182,
+          "freshness": null,
+          "peak_rss_mb": 852.9
+        },
+        {
+          "turn": 1,
+          "drift": 0.0909,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.091 超半阈值",
+          "time_s": 0.483,
+          "n_groups": 35,
+          "n_edges": 213,
+          "freshness": 0.04168,
+          "structure": 0.04225,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 2,
+          "drift": 0.0833,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.083 超半阈值",
+          "time_s": 0.591,
+          "n_groups": 38,
+          "n_edges": 233,
+          "freshness": 0.0442,
+          "structure": 0.04721,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 3,
+          "drift": 0.0769,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 3 轮 ≥ K=3（drift=0.077 未触线）",
+          "time_s": 4.659,
+          "n_groups": 41,
+          "n_edges": 241,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 4,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 5.118,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 5,
+          "drift": 0.0667,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.067 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 6,
+          "drift": 0.0625,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.062 低于触发线",
+          "time_s": 0.001,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 7,
+          "drift": 0.0588,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 3 轮 ≥ K=3（drift=0.059 未触线）",
+          "time_s": 8.767,
+          "n_groups": 53,
+          "n_edges": 313,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 8,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 9.514,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 9,
+          "drift": 0.0526,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.053 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 10,
+          "drift": 0.05,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.050 低于触发线",
+          "time_s": 0.001,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        }
+      ],
+      "summary": {
+        "total_time_s": 29.13,
+        "peak_rss_mb": 1110.7,
+        "n_full": 4,
+        "n_partial": 2,
+        "n_none": 4,
+        "final_freshness_err": 0.0,
+        "max_freshness_err": 0.0442,
+        "final_structure_err": 0.0,
+        "max_structure_err": 0.04721,
+        "final_n_groups": 56,
+        "final_n_edges": 327,
+        "graph_timings_s": {
+          "build_full_s": 0.0108,
+          "observe_s": 0.0003,
+          "merge_s": 0.0
+        }
+      }
+    },
+    {
+      "mode": "threshold:K=3",
+      "params": {
+        "turns": 10,
+        "N0": 20000,
+        "per_turn": 2000,
+        "d": 768,
+        "base_topics": 32,
+        "k": 16,
+        "drift_threshold": 0.15,
+        "periodic_k": 4,
+        "max_stale_turns": 3,
+        "ema_alpha": 0.9
+      },
+      "rows": [
+        {
+          "turn": 0,
+          "action": "init_fit",
+          "time_s": 0.0,
+          "n_groups": 32,
+          "n_edges": 182,
+          "freshness": null,
+          "peak_rss_mb": 852.9
+        },
+        {
+          "turn": 1,
+          "drift": 0.0909,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.091 超半阈值",
+          "time_s": 0.434,
+          "n_groups": 35,
+          "n_edges": 204,
+          "freshness": 1e-05,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 2,
+          "drift": 0.0833,
+          "decision": "partial",
+          "reason": "threshold 模式：漂移 0.083 超半阈值",
+          "time_s": 0.547,
+          "n_groups": 38,
+          "n_edges": 222,
+          "freshness": 1e-05,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 3,
+          "drift": 0.0769,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 3 轮 ≥ K=3（drift=0.077 未触线）",
+          "time_s": 4.377,
+          "n_groups": 41,
+          "n_edges": 241,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 4,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 5.381,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 5,
+          "drift": 0.0667,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.067 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 6,
+          "drift": 0.0625,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.062 低于触发线",
+          "time_s": 0.004,
+          "n_groups": 44,
+          "n_edges": 254,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1110.7
+        },
+        {
+          "turn": 7,
+          "drift": 0.0588,
+          "decision": "full",
+          "reason": "max_stale 兜底：距上次 full 已 3 轮 ≥ K=3（drift=0.059 未触线）",
+          "time_s": 8.462,
+          "n_groups": 53,
+          "n_edges": 313,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1163.6
+        },
+        {
+          "turn": 8,
+          "drift": 0.4,
+          "decision": "full",
+          "reason": "threshold 模式：漂移 0.400 ≥ 阈值 0.15",
+          "time_s": 9.293,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1163.6
+        },
+        {
+          "turn": 9,
+          "drift": 0.0526,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.053 低于触发线",
+          "time_s": 0.001,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1163.6
+        },
+        {
+          "turn": 10,
+          "drift": 0.05,
+          "decision": "none",
+          "reason": "threshold 模式：漂移 0.050 低于触发线",
+          "time_s": 0.0,
+          "n_groups": 56,
+          "n_edges": 327,
+          "freshness": 0.0,
+          "structure": 0.0,
+          "peak_rss_mb": 1163.6
+        }
+      ],
+      "summary": {
+        "total_time_s": 28.5,
+        "peak_rss_mb": 1163.6,
+        "n_full": 4,
+        "n_partial": 2,
+        "n_none": 4,
+        "final_freshness_err": 0.0,
+        "max_freshness_err": 1e-05,
+        "final_structure_err": 0.0,
+        "max_structure_err": 0.0,
+        "final_n_groups": 56,
+        "final_n_edges": 327,
+        "graph_timings_s": {
+          "build_full_s": 0.0105,
+          "observe_s": 0.0002,
+          "merge_s": 0.0
+        }
+      }
+    }
+  ],
+  "wall_time_s": 223.3
+}

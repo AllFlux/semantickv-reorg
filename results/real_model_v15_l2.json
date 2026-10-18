@@ -1,0 +1,252 @@
+{
+  "config": {
+    "model": "/tmp/hf_models/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "hf_endpoint": "",
+    "dtype": "float32",
+    "device": "cpu",
+    "ctx": 2048,
+    "paragraphs": 8,
+    "repeats": 6,
+    "target_layer": 12,
+    "group_layer": "final",
+    "smooth_window": 8,
+    "reps_per_group": 4,
+    "strategy": "v15",
+    "compress_mode": "topk",
+    "topk_per_group": 4,
+    "sink_tokens": 4,
+    "window_tokens": 64,
+    "compress_layers": "0.25-0.75",
+    "metric": "l2",
+    "kmean_renorm": "member",
+    "group_score_prior": "logcount",
+    "k": 16,
+    "k_grid": "8",
+    "tau_grid": "0.97",
+    "top_p": 10,
+    "needle": "请注意，一个重要事实：小王最喜欢的数字是 42。",
+    "needle_positions": "0.15,0.5,0.85",
+    "question": "小王最喜欢的数字是多少？请只回答数字：",
+    "max_new_tokens": 8,
+    "out": "results/real_model_v15_l2.json",
+    "skip_needle": false,
+    "baseline_only": false
+  },
+  "stages": {
+    "gsc_scan": {
+      "k_grid": [
+        8
+      ],
+      "tau_grid": [
+        0.97
+      ],
+      "rows": [
+        {
+          "k": 8,
+          "tau": 0.97,
+          "n_groups": 16,
+          "ari_topic": 0.1271,
+          "ari_occurrence": 0.0609,
+          "fragmentation": 0.0,
+          "intra_sim": 161.6117
+        }
+      ]
+    },
+    "fidelity": {
+      "target_layer": 12,
+      "n_tokens": 2048,
+      "v0_reorder_invariance": {
+        "mean": 0.9999999999999551,
+        "p05": 0.9999999999999329,
+        "min": 0.9999999999998643,
+        "std": 1.2322258471879455e-14
+      },
+      "kv_bytes_original_per_layer": 2097152,
+      "sweep": [
+        {
+          "k": 8,
+          "tau": 0.97,
+          "n_groups": 16,
+          "compression_ratio": 128.0,
+          "v1_group_mean": {
+            "mean": 0.5120235724829124,
+            "p05": 0.2674410797334212,
+            "min": -0.31205856505364826,
+            "std": 0.1298813837744849
+          },
+          "v2_relation_masked": {
+            "mean": 0.512370497631738,
+            "p05": 0.26210798352300124,
+            "min": -0.317296398024964,
+            "std": 0.12869311952683754
+          },
+          "v3_reps": {
+            "mean": 0.39395416677318584,
+            "p05": 0.18011130784478757,
+            "min": -0.15906854070232107,
+            "std": 0.1392663380458168
+          },
+          "v3_slots": 64,
+          "v3_compression": 32.0,
+          "v15": {
+            "flat_mean_sink": {
+              "mean": 0.37111729866570353,
+              "p05": 0.1282077105387719,
+              "min": -0.0717519012371808,
+              "std": 0.16792356269650444
+            },
+            "flat_mean_sink_causal": {
+              "mean": -0.05255425139147765,
+              "p05": -0.30549913152322766,
+              "min": -0.4067138647135783,
+              "std": 0.23675269202983665
+            },
+            "weighted_sink": {
+              "mean": 0.4290558564524909,
+              "p05": 0.20434300512619863,
+              "min": -0.12392818369518646,
+              "std": 0.15681432302003662
+            },
+            "topk_sink": {
+              "mean": 0.3690682747490293,
+              "p05": -0.04016361543670743,
+              "min": -0.19418569590208803,
+              "std": 0.26641641382386566
+            },
+            "n_priv": 68,
+            "topk_slots": 132,
+            "flat_sink_compression": 24.4,
+            "topk_compression": 15.5
+          }
+        }
+      ]
+    },
+    "needle": [
+      {
+        "position_frac": 0.15,
+        "needle_token_pos": 307,
+        "original_answer": "42。",
+        "original_hit": true,
+        "strategy": {
+          "mode": "topk",
+          "metric": "l2",
+          "compress_layers": "0.25-0.75",
+          "n_compressed_layers": 12,
+          "sink_tokens": 4,
+          "window_tokens": 64,
+          "topk_per_group": 4
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.6604793560110559,
+            "p05": 0.41892390285058606,
+            "min": 0.17504958543209298,
+            "std": 0.14316378282444045
+          },
+          "logits_argmax_agreement": 0.22
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 27.1,
+          "slots_per_compressed_layer": 132,
+          "n_compressed_layers": 12,
+          "saving_pct": 46.8
+        },
+        "compressed_answer": "10000000",
+        "compressed_hit": false,
+        "n_groups": 16,
+        "kv_compression": 129.6,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        }
+      },
+      {
+        "position_frac": 0.5,
+        "needle_token_pos": 1024,
+        "original_answer": "1.414213",
+        "original_hit": false,
+        "strategy": {
+          "mode": "topk",
+          "metric": "l2",
+          "compress_layers": "0.25-0.75",
+          "n_compressed_layers": 12,
+          "sink_tokens": 4,
+          "window_tokens": 64,
+          "topk_per_group": 4
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.6460041106541297,
+            "p05": 0.37425578896832223,
+            "min": 0.026450279041661,
+            "std": 0.1552358267600153
+          },
+          "logits_argmax_agreement": 0.1968
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 27.1,
+          "slots_per_compressed_layer": 136,
+          "n_compressed_layers": 12,
+          "saving_pct": 46.7
+        },
+        "compressed_answer": "2.301.1",
+        "compressed_hit": false,
+        "n_groups": 17,
+        "kv_compression": 121.9,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        }
+      },
+      {
+        "position_frac": 0.85,
+        "needle_token_pos": 1740,
+        "original_answer": "42。计算机具有指数级加速",
+        "original_hit": true,
+        "strategy": {
+          "mode": "topk",
+          "metric": "l2",
+          "compress_layers": "0.25-0.75",
+          "n_compressed_layers": 12,
+          "sink_tokens": 4,
+          "window_tokens": 64,
+          "topk_per_group": 4
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.6653984383690568,
+            "p05": 0.4114528455330159,
+            "min": 0.05114759743784645,
+            "std": 0.14267003026378658
+          },
+          "logits_argmax_agreement": 0.2036
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 27.1,
+          "slots_per_compressed_layer": 136,
+          "n_compressed_layers": 12,
+          "saving_pct": 46.7
+        },
+        "compressed_answer": "10000000",
+        "compressed_hit": false,
+        "n_groups": 17,
+        "kv_compression": 121.9,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        }
+      }
+    ]
+  },
+  "model": {
+    "path": "/tmp/hf_models/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "params_m": 494.0,
+    "n_layers": 24,
+    "hidden": 896
+  },
+  "prefill_peak_rss_mb": 4137.2,
+  "wall_time_s": 125.9
+}
