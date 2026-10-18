@@ -447,6 +447,17 @@ def count_topk_slots(labels: np.ndarray, G: int, K: int) -> int:
     return int(sum(min(K, int((labels == g).sum())) for g in range(G)))
 
 
+def safe_softmax(scores: torch.Tensor) -> torch.Tensor:
+    """行全 -inf 时返回全 0（而非 NaN）的 softmax——分段注意力中
+    「该段对当前 query 全部被因果/块对角掩码」是正常情形（如早期 query
+    看不到局部窗段），须产出零权重而非 NaN。"""
+    row_max = scores.max(dim=-1, keepdim=True).values
+    bad = torch.isinf(row_max)
+    z = torch.exp(scores - row_max.clamp(min=-1e30))
+    denom = z.sum(dim=-1, keepdim=True).clamp(min=1e-30)
+    return (z / denom).masked_fill(bad, 0.0)
+
+
 class CompressedAttentionPatcher:
     """慢速验证器的压缩推理路径（对应有卡环境 Triton Kernel 的 PyTorch 版）。
 
@@ -471,12 +482,15 @@ class CompressedAttentionPatcher:
                  sink_tokens: int = 0, window_tokens: int = 0,
                  compress_layers: Optional[List[int]] = None,
                  kmean_renorm: str = "member",
-                 group_score_prior: str = "logcount"):
-        assert mode in ("flat_mean", "weighted", "topk")
+                 group_score_prior: str = "logcount",
+                 mid_scope: str = "blockdiag"):
+        assert mode in ("flat_mean", "weighted", "topk", "hybrid")
         assert kmean_renorm in ("none", "member")
         assert group_score_prior in ("none", "logcount")
+        assert mid_scope in ("blockdiag", "global")
         self.model = model
         self.mode = mode
+        self.mid_scope = mid_scope                 # hybrid：中段 query 视野
         self.topk_per_group = max(1, int(topk_per_group))
         self.sink_tokens = int(sink_tokens)
         self.window_tokens = int(window_tokens)
@@ -508,14 +522,95 @@ class CompressedAttentionPatcher:
         # 槽位规模（群内 token 数；特权独占槽为 1）→ log 先验
         self.slot_counts = np.bincount(lab, minlength=self.G).astype(np.float32)
         self.slot_logcount = np.log(np.maximum(self.slot_counts, 1.0)).astype(np.float32)
+        # hybrid 分段边界（DS-20261018-006）：[0, n_sink) sink 段；
+        # [N-n_window, N) 局部窗段；其余为中段。特权群在 labels 尾部（位置序）。
+        self.n_tokens = int(n_tokens)
+        self.n_sink = min(self.sink_tokens, n_tokens)
+        self.n_window = min(self.window_tokens, n_tokens)
+        if self.mode == "hybrid":
+            assert self.n_sink >= 1, "hybrid 模式要求 sink_tokens >= 1（数值稳定：保证任意 query 至少可见 sink 槽 0）"
+        self.G_base = self.G - self.n_priv    # 语义（中段）群数
 
     def kv_slots(self) -> int:
         """每压缩层的冻结 KV 槽位数。"""
         if self.labels is None:
             return 0
-        if self.mode == "topk":
+        if self.mode in ("topk", "hybrid"):
             return count_topk_slots(self.labels, self.G, self.topk_per_group)
         return self.G
+
+    def mid_slots(self) -> int:
+        """hybrid：中段（非特权群）保留的槽位数。"""
+        if self.labels is None or self.mode != "hybrid":
+            return 0
+        return int(sum(min(self.topk_per_group, int((self.labels == g).sum()))
+                       for g in range(self.G_base)))
+
+    def _hybrid_attention(self, layer_idx: int, q: torch.Tensor, k: torch.Tensor,
+                          v: torch.Tensor, idx_sel: torch.Tensor,
+                          grp_sel: torch.Tensor, n_rep: int,
+                          scaling: float) -> torch.Tensor:
+        """E1.5 混合保护分段注意力（DS-20261018-006 规格）。
+
+        三段独立计算、logsumexp 数值稳定合并（数学上等价于三段拼接的
+        联合 softmax，但显式分段可控且避免大 Mask 拼接）：
+          sink 段  —— 前 n_sink 个 token 的真实 KV；
+          local 段 —— 最近 n_window 个 token 的真实 KV；
+          mid   段 —— 各语义群 top-K 代表（块对角 Mask：中段 query 只见
+                      本群代表，特权 query（sink/窗，即读出位）豁免、
+                      可见全部中段代表——保证 needle 可达）。
+        decode 不走本函数（新 token 不属于任何群，走联合 softmax）。
+        返回 o: (B,Hq,N,hd)。
+        """
+        B, Hq, N, hd = q.shape
+        Hkv = k.shape[1]
+        device = q.device
+        lab_t = torch.as_tensor(self.labels, device=device)
+        is_priv_q = lab_t >= self.G_base                       # (N,)
+        qpos = torch.arange(N, device=device)
+        out = torch.empty_like(q)
+        for h in range(Hkv):
+            sp = idx_sel[0, h]                                 # (S,) 槽位真实位置
+            sg = grp_sel[0, h]                                 # (S,) 槽位群 id
+            qs = q[0, h * n_rep:(h + 1) * n_rep]               # (n_rep,N,hd)
+            kh, vh = k[0, h], v[0, h]                          # (N,hd)
+            sink_m = sp < self.n_sink
+            win_m = sp >= (N - self.n_window)
+            mid_m = ~(sink_m | win_m)
+            seg_o, seg_lse = [], []
+            for m in (sink_m, win_m, mid_m):
+                if not bool(m.any()):
+                    seg_o.append(None)
+                    seg_lse.append(None)
+                    continue
+                idxs = sp[m]                                   # (s,)
+                ks = kh.index_select(0, idxs).unsqueeze(0)     # (1,s,hd)
+                vs_ = vh.index_select(0, idxs).unsqueeze(0)    # (1,s,hd)
+                sc = torch.matmul(qs.unsqueeze(0),
+                                  ks.transpose(-1, -2)) * scaling   # (1,n_rep,N,s)
+                causal = idxs[None, None, :] > qpos[None, :, None]
+                sc = sc.masked_fill(causal, float("-inf"))
+                if m is mid_m and self.mid_scope == "blockdiag":
+                    # 块对角：中段 query 只见本群代表；特权 query 豁免
+                    sg_m = sg[m]
+                    bd = (lab_t[None, :, None] != sg_m[None, None, :]) \
+                        & (~is_priv_q)[None, :, None]
+                    sc = sc.masked_fill(bd.unsqueeze(0), float("-inf"))
+                seg_o.append(torch.matmul(safe_softmax(sc), vs_).squeeze(0))
+                seg_lse.append(torch.logsumexp(sc, dim=-1))         # (1,n_rep,N)
+            lse_stack = torch.stack([
+                (x if x is not None
+                 else torch.full_like(seg_lse[0], float("-inf")))
+                for x in seg_lse], dim=0)
+            m_tot = torch.logsumexp(lse_stack, dim=0)               # (1,n_rep,N)
+            o_h = torch.zeros_like(qs)
+            for o_seg, l in zip(seg_o, seg_lse):
+                if o_seg is None:
+                    continue
+                w = torch.exp(l - m_tot).unsqueeze(-1)              # (1,n_rep,N,1)
+                o_h = o_h + w * o_seg
+            out[0, h * n_rep:(h + 1) * n_rep] = o_h
+        return out
 
     def _make_forward(self, layer_idx: int, attn):
         import transformers.models.qwen2.modeling_qwen2 as mq
@@ -538,23 +633,38 @@ class CompressedAttentionPatcher:
             N = q.shape[-2]
             causal_mask = None
             if N > 1:      # prefill：构造压缩 KV 集
-                if patcher.mode == "topk":
+                if patcher.mode in ("topk", "hybrid"):
                     imp = attention_importance(q, k, attn.scaling, n_rep)  # (B,Hkv,N)
                     B, Hkv, _, hd = k.shape
-                    sel_list = []
+                    sel_list, grp_list = [], []
                     for h in range(Hkv):
-                        _, tsel = select_topk_per_group(
+                        sg, st = select_topk_per_group(
                             imp[0, h].detach().cpu().numpy(), patcher.labels,
                             patcher.G, patcher.topk_per_group)
-                        sel_list.append(torch.as_tensor(tsel, device=k.device))
+                        grp_list.append(torch.as_tensor(sg, device=k.device))
+                        sel_list.append(torch.as_tensor(st, device=k.device))
                     idx_sel = torch.stack(sel_list, dim=0).unsqueeze(0)     # (B,Hkv,S)
+                    grp_sel = torch.stack(grp_list, dim=0).unsqueeze(0)     # (B,Hkv,S)
+                    patcher.slot_pos[layer_idx] = idx_sel
+                    if patcher.mode == "hybrid":
+                        # E1.5 分段注意力（sink/local/mid 独立计算 + logsumexp 合并）
+                        o = patcher._hybrid_attention(
+                            layer_idx, q, k, v, idx_sel, grp_sel, n_rep, attn.scaling)
+                        km = torch.gather(k, 2, idx_sel.unsqueeze(-1).expand(-1, -1, -1, hd))
+                        vm = torch.gather(v, 2, idx_sel.unsqueeze(-1).expand(-1, -1, -1, hd))
+                        patcher.kmean[layer_idx] = km   # decode 用（联合 softmax，新 token 不属任何群）
+                        patcher.vmean[layer_idx] = vm
+                        patcher.buf_k[layer_idx] = k[:, :, :0]
+                        patcher.buf_v[layer_idx] = v[:, :, :0]
+                        o = o.transpose(1, 2).reshape(*input_shape, -1).contiguous()
+                        o = attn.o_proj(o)
+                        return o, None
                     km = torch.gather(k, 2, idx_sel.unsqueeze(-1).expand(-1, -1, -1, hd))
                     vm = torch.gather(v, 2, idx_sel.unsqueeze(-1).expand(-1, -1, -1, hd))
                     # prefill 因果掩码：query i 只能访问槽位真实位置 ≤ i 的 token
                     spos = idx_sel.repeat_interleave(n_rep, dim=1)[0]      # (Hq,S)
                     qpos = torch.arange(N, device=q.device)
                     causal_mask = spos[None, :, None, :] > qpos[None, None, :, None]
-                    patcher.slot_pos[layer_idx] = idx_sel
                 elif patcher.mode == "weighted":
                     imp = attention_importance(q, k, attn.scaling, n_rep)  # (B,Hkv,N)
                     G = patcher.G
@@ -585,7 +695,7 @@ class CompressedAttentionPatcher:
             scores = torch.matmul(q, km.transpose(-1, -2)) * attn.scaling
             if causal_mask is not None:
                 scores = scores.masked_fill(causal_mask, float("-inf"))
-            if patcher.group_score_prior == "logcount" and patcher.mode != "topk":
+            if patcher.group_score_prior == "logcount" and patcher.mode not in ("topk", "hybrid"):
                 # 群规模先验：群均值槽加 log(m)，使其概率 ≈ 成员概率之和
                 # （v0.2.0 实测：无此修正时 15 槽 softmax 温度剧变，群均值槽
                 #  质量被精确槽系统性挤占，flat+sink cos 仅 0.26；修正后 0.47）
@@ -689,7 +799,7 @@ def main() -> int:
                          "v15 = DeepSeek 保护性策略（topk+centered+中层压缩+sink/window 保护）。"
                          "下方各分项参数显式传入时优先于策略默认值")
     ap.add_argument("--compress-mode", default=None,
-                    choices=["flat_mean", "weighted", "topk"],
+                    choices=["flat_mean", "weighted", "topk", "hybrid"],
                     help="V1.5 压缩模式：flat_mean（v0.1.x 群均值）| weighted（注意力入度 "
                          "加权群均值）| topk（每群保留入度 top-K 真实 KV）")
     ap.add_argument("--topk-per-group", type=int, default=None,
@@ -698,6 +808,10 @@ def main() -> int:
                     help="Attention Sink 保护：前 N 个 token 独占槽位不压缩（DeepSeek 建议 4）")
     ap.add_argument("--window-tokens", type=int, default=None,
                     help="近期局部窗口保护：后 N 个 token 独占槽位不压缩（DeepSeek 建议 64）")
+    ap.add_argument("--mid-scope", default="blockdiag", choices=["blockdiag", "global"],
+                    help="hybrid 模式中段 query 视野（DS-20261018-006）："
+                         "blockdiag=中段 query 只见本群代表（特权/读出位豁免）；"
+                         "global=所有 query 见全部中段代表（即 topk 语义，消融对照）")
     ap.add_argument("--compress-layers", default=None,
                     help="层级选择性压缩：'all' | '6-10'（1-indexed 含端点）| "
                          "'0.25-0.75'（层数比例，DeepSeek 建议只压中层）")
@@ -1063,11 +1177,13 @@ def main() -> int:
             attn_mask = torch.ones_like(ids_n)
             if torch.cuda.is_available():
                 torch.cuda.reset_peak_memory_stats()
+            t_gen_o0 = time.time()
             with torch.no_grad():
                 out_o = model.generate(ids_n, attention_mask=attn_mask,
                                        max_new_tokens=args.max_new_tokens,
                                        do_sample=False, use_cache=True,
                                        pad_token_id=tok.eos_token_id or tok.pad_token_id)
+            t_gen_orig_s = time.time() - t_gen_o0
             if torch.cuda.is_available():
                 row["orig_cuda_peak_allocated_mb"] = round(
                     torch.cuda.max_memory_allocated() / 1e6, 1)
@@ -1085,8 +1201,10 @@ def main() -> int:
             # 4b-0. 标准 prefill 拿分组（度量/平滑与主扫描一致）
             icept2 = PrefillInterceptor(model, args.target_layer)
             icept2.install()
+            t_pre_o0 = time.time()
             icept2.run_prefill(ids_n,
                                need_hidden_states=(args.group_layer != "final"))
+            t_pre_orig_s = time.time() - t_pre_o0
             Hn = smooth_hidden(metric_transform(
                 hidden_from_capture(icept2.cap, args.group_layer), args.metric),
                 args.smooth_window, renormalize=(args.metric != "l2"))
@@ -1101,7 +1219,7 @@ def main() -> int:
                 "compress_layers": args.compress_layers,
                 "n_compressed_layers": len(compress_layers),
                 "sink_tokens": args.sink_tokens, "window_tokens": args.window_tokens,
-                "topk_per_group": args.topk_per_group,
+                "topk_per_group": args.topk_per_group, "mid_scope": args.mid_scope,
             }
 
             # 4b-1. 全模型压缩 prefill 的端到端保真度（残差流主导最终隐状态，
@@ -1114,14 +1232,16 @@ def main() -> int:
                 model, mode=args.compress_mode, topk_per_group=args.topk_per_group,
                 sink_tokens=args.sink_tokens, window_tokens=args.window_tokens,
                 compress_layers=compress_layers, kmean_renorm=args.kmean_renorm,
-                group_score_prior=args.group_score_prior)
+                group_score_prior=args.group_score_prior, mid_scope=args.mid_scope)
             patcher.set_groups(gan.labels[:Nn], Nn)
             patcher.install()
             try:
                 if torch.cuda.is_available():
                     torch.cuda.reset_peak_memory_stats()
+                t_pre_c0 = time.time()
                 with torch.no_grad():
                     out_c_pre = model(ids_n, attention_mask=attn_mask, use_cache=False)
+                t_pre_compress_s = time.time() - t_pre_c0
             finally:
                 patcher.uninstall()
                 h_norm.remove()
@@ -1164,15 +1284,17 @@ def main() -> int:
                 model, mode=args.compress_mode, topk_per_group=args.topk_per_group,
                 sink_tokens=args.sink_tokens, window_tokens=args.window_tokens,
                 compress_layers=compress_layers, kmean_renorm=args.kmean_renorm,
-                group_score_prior=args.group_score_prior)
+                group_score_prior=args.group_score_prior, mid_scope=args.mid_scope)
             patcher2.set_groups(gan.labels[:Nn], Nn)
             patcher2.install()
             try:
+                t_gen_c0 = time.time()
                 with torch.no_grad():
                     out_c = model.generate(ids_n, attention_mask=attn_mask,
                                            max_new_tokens=args.max_new_tokens,
                                            do_sample=False, use_cache=True,
                                            pad_token_id=tok.eos_token_id or tok.pad_token_id)
+                t_gen_compress_s = time.time() - t_gen_c0
             finally:
                 patcher2.uninstall()
             ans_c = tok.decode(out_c[0][Nn:], skip_special_tokens=True)
@@ -1181,11 +1303,59 @@ def main() -> int:
             row["n_groups"] = int(gan.n_groups)
             row["kv_compression"] = round(Nn / max(gan.n_groups, 1), 1)
             row["config"] = {"k": needle_cfg["k"], "tau": needle_cfg["tau"]}
+
+            # ---- E1.5 记录（DS-20261018-006）：延迟 / 显存 / 中段留存率 ----
+            import resource
+            lat = {
+                "original_prefill_s": round(t_pre_orig_s, 2),
+                "compressed_prefill_s": round(t_pre_compress_s, 2),
+                "original_generate_s": round(t_gen_orig_s, 2),
+                "compressed_generate_s": round(t_gen_compress_s, 2),
+                "decode_per_token_ms_original": round(
+                    1000 * (t_gen_orig_s - t_pre_orig_s) / max(args.max_new_tokens, 1), 1),
+                "decode_per_token_ms_compressed": round(
+                    1000 * (t_gen_compress_s - t_pre_compress_s) / max(args.max_new_tokens, 1), 1),
+                "note": "decode_per_token ≈ (generate 总时长 − 独立 prefill 时长) / max_new_tokens；"
+                        "CPU 上的近似估计（generate 含采样与逐 token 循环开销）",
+            }
+            lat["slowdown_pct"] = round(
+                100 * (lat["decode_per_token_ms_compressed"]
+                       / max(lat["decode_per_token_ms_original"], 1e-9) - 1), 1)
+            row["latency"] = lat
+            if torch.cuda.is_available():
+                row["peak_memory_mb"] = round(
+                    torch.cuda.max_memory_allocated() / 1e6, 1)
+            else:
+                row["peak_memory_mb"] = round(
+                    resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)
+                row["peak_memory_note"] = "CPU 进程峰值 RSS（单调累计，非本次增量）"
+            if args.compress_mode == "hybrid":
+                n_mid_tokens = max(Nn - patcher2.n_priv, 1)
+                row["hybrid"] = {
+                    "mid_scope": args.mid_scope,
+                    "mid_slots": patcher2.mid_slots(),
+                    "mid_kv_retention_ratio": round(patcher2.mid_slots() / n_mid_tokens, 4),
+                    "sink_tokens": patcher2.n_sink,
+                    "window_tokens": patcher2.n_window,
+                }
             print(f"  原始: {row['original_answer']!r} (hit={row['original_hit']}) | "
                   f"压缩({args.compress_mode},G={gan.n_groups}): "
-                  f"{row['compressed_answer']!r} (hit={row['compressed_hit']})", flush=True)
+                  f"{row['compressed_answer']!r} (hit={row['compressed_hit']}) | "
+                  f"decode/token 压缩 {lat['decode_per_token_ms_compressed']}ms vs 原始 "
+                  f"{lat['decode_per_token_ms_original']}ms ({lat['slowdown_pct']:+}%)",
+                  flush=True)
             needle_results.append(row)
     report["stages"]["needle"] = needle_results
+
+    # 无压缩基线参考（DS-20261018-006：转 7B 前必查 0.5B 原生检索能力）
+    if needle_results:
+        hits = [r["original_hit"] for r in needle_results]
+        report["baseline_reference"] = {
+            "description": "0.5B 无压缩基线 needle 命中（原始模型的检索能力上限参考；"
+                           "H-DS7 证伪线仲裁依据：argmax<45% 且本命中率<70% → 模型容量瓶颈）",
+            "original_needle_hits": hits,
+            "original_hit_rate": round(sum(hits) / len(hits), 4),
+        }
 
     report["prefill_peak_rss_mb"] = round(prefill_peak, 1)
     report["wall_time_s"] = round(time.time() - t_start, 1)
