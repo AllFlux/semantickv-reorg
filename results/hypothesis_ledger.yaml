@@ -6,15 +6,15 @@
 #   - refuted 且 ds_admitted_refutation=false → 列为「待 DS 承认」开放项（DS-D4 WARN）
 #   - DS 在后续评审显式承认被数据推翻的假设后，将 ds_admitted_refutation 置 true
 #
-# 当前状态（2026-10-18 R3）：H-DS1/H-DS2/H-DS3 已被真实数据推翻，且 DS 已于
-# DS-20261018-004 显式承认（ds_admitted_refutation=true），开放项清零。见 discipline_ledger.yaml R3 GREEN。
+# 当前状态（2026-10-18 R4）：H-DS1/H-DS2/H-DS3 已被真实数据推翻且 DS 已显式承认
+# （DS-20261018-004），开放项清零。H-DS7（E1.5 混合保护）为 DS-20261018-005 新增 pending。
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
-  total: 6
+  total: 7
   confirmed: 2
   refuted: 3
-  pending: 1
+  pending: 2
   open_items_for_ds: []   # refuted 且 ds_admitted_refutation=false —— R3 起已全部显式承认
 
 hypotheses:
@@ -77,3 +77,13 @@ hypotheses:
     evidence_file: "results/discipline_ledger.yaml"
     ds_admitted_refutation: false
     fate_note: "已落地 DISCIPLINE.md + check_discipline.py + discipline_ledger.yaml（R1 GREEN）。"
+
+  - id: H-DS7
+    source_review: DS-20261018-005
+    statement: "E1.5 混合保护（Sink 4 + 滑窗 128 全量保留 + 中段 K=4），且 Sink 与压缩中段做独立注意力隔离，argmax 可突破 50%"
+    falsifiable_criterion: "Qwen2.5-0.5B/2048 下 E1.5 混合保护策略 argmax 一致率 ≥ 50%；证伪线 < 45%（若 <45% 判定 0.5B 鲁棒性瓶颈，转 Kaggle 7B 复核）"
+    data_source: "results/real_model_v15_hybrid_protection.json"
+    status: pending
+    evidence_file: ""
+    ds_admitted_refutation: false
+    fate_note: "DS 架构指令：Sink 的 Key 范数极大，与 Top-K 中段拼接时须独立 Attention Mask 隔离（分段计算最后求和），否则 Sink 吸干 Query 注意力、中段 token 无法被检索。待 E1.5 实验验证。"

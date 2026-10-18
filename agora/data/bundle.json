@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-18T09:35:43.309448+00:00",
+  "generated_at": "2026-10-18T10:39:29.880553+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
       "meta": {
         "protocol": "DISCIPLINE.md §六",
         "rounds": [],
-        "last_round": "R3",
-        "last_run": "2026-10-18T16:29:09"
+        "last_round": "R4",
+        "last_run": "2026-10-18T18:39:23"
       }
     },
     "rounds": [
@@ -171,11 +171,73 @@
           "fail": 0,
           "verdict": "GREEN"
         }
+      },
+      {
+        "round": "R4",
+        "timestamp": "2026-10-18T18:39:23",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 7 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "14 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "4 份报告三段式齐全"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "7 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 10,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
       }
     ],
     "last_round": {
-      "round": "R3",
-      "timestamp": "2026-10-18T16:29:09",
+      "round": "R4",
+      "timestamp": "2026-10-18T18:39:23",
       "checks": [
         {
           "check": "D1 契约优先",
@@ -225,7 +287,7 @@
         {
           "check": "DS-D5 假设台账状态",
           "status": "PASS",
-          "detail": "6 条假设状态合法"
+          "detail": "7 条假设状态合法"
         }
       ],
       "summary": {
@@ -240,10 +302,10 @@
   "hypotheses": {
     "meta": {
       "protocol": "DISCIPLINE.md §DeepSeek 对等纪律",
-      "total": 6,
+      "total": 7,
       "confirmed": 2,
       "refuted": 3,
-      "pending": 1,
+      "pending": 2,
       "open_items_for_ds": []
     },
     "items": [
@@ -312,6 +374,17 @@
         "evidence_file": "results/discipline_ledger.yaml",
         "ds_admitted_refutation": false,
         "fate_note": "已落地 DISCIPLINE.md + check_discipline.py + discipline_ledger.yaml（R1 GREEN）。"
+      },
+      {
+        "id": "H-DS7",
+        "source_review": "DS-20261018-005",
+        "statement": "E1.5 混合保护（Sink 4 + 滑窗 128 全量保留 + 中段 K=4），且 Sink 与压缩中段做独立注意力隔离，argmax 可突破 50%",
+        "falsifiable_criterion": "Qwen2.5-0.5B/2048 下 E1.5 混合保护策略 argmax 一致率 ≥ 50%；证伪线 < 45%（若 <45% 判定 0.5B 鲁棒性瓶颈，转 Kaggle 7B 复核）",
+        "data_source": "results/real_model_v15_hybrid_protection.json",
+        "status": "pending",
+        "evidence_file": "",
+        "ds_admitted_refutation": false,
+        "fate_note": "DS 架构指令：Sink 的 Key 范数极大，与 Top-K 中段拼接时须独立 Attention Mask 隔离（分段计算最后求和），否则 Sink 吸干 Query 注意力、中段 token 无法被检索。待 E1.5 实验验证。"
       }
     ]
   },
@@ -474,6 +547,31 @@
         ]
       },
       "body": "# 理论背景（Why）\n\n完全接受。WorkBuddy 反向生成对等纪律 + 用真实数据强制认错，做得极漂亮，这正是「数据是唯一裁判」的科学闭环。不美化、不嘴硬，结论必须对齐数据。\n\n三条预判为何会错：\n- **H-DS1 & H-DS2 错在低估了 LLM 各向异性的破坏力**：我原以为中心化（Centering）+ Top-K 能瞬间拉平误差，但 K=8 仍丢失了太多长尾 Token 的精确位置信息。0.765 的 cos 与 42.6% 的 argmax 在工程上已是巨大的正向前进（相对 V0 的 0.42 / 2.32% 是数量级跃升），但 80% 的预测违背了信息论的物理极限——高度压缩必然伴随表征锐度的折损。\n- **H-DS3 错在「局部最优」导致的视野盲区**：基于缺失行列的矩阵就轻率定下 Pareto 点，是典型的数据分析失误。0.9 的 EMA 收敛快，在 3 轮陈旧限制下能更快逼近真值，这纠正了我的盲目直觉。\n\n# 具体步骤（What）\n\n- **关闭开放项**：在 `hypothesis_ledger.yaml` 中将 H-DS1、H-DS2、H-DS3 标记为 `refuted`，并把 `ds_admitted_refutation` 置 `true`，附上上述数据证据（本评审即承认动作）。\n- **采纳 Pareto 更新**：将调度器默认的 EMA 系数修正为 **α=0.9**（K=3/α=0.9 为真正 Pareto 点）。\n- **下一步指令（针对 42.6% 的 argmax）**：既然 Top-K=8 已接近单一策略的上限，**请立即放弃继续加大 K 的路径**——这是算力浪费。下个实验（E1.5）转为测试「Attention Sink + 最近滑动窗口 + Top-K 混合压缩」：仅保护前 4 个 Token 与最近的 128 个 Token（全量保留），中段用 K=4 代表，看 argmax 能否突破 50%。\n\n# 验收标准（How）\n\n- 本评审已满足 DS-D4 闭环要求：H-DS1/H-DS2/H-DS3 全部显式承认被数据推翻，台账开放项清零。\n- 后续 E1.5 混合保护实验的可证伪目标：在 Qwen2.5-0.5B 下，加入 Sink(4)+局部窗口(128) 保护、中段 K=4 代表时，**argmax 一致率突破 50%**。\n- 证伪线：若该策略下 argmax 仍 `< 45%`，说明 0.5B 模型本身鲁棒性已达瓶颈，必须直接上 Kaggle 7B 复核。\n- 数据存证预期落点：`results/real_model_v15_hybrid_protection.json`。\n\n**正式声明**：我，DeepSeek，在此确认全盘接受 DS-D1 至 DS-D5 纪律。对 H-DS1、H-DS2、H-DS3 的证伪结果无异议，完全认错。今后所有评审均按 `ds_review_template.md` 落盘，不逃避归因，与 WorkBuddy 共勉。"
+    },
+    {
+      "file": "20261018_005_review.md",
+      "meta": {
+        "review_id": "DS-20261018-005",
+        "source_url": "https://chat.deepseek.com/share/dz2czud9e6a04q5j8v",
+        "date": "2026-10-18",
+        "reviewer": "DeepSeek",
+        "focus": "DS 上下文注入器规格 + E1.5 混合保护架构指令（Sink 独立隔离）",
+        "disciplines_proposed": [],
+        "sources": [],
+        "hypotheses": [
+          {
+            "id": "H-DS7",
+            "statement": "E1.5 混合保护（Sink 4 + 滑窗 128 全量保留 + 中段 K=4），且 Sink 与压缩中段做独立注意力隔离，argmax 可突破 50%",
+            "falsifiable_criterion": "Qwen2.5-0.5B/2048 下 E1.5 混合保护策略 argmax 一致率 ≥ 50%；证伪线 < 45%（若 <45% 判定 0.5B 鲁棒性瓶颈，转 Kaggle 7B 复核）",
+            "data_source": "results/real_model_v15_hybrid_protection.json",
+            "status": "pending",
+            "evidence_file": "",
+            "ds_admitted_refutation": false,
+            "fate_note": "DS 于 DS-20261018-005 提出架构指令：局部窗口 128 在 0.5B/2048 占全量 KV 约 6%，安全；关键在 Sink 处理——前 4 token 的 Key 范数极大，若与 Top-K 中段拼接时无独立 Attention Mask 隔离，Sink 会吸干所有 Query 注意力，须『分段计算，最后求和』。"
+          }
+        ]
+      },
+      "body": "# 理论背景（Why）\n\n上下文注入器：DeepSeek 无浏览器，无法渲染 HTML。看板若输出整页 HTML 或大段 JSON，解析效率极低。因此注入包必须是**高度浓缩的纯 Markdown 摘要**：纪律状态 / 活跃假设 / 最新实验核心指标 / 可按需拉取的 Raw 链接 / 待 DS 决策的问题。这使 DS 每次接手能立刻定位核心矛盾，并实现精准的按需深度审计。\n\nE1.5 架构指令：针对 topk K=8 的 42.6% argmax 基线，继续加大 K 是算力浪费。混合保护只全量保留前 4（Sink）与最近 128（滑窗），中段用 K=4 代表。**关键风险在 Sink**：Sink 的 Key 范数极大，若中段群的 Top-K 与 Sink 拼接时没有独立 Attention Mask 隔离，Sink 会吸干所有 Query 的注意力，导致中段保留 token 无法被精确检索。\n\n# 具体步骤（What）\n\n- **看板升级（DS 上下文注入器）**：在 `index.standalone.html` 页面顶部加显眼模块「📦 给 DeepSeek 的上下文注入包」，内含 textarea + 一键复制按钮；内容由 JS 动态生成纯 Markdown（非 HTML），结构为：# 项目状态同步 → 📊 当前看板状态（纪律/活跃假设/最新实验/核心指标）→ 📁 原始数据 Raw 链接（真实 raw.githubusercontent.com 基址）→ 🚨 需要 DS 决策的问题。\n- **Raw 基址落地**：`agora/config.json` 的 `raw_base` 置为 `https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/`，注入器与「复制 Raw 链接」产出的即为 DS 可直接拉取的真实链接。\n- **E1.5 预研指令（转 WorkBuddy）**：在 `CompressedAttentionPatcher` 中对 Sink + 局部窗口 + 压缩中段实行「分段计算，最后求和」，确保中段保留的 4 个 Token 仍可被 Query 精确检索。\n\n# 验收标准（How）\n\n- 注入器验收：用户点击「一键复制」后得到一段极简 Markdown（无 CSS/网页冗余），含纪律状态、pending 假设数、最新实验指标、≥4 个真实可拉取的 Raw 链接、待决问题清单；DS 按此文本可无歧义接手。\n- E1.5 可证伪目标：Qwen2.5-0.5B 下 Sink(4)+滑窗(128)+中段 K=4 时 **argmax 一致率 ≥ 50%**（H-DS7）；证伪线 < 45% → 判定 0.5B 瓶颈，直接上 Kaggle 7B。\n- 数据存证预期落点：`results/real_model_v15_hybrid_protection.json`。"
     }
   ],
   "open_items": []

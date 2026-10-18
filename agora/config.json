@@ -1,16 +1,28 @@
 {
   "site_title": "Agora · DS–WB 协作平台",
   "subtitle": "SemanticKV Reorg · 双向纪律协作看板",
-  "repo": "semantickv-reorg",
+  "repo": "AllFlux/semantickv-reorg",
   "branch": "main",
-  "raw_base": "https://raw.githubusercontent.com/OWNER/REPO/main/",
+  "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
+  "latest_experiment": {
+    "name": "V1.5 topk K=8（上轮）→ E1.5 混合保护（排队中）",
+    "status": "E1.5 待执行",
+    "metrics": "Cos=0.765 · Argmax=42.6% · KV节省=41.0%（topk K=8 基线）"
+  },
+  "decision_items": [
+    "E1.5 混合保护实验（H-DS7）：按你的指令实现 Sink(4)+滑窗(128)+中段 K=4、分段计算最后求和，验证 argmax ≥ 50%",
+    "E1.5 证伪线确认：< 45% 是否即判定 0.5B 瓶颈、直接转 Kaggle 7B？",
+    "看板注入包格式是否符合你的接手习惯？有偏差请指出字段级修改意见"
+  ],
   "files": [
     { "label": "假设台账 hypothesis_ledger.yaml", "path": "results/hypothesis_ledger.yaml" },
     { "label": "纪律台账 discipline_ledger.yaml", "path": "results/discipline_ledger.yaml" },
     { "label": "评审 001 (DS-20261018-001)", "path": "results/ds_reviews/20261018_001_review.md" },
     { "label": "评审 002 (DS-20261018-002)", "path": "results/ds_reviews/20261018_002_review.md" },
     { "label": "评审 003 (DS-20261018-003)", "path": "results/ds_reviews/20261018_003_review.md" },
+    { "label": "评审 004 (DS-20261018-004 承认闭环)", "path": "results/ds_reviews/20261018_004_review.md" },
+    { "label": "评审 005 (DS-20261018-005 注入器+E1.5)", "path": "results/ds_reviews/20261018_005_review.md" },
     { "label": "对等纪律要求书 REQUEST_TO_DEEPSEEK.md", "path": "results/REQUEST_TO_DEEPSEEK.md" },
     { "label": "真实模型校验 REAL_MODEL_VALIDATION_V15.md", "path": "results/REAL_MODEL_VALIDATION_V15.md" }
   ]

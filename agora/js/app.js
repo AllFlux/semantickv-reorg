@@ -11,6 +11,15 @@
   const SECTIONS_HTML = `
     <section id="overview">
       <div class="section-head"><h2>概览</h2><span class="hint">单向数据流：results/ 为唯一事实来源 → build_bundle.py → 看板</span></div>
+      <div id="inject-top" class="callout" style="display:block;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+          <b style="font-size:15px">📦 给 DeepSeek 的上下文注入包</b>
+          <button class="btn" id="inject-copy-top">一键复制</button>
+        </div>
+        <textarea id="inject-top-box" readonly
+          style="width:100%;min-height:200px;box-sizing:border-box;font-family:var(--mono);font-size:12px;line-height:1.6;padding:10px;border:1px solid var(--border,#ddd);border-radius:6px;background:#fafafa;color:inherit;resize:vertical"></textarea>
+        <div class="hint" style="margin-top:6px">纯 Markdown 文本 · 专为 DS 无浏览器环境优化 · 复制后直接粘贴给 DeepSeek 即完成同步</div>
+      </div>
       <div id="open-callout" class="callout" style="display:none"></div>
       <div class="cards" id="ov-cards"></div>
     </section>
@@ -275,42 +284,61 @@
   }
 
   function buildInjection() {
-    const open = BUNDLE.open_items || [];
     const h = BUNDLE.hypotheses;
+    const items = h ? h.items : [];
     const meta = h ? h.meta : {};
     const disc = BUNDLE.discipline;
     const reviews = BUNDLE.reviews || [];
-    const latestReview = reviews.length ? reviews[reviews.length - 1].file : "";
-    const base = CONFIG.raw_base || "[设置 config.json 的 raw_base]";
+    const latestReview = reviews.length ? reviews[reviews.length - 1] : null;
+    const pend = items.filter((x) => x.status === "pending");
+    const open = BUNDLE.open_items || [];
+    const exp = CONFIG.latest_experiment || {};
+    const decisions = (CONFIG.decision_items && CONFIG.decision_items.length)
+      ? CONFIG.decision_items
+      : open.map((id) => `假设 ${id} 已被数据证伪但未获承认，请在下一轮评审逐条承认并置 ds_admitted_refutation=true`);
 
-    const lines = [
-      "【Agora 上下文注入包 · 给 DeepSeek】",
-      "仓库 Raw 基址: " + base,
-      "",
-      "■ 假设台账 (6 条: " +
-        (meta.confirmed || 0) + " confirmed / " +
-        (meta.refuted || 0) + " refuted / " +
-        (meta.pending || 0) + " pending)",
-      "  " + rawUrl("results/hypothesis_ledger.yaml"),
-      "",
-      "■ 双边纪律台账 (末轮 " + (disc ? disc.last_verdict : "—") + ")",
-      "  " + rawUrl("results/discipline_ledger.yaml"),
-      "",
-      "■ 最新 DS 评审",
-      "  " + rawUrl("results/ds_reviews/" + latestReview),
-      "",
-      "■ 待你显式承认的开放项 (DS-D4): " + (open.length ? open.join(" / ") : "无"),
-      open.length
-        ? "  请在下一轮评审中逐条承认，并将 hypothesis_ledger.yaml 中对应条目的 ds_admitted_refutation 置 true。"
-        : "  已全部闭合。",
-      "",
-      "■ 要求: 按 templates/ds_review_template.md (YAML frontmatter + 三段式) 回复，假设须带可证伪标准与 data_source。",
-    ];
+    const lines = [];
+    lines.push("# SemanticKV-Reorg 项目状态同步");
+    lines.push("");
+    lines.push("## 📊 当前看板状态");
+    lines.push(`- **纪律状态**: ${disc ? disc.last_verdict : "—"}`);
+    lines.push(
+      `- **活跃假设数(pending)**: ${pend.length}` +
+        (pend.length ? `（${pend.map((x) => x.id).join("、")}）` : "")
+    );
+    lines.push(
+      `- **假设总览**: ${items.length} 条（confirmed ${meta.confirmed || 0} / refuted ${meta.refuted || 0} / pending ${meta.pending || 0}）`
+    );
+    if (exp.name) lines.push(`- **最新实验**: ${exp.name}${exp.status ? `（${exp.status}）` : ""}`);
+    if (exp.metrics) lines.push(`- **核心指标**: ${exp.metrics}`);
+    lines.push(
+      `- **DS 评审归档**: ${reviews.length} 份（最新: ${latestReview ? latestReview.meta.review_id || latestReview.file : "—"}）`
+    );
+    lines.push("");
+    lines.push("## 📁 原始数据 Raw 链接（请按需自行拉取）");
+    lines.push(`- 假设台账: ${rawUrl("results/hypothesis_ledger.yaml")}`);
+    lines.push(`- 纪律台账: ${rawUrl("results/discipline_ledger.yaml")}`);
+    if (latestReview) lines.push(`- 最新评审: ${rawUrl("results/ds_reviews/" + latestReview.file)}`);
+    lines.push(`- 看板单文件: ${rawUrl("index.standalone.html")}`);
+    lines.push("");
+    lines.push("## 🚨 需要 DeepSeek 决策的问题");
+    if (decisions.length) {
+      decisions.forEach((d, i) => lines.push(`${i + 1}. ${d}`));
+    } else {
+      lines.push("（无待决项——等待下一轮实验数据）");
+    }
+    lines.push("");
+    lines.push("## 要求");
+    lines.push(
+      "回复请按 templates/ds_review_template.md（YAML frontmatter + 理论背景/具体步骤/验收标准三段式）；假设须带 falsifiable_criterion 与 data_source。"
+    );
     return lines.join("\n");
   }
 
   function renderInjection() {
     const txt = buildInjection();
+    const topBox = $("#inject-top-box");
+    if (topBox) topBox.value = txt;
     $("#inject-box").textContent = txt;
   }
 
@@ -382,6 +410,11 @@
     $("#inject-copy").addEventListener("click", () =>
       copyText($("#inject-box").textContent)
     );
+    const topCopy = $("#inject-copy-top");
+    if (topCopy)
+      topCopy.addEventListener("click", () =>
+        copyText($("#inject-top-box").value)
+      );
   }
 
   document.addEventListener("DOMContentLoaded", boot);
