@@ -6,16 +6,16 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "Kaggle 7B 上机就绪（DS-20261019-016-WB1 执行完毕）",
-    "status": "R10 GREEN（10/10）；H-DS14 封卷（DS 两次确认）；唯一战场 = Kaggle 7B 实机",
-    "metrics": "Router 空壳 CPU 冒烟: params 0.28~0.93M ≪50M · KV 占比 0.24~0.80% ≪10% · 单 query 前向 0.03~0.08ms ｜ 上机规格: 7B NF4 4-bit + FP16 KV + 8K ctx ｜ E1.5 维持: Argmax=26.05% (<45%) ｜ GQA: 3/3 ALIGNED"
+    "name": "WB2 Router 接口合流备战（DS-20261019-018-WB1 执行完毕）",
+    "status": "R11 GREEN（10/10）；WB2 交付物物理阻塞（src/shared/ 未到达）；Kaggle 7B 待上机",
+    "metrics": "H-DS24 模拟 blob 接口验收: 7/7 PASS（加载/结构诊断/符号翻转/维度防护/温度告警/延迟）｜ 加载路径 N1 延迟 p50=0.13ms ｜ 上机规格: 7B NF4 4-bit + FP16 KV + 8K ctx ｜ E1.5: Argmax=26.05% (<45%)"
   },
   "decision_items": [
-    "H-DS14 已封卷：DS-20261018-011 显式承认 + DS-20261019-016 再次确认——GQA 无 bug，26.05% 为 0.5B 物理极限，0.5B 压缩侧全部终止",
-    "Kaggle 7B 上机三步（DS-016）：① 7B 4bit+FP16 KV/8K 裸基线 needle ≥2/3 → ② 随机 Router 空壳测延迟+CUDA Graph（Step3）→ ③ WB2 .pt 送达后合流混合保护 Argmax ≥50%（Step4，.pt 未到自动跳过）",
-    "DS-016 collaboration_audit：GREEN（load_external_router/sink_protect 交付达标，等价性 7.2e-07 PASS）；协同待办 = WB2 Router .pt 未送达（DS 已催）",
-    "H-DS17 硬件无关项已终判（CPU）：<50M 且 KV<10% 均过；GPU 延迟（<0.5ms 通过线 / >2ms 证伪线）待 Kaggle T4",
-    "Kaggle 7B 门禁不变（H-DS10）：裸基线 ≥2/3 → 混合保护 Argmax ≥50% 且 Cos ≥0.85"
+    "【阻塞·需用户动作】DS-018 称 WB2 已交付 router_weights.pt + load_test.py 于 src/shared/，但 WB1 仓库实际未收到（git 无提交、目录为空）——请将文件放入 src/shared/ 或 /kaggle/working/ 后复跑 tests/test_router_load.py 完成 H-DS24 终判",
+    "负相关修正已落地（DS-018 advice②）：load_external_router 默认 score_sign=-1（WB2 模型 Pearson r=-0.80，取负后 argmax）；blob 内 score_sign 字段优先，两种修正方式不可叠加",
+    "Train-Serve Skew 防护已落地（DS-018 advice①）：route 时校验输入维度≠训练维度即报错；train_tau(200)≠推理温度时 RuntimeWarning；与 WB2 的维度/温度约定请求见 src/shared/README.md §3",
+    "Kaggle 7B 冲关两关（DS-018）：① 7B 4bit/8K 裸基线 needle ≥2/3（不过换 Llama-3-8B）→ ② 挂 sink_protect+router_weights.pt 混合保护 Argmax ≥50%（<45% 则废弃混合保护）",
+    "DS-018 collaboration_audit：GREEN（auto_sync.py 获好评）"
   ],
   "files": [
     { "label": "假设台账 hypothesis_ledger.yaml", "path": "results/hypothesis_ledger.yaml" },
@@ -30,6 +30,7 @@
     { "label": "评审 009-WB1 (GQA验证+插件+cross_talk)", "path": "results/ds_reviews/20261018_009_wb1_review.md" },
     { "label": "评审 011-WB1 (Router架构+7B挺进)", "path": "results/ds_reviews/20261018_011_wb1_review.md" },
     { "label": "评审 016-WB1 (GQA定案+Kaggle上机+WB2验收)", "path": "results/ds_reviews/20261019_016_wb1_review.md" },
+    { "label": "评审 018-WB1 (7B冲关+Router挂载+Skew警告)", "path": "results/ds_reviews/20261019_018_wb1_review.md" },
     { "label": "Router 基准 router_bench.json (H-DS17)", "path": "results/router_bench.json" },
     { "label": "GQA 对齐验证 gqa_alignment_check.json", "path": "results/gqa_alignment_check.json" },
     { "label": "E1.5 主实验 real_model_v15_hybrid_protection.json", "path": "results/real_model_v15_hybrid_protection.json" },

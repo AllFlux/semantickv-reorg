@@ -6,13 +6,21 @@
 #   - refuted 且 ds_admitted_refutation=false → 列为「待 DS 承认」开放项（DS-D4 WARN）
 #   - DS 在后续评审显式承认被数据推翻的假设后，将 ds_admitted_refutation 置 true
 #
-# 当前状态（2026-10-19 R10 · DS-20261019-016-WB1 intake）：H-DS14 已封卷——DS 于
-# DS-20261018-011 显式承认、DS-20261019-016 再次确认（ds_admitted_refutation=true，
-# DS-D4 开放项清零），0.5B 压缩侧全部终止，唯一战场 = Kaggle 7B。H-DS15 pending
-# （DS-016 口径不变：捕获失败或 p99 >200% → 弃在线插件转离线 HARD-KV）。H-DS17 pending
-# （Router <50M 且 <0.5ms；>2ms 或 >10% KV 显存 → 退回 GSC 质心检索）。H-DS10 pending
-# （7B 门禁）。DS-016 collaboration_audit：GREEN（接口预留达标；WB2 Router .pt 未送达，
-# 先用随机空壳测延迟）。更早：H-DS7/H-DS8 已于 DS-20261018-007 承认，H-DS9 confirmed。
+# 当前状态（2026-10-19 R11 · DS-20261019-018-WB1 intake）：H-DS14 已封卷（DS 两次确认）。
+# 唯一战场 = Kaggle 7B 实机。H-DS10 pending（DS-018 口径：裸基线 <2/3 换 Llama-3-8B；
+# 裸基线过但混合 <45% 废弃混合保护）。H-DS15 pending。H-DS17 pending（硬件无关项 CPU
+# 已终判，GPU 延迟待 Kaggle）。H-DS24 pending（DS-018 新登记：WB2 router_weights.pt
+# 接口验收——DS 称已交付，但 WB1 仓库 src/shared/ 实际未到达，物理阻塞中；代码侧
+# 符号翻转/Skew 防护/加载诊断已就绪）。DS-018 collaboration_audit：GREEN
+# （auto_sync.py 获好评）。更早：H-DS7/H-DS8 已于 DS-20261018-007 承认，H-DS9 confirmed。
+
+meta:
+  protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
+  total: 14
+  confirmed: 3
+  refuted: 6
+  pending: 5
+  open_items_for_ds: []   # H-DS14 已承认；DS-018 的 WB2 交付未达属跨项目物流阻塞，见 H-DS24
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
@@ -115,13 +123,13 @@ hypotheses:
 
   - id: H-DS10
     source_review: DS-20261018-007
-    statement: "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax"
-    falsifiable_criterion: "若 7B 无压缩基线 needle ≥ 70%，但混合策略 argmax < 50%，则说明多段拼接结构在 GQA 上失效；若 7B 无压缩基线本身 <70%，则 7B 也需换更大模型（如 14B/32B）"
-    data_source: "results/kaggle_7b_hybrid.json"
+    statement: "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax（DS-20261019-018 复述：Argmax ≥50% 且 Cos ≥0.85）"
+    falsifiable_criterion: "DS-20261019-018 口径：7B 无压缩基线 needle <2/3 → 换模型（Llama-3-8B）；裸基线通过但混合保护 argmax <45% → 废弃混合保护（通过线 ≥50% 且 cos ≥0.85）"
+    data_source: "results/kaggle_7b_baseline.json / kaggle_7b_hybrid.json"
     status: pending
     evidence_file: ""
     ds_admitted_refutation: false
-    fate_note: "DS-20261018-007 批准。门禁：7B 裸基线 3 位置命中 ≥2/3（DS 建议目标 ≥80% 方有验证资格）；裸基线失败 → 换 Llama-3-8B 或开 YaRN。通过线：混合保护 argmax ≥50% 且 cos ≥0.85。存证 kaggle_7b_baseline.json / kaggle_7b_hybrid.json。"
+    fate_note: "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。上机链路已就绪（DS-016：7B 4bit NF4+FP16 KV+8K，Step1 门禁 ≥2/3 → Step4 合流 hybrid blockdiag K8）。实机数据待 Kaggle Run All。"
 
   - id: H-DS14
     source_review: DS-20261018-009-WB1
@@ -152,3 +160,13 @@ hypotheses:
     evidence_file: "results/router_bench.json"
     ds_admitted_refutation: false
     fate_note: "DS-20261018-011 新登记。Router 空壳 = learned_router.SemanticRouter(nn.Module)（q_dim=1024/hidden=256/num_groups=64 默认，7B 传 q_dim=3584）。CPU 冒烟已入档（results/router_bench.json，标注 cpu 环境）：参数量 ~0.28M（≪50M）、CPU 前向延迟远低于 2ms 线、权重显存占比极小——GPU(T4) 终测待 Kaggle。判定以 Kaggle 实机数据为准。"
+
+  - id: H-DS24
+    source_review: DS-20261019-018-WB1
+    statement: "WB1 能成功加载 WB2 提供的 router_weights.pt，并在极低延迟下完成路由"
+    falsifiable_criterion: "若因 WB2 的模型结构（274k 参数）与 WB1 预期的 MLP 不符而报错，或加载后预测分数方向相反（负相关未反转），则接口对接失败"
+    data_source: "results/router_bench.json"
+    status: pending
+    evidence_file: "results/router_bench.json"
+    ds_admitted_refutation: false
+    fate_note: "DS-20261019-018 登记。DS 侧称 WB2 已交付 router_weights.pt + load_test.py 于 src/shared/，但 WB1 仓库实际未收到（git 无对应提交、src/shared/ 不存在）——跨项目物流阻塞，需用户/WB2 落位文件。代码侧已就绪：① load_external_router 增加 score_sign（默认 -1，执行 DS『对返回值取负』指令，依据 = WB2 模型 Pearson r=-0.80，待 README 复核）；② Train-Serve Skew 防护（feature_dim 维度核验 + train_tau≠推理温度告警，DS 警告 τ=200 训练 vs τ=1 推理会致路由准确率归零）；③ 结构不符时输出 missing/unexpected keys 诊断。同构模拟 blob 接口测试已过（tests/test_router_load.py）；真实权重验收待文件到达。"

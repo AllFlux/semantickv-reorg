@@ -44,16 +44,33 @@ class SemanticRouter:
         self.plan = SinkProtectPlanLite(sink_tokens, window_tokens)
         self._external: Optional[ExternalRouter] = None
 
-    # ---- WB2 挂载点（cross_talk 承诺项 · DS-20261018-011 定案） ----
+    # ---- WB2 挂载点（cross_talk 承诺项 · DS-20261018-011 定案 / DS-20261019-018 增强） ----
     @classmethod
-    def load_external_router(cls, weights_path: str, **kwargs) -> "SemanticRouter":
+    def load_external_router(cls, weights_path: str, *,
+                             score_sign: int = -1,
+                             expected_feature_dim: Optional[int] = None,
+                             inference_tau: Optional[float] = None,
+                             **kwargs) -> "SemanticRouter":
         """挂载 WB2 训练的 DS 规格路由网络（learned_router.SemanticRouter）。
 
-        weights_path 约定（torch.save 的 dict，见 learned_router.save_pt）：
+        weights_path 约定（torch.save 的 dict，见 learned_router.save_pt
+        与 src/shared/README.md §2）：
           { "state_dict": <nn.Module 权重>,
             "config": {"arch": "ds011_linear_relu_linear",
-                       "q_dim": int, "hidden_dim": int, "num_groups": int} }
+                       "q_dim": int, "hidden_dim": int, "num_groups": int,
+                       "score_sign": int, "feature_dim": int, "train_tau": float} }
         加载后外部路由经 route(hidden) -> labels (N,) int64 替代 GSC 聚类。
+
+        DS-20261019-018 三项防护：
+          1. score_sign（负相关修正）：WB2 模型 Pearson r=-0.80，直接以 score
+             选群会选出最烂的群 → 默认 -1（对分数取负后 argmax）。blob 内
+             "score_sign" 字段优先于本参数；若 WB2 重新导出翻转权重的 .pt，
+             须显式传 +1——两种修正方式不可叠加。
+          2. Train-Serve Skew（feature_dim）：route 时校验输入最后一维，
+             不符立即报错而非静默错配（DS 警告 τ=200 训练 vs τ=1 推理会致
+             路由准确率归零；维度/温度约定见 src/shared/README.md §3）。
+          3. 结构诊断：load_state_dict 失败时输出 missing/unexpected keys
+             对照，直接定位 H-DS24 的「WB2 结构与预期 MLP 不符」失败模式。
         """
         router = cls(**kwargs)
         p = Path(weights_path)
@@ -67,23 +84,56 @@ class SemanticRouter:
             q_dim=cfg.get("q_dim", 1024),
             hidden_dim=cfg.get("hidden_dim", 256),
             num_groups=cfg.get("num_groups", 64))
-        net.load_state_dict(blob["state_dict"])
+        try:
+            net.load_state_dict(blob["state_dict"])
+        except Exception as e:                      # noqa: BLE001
+            expected = set(net.state_dict().keys())
+            got = set(blob["state_dict"].keys())
+            raise RuntimeError(
+                f"Router 权重与 DS 规格 MLP 结构不符（H-DS24 失败模式①）\n"
+                f"  缺失 keys: {sorted(expected - got) or '无'}\n"
+                f"  多余 keys: {sorted(got - expected) or '无'}\n"
+                f"  原始异常: {type(e).__name__}: {e}") from e
         net.eval()
+
+        # blob 内字段优先；否则用调用参数
+        sign = int(cfg.get("score_sign", score_sign))
+        feat_dim = cfg.get("feature_dim", expected_feature_dim)
+        train_tau = cfg.get("train_tau")
+        if train_tau is not None and inference_tau is not None \
+                and abs(float(train_tau) - float(inference_tau)) > 1e-9:
+            import warnings
+            warnings.warn(
+                f"Train-Serve Skew 风险（DS-20261019-018）：Router 训练温度 "
+                f"τ={train_tau} ≠ 推理温度 τ={inference_tau}，输入特征分布外，"
+                f"路由准确率可能归零。请与 WB2 约定隐状态提取维度/温度"
+                f"（src/shared/README.md §3）。", RuntimeWarning, stacklevel=2)
 
         class _Loaded:
             """DS 规格网络 → ExternalRouter 协议适配（hidden → labels）。"""
 
-            def __init__(self, net):
+            def __init__(self, net, sign, feat_dim, train_tau):
                 self.net = net
+                self.sign = sign
+                self.feat_dim = feat_dim
+                self.train_tau = train_tau
 
             def route(self, hidden):
                 x = torch.as_tensor(hidden)
-                if x.dtype != next(self.net.parameters()).dtype:
-                    x = x.to(next(self.net.parameters()).dtype)
+                w_dtype = next(self.net.parameters()).dtype
+                if x.dtype != w_dtype:
+                    x = x.to(w_dtype)
+                if self.feat_dim is not None and x.shape[-1] != self.feat_dim:
+                    raise ValueError(
+                        f"Train-Serve Skew 防护：输入特征维度 {x.shape[-1]} "
+                        f"≠ Router 训练维度 {self.feat_dim}。请按 src/shared/README.md "
+                        f"§3 与 WB2 约定隐状态提取方式后再调用。")
                 with torch.no_grad():
-                    return self.net.route(x).cpu().numpy()
+                    logits = self.net(x)
+                    # 负相关修正：sign=-1 时对分数取负后 argmax（DS-20261019-018）
+                    return (self.sign * logits).argmax(dim=-1).to(torch.int64).cpu().numpy()
 
-        router._external = _Loaded(net)
+        router._external = _Loaded(net, sign, feat_dim, train_tau)
         return router
 
     # ---- 默认路径：GSC 数学聚类（runner 的 MockSemanticGrouper） ----

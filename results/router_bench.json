@@ -68,5 +68,64 @@
     "kv_mem_under_10pct": true,
     "latency_gpu_pending": true,
     "note": "参数量 ~0.28M~0.93M（≪50M）、权重占 7B KV cache <1%（≪10%）——硬件无关项在 CPU 上已终判 PASS；单 query 前向延迟 CPU 参考值见 latency_single_query_N1，GPU 终测待 Kaggle T4"
+  },
+  "wb2_load_path_sim": {
+    "config": {
+      "device": "cpu",
+      "dtype": "float32",
+      "purpose": "H-DS24 接口验收（DS-20261019-018-WB1）",
+      "sim_blob": "DS 规格 MLP 1024/256/64 同构（≈274k params）",
+      "real_weights_status": "未到达（src/shared/ 为空，物理阻塞）"
+    },
+    "environment": {
+      "kind": "cpu-synthetic+real-arch-smoke"
+    },
+    "checks": {
+      "T1_load_ok": {
+        "pass": true,
+        "labels_shape": [
+          1,
+          2048
+        ],
+        "dtype": "int64"
+      },
+      "T2_struct_mismatch_diagnosed": {
+        "pass": true,
+        "error_head": "Router 权重与 DS 规格 MLP 结构不符（H-DS24 失败模式①）"
+      },
+      "T3_sign_flip": {
+        "pass": true,
+        "neg_matches_neg_argmax": true,
+        "pos_matches_argmax": true,
+        "flip_changes_labels": true
+      },
+      "T4_blob_sign_priority": {
+        "pass": true,
+        "blob_sign_wins_over_param": true
+      },
+      "T5_dim_guard": {
+        "pass": true,
+        "error_head": "Train-Serve Skew 防护：输入特征维度 999 ≠ Router 训练维度 1024。请按 src/sha"
+      },
+      "T6_tau_warning": {
+        "pass": true
+      },
+      "T7_loaded_route_latency": {
+        "single_query_N1": {
+          "p50_ms": 0.1299,
+          "p99_ms": 0.158
+        },
+        "prefill_N2048": {
+          "p50_ms": 35.9058,
+          "p99_ms": 37.2653
+        },
+        "pass": true,
+        "note": "加载路径含 numpy→tensor 适配开销；p50 判据，GPU 终测待 Kaggle"
+      }
+    },
+    "summary": {
+      "verdict": "PASS",
+      "note": "模拟 blob（DS 规格同构 ≈274k 参数）全契约通过；真实 WB2 权重（src/shared/router_weights.pt）到达后复跑本脚本即完成 H-DS24 终判"
+    }
   }
 }

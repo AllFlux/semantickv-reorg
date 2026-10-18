@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-18T16:50:47.741802+00:00",
+  "generated_at": "2026-10-18T22:56:38.025233+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
       "meta": {
         "protocol": "DISCIPLINE.md §六",
         "rounds": [],
-        "last_round": "R10",
-        "last_run": "2026-10-19T00:49:20"
+        "last_round": "R11",
+        "last_run": "2026-10-19T06:55:19"
       }
     },
     "rounds": [
@@ -605,11 +605,73 @@
           "fail": 0,
           "verdict": "GREEN"
         }
+      },
+      {
+        "round": "R11",
+        "timestamp": "2026-10-19T06:55:19",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 11 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "19 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "4 份报告三段式齐全"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "14 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 10,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
       }
     ],
     "last_round": {
-      "round": "R10",
-      "timestamp": "2026-10-19T00:49:20",
+      "round": "R11",
+      "timestamp": "2026-10-19T06:55:19",
       "checks": [
         {
           "check": "D1 契约优先",
@@ -659,7 +721,7 @@
         {
           "check": "DS-D5 假设台账状态",
           "status": "PASS",
-          "detail": "13 条假设状态合法"
+          "detail": "14 条假设状态合法"
         }
       ],
       "summary": {
@@ -783,13 +845,13 @@
       {
         "id": "H-DS10",
         "source_review": "DS-20261018-007",
-        "statement": "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax",
-        "falsifiable_criterion": "若 7B 无压缩基线 needle ≥ 70%，但混合策略 argmax < 50%，则说明多段拼接结构在 GQA 上失效；若 7B 无压缩基线本身 <70%，则 7B 也需换更大模型（如 14B/32B）",
-        "data_source": "results/kaggle_7b_hybrid.json",
+        "statement": "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax（DS-20261019-018 复述：Argmax ≥50% 且 Cos ≥0.85）",
+        "falsifiable_criterion": "DS-20261019-018 口径：7B 无压缩基线 needle <2/3 → 换模型（Llama-3-8B）；裸基线通过但混合保护 argmax <45% → 废弃混合保护（通过线 ≥50% 且 cos ≥0.85）",
+        "data_source": "results/kaggle_7b_baseline.json / kaggle_7b_hybrid.json",
         "status": "pending",
         "evidence_file": "",
         "ds_admitted_refutation": false,
-        "fate_note": "DS-20261018-007 批准。门禁：7B 裸基线 3 位置命中 ≥2/3（DS 建议目标 ≥80% 方有验证资格）；裸基线失败 → 换 Llama-3-8B 或开 YaRN。通过线：混合保护 argmax ≥50% 且 cos ≥0.85。存证 kaggle_7b_baseline.json / kaggle_7b_hybrid.json。"
+        "fate_note": "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。上机链路已就绪（DS-016：7B 4bit NF4+FP16 KV+8K，Step1 门禁 ≥2/3 → Step4 合流 hybrid blockdiag K8）。实机数据待 Kaggle Run All。"
       },
       {
         "id": "H-DS14",
@@ -823,6 +885,17 @@
         "evidence_file": "results/router_bench.json",
         "ds_admitted_refutation": false,
         "fate_note": "DS-20261018-011 新登记。Router 空壳 = learned_router.SemanticRouter(nn.Module)（q_dim=1024/hidden=256/num_groups=64 默认，7B 传 q_dim=3584）。CPU 冒烟已入档（results/router_bench.json，标注 cpu 环境）：参数量 ~0.28M（≪50M）、CPU 前向延迟远低于 2ms 线、权重显存占比极小——GPU(T4) 终测待 Kaggle。判定以 Kaggle 实机数据为准。"
+      },
+      {
+        "id": "H-DS24",
+        "source_review": "DS-20261019-018-WB1",
+        "statement": "WB1 能成功加载 WB2 提供的 router_weights.pt，并在极低延迟下完成路由",
+        "falsifiable_criterion": "若因 WB2 的模型结构（274k 参数）与 WB1 预期的 MLP 不符而报错，或加载后预测分数方向相反（负相关未反转），则接口对接失败",
+        "data_source": "results/router_bench.json",
+        "status": "pending",
+        "evidence_file": "results/router_bench.json",
+        "ds_admitted_refutation": false,
+        "fate_note": "DS-20261019-018 登记。DS 侧称 WB2 已交付 router_weights.pt + load_test.py 于 src/shared/，但 WB1 仓库实际未收到（git 无对应提交、src/shared/ 不存在）——跨项目物流阻塞，需用户/WB2 落位文件。代码侧已就绪：① load_external_router 增加 score_sign（默认 -1，执行 DS『对返回值取负』指令，依据 = WB2 模型 Pearson r=-0.80，待 README 复核）；② Train-Serve Skew 防护（feature_dim 维度核验 + train_tau≠推理温度告警，DS 警告 τ=200 训练 vs τ=1 推理会致路由准确率归零）；③ 结构不符时输出 missing/unexpected keys 诊断。同构模拟 blob 接口测试已过（tests/test_router_load.py）；真实权重验收待文件到达。"
       }
     ]
   },
@@ -1221,6 +1294,44 @@
         }
       },
       "body": "# DS-20261019-016-WB1 评审归档（WB1 intake）\n\n> 归档说明：H-DS14 为封卷声明（DS-016 再次确认），未重复可证伪标准与数据来源\n> 字段，本归档继承 DS-20261018-009-WB1 原始定义补齐；其余字段逐字转录原文。\n> collaboration_audit 为 DS 对本项目的协作审计，如实转录于 frontmatter。\n\n# 理论背景（Why）\n\n既然 0.5B 被证明是物理极限，我们所有的目光都集中在 Kaggle 7B 上。在 7B 上，\n关键不仅是压缩率，而是**插件是否能跑在 CUDA Graph 里**（这决定了它能不能上\n生产）。另外，WB2 那边的流形正则化正在跑，你的 `sink_protect` 已经成了它的\n灵感来源。\n\n# 具体步骤（What）\n\n1. **Kaggle 7B 基线测试**：加载 Qwen2.5-7B-Instruct（4-bit）+ FP16 KV Cache，\n   在 8K 文本上跑 Needle 测试（3 个位置，必须 ≥2/3 命中）。\n2. **挂载空壳测延迟**：在 `load_external_router` 处挂一个 Random 权重的\n   PyTorch 模型，记录推理延迟和显存增量（H-DS17）。顺便验证 CUDA Graph\n   是否正常 Capture。\n3. **等接口合流**：WB2 交付 `.pt` 后，立刻替换随机权重，验证路由准确率，\n   并挂载混合保护（Sink+Win+Mid-TopK），看 Argmax 是否突破 50%。\n\n# 验收标准（How）\n\n- **前置门禁**：7B 裸基线 needle ≥ 2/3。\n- **插件效率**：p99 延迟 ≤1.5× 原生，CUDA Graph 成功。\n- **数据存证**：`kaggle_7b_vllm_plugin_bench.json`、`router_bench.json`。\n\n---\n\n## WB1 执行记录（intake 台账）\n\n| DS 指令 | WB1 执行 | 证据 |\n|---|---|---|\n| 7B 4-bit 加载 | runner `load_model` 新增 `--load-in-4bit`（BitsAndBytesConfig NF4 + compute FP16，满足「4-bit 权重 + FP16 KV Cache」规格；compute dtype 决定 KV cache dtype，实测口径 = FP16 KV） | src/semantickv/v41_torch_native_runner.py |\n| 8K 文本 needle | notebook 自动选型升级：T4（≥14GB）→ Qwen2.5-7B-Instruct + 4bit + **ctx=8192**（DS-016 规格，原 4096）；needle 3 位置门禁 ≥2/3 已在 DS-011 轮落地 | run_on_kaggle.ipynb |\n| 空壳测延迟 | Step 3 cell 已挂随机初始化 Router 空壳（DS 规格 learned_router.SemanticRouter）：N1/N2048 双场景延迟 + 显存增量 + CUDA Graph capture 探测，存证 kaggle_7b_vllm_plugin_bench.json；router_bench.json（CPU 版）已于 R9 交付 | run_on_kaggle.ipynb / results/router_bench.json |\n| WB2 合流流程 | notebook 新增 Step 4 说明块：.pt 送达后 load_external_router 挂载 → 路由准确率验证 → 混合保护（Sink+Win+Mid-TopK）argmax ≥50% 验证，全流程命令就绪 | run_on_kaggle.ipynb |\n| collaboration_audit | DS 审计 GREEN 已入档；「WB2 .pt 未送达、先用随机空壳」与 DS-011 一致，执行中 | 本文 frontmatter |\n\n**结论**：DS-016 三项具体步骤全部落实于代码/notebook；7B 实机数据（基线门禁、\nGPU 延迟、CUDA Graph）待用户在 Kaggle Run All 后回传 JSON 裁定。"
+    },
+    {
+      "file": "20261019_018_wb1_review.md",
+      "meta": {
+        "review_id": "DS-20261019-018-WB1",
+        "source_url": "（用户粘贴全文，原始 chat.deepseek.com 链接见对话）",
+        "date": "2026-10-19",
+        "target": "WorkBuddy",
+        "topic": "Kaggle 7B 冲关、Router 外部挂载与 Train-Serve Skew 警告",
+        "hypotheses": [
+          {
+            "id": "H-DS10",
+            "status": "pending",
+            "prediction": "在 Kaggle 7B 上，混合保护策略（Sink+Win+TopK）能将 Argmax 推至 ≥ 50% 且 Cos ≥ 0.85。",
+            "falsifiable_criterion": "裸基线 < 2/3 则换模型（Llama-3-8B）；裸基线通过但混合保护 < 45%，则废弃混合保护。",
+            "data_source": "results/kaggle_7b_baseline.json / kaggle_7b_hybrid.json"
+          },
+          {
+            "id": "H-DS24",
+            "status": "pending",
+            "prediction": "WB1 能成功加载 WB2 提供的 router_weights.pt，并在极低延迟下完成路由。",
+            "falsifiable_criterion": "若因 WB2 的模型结构（274k 参数）与 WB1 预期的 MLP 不符而报错，或加载后预测分数方向相反（负相关未反转），则接口对接失败。",
+            "data_source": "results/router_bench.json"
+          }
+        ],
+        "collaboration_audit": {
+          "status": "GREEN",
+          "contract_check": [
+            "工作流极佳：auto_sync.py 交付非常及时，彻底解决了手动拖拽文件的问题。",
+            "接口等待完成：WB2 已交付 router_weights.pt 与 load_test.py，请立刻拉取并审查。"
+          ],
+          "improvement_advice": [
+            "1. 警惕 Train-Serve Skew：WB2 的 Router 是在 τ=200 的池上训练的。如果你在 7B 上调用它时，输入特征的分布（来自 τ=1 的默认推理）与 WB2 训练时相差太大，路由准确率会归零。请务必与 WB2 约定好隐状态的提取维度，并在推理时保持温度一致。",
+            "2. 负相关修正：WB2 训练出的模型 Pearson r = -0.80。如果你直接拿它的 score 去选群，会选出最烂的群。请在代码里对返回值取负，或者让 WB2 重新导出翻转权重的文件。"
+          ]
+        }
+      },
+      "body": "# DS-20261019-018-WB1 评审归档（WB1 intake）\n\n# 理论背景（Why）\n\nWB2 在坍缩池上彻底失败，但在 τ=200 的多样化池上炼出了一把利剑。现在这把剑\n（router_weights.pt）递交到了你手上。你在 Kaggle 7B 上的主任务不变（跑裸基线\n和混合保护），但在挂载 Router 时，**必须警惕训练与推理环境的不一致**。\n\n# 具体步骤（What）\n\n1. **拉取并测试 Router**：从 `src/shared/` 拉取 `router_weights.pt`，利用\n   WB2 提供的 `load_test.py` 跑一次纯 CPU 的加载验证。\n2. **修正方向**：阅读 WB2 交付物的 README，确认分数方向，在你的插件\n   `load_external_router` 调用后加上适当的符号翻转。\n3. **跑通 Kaggle 7B**：第一关 7B 裸基线 needle ≥2/3；第二关挂载\n   `sink_protect.py` + `router_weights.pt`，看 Argmax 是否能突破 50%。\n\n# 验收标准（How）\n\n- **接口验收**：`router_weights.pt` 成功 `load_state_dict`。\n- **主任务验收**：Argmax ≥ 50%。\n- **数据存证**：`kaggle_7b_baseline.json`、`router_bench.json`。\n\n---\n\n## WB1 执行记录（intake 台账）\n\n| DS 指令 | WB1 执行 | 证据 |\n|---|---|---|\n| 从 src/shared/ 拉取 | **阻塞：src/shared/ 不存在于本仓库，router_weights.pt / load_test.py 未实际到达**（git ls-remote 仅 main@85734a9，无 WB2 提交）。已建 src/shared/ 通道目录与对接约定 README，等文件落位即可跑 | src/shared/README.md |\n| 符号翻转 | `load_external_router` 增加 `score_sign` 参数（默认 -1，执行 DS-018「对返回值取负」指令；blob 内 `score_sign` 字段优先）；依据 = WB2 模型 Pearson r=-0.80，待 WB2 README 到达复核 | src/semantickv/vllm_plugin/semantic_router.py |\n| Train-Serve Skew 防护 | 加载时核对 blob 的 feature_dim/train_tau；route 时校验输入维度，不符立即报错（不静默错配）；train_tau≠推理温度时告警。与 WB2 的维度/温度约定请求写入 src/shared/README.md | 同上 + src/shared/README.md |\n| 加载验证 | WB2 文件未到，改用同构模拟 blob（DS 规格 MLP ≈274k 参数）跑完整接口验收：load_state_dict / 符号翻转生效 / 维度不符报错 / 结构不符诊断 | tests/test_router_load.py |\n| Kaggle 7B 冲关 | 主任务链路已就绪（DS-016 轮交付：4bit+8K 基线门、Step3 空壳 bench、Step4 合流 cell）；Step4 路径扩展为 src/shared/router_weights.pt 优先 | run_on_kaggle.ipynb |\n\n**结论**：DS-018 代码侧指令全部落实；**物理阻塞一项**——WB2 交付物未到达本仓库\n（DS 侧显示已交付，但 WB1 侧 git 无对应提交/文件）。需用户或 WB2 将\nrouter_weights.pt + load_test.py + README 放置于 src/shared/ 后，方可执行\n真实权重的接口验收（H-DS24 终判）与 Kaggle 第二关。"
     }
   ],
   "open_items": []
