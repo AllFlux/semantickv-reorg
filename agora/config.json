@@ -6,14 +6,14 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "V1.5 topk K=8（上轮）→ E1.5 混合保护（排队中）",
-    "status": "E1.5 待执行",
-    "metrics": "Cos=0.765 · Argmax=42.6% · KV节省=41.0%（topk K=8 基线）"
+    "name": "E1.5 混合保护（进行中）",
+    "status": "正在执行",
+    "metrics": "Cos=0.765 · Argmax=42.6% · KV节省=41.0%（上轮 topk K=8 基线） (Baseline: Cos=1.000 · Argmax=100%)"
   },
   "decision_items": [
-    "E1.5 混合保护实验（H-DS7）：按你的指令实现 Sink(4)+滑窗(128)+中段 K=4、分段计算最后求和，验证 argmax ≥ 50%",
-    "E1.5 证伪线确认：< 45% 是否即判定 0.5B 瓶颈、直接转 Kaggle 7B？",
-    "看板注入包格式是否符合你的接手习惯？有偏差请指出字段级修改意见"
+    "E1.5 混合保护实验（H-DS7/8/9 预注册）：Sink(4)+滑窗(128)+中段 K=4、分段计算 LogSumExp 合并、块对角 Mask，验证 argmax ≥ 50%",
+    "E1.5 证伪线确认（已获你确认并加限定）：argmax < 45% 且 0.5B 无压缩基线 argmax < 70% → 判定 0.5B 检索头容量不足，转 Kaggle 7B",
+    "注入包 v2 格式你已确认极佳（仅加 Baseline 对照 + 实验状态字段，本轮已落实），如仍有偏差请指出"
   ],
   "files": [
     { "label": "假设台账 hypothesis_ledger.yaml", "path": "results/hypothesis_ledger.yaml" },
@@ -23,6 +23,7 @@
     { "label": "评审 003 (DS-20261018-003)", "path": "results/ds_reviews/20261018_003_review.md" },
     { "label": "评审 004 (DS-20261018-004 承认闭环)", "path": "results/ds_reviews/20261018_004_review.md" },
     { "label": "评审 005 (DS-20261018-005 注入器+E1.5)", "path": "results/ds_reviews/20261018_005_review.md" },
+    { "label": "评审 006 (DS-20261018-006 E1.5 规格)", "path": "results/ds_reviews/20261018_006_review.md" },
     { "label": "对等纪律要求书 REQUEST_TO_DEEPSEEK.md", "path": "results/REQUEST_TO_DEEPSEEK.md" },
     { "label": "真实模型校验 REAL_MODEL_VALIDATION_V15.md", "path": "results/REAL_MODEL_VALIDATION_V15.md" }
   ]

@@ -6,15 +6,15 @@
 #   - refuted 且 ds_admitted_refutation=false → 列为「待 DS 承认」开放项（DS-D4 WARN）
 #   - DS 在后续评审显式承认被数据推翻的假设后，将 ds_admitted_refutation 置 true
 #
-# 当前状态（2026-10-18 R4）：H-DS1/H-DS2/H-DS3 已被真实数据推翻且 DS 已显式承认
-# （DS-20261018-004），开放项清零。H-DS7（E1.5 混合保护）为 DS-20261018-005 新增 pending。
+# 当前状态（2026-10-18 R5）：H-DS1/H-DS2/H-DS3 已被真实数据推翻且 DS 已显式承认
+# （DS-20261018-004），开放项清零。H-DS7/8/9 为 DS-20261018-006 预注册的 E1.5 假设（pending）。
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
-  total: 7
+  total: 9
   confirmed: 2
   refuted: 3
-  pending: 2
+  pending: 4
   open_items_for_ds: []   # refuted 且 ds_admitted_refutation=false —— R3 起已全部显式承认
 
 hypotheses:
@@ -80,10 +80,30 @@ hypotheses:
 
   - id: H-DS7
     source_review: DS-20261018-005
-    statement: "E1.5 混合保护（Sink 4 + 滑窗 128 全量保留 + 中段 K=4），且 Sink 与压缩中段做独立注意力隔离，argmax 可突破 50%"
-    falsifiable_criterion: "Qwen2.5-0.5B/2048 下 E1.5 混合保护策略 argmax 一致率 ≥ 50%；证伪线 < 45%（若 <45% 判定 0.5B 鲁棒性瓶颈，转 Kaggle 7B 复核）"
+    statement: "采用 Sink(4)+滑窗(128)+中段 K=4 的分段注意力，argmax 一致率可从 42.6% 突破至 ≥50%"
+    falsifiable_criterion: "若 argmax 一致率 < 45%，则判定 0.5B 模型的检索头（Retrieval Head）容量已达上限，混合保护策略在该规模下无法突破瓶颈（转 7B 前须先补 0.5B 无压缩基线 argmax 记录：若基线本身 <70%，问题在模型而非策略）"
     data_source: "results/real_model_v15_hybrid_protection.json"
     status: pending
     evidence_file: ""
     ds_admitted_refutation: false
-    fate_note: "DS 架构指令：Sink 的 Key 范数极大，与 Top-K 中段拼接时须独立 Attention Mask 隔离（分段计算最后求和），否则 Sink 吸干 Query 注意力、中段 token 无法被检索。待 E1.5 实验验证。"
+    fate_note: "DS-20261018-005 提出、006 细化：Pass 须同时满足 Argmax≥50% 且 Cos≥0.80 且延迟不超基线 200%；Fail(<45%) 时先跑无压缩基线再决定是否转 Kaggle 7B。"
+
+  - id: H-DS8
+    source_review: DS-20261018-006
+    statement: "在 0.5B 模型上，KV 节省率若维持在 41% 左右（或略降），混合保护的 Cos 应高于纯 Top-K=8 的 0.765"
+    falsifiable_criterion: "若混合保护的 Cos ≤ 0.765 且 KV 节省率 ≤ 41%，则说明局部窗口与 Sink 的引入不仅没有提升保真度，反而挤占了中段 Top-K 的预算，策略失败"
+    data_source: "results/real_model_v15_hybrid_protection.json"
+    status: pending
+    evidence_file: ""
+    ds_admitted_refutation: false
+    fate_note: "DS-20261018-006 提出。若 Cos 反而低于纯 Top-K=8，DS 判定需检查 attn_mid 的 LogSumExp 归一化实现。"
+
+  - id: H-DS9
+    source_review: DS-20261018-006
+    statement: "分段计算（Sink/滑窗/中段分别 Attention 后求和）在不引入自定义 Triton Kernel 的前提下，PyTorch 实现可在 2048 长度下保持与基线相近的推理延迟"
+    falsifiable_criterion: "若分段计算的端到端延迟比原生全量 Attention 高 > 200%，则说明在 0.5B 规模下 Python 层的多次 Kernel Launch 开销已抵消收益，必须等 Triton 融合算子"
+    data_source: "results/real_model_v15_hybrid_protection.json"
+    status: pending
+    evidence_file: ""
+    ds_admitted_refutation: false
+    fate_note: "DS-20261018-006 提出。附加注记：中段禁用 for-loop 遍历群，优先块对角 Mask 一次性 Attention；若显存爆炸退回 for-loop，须单独记录其耗时。"
