@@ -341,10 +341,19 @@
   // ---------- boot ----------
   async function boot() {
     try {
-      const [cfg, bundle] = await Promise.all([
-        fetch("./config.json").then((r) => r.json()),
-        fetch("./data/bundle.json").then((r) => r.json()),
-      ]);
+      let cfg, bundle;
+      if (window.__AGORA_EMBEDDED__) {
+        // 单文件版：数据已内联，无需 fetch（file:// 或离线也能用）
+        cfg = window.__AGORA_EMBEDDED__.config;
+        bundle = window.__AGORA_EMBEDDED__.bundle;
+      } else {
+        const [c, b] = await Promise.all([
+          fetch("./config.json").then((r) => r.json()),
+          fetch("./data/bundle.json").then((r) => r.json()),
+        ]);
+        cfg = c;
+        bundle = b;
+      }
       CONFIG = cfg;
       BUNDLE = bundle;
     } catch (e) {

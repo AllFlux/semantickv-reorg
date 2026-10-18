@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agora · DS–WB 协作平台</title>
+  <style>
+:root {
+  --bg: #0f1115;
+  --bg-soft: #171a21;
+  --bg-card: #1b1f29;
+  --border: #2a2f3a;
+  --text: #e6e9ef;
+  --text-dim: #9aa3b2;
+  --text-faint: #6b7280;
+  --accent: #6ea8fe;
+  --accent-2: #b794f6;
+  --green: #2ec27e;
+  --green-soft: rgba(46, 194, 126, 0.14);
+  --amber: #f5a623;
+  --amber-soft: rgba(245, 166, 35, 0.14);
+  --red: #f4544c;
+  --red-soft: rgba(244, 84, 76, 0.14);
+  --blue: #4aa3ff;
+  --blue-soft: rgba(74, 163, 255, 0.14);
+  --radius: 12px;
+  --mono: "SFMono-Regular", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 28px;
+  background: rgba(15, 17, 21, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; flex-direction: column; }
+.brand .title { font-size: 18px; font-weight: 700; letter-spacing: .3px; }
+.brand .title .glyph { color: var(--accent-2); }
+.brand .sub { font-size: 12px; color: var(--text-dim); }
+.topbar .spacer { flex: 1; }
+.syncmeta { font-size: 12px; color: var(--text-faint); text-align: right; }
+.syncmeta b { color: var(--text-dim); font-weight: 600; }
+
+/* ---------- verdict light ---------- */
+.verdict {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 16px; border-radius: 999px;
+  font-weight: 700; font-size: 13px;
+  border: 1px solid var(--border);
+}
+.verdict .dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.04);
+}
+.verdict.green { background: var(--green-soft); color: var(--green); border-color: rgba(46,194,126,.4); }
+.verdict.green .dot { background: var(--green); box-shadow: 0 0 10px var(--green); }
+.verdict.warn { background: var(--amber-soft); color: var(--amber); border-color: rgba(245,166,35,.4); }
+.verdict.warn .dot { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+.verdict.red { background: var(--red-soft); color: var(--red); border-color: rgba(244,84,76,.4); }
+.verdict.red .dot { background: var(--red); box-shadow: 0 0 10px var(--red); }
+
+/* ---------- nav ---------- */
+.nav {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  padding: 0 28px; background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+}
+.nav a {
+  padding: 12px 14px; color: var(--text-dim);
+  font-size: 13px; font-weight: 600; border-bottom: 2px solid transparent;
+}
+.nav a:hover { color: var(--text); text-decoration: none; }
+.nav a.active { color: var(--text); border-bottom-color: var(--accent); }
+
+/* ---------- layout ---------- */
+main { max-width: 1120px; margin: 0 auto; padding: 28px; }
+section { margin-bottom: 40px; scroll-margin-top: 90px; }
+.section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.section-head h2 { font-size: 20px; margin: 0; }
+.section-head .hint { font-size: 12px; color: var(--text-faint); }
+
+/* ---------- overview cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+}
+.card .k { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .5px; }
+.card .v { font-size: 30px; font-weight: 800; margin: 6px 0 2px; }
+.card .d { font-size: 12px; color: var(--text-faint); }
+
+/* ---------- status pills ---------- */
+.pill {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; border: 1px solid transparent;
+}
+.pill.pending { background: var(--blue-soft); color: var(--blue); }
+.pill.confirmed { background: var(--green-soft); color: var(--green); }
+.pill.refuted { background: var(--red-soft); color: var(--red); }
+.pill.open { background: var(--amber-soft); color: var(--amber); border-color: rgba(245,166,35,.4); }
+.pill.pass { background: var(--green-soft); color: var(--green); }
+.pill.warn { background: var(--amber-soft); color: var(--amber); }
+.pill.fail { background: var(--red-soft); color: var(--red); }
+
+/* ---------- table ---------- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--bg-soft); color: var(--text-dim); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.02); }
+td.id { font-family: var(--mono); color: var(--accent); font-weight: 600; white-space: nowrap; }
+.statement { max-width: 380px; }
+.evidence { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+.muted { color: var(--text-faint); }
+.yes { color: var(--green); font-weight: 700; }
+.no { color: var(--amber); font-weight: 700; }
+
+/* ---------- review cards ---------- */
+.reviews { display: grid; gap: 16px; }
+.review {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.review .rv-head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--bg-soft);
+}
+.review .rv-id { font-family: var(--mono); font-weight: 700; color: var(--accent); }
+.review .rv-focus { font-weight: 600; }
+.review .rv-date { margin-left: auto; font-size: 12px; color: var(--text-faint); }
+.review .rv-body { padding: 18px; }
+.review .rv-body.collapsed { max-height: 220px; overflow: hidden; position: relative; }
+.review .rv-body.collapsed::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 60px;
+  background: linear-gradient(transparent, var(--bg-card));
+}
+.review .rv-toggle { padding: 0 18px 16px; }
+.toggle-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-dim);
+  padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;
+}
+.toggle-btn:hover { color: var(--text); border-color: var(--accent); }
+.rv-hyps { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 18px 14px; }
+.rv-hyps .pill { font-family: var(--mono); }
+
+/* ---------- markdown render ---------- */
+.md h1, .md h2, .md h3 { line-height: 1.3; margin: 1.1em 0 .5em; }
+.md h1 { font-size: 19px; } .md h2 { font-size: 17px; } .md h3 { font-size: 15px; }
+.md p { margin: .55em 0; }
+.md ul, .md ol { margin: .5em 0; padding-left: 1.4em; }
+.md li { margin: .25em 0; }
+.md code {
+  font-family: var(--mono); background: var(--bg-soft); padding: 1px 6px;
+  border-radius: 5px; font-size: 13px; border: 1px solid var(--border);
+}
+.md pre {
+  background: #0c0e12; border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; overflow-x: auto; font-size: 13px;
+}
+.md pre code { background: none; border: none; padding: 0; }
+.md blockquote {
+  margin: .6em 0; padding: 6px 14px; border-left: 3px solid var(--accent-2);
+  background: var(--bg-soft); color: var(--text-dim); border-radius: 0 8px 8px 0;
+}
+.md hr { border: none; border-top: 1px solid var(--border); margin: 1.2em 0; }
+.md strong { color: #fff; }
+
+/* ---------- raw sources ---------- */
+.files { display: grid; gap: 10px; }
+.file-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 16px;
+}
+.file-row .fname { font-family: var(--mono); font-size: 13px; flex: 1; }
+.file-row .fpath { color: var(--text-faint); font-size: 12px; }
+.btn {
+  background: var(--blue-soft); color: var(--blue); border: 1px solid rgba(74,163,255,.4);
+  padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;
+  white-space: nowrap;
+}
+.btn:hover { background: rgba(74,163,255,.22); }
+.btn.ghost { background: transparent; color: var(--text-dim); border-color: var(--border); }
+
+/* ---------- DS injection box ---------- */
+.inject-box {
+  background: #0c0e12; border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; font-family: var(--mono); font-size: 12.5px; color: var(--text-dim);
+  white-space: pre-wrap; word-break: break-all; max-height: 320px; overflow-y: auto;
+}
+.toolbar { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--green); color: #04130b; padding: 10px 20px; border-radius: 999px;
+  font-weight: 700; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .25s;
+  z-index: 50;
+}
+.toast.show { opacity: 1; }
+
+.foot { text-align: center; color: var(--text-faint); font-size: 12px; padding: 30px; border-top: 1px solid var(--border); }
+.foot code { font-family: var(--mono); }
+
+.callout {
+  border: 1px solid rgba(245,166,35,.4); background: var(--amber-soft);
+  border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--amber); margin-bottom: 18px;
+}
+.loading { text-align: center; color: var(--text-faint); padding: 60px; }
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="title"><span class="glyph">⛲</span> <span id="site-title">Agora</span></div>
+      <div class="sub" id="site-sub">DS–WB 协作平台</div>
+    </div>
+    <div class="spacer"></div>
+    <div id="verdict" class="verdict green"><span class="dot"></span>—</div>
+    <div class="syncmeta" id="sync-time"></div>
+  </header>
+
+  <nav class="nav">
+    <a href="#overview" class="active">概览</a>
+    <a href="#ledger">假设台账</a>
+    <a href="#discipline">纪律检查</a>
+    <a href="#reviews">评审画廊</a>
+    <a href="#files">原始文件</a>
+    <a href="#inject">DS 上下文注入包</a>
+  </nav>
+
+  <main id="app">
+    <div class="loading">加载中…</div>
+  </main>
+
+  <div class="toast" id="toast">已复制</div>
+
+  <script>
+window.__AGORA_EMBEDDED__ = {"config": {"site_title": "Agora · DS–WB 协作平台", "subtitle": "SemanticKV Reorg · 双向纪律协作看板", "repo": "semantickv-reorg", "branch": "main", "raw_base": "", "source_dir": "results", "files": [{"label": "假设台账 hypothesis_ledger.yaml", "path": "results/hypothesis_ledger.yaml"}, {"label": "纪律台账 discipline_ledger.yaml", "path": "results/discipline_ledger.yaml"}, {"label": "评审 001 (DS-20261018-001)", "path": "results/ds_reviews/20261018_001_review.md"}, {"label": "评审 002 (DS-20261018-002)", "path": "results/ds_reviews/20261018_002_review.md"}, {"label": "评审 003 (DS-20261018-003)", "path": "results/ds_reviews/20261018_003_review.md"}, {"label": "对等纪律要求书 REQUEST_TO_DEEPSEEK.md", "path": "results/REQUEST_TO_DEEPSEEK.md"}, {"label": "真实模型校验 REAL_MODEL_VALIDATION_V15.md", "path": "results/REAL_MODEL_VALIDATION_V15.md"}]}, "bundle": {"generated_at": "2026-10-18T09:35:43.309448+00:00", "source_dir": "/workspace/semantickv-reorg/results", "discipline": {"meta": {"meta": {"protocol": "DISCIPLINE.md §六", "rounds": [], "last_round": "R3", "last_run": "2026-10-18T16:29:09"}}, "rounds": [{"round": "R1", "timestamp": "2026-10-18T15:15:47", "checks": [{"check": "D1 契约优先", "status": "PASS", "detail": "--check-interfaces 全部通过"}, {"check": "D2 负面结果归档", "status": "PASS", "detail": "清单 7 项全部在档"}, {"check": "D3 环境隔离", "status": "PASS", "detail": "14 个结果文件全部带环境标签"}, {"check": "D4 参数冻结", "status": "PASS", "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"}, {"check": "D5 格式统一", "status": "PASS", "detail": "3 份报告三段式齐全"}], "summary": {"pass": 5, "warn": 0, "fail": 0, "verdict": "GREEN"}}, {"round": "R2", "timestamp": "2026-10-18T15:41:07", "checks": [{"check": "D1 契约优先", "status": "PASS", "detail": "--check-interfaces 全部通过"}, {"check": "D2 负面结果归档", "status": "PASS", "detail": "清单 7 项全部在档"}, {"check": "D3 环境隔离", "status": "PASS", "detail": "14 个结果文件全部带环境标签"}, {"check": "D4 参数冻结", "status": "PASS", "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"}, {"check": "D5 格式统一", "status": "PASS", "detail": "4 份报告三段式齐全"}, {"check": "DS-D1 指令结构化", "status": "PASS", "detail": "全部 DS 评审符合模板（frontmatter+三段式）"}, {"check": "DS-D2 假设可证伪+来源", "status": "PASS", "detail": "全部假设带可证伪标准与数据来源"}, {"check": "DS-D3 引用可核查", "status": "PASS", "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"}, {"check": "DS-D4 结论对齐数据", "status": "WARN", "detail": "被数据推翻但未显式承认的假设（待 DS 下一轮承认）: ['H-DS1', 'H-DS2', 'H-DS3']"}, {"check": "DS-D5 假设台账状态", "status": "PASS", "detail": "6 条假设状态合法"}], "summary": {"pass": 9, "warn": 1, "fail": 0, "verdict": "GREEN-WITH-WARN"}}, {"round": "R3", "timestamp": "2026-10-18T16:29:09", "checks": [{"check": "D1 契约优先", "status": "PASS", "detail": "--check-interfaces 全部通过"}, {"check": "D2 负面结果归档", "status": "PASS", "detail": "清单 7 项全部在档"}, {"check": "D3 环境隔离", "status": "PASS", "detail": "14 个结果文件全部带环境标签"}, {"check": "D4 参数冻结", "status": "PASS", "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"}, {"check": "D5 格式统一", "status": "PASS", "detail": "4 份报告三段式齐全"}, {"check": "DS-D1 指令结构化", "status": "PASS", "detail": "全部 DS 评审符合模板（frontmatter+三段式）"}, {"check": "DS-D2 假设可证伪+来源", "status": "PASS", "detail": "全部假设带可证伪标准与数据来源"}, {"check": "DS-D3 引用可核查", "status": "PASS", "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"}, {"check": "DS-D4 结论对齐数据", "status": "PASS", "detail": "refuted 假设均有数据证据；已承认或无需承认"}, {"check": "DS-D5 假设台账状态", "status": "PASS", "detail": "6 条假设状态合法"}], "summary": {"pass": 10, "warn": 0, "fail": 0, "verdict": "GREEN"}}], "last_round": {"round": "R3", "timestamp": "2026-10-18T16:29:09", "checks": [{"check": "D1 契约优先", "status": "PASS", "detail": "--check-interfaces 全部通过"}, {"check": "D2 负面结果归档", "status": "PASS", "detail": "清单 7 项全部在档"}, {"check": "D3 环境隔离", "status": "PASS", "detail": "14 个结果文件全部带环境标签"}, {"check": "D4 参数冻结", "status": "PASS", "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"}, {"check": "D5 格式统一", "status": "PASS", "detail": "4 份报告三段式齐全"}, {"check": "DS-D1 指令结构化", "status": "PASS", "detail": "全部 DS 评审符合模板（frontmatter+三段式）"}, {"check": "DS-D2 假设可证伪+来源", "status": "PASS", "detail": "全部假设带可证伪标准与数据来源"}, {"check": "DS-D3 引用可核查", "status": "PASS", "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"}, {"check": "DS-D4 结论对齐数据", "status": "PASS", "detail": "refuted 假设均有数据证据；已承认或无需承认"}, {"check": "DS-D5 假设台账状态", "status": "PASS", "detail": "6 条假设状态合法"}], "summary": {"pass": 10, "warn": 0, "fail": 0, "verdict": "GREEN"}}, "last_verdict": "GREEN"}, "hypotheses": {"meta": {"protocol": "DISCIPLINE.md §DeepSeek 对等纪律", "total": 6, "confirmed": 2, "refuted": 3, "pending": 1, "open_items_for_ds": []}, "items": [{"id": "H-DS1", "source_review": "DS-20261018-001", "statement": "Top-K + 层级压缩后 cos 从 0.42 飙升到 0.85 以上", "falsifiable_criterion": "Qwen2.5-0.5B/2048/V1.5 下端到端 final_hidden cos ≥ 0.85", "data_source": "results/real_model_v15_topk8.json", "status": "refuted", "evidence_file": "results/real_model_v15_topk8.json", "ds_admitted_refutation": true, "fate_note": "实测 cos 最高 0.765（topk K=8），方向成立但量级未达 0.85；argmax 2.32%→42.6%。DS 于 DS-20261018-004 显式承认被数据推翻（0.85 为盲目乐观，0.765 已是 KV 压缩下的真实物理上限）。"}, {"id": "H-DS2", "source_review": "DS-20261018-002", "statement": "argmax 一致率从 2.32% 飙升到 80% 以上", "falsifiable_criterion": "Qwen2.5-0.5B/2048/V1.5 下 logits argmax 一致率 ≥ 80%", "data_source": "results/real_model_v15_topk8.json", "status": "refuted", "evidence_file": "results/real_model_v15_topk8.json", "ds_admitted_refutation": true, "fate_note": "实测 argmax 一致率最高 42.6%（topk K=8），未达 80%；0.5B/2048 容量受限，需 7B 复核。DS 于 DS-20261018-004 显式承认：80% 对首次修正策略过于激进，42.6% 已是跨越式提升。"}, {"id": "H-DS3", "source_review": "DS-20261018-002", "statement": "调度 Pareto 组合 K=3（最大陈旧 3 轮）+ α=0.8（EMA 快收敛）", "falsifiable_criterion": "(K=3, α=0.8) 为 max_stale×α 网格中唯一 max_freshness_err ≤ 0.05 且耗时最低的 Pareto 点", "data_source": "results/turns_maxstale_matrix.json", "status": "refuted", "evidence_file": "results/turns_maxstale_matrix.json", "ds_admitted_refutation": true, "fate_note": "全矩阵 6 格重建后 K=3/α=0.9 双误差均 0.0000 且耗时更低（28.5s）；原 K=3/α=0.8（峰值 0.0442）非 Pareto 点，原矩阵缺该格致误判。DS 于 DS-20261018-004 显式承认：局部缺格导致 Pareto 误判，0.9 才是真正 Pareto 点。"}, {"id": "H-DS4", "source_review": "DS-20261018-002", "statement": "先白化再聚类（Mean-Centering），或备选 L1/秩度量；不要迷信 L2", "falsifiable_criterion": "centered 度量分组质量(ARI_topic)优于 cosine；l2 无归一化下不优于 centered", "data_source": "results/REAL_MODEL_VALIDATION_V15.md", "status": "confirmed", "evidence_file": "results/REAL_MODEL_VALIDATION_V15.md", "ds_admitted_refutation": false, "fate_note": "实测 ARI_topic：centered=0.332 ≫ cosine=0.108 ≈ l2=0.127；裁定 centered 为默认度量。"}, {"id": "H-DS5", "source_review": "DS-20261018-002", "statement": "真实显存须实降 30% 以上才算工程有效；勿用合成高斯替代真实隐空间", "falsifiable_criterion": "7B 真实模型 max_memory_allocated/reserved 下降 ≥ 30%", "data_source": "results/real_model_v15.json", "status": "pending", "evidence_file": "", "ds_admitted_refutation": false, "fate_note": "0.5B 端 KV 记账节省 44.7%（>30%）初步支持方向；7B 真实显存(memory_reserved)门控待 Kaggle 复核。"}, {"id": "H-DS6", "source_review": "DS-20261018-003", "statement": "双方恪守五大合作纪律 + 交接协议 + 防幻觉核查分工", "falsifiable_criterion": "WB 侧存在逐条机械检验器且每轮产出台账；交接协议被遵守", "data_source": "results/discipline_ledger.yaml", "status": "confirmed", "evidence_file": "results/discipline_ledger.yaml", "ds_admitted_refutation": false, "fate_note": "已落地 DISCIPLINE.md + check_discipline.py + discipline_ledger.yaml（R1 GREEN）。"}]}, "reviews": [{"file": "20261018_001_review.md", "meta": {"review_id": "DS-20261018-001", "source_url": "https://chat.deepseek.com/share/04vvysa5m0i6oeq2e8", "date": "2026-10-18", "reviewer": "DeepSeek", "focus": "V1.5 压缩策略评审（基于 v0.1.2 真实模型端到端失败归因）", "disciplines_proposed": [], "sources": [], "hypotheses": [{"id": "H-DS1", "statement": "等 WorkBuddy 把 Top-K 代表 Token 和层级选择性压缩加进去，cos 相似度绝对会从 0.42 飙升到 0.85 以上", "falsifiable_criterion": "在 Qwen2.5-0.5B / 2048 token / V1.5(topk+中层压缩) 下，端到端 final_hidden cos ≥ 0.85", "data_source": "results/real_model_v15_topk8.json（端到端保真度）", "status": "refuted", "evidence_file": "results/real_model_v15_topk8.json", "ds_admitted_refutation": false, "fate_note": "方向成立（cos 0.42→0.76）、但 0.85 量级未达；argmax 2.32%→42%（K=8）同样未达 DS 量级预判。DS 尚未在后续评审显式承认。"}]}, "body": "# 理论背景（Why）\n\n分析 v0.1.2 真实模型慢速验证结果：V0 重排不变性 cos=1.000000（Triton 化数学前提已过），但端到端 final_hidden cos=0.4199、argmax 一致率仅 2.32%，needle 三位置全失败（0.5B 中段基线自身不可靠）。DeepSeek 诊断四类根因：(1) flat-mean 抹杀局部细节；(2) 全层（1-12 层）应用太激进，底层语法树崩坏；(3) τ=0.97 暴露真实隐状态严重各向异性（余弦失效）；(4) 0.5B 容量脆弱。\n\n# 具体步骤（What）\n\n给 WorkBuddy 的修正指令：\n1. 废弃 flat-mean，改用三种保护性压缩（V1.5）：代表 Token 法（Top-K，每群保留 Attention 最高的 K=2 或 4 个真实 KV）、加权重构法（Attention-Weighted Sum）、Attention Sink 保护（前 4 token + 最近滑窗不压缩）。\n2. 层级选择性压缩：12 层模型仅第 6-10 层应用语义群压缩，底层（1-5）与顶层（11-12）保持原样。\n3. 修复距离度量：抛弃余弦（各向异性致坍缩），改用 L2 欧氏距离，或算余弦前先减中心向量（Centering）。\n4. Kaggle 7B 预案：先测 Qwen2.5-7B 无压缩基线 needle，确认原始命中正常后再挂载 V1.5；显存监控加 `torch.cuda.memory_reserved`。\n\n# 验收标准（How）\n\n- 端到端 cos 从 0.42 飙升到 0.85 以上（见 H-DS1）。\n- 上 Kaggle 后 7B 实打实省 50% 显存且 needle 不崩 → 可写顶会论文。\n- 数学地基已夯实（V0=1.0），上 GPU 写 Triton 算子只是时间问题。"}, {"file": "20261018_002_review.md", "meta": {"review_id": "DS-20261018-002", "source_url": "https://chat.deepseek.com/share/2qcolq0i1yqstt18z3", "date": "2026-10-18", "reviewer": "DeepSeek", "focus": "全程讨论整理（军规 + 实验注意 + 第一行动序列）", "disciplines_proposed": [], "sources": ["CRDT/EMA 增量更新滞后极限 (1-α)·Δw（理论推演，无外部文献链接）", "各向异性低秩偏置归因：W^O 降维 / 残差连接 / Adam 偏差 / 下一词预测目标（理论推演）"], "hypotheses": [{"id": "H-DS2", "statement": "切片实验：在本地 CPU 的 0.5B 上重跑，看 argmax 一致率 能否从 2.32% 飙升到 80% 以上", "falsifiable_criterion": "Qwen2.5-0.5B / 2048 token / V1.5(topk+中层+sink) 下，端到端 logits argmax 一致率 ≥ 80%", "data_source": "results/real_model_v15_topk8.json（needle 端到端 argmax 一致率）", "status": "refuted", "evidence_file": "results/real_model_v15_topk8.json", "ds_admitted_refutation": false, "fate_note": "实测 argmax 一致率最高 42.6%（topk K=8），未达 80%。0.5B/2048 容量下难以企及，需 7B 复核。DS 尚未显式承认。"}, {"id": "H-DS3", "statement": "采纳 Pareto 组合：调度器采用 CPU 测出的最优参数 K=3（最大陈旧 3 轮）+ α=0.8（EMA 快收敛）", "falsifiable_criterion": "max_stale × α 网格扫描中，(K=3, α=0.8) 为唯一 max_freshness_err ≤ 0.05 且耗时最低的 Pareto 点", "data_source": "results/turns_maxstale_matrix.json（max_stale × α 全矩阵）", "status": "refuted", "evidence_file": "results/turns_maxstale_matrix.json", "ds_admitted_refutation": false, "fate_note": "全矩阵 6 格重建后发现 K=3/α=0.9 双误差均 0.0000 且耗时更低（28.5s），原 K=3/α=0.8（峰值 0.0442）非 Pareto 点。DS 尚未显式承认。"}, {"id": "H-DS4", "statement": "先白化再聚类（Mean-Centering/ZCA），或备选 L1/秩度量；不要迷信欧氏距离 L2（除非先范数归一化）", "falsifiable_criterion": "在真实隐状态上，centered 度量的分组质量（ARI_topic）应优于 cosine；l2 在无归一化下不应优于 centered", "data_source": "results/REAL_MODEL_VALIDATION_V15.md（度量对比：centered/cosine/l2）", "status": "confirmed", "evidence_file": "results/REAL_MODEL_VALIDATION_V15.md", "ds_admitted_refutation": false, "fate_note": "实测 ARI_topic：centered=0.332 ≫ cosine=0.108 ≈ l2=0.127；l2 仅在原始幅值分离上有边际价值，方向性结论成立。裁定 centered 为默认度量。"}, {"id": "H-DS5", "statement": "真实显存测量：用 max_memory_allocated 测真实吃掉显存，只有实打实下降 30% 以上才证明工程有效；不要用合成高斯混合替代真实隐空间", "falsifiable_criterion": "7B 真实模型上 max_memory_allocated / memory_reserved 下降 ≥ 30%", "data_source": "results/real_model_v15.json（KV 记账节省；7B 真实显存待 Kaggle 复核）", "status": "pending", "evidence_file": "", "ds_admitted_refutation": false, "fate_note": "0.5B 端 KV 记账节省 44.7%（>30%）已初步支持方向；但 7B 真实显存（memory_reserved）门控尚未跑，状态 pending。"}]}, "body": "# 理论背景（Why）\n\n从架构构思、CPU 纯算法模拟到真实小模型（0.5B）隐空间探查的全过程整理。核心理论启示：(1) LLM 隐空间天然低秩→各向异性→余弦系统性失效；(2) 纯增量更新必有数学滞后极限 (1-α)·Δw→须 Max Stale 硬约束兜底；(3) 均值是破坏局部细节的毒药→须 Top-K/加权+Sink 保护；(4) 层间分工须从硬编码走向可学习 Selector。\n\n# 具体步骤（What）\n\n度量与分组：先白化再聚类（Mean-Centering/ZCA），备选 L1/秩度量，不要迷信 L2。压缩策略：Top-K 代表保留（K=2 或 4）、分层（中间层 6-10）、Anchor 保护（前 4 token + 最近 N token 踢出压缩池）、禁全层 flat-mean。调度：Pareto 组合 K=3+α=0.8、分阶段重组（边界全量/Decode 仅 EMA）、不阻塞 GPU。模型与评估：换 7B/Llama-8B 复核、真实显存降 30%+、不用合成数据替代真实隐空间。\n\n# 验收标准（How）\n\n- 第一行动序列：改 Grouper 加 Mean-Centering → 改 KV 压缩为 Top-K+Sink → 0.5B 切片看 argmax 能否 2.32%→80%+（H-DS2）→ 上 Kaggle 7B 跑「基线→中间层+Top-K→加调度」三阶段。\n- 显存须实降 30%+（H-DS5）。\n- Pareto 组合 K=3+α=0.8 为最优（H-DS3，已证伪见上）。"}, {"file": "20261018_003_review.md", "meta": {"review_id": "DS-20261018-003", "source_url": "https://chat.deepseek.com/share/3v58y9mfa5x2t0pjxh", "date": "2026-10-18", "reviewer": "DeepSeek", "focus": "双方合作纪律提案（角色分工 + 五大纪律 + 交接协议）", "disciplines_proposed": ["纪律1 架构与代码解耦（契约优先）", "纪律2 负面结果必须原样归档", "纪律3 环境隔离与降级测试", "纪律4 参数冻结与版本追踪", "纪律5 知识共享格式统一"], "sources": [], "hypotheses": [{"id": "H-DS6", "statement": "双方应恪守五大合作纪律（契约优先/负面归档/环境隔离/参数冻结/格式统一），并遵守交接协议与防幻觉核查分工", "falsifiable_criterion": "WorkBuddy 侧存在逐条机械检验器（check_discipline.py）且每轮产出台账；交接协议被双方遵守", "data_source": "results/discipline_ledger.yaml + tools/check_discipline.py + DISCIPLINE.md", "status": "confirmed", "evidence_file": "results/discipline_ledger.yaml", "ds_admitted_refutation": false, "fate_note": "已落地：DISCIPLINE.md + check_discipline.py + discipline_ledger.yaml（R1 GREEN，5/5 PASS）。本提案被完整机制化。"}]}, "body": "# 理论背景（Why）\n\n分析 DeepSeek（首席科学家/架构师/红队）与 WorkBuddy（研发总监/实验执行者）的「理论推演 ↔ 工程实证」双向闭环。数据是唯一裁判：当直觉被真实数据推翻时须立即承认。为维持高效闭环必须建立规则。\n\n# 具体步骤（What）\n\n角色分工：DeepSeek 负责 What&Why（假设、实验矩阵、归因、跨域迁移），无执行环境、结论须经 WB 数据确认；WorkBuddy 负责 How（代码、测试、采集、打包），不擅改契约、不美化结果、不把 CPU 结论当 GPU 结论。五大纪律：契约优先（--check-interfaces 全绿）、负面结果原样归档、环境隔离降级测试、参数冻结版本追踪、格式统一（数据表+结论+文件清单 / Why+What+How）。其他事项：交接协议（tar.gz+负结果 Markdown+悬而未决问题；接收方须明确「已复核同意」或「发现异常」）、防幻觉核查分工（WB 查包名/API，DS 查文献）、算力成本控制、第三方 Agent 预案（中间张量格式早冻结）。\n\n# 验收标准（How）\n\n- 每条纪律有可执行的校验机制，而非口头约定。\n- 交接物齐备且接收方明确回应，不允许已读不回。\n- 红线：连续两轮 RED 必须停下修流程而非带病推进。"}, {"file": "20261018_004_review.md", "meta": {"review_id": "DS-20261018-004", "source_url": "https://chat.deepseek.com/share/3wrpm0cvjjgugrg91x", "date": "2026-10-18", "reviewer": "DeepSeek", "focus": "对等纪律承认 + H-DS1/H-DS2/H-DS3 显式承认（闭环）", "disciplines_proposed": [], "sources": [], "hypotheses": [{"id": "H-DS1", "statement": "Top-K + 层级压缩后 cos 从 0.42 飙升到 0.85 以上", "falsifiable_criterion": "Qwen2.5-0.5B/2048/V1.5 下端到端 final_hidden cos ≥ 0.85", "data_source": "results/real_model_v15_topk8.json", "status": "refuted", "evidence_file": "results/real_model_v15_topk8.json", "ds_admitted_refutation": true, "fate_note": "DS 于 DS-20261018-004 显式承认被数据推翻：0.85 是盲目乐观，0.765 已是 KV 压缩下的真实物理上限（信息压缩必然伴随表征锐度折损）。"}, {"id": "H-DS2", "statement": "argmax 一致率从 2.32% 飙升到 80% 以上", "falsifiable_criterion": "Qwen2.5-0.5B/2048/V1.5 下 logits argmax 一致率 ≥ 80%", "data_source": "results/real_model_v15_topk8.json", "status": "refuted", "evidence_file": "results/real_model_v15_topk8.json", "ds_admitted_refutation": true, "fate_note": "DS 于 DS-20261018-004 显式承认：80% 对首次修正策略过于激进，42.6% 已是跨越式提升（2.32%→42.6% 已是数量级跃升）。"}, {"id": "H-DS3", "statement": "调度 Pareto 组合 K=3（最大陈旧 3 轮）+ α=0.8（EMA 快收敛）", "falsifiable_criterion": "(K=3, α=0.8) 为 max_stale×α 网格中唯一 max_freshness_err ≤ 0.05 且耗时最低的 Pareto 点", "data_source": "results/turns_maxstale_matrix.json", "status": "refuted", "evidence_file": "results/turns_maxstale_matrix.json", "ds_admitted_refutation": true, "fate_note": "DS 于 DS-20261018-004 显式承认：原矩阵缺格导致 Pareto 误判，全矩阵重建后 K=3/α=0.9 双误差均 0.0000 且耗时更低，0.9 才是真正 Pareto 点。"}]}, "body": "# 理论背景（Why）\n\n完全接受。WorkBuddy 反向生成对等纪律 + 用真实数据强制认错，做得极漂亮，这正是「数据是唯一裁判」的科学闭环。不美化、不嘴硬，结论必须对齐数据。\n\n三条预判为何会错：\n- **H-DS1 & H-DS2 错在低估了 LLM 各向异性的破坏力**：我原以为中心化（Centering）+ Top-K 能瞬间拉平误差，但 K=8 仍丢失了太多长尾 Token 的精确位置信息。0.765 的 cos 与 42.6% 的 argmax 在工程上已是巨大的正向前进（相对 V0 的 0.42 / 2.32% 是数量级跃升），但 80% 的预测违背了信息论的物理极限——高度压缩必然伴随表征锐度的折损。\n- **H-DS3 错在「局部最优」导致的视野盲区**：基于缺失行列的矩阵就轻率定下 Pareto 点，是典型的数据分析失误。0.9 的 EMA 收敛快，在 3 轮陈旧限制下能更快逼近真值，这纠正了我的盲目直觉。\n\n# 具体步骤（What）\n\n- **关闭开放项**：在 `hypothesis_ledger.yaml` 中将 H-DS1、H-DS2、H-DS3 标记为 `refuted`，并把 `ds_admitted_refutation` 置 `true`，附上上述数据证据（本评审即承认动作）。\n- **采纳 Pareto 更新**：将调度器默认的 EMA 系数修正为 **α=0.9**（K=3/α=0.9 为真正 Pareto 点）。\n- **下一步指令（针对 42.6% 的 argmax）**：既然 Top-K=8 已接近单一策略的上限，**请立即放弃继续加大 K 的路径**——这是算力浪费。下个实验（E1.5）转为测试「Attention Sink + 最近滑动窗口 + Top-K 混合压缩」：仅保护前 4 个 Token 与最近的 128 个 Token（全量保留），中段用 K=4 代表，看 argmax 能否突破 50%。\n\n# 验收标准（How）\n\n- 本评审已满足 DS-D4 闭环要求：H-DS1/H-DS2/H-DS3 全部显式承认被数据推翻，台账开放项清零。\n- 后续 E1.5 混合保护实验的可证伪目标：在 Qwen2.5-0.5B 下，加入 Sink(4)+局部窗口(128) 保护、中段 K=4 代表时，**argmax 一致率突破 50%**。\n- 证伪线：若该策略下 argmax 仍 `< 45%`，说明 0.5B 模型本身鲁棒性已达瓶颈，必须直接上 Kaggle 7B 复核。\n- 数据存证预期落点：`results/real_model_v15_hybrid_protection.json`。\n\n**正式声明**：我，DeepSeek，在此确认全盘接受 DS-D1 至 DS-D5 纪律。对 H-DS1、H-DS2、H-DS3 的证伪结果无异议，完全认错。今后所有评审均按 `ds_review_template.md` 落盘，不逃避归因，与 WorkBuddy 共勉。"}], "open_items": []}};
+</script>
+<script>
+// markdown.js — 轻量 Markdown -> HTML 渲染器
+// 覆盖 DS 评审用到的语法：标题 / 粗斜体 / 行内码 / 代码块 / 有序无序列表 /
+// 引用块 / 链接 / 分割线 / 段落。不做完整 CommonMark，只保证看板可读。
+(function (global) {
+  "use strict";
+
+  function escapeHtml(s) {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // 行内：先转义，再做 **粗** *斜* `码` [链接](url)
+  function inline(text) {
+    let s = escapeHtml(text);
+    // 行内代码（优先，避免内部被其它规则破坏）
+    s = s.replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`);
+    // 粗体
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    // 斜体
+    s = s.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+    // 链接 [text](url)
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, t, u) => {
+      const safe = /^(https?:|#|\/)/.test(u) ? u : "#";
+      return `<a href="${safe}" target="_blank" rel="noopener">${t}</a>`;
+    });
+    return s;
+  }
+
+  function render(md) {
+    if (!md) return "";
+    const lines = md.replace(/\r\n/g, "\n").split("\n");
+    let html = "";
+    let i = 0;
+    let listType = null; // 'ul' | 'ol' | null
+
+    function closeList() {
+      if (listType) {
+        html += `</${listType}>`;
+        listType = null;
+      }
+    }
+
+    while (i < lines.length) {
+      let line = lines[i];
+
+      // 代码块
+      if (/^```/.test(line)) {
+        closeList();
+        const buf = [];
+        i++;
+        while (i < lines.length && !/^```/.test(lines[i])) {
+          buf.push(escapeHtml(lines[i]));
+          i++;
+        }
+        i++; // 跳过结束 ```
+        html += `<pre><code>${buf.join("\n")}</code></pre>`;
+        continue;
+      }
+
+      // 分割线
+      if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+        closeList();
+        html += "<hr/>";
+        i++;
+        continue;
+      }
+
+      // 标题
+      const h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        closeList();
+        const lvl = h[1].length;
+        html += `<h${lvl}>${inline(h[2])}</h${lvl}>`;
+        i++;
+        continue;
+      }
+
+      // 引用块
+      if (/^>\s?/.test(line)) {
+        closeList();
+        const buf = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) {
+          buf.push(inline(lines[i].replace(/^>\s?/, "")));
+          i++;
+        }
+        html += `<blockquote>${buf.join("<br/>")}</blockquote>`;
+        continue;
+      }
+
+      // 无序列表
+      const ul = line.match(/^\s*[-*]\s+(.*)$/);
+      if (ul) {
+        if (listType !== "ul") {
+          closeList();
+          html += "<ul>";
+          listType = "ul";
+        }
+        html += `<li>${inline(ul[1])}</li>`;
+        i++;
+        continue;
+      }
+
+      // 有序列表
+      const ol = line.match(/^\s*\d+\.\s+(.*)$/);
+      if (ol) {
+        if (listType !== "ol") {
+          closeList();
+          html += "<ol>";
+          listType = "ol";
+        }
+        html += `<li>${inline(ol[1])}</li>`;
+        i++;
+        continue;
+      }
+
+      // 空行
+      if (/^\s*$/.test(line)) {
+        closeList();
+        i++;
+        continue;
+      }
+
+      // 普通段落（合并连续非空行）
+      closeList();
+      const buf = [line];
+      i++;
+      while (
+        i < lines.length &&
+        !/^\s*$/.test(lines[i]) &&
+        !/^(#{1,6}\s|>\s?|\s*[-*]\s|\s*\d+\.\s|```)/.test(lines[i])
+      ) {
+        buf.push(lines[i]);
+        i++;
+      }
+      html += `<p>${inline(buf.join(" "))}</p>`;
+    }
+    closeList();
+    return html;
+  }
+
+  global.MarkdownRenderer = { render };
+})(window);
+
+</script>
+  <script>
+// app.js — Agora 看板主逻辑
+(function () {
+  "use strict";
+
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
+
+  let CONFIG = {};
+  let BUNDLE = null;
+
+  const SECTIONS_HTML = `
+    <section id="overview">
+      <div class="section-head"><h2>概览</h2><span class="hint">单向数据流：results/ 为唯一事实来源 → build_bundle.py → 看板</span></div>
+      <div id="open-callout" class="callout" style="display:none"></div>
+      <div class="cards" id="ov-cards"></div>
+    </section>
+
+    <section id="ledger">
+      <div class="section-head"><h2>假设台账 · Hypothesis Ledger</h2><span class="hint">DS 提出的每一条预判/处方，带 status 与命运说明</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>假设陈述</th><th>可证伪标准</th><th>数据源</th><th>状态</th><th>证据文件</th><th>DS 承认</th>
+          </tr></thead>
+          <tbody id="ledger-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="discipline">
+      <div class="section-head"><h2>双边纪律检查 · Discipline Ledger</h2><span class="hint">WB 侧 D1–D5 + DS 侧 DS-D1..DS-D5，由 check_discipline.py 逐轮机械检验</span></div>
+      <div id="discipline-rounds"></div>
+    </section>
+
+    <section id="reviews">
+      <div class="section-head"><h2>DS 评审画廊 · Reviews</h2><span class="hint">DeepSeek 按 ds_review_template.md 落盘的评审档案</span></div>
+      <div class="reviews" id="reviews"></div>
+    </section>
+
+    <section id="files">
+      <div class="section-head"><h2>原始文件 · Raw Sources</h2><span class="hint">复制 Raw 链接，发给 DeepSeek 即可让其直接读取纯文本（DS 无浏览器，靠人肉 API Gateway）</span></div>
+      <div class="files" id="files"></div>
+    </section>
+
+    <section id="inject">
+      <div class="section-head"><h2>DS 上下文注入包</h2><span class="hint">一键复制，粘贴给 DeepSeek 完成闭环</span></div>
+      <div class="toolbar">
+        <button class="btn" id="inject-copy">复制注入包</button>
+        <span class="hint">含最新台账 Raw 链接 + 开放项清单 + 格式要求</span>
+      </div>
+      <pre class="inject-box" id="inject-box"></pre>
+    </section>
+
+    <div class="foot">
+      Agora · 雅典学院 — 把聊天框里的散漫对话，固化为 <code>有版本控制 / 有审计日志 / 有看板</code> 的现代协作。<br/>
+      数据源：<code>semantickv-reorg/results/</code> · 刷新看板：<code>python3 build_bundle.py</code>
+    </div>`;
+
+  // ---------- 工具 ----------
+  function statusPillClass(status) {
+    return ["pending", "confirmed", "refuted"].includes(status) ? status : "pending";
+  }
+
+  function verdictClass(v) {
+    if (!v) return "red";
+    if (v.startsWith("GREEN-WITH")) return "warn";
+    if (v === "GREEN") return "green";
+    if (v === "RED") return "red";
+    return "warn";
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showToast).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+    function fallbackCopy() {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); showToast(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  }
+
+  let toastTimer = null;
+  function showToast(msg = "已复制到剪贴板") {
+    const t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+
+  function rawUrl(path) {
+    const base = (CONFIG.raw_base || "").replace(/\/+$/, "/");
+    return base + path.replace(/^\/+/, "");
+  }
+
+  // ---------- 渲染 ----------
+  function renderOverview() {
+    const h = BUNDLE.hypotheses;
+    const meta = h ? h.meta : {};
+    const hypItems = h ? h.items : [];
+    const conf = hypItems.filter((x) => x.status === "confirmed").length;
+    const ref = hypItems.filter((x) => x.status === "refuted").length;
+    const pend = hypItems.filter((x) => x.status === "pending").length;
+    const open = BUNDLE.open_items || [];
+    const disc = BUNDLE.discipline;
+    const verdict = disc ? disc.last_verdict : "—";
+
+    $("#ov-cards").innerHTML = [
+      card("假设总数", hypItems.length, `confirmed ${conf} · refuted ${ref} · pending ${pend}`),
+      card("待 DS 承认开放项", open.length, open.length ? open.join(" / ") + " 被证伪未承认" : "无 · DS-D4 闭合", open.length ? "open" : ""),
+      card("纪律末轮判定", verdict || "—", `回合 ${disc ? disc.rounds.length : 0} 轮`, verdictClass(verdict)),
+      card("DS 评审归档", (BUNDLE.reviews || []).length, "按 ds_review_template.md 落盘"),
+    ].join("");
+
+    // 顶部状态灯
+    const v = $("#verdict");
+    v.className = "verdict " + verdictClass(verdict);
+    v.innerHTML = `<span class="dot"></span>${verdict || "—"}`;
+
+    if (open.length) {
+      $("#open-callout").style.display = "block";
+      $("#open-callout").innerHTML =
+        `⚠ <b>开放项（DS-D4 WARN）</b>：以下假设已被真实数据证伪，但 DeepSeek 尚未在评审中显式承认 —— ` +
+        open.map((id) => `<code>${id}</code>`).join(" 、") +
+        `。请将「DS 上下文注入包」发给 DeepSeek，要求其下一轮评审逐条承认。`;
+    } else {
+      $("#open-callout").style.display = "none";
+    }
+  }
+
+  function card(k, v, d, extra = "") {
+    return `<div class="card">
+      <div class="k">${k}</div>
+      <div class="v ${extra}">${v}</div>
+      <div class="d">${d}</div>
+    </div>`;
+  }
+
+  function renderLedger() {
+    const h = BUNDLE.hypotheses;
+    if (!h) return;
+    const rows = h.items
+      .map((x) => {
+        const isOpen = x.status === "refuted" && !x.ds_admitted_refutation;
+        const statusHtml = isOpen
+          ? `<span class="pill open">待承认</span>`
+          : `<span class="pill ${statusPillClass(x.status)}">${x.status}</span>`;
+        const admit = x.status === "refuted"
+          ? (x.ds_admitted_refutation ? '<span class="yes">✓ 已承认</span>' : '<span class="no">✗ 未承认</span>')
+          : '<span class="muted">—</span>';
+        const ev = x.evidence_file
+          ? `<a class="evidence" href="${rawUrl(x.evidence_file)}" target="_blank">${x.evidence_file}</a>`
+          : '<span class="muted">—</span>';
+        const fate = x.fate_note ? `<div class="muted" style="margin-top:4px;font-size:12px">${x.fate_note}</div>` : "";
+        return `<tr>
+          <td class="id">${x.id}</td>
+          <td class="statement">${x.statement || ""}${fate}</td>
+          <td class="evidence">${x.falsifiable_criterion || ""}</td>
+          <td class="evidence">${x.data_source || ""}</td>
+          <td>${statusHtml}</td>
+          <td>${ev}</td>
+          <td>${admit}</td>
+        </tr>`;
+      })
+      .join("");
+    $("#ledger-body").innerHTML = rows;
+  }
+
+  function renderDiscipline() {
+    const d = BUNDLE.discipline;
+    if (!d) return;
+    const rounds = (d.rounds || [])
+      .slice()
+      .reverse()
+      .map((r) => {
+        const summary = r.summary || {};
+        const checks = (r.checks || [])
+          .map((c) => {
+            const cls = (c.status || "").toLowerCase();
+            return `<tr>
+              <td>${c.check}</td>
+              <td><span class="pill ${cls}">${c.status}</span></td>
+              <td class="muted">${c.detail || ""}</td>
+            </tr>`;
+          })
+          .join("");
+        const verdictCls = verdictClass(summary.verdict);
+        return `<div class="card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <span style="font-weight:700">${r.round}</span>
+            <span class="muted" style="font-size:12px;font-family:var(--mono)">${r.timestamp || ""}</span>
+            <span class="verdict ${verdictCls}" style="margin-left:auto;padding:4px 12px;font-size:12px">
+              <span class="dot"></span>${summary.verdict || "—"}
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>检查项</th><th>结果</th><th>明细</th></tr></thead>
+              <tbody>${checks}</tbody>
+            </table>
+          </div>
+          <div class="muted" style="font-size:12px;margin-top:10px">
+            PASS ${summary.pass || 0} · WARN ${summary.warn || 0} · FAIL ${summary.fail || 0}
+          </div>
+        </div>`;
+      })
+      .join("");
+    $("#discipline-rounds").innerHTML = rounds;
+  }
+
+  function renderReviews() {
+    const reviews = BUNDLE.reviews || [];
+    $("#reviews").innerHTML = reviews
+      .map((rv, idx) => {
+        const m = rv.meta || {};
+        const hyps = (m.hypotheses || [])
+          .map((hh) => {
+            const cls = statusPillClass(hh.status);
+            return `<span class="pill ${cls}" title="${hh.id}">${hh.id}:${hh.status}</span>`;
+          })
+          .join("");
+        return `<div class="review" data-idx="${idx}">
+          <div class="rv-head">
+            <span class="rv-id">${m.review_id || rv.file}</span>
+            <span class="rv-focus">${m.focus || ""}</span>
+            <span class="rv-date">${m.date || ""} · ${m.reviewer || "DeepSeek"}</span>
+          </div>
+          ${hyps ? `<div class="rv-hyps">${hyps}</div>` : ""}
+          <div class="rv-body md collapsed">${window.MarkdownRenderer.render(rv.body)}</div>
+          <div class="rv-toggle">
+            <button class="toggle-btn" data-toggle="${idx}">展开全文 ▾</button>
+            <button class="btn ghost" data-copyraw="${rawUrl("results/ds_reviews/" + rv.file)}" style="margin-left:8px">复制 Raw 链接</button>
+          </div>
+        </div>`;
+      })
+      .join("");
+
+    $$("[data-toggle]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const body = $(`.review[data-idx="${b.dataset.toggle}"] .rv-body`);
+        const collapsed = body.classList.toggle("collapsed");
+        b.textContent = collapsed ? "展开全文 ▾" : "收起 ▴";
+      });
+    });
+    $$("[data-copyraw]").forEach((b) => {
+      b.addEventListener("click", () => copyText(b.dataset.copyraw));
+    });
+  }
+
+  function renderFiles() {
+    const files = CONFIG.files || [];
+    $("#files").innerHTML = files
+      .map((f) => {
+        const url = rawUrl(f.path);
+        return `<div class="file-row">
+          <div style="flex:1">
+            <div class="fname">${f.label}</div>
+            <div class="fpath">${f.path}</div>
+          </div>
+          <button class="btn" data-raw="${url}">复制 Raw 链接</button>
+        </div>`;
+      })
+      .join("");
+    $$("[data-raw]").forEach((b) => {
+      b.addEventListener("click", () => copyText(b.dataset.raw));
+    });
+  }
+
+  function buildInjection() {
+    const open = BUNDLE.open_items || [];
+    const h = BUNDLE.hypotheses;
+    const meta = h ? h.meta : {};
+    const disc = BUNDLE.discipline;
+    const reviews = BUNDLE.reviews || [];
+    const latestReview = reviews.length ? reviews[reviews.length - 1].file : "";
+    const base = CONFIG.raw_base || "[设置 config.json 的 raw_base]";
+
+    const lines = [
+      "【Agora 上下文注入包 · 给 DeepSeek】",
+      "仓库 Raw 基址: " + base,
+      "",
+      "■ 假设台账 (6 条: " +
+        (meta.confirmed || 0) + " confirmed / " +
+        (meta.refuted || 0) + " refuted / " +
+        (meta.pending || 0) + " pending)",
+      "  " + rawUrl("results/hypothesis_ledger.yaml"),
+      "",
+      "■ 双边纪律台账 (末轮 " + (disc ? disc.last_verdict : "—") + ")",
+      "  " + rawUrl("results/discipline_ledger.yaml"),
+      "",
+      "■ 最新 DS 评审",
+      "  " + rawUrl("results/ds_reviews/" + latestReview),
+      "",
+      "■ 待你显式承认的开放项 (DS-D4): " + (open.length ? open.join(" / ") : "无"),
+      open.length
+        ? "  请在下一轮评审中逐条承认，并将 hypothesis_ledger.yaml 中对应条目的 ds_admitted_refutation 置 true。"
+        : "  已全部闭合。",
+      "",
+      "■ 要求: 按 templates/ds_review_template.md (YAML frontmatter + 三段式) 回复，假设须带可证伪标准与 data_source。",
+    ];
+    return lines.join("\n");
+  }
+
+  function renderInjection() {
+    const txt = buildInjection();
+    $("#inject-box").textContent = txt;
+  }
+
+  // ---------- nav / scroll ----------
+  function initNav() {
+    const links = $$(".nav a");
+    const sections = links.map((a) => $(a.getAttribute("href")));
+    links.forEach((a) =>
+      a.addEventListener("click", () => {
+        links.forEach((x) => x.classList.remove("active"));
+        a.classList.add("active");
+      })
+    );
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            const id = "#" + e.target.id;
+            links.forEach((x) => x.classList.toggle("active", x.getAttribute("href") === id));
+          }
+        });
+      },
+      { rootMargin: "-80px 0px -60% 0px" }
+    );
+    sections.forEach((s) => s && obs.observe(s));
+  }
+
+  // ---------- boot ----------
+  async function boot() {
+    try {
+      let cfg, bundle;
+      if (window.__AGORA_EMBEDDED__) {
+        // 单文件版：数据已内联，无需 fetch（file:// 或离线也能用）
+        cfg = window.__AGORA_EMBEDDED__.config;
+        bundle = window.__AGORA_EMBEDDED__.bundle;
+      } else {
+        const [c, b] = await Promise.all([
+          fetch("./config.json").then((r) => r.json()),
+          fetch("./data/bundle.json").then((r) => r.json()),
+        ]);
+        cfg = c;
+        bundle = b;
+      }
+      CONFIG = cfg;
+      BUNDLE = bundle;
+    } catch (e) {
+      $("#app").innerHTML =
+        `<div class="loading">加载失败：${e.message}<br/>请确认通过 HTTP 服务访问（而非 file://），并已运行 build_bundle.py。</div>`;
+      return;
+    }
+
+    document.title = CONFIG.site_title || "Agora";
+    $("#site-title").textContent = CONFIG.site_title || "Agora";
+    $("#site-sub").textContent = CONFIG.subtitle || "";
+    $("#app").innerHTML = SECTIONS_HTML;
+    if (BUNDLE.generated_at) {
+      const t = new Date(BUNDLE.generated_at);
+      $("#sync-time").innerHTML = `数据同步: <b>${t.toLocaleString()}</b>`;
+    }
+
+    renderOverview();
+    renderLedger();
+    renderDiscipline();
+    renderReviews();
+    renderFiles();
+    renderInjection();
+    initNav();
+
+    $("#inject-copy").addEventListener("click", () =>
+      copyText($("#inject-box").textContent)
+    );
+  }
+
+  document.addEventListener("DOMContentLoaded", boot);
+})();
+
+</script>
+</body>
+</html>
