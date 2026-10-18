@@ -83,6 +83,9 @@ NEGATIVE_INVENTORY = [
      "v0.3.0 E1.5 对照+无压缩基线：topk K8/win128 argmax 44.91%@0.5（cos 0.7650 复现）；"
      "无压缩原始模型 needle 3 位置仅 1/3 命中（0.25 命中、0.5/0.75 失败）"
      "——0.5B 检索能力本身是瓶颈（DS-006 预警分支证实）"),
+    ("results/gqa_alignment_check.json",
+     "v0.3.0 GQA 对齐验证（非负面结果，登记以闭环 D2）：3/3 PASS ALIGNED——"
+     "Head 对齐错误不存在，E1.5 数据维持有效"),
 ]
 
 # E0 校准冻结值（纪律 4）
@@ -142,6 +145,15 @@ def _evidence_present(rel: str, d: dict) -> bool:
         row = (st.get("needle") or [{}])[0]
         pf = row.get("prefill_fidelity") or {}
         return pf.get("logits_argmax_agreement", 1.0) < 0.05
+    if rel == "results/gqa_alignment_check.json":
+        # 非负面结果（登记以闭环 D2）：verdict=ALIGNED、三项检查全 pass、
+        # 且数值误差字段仍在档（防止事后删证据改成"全 PASS"的漂亮话）
+        checks = d.get("checks") or []
+        verdict = (d.get("summary") or {}).get("verdict")
+        has_numeric = any(isinstance(c.get("max_abs_err"), (int, float))
+                          for c in checks)
+        return (verdict == "ALIGNED" and len(checks) >= 3
+                and all(c.get("pass") is True for c in checks) and has_numeric)
     # v15 系列：needle 阶段存在 compressed_hit=false 的行即算负面证据在档
     st = d.get("stages", {})
     for row in st.get("needle", []):

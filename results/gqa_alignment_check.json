@@ -1,0 +1,40 @@
+{
+  "config": {
+    "device": "cpu",
+    "dtype": "float32",
+    "purpose": "GQA 14Q/2KV Head 对齐验证（DS-20261018-009-WB1 / H-DS14）",
+    "path": "/workspace/models/Qwen2.5-0.5B",
+    "ctx": 512
+  },
+  "environment": {
+    "kind": "cpu-synthetic+real-model-smoke"
+  },
+  "checks": [
+    {
+      "test": "T1 repeat_kv 约定",
+      "pass": true,
+      "detail": "Q头 h 的 KV 来自 KV头 h//n_rep（2KV×7=14Q）"
+    },
+    {
+      "test": "T2 importance Q→KV 映射",
+      "pass": true,
+      "max_abs_err": 7.450580596923828e-09,
+      "detail": "attention_importance 归并严格遵循 h_q//n_rep（HF repeat_kv 约定）"
+    },
+    {
+      "test": "T3 hybrid(global)≡topk 端到端",
+      "pass": true,
+      "max_abs_err": 2.6226043701171875e-05,
+      "relative_err": 1.001568638591423e-06,
+      "argmax_agreement": 1.0,
+      "slots_per_layer": 100,
+      "detail": "分段 logsumexp 合并与联合 softmax 数值等价（fp32 相对误差 <1e-3）；选槽/因果掩码/GQA 头序全链路一致"
+    }
+  ],
+  "summary": {
+    "pass": 3,
+    "total": 3,
+    "verdict": "ALIGNED"
+  },
+  "wall_time_s": 11.0
+}
