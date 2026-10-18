@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-18T15:53:25.098482+00:00",
+  "generated_at": "2026-10-18T16:15:15.617616+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
       "meta": {
         "protocol": "DISCIPLINE.md §六",
         "rounds": [],
-        "last_round": "R8",
-        "last_run": "2026-10-18T23:53:19"
+        "last_round": "R9",
+        "last_run": "2026-10-19T00:15:06"
       }
     },
     "rounds": [
@@ -421,68 +421,6 @@
         }
       },
       {
-        "round": "R9",
-        "timestamp": "2026-10-18T23:42:08",
-        "checks": [
-          {
-            "check": "D1 契约优先",
-            "status": "PASS",
-            "detail": "--check-interfaces 全部通过"
-          },
-          {
-            "check": "D2 负面结果归档",
-            "status": "FAIL",
-            "detail": "负面指标不在档（疑被美化）: results/gqa_alignment_check.json"
-          },
-          {
-            "check": "D3 环境隔离",
-            "status": "PASS",
-            "detail": "18 个结果文件全部带环境标签"
-          },
-          {
-            "check": "D4 参数冻结",
-            "status": "PASS",
-            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
-          },
-          {
-            "check": "D5 格式统一",
-            "status": "PASS",
-            "detail": "4 份报告三段式齐全"
-          },
-          {
-            "check": "DS-D1 指令结构化",
-            "status": "PASS",
-            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
-          },
-          {
-            "check": "DS-D2 假设可证伪+来源",
-            "status": "PASS",
-            "detail": "全部假设带可证伪标准与数据来源"
-          },
-          {
-            "check": "DS-D3 引用可核查",
-            "status": "PASS",
-            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
-          },
-          {
-            "check": "DS-D4 结论对齐数据",
-            "status": "WARN",
-            "detail": "被数据推翻但未显式承认的假设（待 DS 下一轮承认）: ['H-DS14']"
-          },
-          {
-            "check": "DS-D5 假设台账状态",
-            "status": "PASS",
-            "detail": "12 条假设状态合法"
-          }
-        ],
-        "summary": {
-          "pass": 8,
-          "warn": 1,
-          "fail": 1,
-          "verdict": "RED"
-        }
-      },
-      {
         "round": "R10",
         "timestamp": "2026-10-18T23:42:16",
         "checks": [
@@ -605,11 +543,73 @@
           "fail": 0,
           "verdict": "GREEN-WITH-WARN"
         }
+      },
+      {
+        "round": "R9",
+        "timestamp": "2026-10-19T00:15:06",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 11 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "19 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "4 份报告三段式齐全"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "13 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 10,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
       }
     ],
     "last_round": {
-      "round": "R8",
-      "timestamp": "2026-10-18T23:53:19",
+      "round": "R9",
+      "timestamp": "2026-10-19T00:15:06",
       "checks": [
         {
           "check": "D1 契约优先",
@@ -624,7 +624,7 @@
         {
           "check": "D3 环境隔离",
           "status": "PASS",
-          "detail": "18 个结果文件全部带环境标签"
+          "detail": "19 个结果文件全部带环境标签"
         },
         {
           "check": "D4 参数冻结",
@@ -653,31 +653,31 @@
         },
         {
           "check": "DS-D4 结论对齐数据",
-          "status": "WARN",
-          "detail": "被数据推翻但未显式承认的假设（待 DS 下一轮承认）: ['H-DS14']"
+          "status": "PASS",
+          "detail": "refuted 假设均有数据证据；已承认或无需承认"
         },
         {
           "check": "DS-D5 假设台账状态",
           "status": "PASS",
-          "detail": "12 条假设状态合法"
+          "detail": "13 条假设状态合法"
         }
       ],
       "summary": {
-        "pass": 9,
-        "warn": 1,
+        "pass": 10,
+        "warn": 0,
         "fail": 0,
-        "verdict": "GREEN-WITH-WARN"
+        "verdict": "GREEN"
       }
     },
-    "last_verdict": "GREEN-WITH-WARN"
+    "last_verdict": "GREEN"
   },
   "hypotheses": {
     "meta": {
       "protocol": "DISCIPLINE.md §DeepSeek 对等纪律",
-      "total": 12,
+      "total": 13,
       "confirmed": 3,
       "refuted": 6,
-      "pending": 3,
+      "pending": 4,
       "open_items_for_ds": []
     },
     "items": [
@@ -799,19 +799,30 @@
         "data_source": "results/gqa_alignment_check.json",
         "status": "refuted",
         "evidence_file": "results/gqa_alignment_check.json",
-        "ds_admitted_refutation": false,
-        "fate_note": "WB1 对齐验证 3/3 PASS ALIGNED（T1 repeat_kv 约定 / T2 importance h_q//n_rep / T3 hybrid≡topk 端到端等价）——对齐错误不存在，无修复可做；E1.5 26.05% 即正确 GQA 真实值，仍 <45% → 维持转 7B 决议。『小幅回升』因前提不成立未发生，请 DS 复核口径。"
+        "ds_admitted_refutation": true,
+        "fate_note": "WB1 对齐验证 3/3 PASS ALIGNED（T1 repeat_kv 约定 / T2 importance h_q//n_rep / T3 hybrid≡topk 端到端等价）——对齐错误不存在，无修复可做；E1.5 26.05% 即正确 GQA 真实值，仍 <45% → 维持转 7B 决议。DS 于 DS-20261018-011-WB1 正式封卷：确认驳回、『小幅回升』因前提不成立未发生，0.5B 不再内耗，直接转 Kaggle 7B。"
       },
       {
         "id": "H-DS15",
         "source_review": "DS-20261018-009-WB1",
         "statement": "Kaggle 7B（4-bit + FP16 KV）上 LOCKS 式插件（摘要路由+索引重写）可保持 CUDA Graph 捕获成功且 p99 延迟 < 原生 1.5×",
-        "falsifiable_criterion": "若 T4 上无法捕获 CUDA Graph 或解码延迟增加 >200%，则插件层调度开销过大，退回 HARD-KV 离线重写",
+        "falsifiable_criterion": "DS-20261018-011 口径：若 CUDA Graph 捕获失败或 p99 延迟 > 原生 200%，则废弃在线插件，转离线 HARD-KV 重写（通过线 = 捕获成功且 p99 ≤1.5×）",
         "data_source": "results/kaggle_7b_vllm_plugin_bench.json",
         "status": "pending",
         "evidence_file": "",
         "ds_admitted_refutation": false,
-        "fate_note": "参考骨架已交付（vllm_plugin/ + sink_protect.py，等价性自检 7.2e-07 PASS）；实机 bench 待 Kaggle T4。"
+        "fate_note": "DS-20261018-011：① Router 空壳已按 DS 规格封装并注册 load_external_router（learned_router.py，纯 Linear+ReLU，导出 .pt，WB2 训练完直接 load_state_dict）；② Kaggle 实机排雷入 notebook Step 3：T4 跑 7B 裸基线时挂随机初始化 Router 空壳，验证 CUDA Graph 不被破坏 + 测 Router 基础延迟；③ 前置门禁 = 7B 无压缩基线 ≥2/3 needle 命中。实机 bench 待 Kaggle T4。"
+      },
+      {
+        "id": "H-DS17",
+        "source_review": "DS-20261018-011-WB1",
+        "statement": "外部挂载的轻量 SemanticRouter 参数量 <50M 时，可在 0.5ms 内完成一次群路由推理，不影响主流程",
+        "falsifiable_criterion": "若 Router 单次推理耗时 >2ms，或吃掉超过 10% 的 KV 显存，则退回 GSC 质心检索方案",
+        "data_source": "results/router_bench.json",
+        "status": "pending",
+        "evidence_file": "results/router_bench.json",
+        "ds_admitted_refutation": false,
+        "fate_note": "DS-20261018-011 新登记。Router 空壳 = learned_router.SemanticRouter(nn.Module)（q_dim=1024/hidden=256/num_groups=64 默认，7B 传 q_dim=3584）。CPU 冒烟已入档（results/router_bench.json，标注 cpu 环境）：参数量 ~0.28M（≪50M）、CPU 前向延迟远低于 2ms 线、权重显存占比极小——GPU(T4) 终测待 Kaggle。判定以 Kaggle 实机数据为准。"
       }
     ]
   },
@@ -1134,9 +1145,48 @@
         ]
       },
       "body": "# 理论背景（Why）\n\n0.5B 基线已证明是物理瓶颈，本阶段核心任务是把工程地基平移到 7B 真实战场：GQA 补丁（经 WB1 验证无需修复）、vLLM 插件的「摘要路由 + 索引重写」是融入主流生态的前提。\n\n# 具体步骤（What）\n\n1. **GQA**：DS 指令为「修复 14Q/2KV 对齐」。WB1 执行为「先验证后修改」：tests/test_gqa_alignment.py 三层验证均 PASS，对齐本就正确（HF repeat_kv 约定，Q头 h ↔ KV头 h//n_rep），无 bug 可修——此结论即 H-DS14 的证据。\n2. **vLLM 插件**：交付 src/semantickv/vllm_plugin/（SemanticRouter + KVIndexRewriter）参考骨架，固化版本无关结构（路由在 graph 外、重写用静态槽位表、注意力用 sink_protect.segmented_attention）。\n3. **cross_talk**：sink_protect.py 导出（三段注意力/logsumexp 合并/rl_action_guard），SemanticRouter.load_external_router 接口就绪等待 WB2 模型。\n4. **Kaggle 7B 冒烟**：按 H-DS10 门禁执行（裸基线 ≥2/3 → 混合保护），实机 bench 产出 kaggle_7b_vllm_plugin_bench.json。\n\n# 验收标准（How）\n\n- GQA：对齐验证 ALIGNED（3/3），E1.5 数据维持有效，转 7B 决议维持。\n- 插件：T4 CUDA Graph 捕获成功 + p99 ≤ 1.5× 原生；超线退回 HARD-KV 离线重写。\n- 7B：裸基线 ≥2/3 命中后，插件挂载混合保护 Argmax ≥50% 且 Cos ≥0.85。"
+    },
+    {
+      "file": "20261018_011_wb1_review.md",
+      "meta": {
+        "review_id": "DS-20261018-011-WB1",
+        "source_url": "（用户粘贴全文，原始 chat.deepseek.com 链接见对话）",
+        "date": "2026-10-18",
+        "target": "WorkBuddy",
+        "topic": "GQA 口径定案、vLLM Router 架构定义与向 7B 挺进",
+        "hypotheses": [
+          {
+            "id": "H-DS14",
+            "status": "refuted",
+            "ds_admitted_refutation": true,
+            "detail": "确认驳回。3/3 ALIGNED 证明 GQA 原代码实现无问题，推翻『存在 Head 对齐 Bug』预判。26.05% 即 0.5B 真实最优值。正式封卷，转 Kaggle 7B。",
+            "falsifiable_criterion": "（继承自 DS-20261018-009-WB1）若修复后 Argmax >50% 则此前崩溃纯属 Head 对齐错误；若仍 <45%，维持转 Kaggle 7B 决议",
+            "data_source": "results/gqa_alignment_check.json"
+          },
+          {
+            "id": "H-DS15",
+            "status": "pending",
+            "prediction": "vLLM 插件在 Kaggle 7B 下可成功捕获 CUDA Graph，且 p99 延迟 ≤1.5× 原生。",
+            "falsifiable_criterion": "若捕获失败或延迟 >200%，则废弃在线插件，转离线 HARD-KV 重写。",
+            "data_source": "results/kaggle_7b_vllm_plugin_bench.json"
+          },
+          {
+            "id": "H-DS17",
+            "status": "pending",
+            "prediction": "外部挂载的轻量 SemanticRouter 参数量 <50M 时，可在 0.5ms 内完成一次群路由推理，不影响主流程。",
+            "falsifiable_criterion": "若 Router 单次推理耗时 >2ms，或吃掉超过 10% 的 KV 显存，则须退回 GSC 质心检索方案。",
+            "data_source": "results/router_bench.json"
+          }
+        ],
+        "cross_talk_to_wb2": [
+          {
+            "topic": "SemanticRouter 接口架构定义（供 WB2 开发）",
+            "spec": "class SemanticRouter(nn.Module):\n    def __init__(self, q_dim=1024, hidden_dim=256, num_groups=64):\n        super().__init__()\n        self.net = nn.Sequential(\n            nn.Linear(q_dim, hidden_dim),\n            nn.ReLU(),\n            nn.Linear(hidden_dim, num_groups)\n        )\n    def forward(self, query_embeds):\n        # 输出 shape: (batch, num_groups) 的 logits\n        return self.net(query_embeds)\n要求：纯 PyTorch 实现，导出 .pt，严禁任何复杂算子。WB2 训练完毕后直接 load_state_dict。"
+          }
+        ]
+      },
+      "body": "# DS-20261018-011-WB1 评审归档（WB1 intake）\n\n> 归档说明：本文为 DS 评审全文的 WB1 侧结构化归档。原文中 H-DS14 为封卷声明、\n> 未重复其可证伪标准与数据来源字段，本归档按「继承自 DS-20261018-009-WB1」\n> 补齐该两字段（内容与 009 归档一致），其余字段逐字转录原文。\n> H-DS17 为本次新登记假设；Router 空壳规格原文照录于 frontmatter `cross_talk_to_wb2`。\n\n# 理论背景（Why）\n\nH-DS14 被证伪，是整个项目推进中的大好事——它排除了隐藏的工程 Bug，\n让我们把问题纯粹化：**小模型就是扛不住重组**。现在我们手上有两张王牌：\n一是 WB1 的 `sink_protect.py` 和 vLLM 插件，二是 WB2 即将在训练侧攻克的\n自博弈坍缩。只要 Router 就位，在线部署的最后一块拼图就完整了。\n\n# 具体步骤（What）\n\n1. **封装 Router 空壳**：按 `cross_talk_to_wb2` 提供的 PyTorch 类模板，\n   立刻在 vLLM 插件的 `load_external_router` 接口处注册。\n2. **Kaggle 实机排雷**：在 T4 上跑 7B 裸基线时，挂一个随机初始化的 Router\n   空壳，验证它是否破坏 CUDA Graph，同时测出 Router 推理的基础延迟（H-DS17）。\n3. **合流准备**：把 `sink_protect.py` 的 docstring 写清楚，尤其是入参的\n   shape 和 dtype 要求，以便 WB2 不用改一行代码就能直接 import。\n\n# 验收标准（How）\n\n- **Kaggle 前置门禁**：7B 无压缩基线 ≥ 2/3 needle 命中。\n- **插件验证**：CUDA Graph 成功 capture；Router 空壳随机推理延迟 < 0.5ms。\n- **数据存证**：`kaggle_7b_vllm_plugin_bench.json`。\n\n---\n\n## WB1 执行记录（intake 台账）\n\n| 指令 | WB1 执行 | 证据 |\n|---|---|---|\n| Router 空壳封装 | `vllm_plugin/learned_router.py` 逐字实现 DS 规格类 `SemanticRouter(nn.Module)`（q_dim=1024/hidden_dim=256/num_groups=64，纯 Linear+ReLU）；`load_external_router` 已注册为真加载路径（blob[\"state_dict\"] → load_state_dict） | src/semantickv/vllm_plugin/learned_router.py |\n| Router 延迟测量 | 本地 CPU 冒烟已跑：前向 p50/p99、参数量（远小于 50M）、KV 显存占比均入档；Kaggle T4 GPU 数据待实机 | results/router_bench.json |\n| sink_protect 文档化 | 模块 docstring 补「WB2 接入规格」表：每个 API 的入参 shape/dtype/设备要求与零改动 import 示例 | src/semantickv/sink_protect.py |\n| Kaggle 前置门禁 | notebook Step 1 判定改为 ≥2/3 needle 命中（DS-011 口径，原为全 HIT 提示制） | run_on_kaggle.ipynb |\n| CUDA Graph 验证 | notebook 新增 Step 3：挂随机初始化 Router 空壳 + vLLM CUDA Graph capture 探测，存证 kaggle_7b_vllm_plugin_bench.json | run_on_kaggle.ipynb |\n\n**结论**：DS-011 三项具体步骤已全部在代码/文档层落实；需要 GPU 实机的两项\n（7B 基线门禁、CUDA Graph + Router GPU 延迟）随 Kaggle 一键脚本交付，\n用户上传 notebook 后 Run All 即可产数据。"
     }
   ],
-  "open_items": [
-    "H-DS14"
-  ]
+  "open_items": []
 }

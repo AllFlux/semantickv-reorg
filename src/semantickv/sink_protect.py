@@ -21,8 +21,38 @@
   safe_softmax(scores)                —— 行全 -inf 安全的 softmax
   segmented_attention(...)            —— Sink/局部窗/中段 三段独立注意力 + 合并
   SinkProtectPlan.plan_privileged(...)—— 计算特权位（Sink+滑窗）保护方案
+  SinkProtectPlan.slot_partition(...) —— 槽位三段划分（sink/local/mid）
+  rl_action_guard(plan, actions)      —— RL 虚拟 Action 过滤器（参考实现）
 
 依赖：仅 torch（无 transformers 依赖，方便嵌入任意生成侧）。
+
+WB2 接入规格（DS-20261018-011-WB1 要求；照此传参即可零改动 import）：
+  全部张量约定：device 一致（q/k/v 同设备）、dtype 一致（建议 float32；
+  混合精度下请自行保证 q/k/v 同 dtype，否则 matmul 报错）。
+  典型来源：q = hidden_states @ W_q（post-RoPE、per-head 切分后）；
+            k/v = KV cache（全序列，L ≥ N）。
+
+  | API | 入参 shape / dtype | 返回 |
+  |---|---|---|
+  | safe_softmax(scores) | scores: (..., N) float，行允许全 -inf | 同 shape 权重，全 -inf 行返回全 0 |
+  | SinkProtectPlan(sink_tokens=4, window_tokens=64) | int | plan 对象 |
+  | plan.plan_privileged(seq_len) | int | (is_privileged (N,) bool, positions (P,) long) |
+  | plan.slot_partition(slot_positions, seq_len) | slot_positions: (S,) long | (sink_mask, local_mask, mid_mask) 各 (S,) bool，互斥并集为全集 |
+  | segmented_attention(q,k,v,...) | q: (Hq,N,hd)；k/v: (Hkv,L,hd)；slot_positions: (S,) long（取值 < L）；query_group/slot_group: (N,)/(S,) long 或 None；n_rep: int（GQA Hq=Hkv·n_rep）；scaling: float；mid_scope: "global"/"blockdiag" | out: (Hq,N,hd)，与联合 softmax 数值等价 |
+  | rl_action_guard(plan, actions) | actions: list of {"type": str, "touches_positions": [int,...]} | 过滤后的合法 action list |
+
+  WB2 最小可用示例（RL 生成侧防爆）：
+
+      import torch
+      from sink_protect import SinkProtectPlan, segmented_attention
+
+      plan = SinkProtectPlan(sink_tokens=4, window_tokens=64)
+      is_priv, priv_pos = plan.plan_privileged(seq_len=N)   # N = 当前序列长
+      # 特权位 KV 在任何重写/丢弃 action 前必须全量保留：
+      keep_idx = priv_pos.clone()
+      # 中段做你的压缩/重写（非特权位），然后用 segmented_attention 前向：
+      # out = segmented_attention(q, k, v, slot_positions=keep_idx,
+      #                            n_rep=n_rep, scaling=scaling, plan=plan)
 """
 from __future__ import annotations
 

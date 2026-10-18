@@ -1,0 +1,72 @@
+{
+  "config": {
+    "device": "cpu",
+    "dtype": "float32",
+    "purpose": "H-DS17 Router 空壳基准（DS-20261018-011-WB1）",
+    "reps": 200
+  },
+  "environment": {
+    "kind": "cpu-synthetic+real-arch-smoke",
+    "note": "CPU 冒烟（单线程）；延迟判定以 Kaggle T4 GPU 实测为准"
+  },
+  "arch": "ds011_linear_relu_linear (q_dim->hidden->num_groups)",
+  "rows": [
+    {
+      "config_name": "default(DS 规格默认)",
+      "q_dim": 1024,
+      "hidden_dim": 256,
+      "num_groups": 64,
+      "params": 278848,
+      "params_under_50m": true,
+      "latency_single_query_N1": {
+        "p50_ms": 0.0303,
+        "p99_ms": 0.0523,
+        "max_ms": 0.0651,
+        "reps": 200
+      },
+      "latency_prefill_N2048": {
+        "p50_ms": 12.6347,
+        "p99_ms": 13.4789,
+        "max_ms": 13.4827,
+        "reps": 200
+      },
+      "latency_note": "CPU 参考值；H-DS17 通过线 <0.5ms / 证伪线 >2ms 以 Kaggle T4 GPU 实测（kaggle_7b_vllm_plugin_bench.json）为准",
+      "weight_mb_fp32": 1.0637,
+      "kv_cache_mb_7b_ctx4096_fp16": 448.0,
+      "kv_mem_pct": 0.237438,
+      "kv_mem_fail_10pct": false
+    },
+    {
+      "config_name": "qwen2.5-7b(hidden=3584)",
+      "q_dim": 3584,
+      "hidden_dim": 256,
+      "num_groups": 64,
+      "params": 934208,
+      "params_under_50m": true,
+      "latency_single_query_N1": {
+        "p50_ms": 0.0814,
+        "p99_ms": 0.0942,
+        "max_ms": 0.0957,
+        "reps": 200
+      },
+      "latency_prefill_N2048": {
+        "p50_ms": 40.1518,
+        "p99_ms": 40.9424,
+        "max_ms": 41.0121,
+        "reps": 200
+      },
+      "latency_note": "CPU 参考值；H-DS17 通过线 <0.5ms / 证伪线 >2ms 以 Kaggle T4 GPU 实测（kaggle_7b_vllm_plugin_bench.json）为准",
+      "weight_mb_fp32": 3.5637,
+      "kv_cache_mb_7b_ctx4096_fp16": 448.0,
+      "kv_mem_pct": 0.795473,
+      "kv_mem_fail_10pct": false
+    }
+  ],
+  "summary": {
+    "verdict": "PASS(硬件无关项)",
+    "params_under_50m": true,
+    "kv_mem_under_10pct": true,
+    "latency_gpu_pending": true,
+    "note": "参数量 ~0.28M~0.93M（≪50M）、权重占 7B KV cache <1%（≪10%）——硬件无关项在 CPU 上已终判 PASS；单 query 前向延迟 CPU 参考值见 latency_single_query_N1，GPU 终测待 Kaggle T4"
+  }
+}
