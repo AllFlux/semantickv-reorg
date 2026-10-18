@@ -166,3 +166,16 @@ verdict 三档：**GREEN**（全 PASS）/ **GREEN-WITH-WARN**（无 FAIL，有 W
 
 **每轮对话强制检验**：本台账是该纪律的强制载体——WorkBuddy 在每轮对话
 交付前运行检验器；用户/DeepSeek 在每轮验收时查阅台账最新条目。
+
+## 六、连续性纪律（D6 · 缓存固化）
+
+**规则**：凡可能被运行环境清理的缓存（模型权重、数据集、工具产物等），
+**必须**在生成/下载后立即固化为对话可见产出（`/workspace/models/`、
+`/workspace/datasets/` 等持久路径），后续运行一律引用本地路径；
+禁止依赖 `~/.cache` 等易失路径作为唯一副本。
+
+- 模型权重 → `/workspace/models/<name>/`，运行传 `--model /workspace/models/<name>`
+- 下载后立即 `cp` 固化并 `ls -la` 确认体积
+- 违反后果：环境休眠/清理后需重新下载，浪费对话时间（2026-10-18 实际发生过一次）
+
+本条为流程纪律（人工遵守），不进 check_discipline.py 机械检验。
