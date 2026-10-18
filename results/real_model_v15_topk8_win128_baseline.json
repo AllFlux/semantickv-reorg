@@ -1,0 +1,301 @@
+{
+  "config": {
+    "model": "/workspace/models/Qwen2.5-0.5B",
+    "hf_endpoint": "",
+    "dtype": "float32",
+    "device": "cpu",
+    "ctx": 2048,
+    "paragraphs": 8,
+    "repeats": 6,
+    "target_layer": 12,
+    "group_layer": "final",
+    "smooth_window": 8,
+    "reps_per_group": 4,
+    "strategy": "v15",
+    "compress_mode": "topk",
+    "topk_per_group": 8,
+    "sink_tokens": 4,
+    "window_tokens": 128,
+    "mid_scope": "global",
+    "compress_layers": "0.25-0.75",
+    "metric": "centered",
+    "kmean_renorm": "none",
+    "group_score_prior": "none",
+    "k": 16,
+    "k_grid": "8",
+    "tau_grid": "0.97",
+    "top_p": 10,
+    "needle": "请注意，一个重要事实：小王最喜欢的数字是 42。",
+    "needle_positions": "0.25,0.5,0.75",
+    "question": "小王最喜欢的数字是多少？请只回答数字：",
+    "max_new_tokens": 8,
+    "out": "/workspace/semantickv-reorg/results/real_model_v15_topk8_win128_baseline.json",
+    "skip_needle": false,
+    "baseline_only": false
+  },
+  "stages": {
+    "gsc_scan": {
+      "k_grid": [
+        8
+      ],
+      "tau_grid": [
+        0.97
+      ],
+      "rows": [
+        {
+          "k": 8,
+          "tau": 0.97,
+          "n_groups": 33,
+          "ari_topic": 0.3325,
+          "ari_occurrence": 0.3318,
+          "fragmentation": 0.0,
+          "intra_sim": 0.894
+        }
+      ]
+    },
+    "fidelity": {
+      "target_layer": 12,
+      "n_tokens": 2048,
+      "v0_reorder_invariance": {
+        "mean": 0.9999999999999508,
+        "p05": 0.9999999999999217,
+        "min": 0.9999999999998466,
+        "std": 1.497396805206691e-14
+      },
+      "kv_bytes_original_per_layer": 2097152,
+      "sweep": [
+        {
+          "k": 8,
+          "tau": 0.97,
+          "n_groups": 33,
+          "compression_ratio": 62.1,
+          "v1_group_mean": {
+            "mean": 0.5852061318263972,
+            "p05": 0.2605238314052853,
+            "min": -0.3103417871750411,
+            "std": 0.15805666318567554
+          },
+          "v2_relation_masked": {
+            "mean": 0.6059277390733657,
+            "p05": 0.269034347310098,
+            "min": -0.3347465800005043,
+            "std": 0.16212666630883832
+          },
+          "v3_reps": {
+            "mean": 0.5578552349397696,
+            "p05": 0.17670862110744162,
+            "min": -0.28891805936954246,
+            "std": 0.18576749448660462
+          },
+          "v3_slots": 132,
+          "v3_compression": 15.5,
+          "v15": {
+            "flat_mean_sink": {
+              "mean": 0.27662389846899316,
+              "p05": -0.021135538602693814,
+              "min": -0.25960826794833924,
+              "std": 0.23839431896279556
+            },
+            "flat_mean_sink_causal": {
+              "mean": -0.005213586757463123,
+              "p05": -0.26253052968549107,
+              "min": -0.370230251333169,
+              "std": 0.2751406446817289
+            },
+            "weighted_sink": {
+              "mean": 0.30403461294969336,
+              "p05": 0.016850688027509123,
+              "min": -0.223422337785422,
+              "std": 0.2290718596026979
+            },
+            "topk_sink": {
+              "mean": 0.6959334307668976,
+              "p05": 0.3057006630963256,
+              "min": 0.018376204891980795,
+              "std": 0.20565291354820678
+            },
+            "n_priv": 132,
+            "topk_slots": 396,
+            "flat_sink_compression": 12.4,
+            "topk_compression": 5.2
+          }
+        }
+      ]
+    },
+    "needle": [
+      {
+        "position_frac": 0.25,
+        "needle_token_pos": 512,
+        "original_answer": "42。The transformer architecture relies on",
+        "original_hit": true,
+        "strategy": {
+          "mode": "topk",
+          "metric": "centered",
+          "compress_layers": "0.25-0.75",
+          "n_compressed_layers": 12,
+          "sink_tokens": 4,
+          "window_tokens": 128,
+          "topk_per_group": 8,
+          "mid_scope": "global"
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.7625389014783704,
+            "p05": 0.5610995443245721,
+            "min": 0.20018864782721826,
+            "std": 0.11640165990337081
+          },
+          "logits_argmax_agreement": 0.4274
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 30.3,
+          "slots_per_compressed_layer": 396,
+          "n_compressed_layers": 12,
+          "saving_pct": 40.4
+        },
+        "compressed_answer": "3.141592",
+        "compressed_hit": false,
+        "n_groups": 33,
+        "kv_compression": 62.8,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        },
+        "latency": {
+          "original_prefill_s": 16.69,
+          "compressed_prefill_s": 27.22,
+          "original_generate_s": 19.02,
+          "compressed_generate_s": 36.36,
+          "decode_per_token_ms_original": 290.5,
+          "decode_per_token_ms_compressed": 1141.9,
+          "note": "decode_per_token ≈ (generate 总时长 − 独立 prefill 时长) / max_new_tokens；CPU 上的近似估计（generate 含采样与逐 token 循环开销）",
+          "slowdown_pct": 293.1
+        },
+        "peak_memory_mb": 6845.3,
+        "peak_memory_note": "CPU 进程峰值 RSS（单调累计，非本次增量）"
+      },
+      {
+        "position_frac": 0.5,
+        "needle_token_pos": 1024,
+        "original_answer": "1.414213",
+        "original_hit": false,
+        "strategy": {
+          "mode": "topk",
+          "metric": "centered",
+          "compress_layers": "0.25-0.75",
+          "n_compressed_layers": 12,
+          "sink_tokens": 4,
+          "window_tokens": 128,
+          "topk_per_group": 8,
+          "mid_scope": "global"
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.7649992338846323,
+            "p05": 0.5644315831869747,
+            "min": 0.24631872091970472,
+            "std": 0.11598635469360052
+          },
+          "logits_argmax_agreement": 0.4491
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 30.8,
+          "slots_per_compressed_layer": 436,
+          "n_compressed_layers": 12,
+          "saving_pct": 39.5
+        },
+        "compressed_answer": "答案：1002。大",
+        "compressed_hit": false,
+        "n_groups": 38,
+        "kv_compression": 54.6,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        },
+        "latency": {
+          "original_prefill_s": 15.79,
+          "compressed_prefill_s": 27.71,
+          "original_generate_s": 19.22,
+          "compressed_generate_s": 32.54,
+          "decode_per_token_ms_original": 428.5,
+          "decode_per_token_ms_compressed": 603.3,
+          "note": "decode_per_token ≈ (generate 总时长 − 独立 prefill 时长) / max_new_tokens；CPU 上的近似估计（generate 含采样与逐 token 循环开销）",
+          "slowdown_pct": 40.8
+        },
+        "peak_memory_mb": 7052.1,
+        "peak_memory_note": "CPU 进程峰值 RSS（单调累计，非本次增量）"
+      },
+      {
+        "position_frac": 0.75,
+        "needle_token_pos": 1536,
+        "original_answer": "10 0.577",
+        "original_hit": false,
+        "strategy": {
+          "mode": "topk",
+          "metric": "centered",
+          "compress_layers": "0.25-0.75",
+          "n_compressed_layers": 12,
+          "sink_tokens": 4,
+          "window_tokens": 128,
+          "topk_per_group": 8,
+          "mid_scope": "global"
+        },
+        "prefill_fidelity": {
+          "final_hidden_cos": {
+            "mean": 0.7653005772718039,
+            "p05": 0.5658289353612466,
+            "min": 0.2048048463464624,
+            "std": 0.11365440844271663
+          },
+          "logits_argmax_agreement": 0.4124
+        },
+        "kv_bytes": {
+          "original_mb": 50.9,
+          "compressed_mb": 30.4,
+          "slots_per_compressed_layer": 404,
+          "n_compressed_layers": 12,
+          "saving_pct": 40.3
+        },
+        "compressed_answer": "1001, 10",
+        "compressed_hit": false,
+        "n_groups": 34,
+        "kv_compression": 61.0,
+        "config": {
+          "k": 8,
+          "tau": 0.97
+        },
+        "latency": {
+          "original_prefill_s": 14.8,
+          "compressed_prefill_s": 26.31,
+          "original_generate_s": 19.23,
+          "compressed_generate_s": 36.13,
+          "decode_per_token_ms_original": 553.6,
+          "decode_per_token_ms_compressed": 1226.6,
+          "note": "decode_per_token ≈ (generate 总时长 − 独立 prefill 时长) / max_new_tokens；CPU 上的近似估计（generate 含采样与逐 token 循环开销）",
+          "slowdown_pct": 121.6
+        },
+        "peak_memory_mb": 7077.9,
+        "peak_memory_note": "CPU 进程峰值 RSS（单调累计，非本次增量）"
+      }
+    ]
+  },
+  "model": {
+    "path": "/workspace/models/Qwen2.5-0.5B",
+    "params_m": 494.0,
+    "n_layers": 24,
+    "hidden": 896
+  },
+  "baseline_reference": {
+    "description": "0.5B 无压缩基线 needle 命中（原始模型的检索能力上限参考；H-DS7 证伪线仲裁依据：argmax<45% 且本命中率<70% → 模型容量瓶颈）",
+    "original_needle_hits": [
+      true,
+      false,
+      false
+    ],
+    "original_hit_rate": 0.3333
+  },
+  "prefill_peak_rss_mb": 4236.8,
+  "wall_time_s": 317.3
+}

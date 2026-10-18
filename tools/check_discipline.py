@@ -73,6 +73,16 @@ NEGATIVE_INVENTORY = [
      "v0.1.2 needle 位置 0.15 压缩失败记录"),
     ("results/real_model_needle_0.85.json",
      "v0.1.2 needle 位置 0.85 压缩失败记录"),
+    ("results/real_model_v15_hybrid_protection.json",
+     "v0.3.0 E1.5 主实验：hybrid blockdiag K=4/win128 argmax 26.05% (<45% 证伪线)，"
+     "cos 0.6962 < topk K8 0.765；无压缩基线 needle 0/1（'1.414213'）"),
+    ("results/real_model_v15_hybrid_global.json",
+     "v0.3.0 E1.5 消融：hybrid global（无块对角）argmax 28.51%，仍远低于 topk K8；"
+     "块对角额外损失 ~2.5pp 但非主因"),
+    ("results/real_model_v15_topk8_win128_baseline.json",
+     "v0.3.0 E1.5 对照+无压缩基线：topk K8/win128 argmax 44.91%@0.5（cos 0.7650 复现）；"
+     "无压缩原始模型 needle 3 位置仅 1/3 命中（0.25 命中、0.5/0.75 失败）"
+     "——0.5B 检索能力本身是瓶颈（DS-006 预警分支证实）"),
 ]
 
 # E0 校准冻结值（纪律 4）

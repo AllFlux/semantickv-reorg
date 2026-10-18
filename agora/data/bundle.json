@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-18T12:42:09.416792+00:00",
+  "generated_at": "2026-10-18T13:33:13.664434+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
       "meta": {
         "protocol": "DISCIPLINE.md §六",
         "rounds": [],
-        "last_round": "R5",
-        "last_run": "2026-10-18T20:42:09"
+        "last_round": "R7",
+        "last_run": "2026-10-18T21:33:13"
       }
     },
     "rounds": [
@@ -295,11 +295,135 @@
           "fail": 0,
           "verdict": "GREEN"
         }
+      },
+      {
+        "round": "R6",
+        "timestamp": "2026-10-18T20:59:52",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 7 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "14 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "4 份报告三段式齐全"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "9 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 10,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
+      },
+      {
+        "round": "R7",
+        "timestamp": "2026-10-18T21:33:13",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 10 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "17 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "4 份报告三段式齐全"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "WARN",
+            "detail": "被数据推翻但未显式承认的假设（待 DS 下一轮承认）: ['H-DS7', 'H-DS8']"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "9 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 9,
+          "warn": 1,
+          "fail": 0,
+          "verdict": "GREEN-WITH-WARN"
+        }
       }
     ],
     "last_round": {
-      "round": "R5",
-      "timestamp": "2026-10-18T20:42:09",
+      "round": "R7",
+      "timestamp": "2026-10-18T21:33:13",
       "checks": [
         {
           "check": "D1 契约优先",
@@ -309,12 +433,12 @@
         {
           "check": "D2 负面结果归档",
           "status": "PASS",
-          "detail": "清单 7 项全部在档"
+          "detail": "清单 10 项全部在档"
         },
         {
           "check": "D3 环境隔离",
           "status": "PASS",
-          "detail": "14 个结果文件全部带环境标签"
+          "detail": "17 个结果文件全部带环境标签"
         },
         {
           "check": "D4 参数冻结",
@@ -343,8 +467,8 @@
         },
         {
           "check": "DS-D4 结论对齐数据",
-          "status": "PASS",
-          "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          "status": "WARN",
+          "detail": "被数据推翻但未显式承认的假设（待 DS 下一轮承认）: ['H-DS7', 'H-DS8']"
         },
         {
           "check": "DS-D5 假设台账状态",
@@ -353,22 +477,25 @@
         }
       ],
       "summary": {
-        "pass": 10,
-        "warn": 0,
+        "pass": 9,
+        "warn": 1,
         "fail": 0,
-        "verdict": "GREEN"
+        "verdict": "GREEN-WITH-WARN"
       }
     },
-    "last_verdict": "GREEN"
+    "last_verdict": "GREEN-WITH-WARN"
   },
   "hypotheses": {
     "meta": {
       "protocol": "DISCIPLINE.md §DeepSeek 对等纪律",
       "total": 9,
-      "confirmed": 2,
-      "refuted": 3,
-      "pending": 4,
-      "open_items_for_ds": []
+      "confirmed": 3,
+      "refuted": 5,
+      "pending": 1,
+      "open_items_for_ds": [
+        "H-DS7",
+        "H-DS8"
+      ]
     },
     "items": [
       {
@@ -443,10 +570,10 @@
         "statement": "采用 Sink(4)+滑窗(128)+中段 K=4 的分段注意力，argmax 一致率可从 42.6% 突破至 ≥50%",
         "falsifiable_criterion": "若 argmax 一致率 < 45%，则判定 0.5B 模型的检索头（Retrieval Head）容量已达上限，混合保护策略在该规模下无法突破瓶颈（转 7B 前须先补 0.5B 无压缩基线 argmax 记录：若基线本身 <70%，问题在模型而非策略）",
         "data_source": "results/real_model_v15_hybrid_protection.json",
-        "status": "pending",
-        "evidence_file": "",
+        "status": "refuted",
+        "evidence_file": "results/real_model_v15_hybrid_protection.json",
         "ds_admitted_refutation": false,
-        "fate_note": "DS-20261018-005 提出、006 细化：Pass 须同时满足 Argmax≥50% 且 Cos≥0.80 且延迟不超基线 200%；Fail(<45%) 时先跑无压缩基线再决定是否转 Kaggle 7B。"
+        "fate_note": "E1.5 实测（0.5B/2048，pos 0.5）：hybrid blockdiag argmax=26.05%、global 消融 28.51%，均远低于 45% 证伪线（对照 topk K8/win128 = 44.91%，cos 0.7650 复现）。触发 DS-006 仲裁分支：无压缩原始模型 needle 3 位置仅 1/3 命中（0.25 命中 '42'，0.5/0.75 失败）→ 0.5B 检索头容量不足，升级 Kaggle 7B。"
       },
       {
         "id": "H-DS8",
@@ -454,10 +581,10 @@
         "statement": "在 0.5B 模型上，KV 节省率若维持在 41% 左右（或略降），混合保护的 Cos 应高于纯 Top-K=8 的 0.765",
         "falsifiable_criterion": "若混合保护的 Cos ≤ 0.765 且 KV 节省率 ≤ 41%，则说明局部窗口与 Sink 的引入不仅没有提升保真度，反而挤占了中段 Top-K 的预算，策略失败",
         "data_source": "results/real_model_v15_hybrid_protection.json",
-        "status": "pending",
-        "evidence_file": "",
+        "status": "refuted",
+        "evidence_file": "results/real_model_v15_hybrid_protection.json",
         "ds_admitted_refutation": false,
-        "fate_note": "DS-20261018-006 提出。若 Cos 反而低于纯 Top-K=8，DS 判定需检查 attn_mid 的 LogSumExp 归一化实现。"
+        "fate_note": "实测 hybrid cos 0.6962（blockdiag）/ 0.7242（global）均 < 0.765，且 KV 节省 43.2% > 41%（更多预算仍更差）。DS 指向的 LogSumExp 归一化排查已完成：分段 logsumexp 合并数学上严格等价联合 softmax（runner _hybrid_attention 有证明注释），回归主因是中段 K=4<8 与块对角限制，非数值误差。注：字面联合判据（且节省≤41%）未同时满足，按判据精神（同预算下保真度更差）裁定 refuted，请 DS 复核。"
       },
       {
         "id": "H-DS9",
@@ -465,10 +592,10 @@
         "statement": "分段计算（Sink/滑窗/中段分别 Attention 后求和）在不引入自定义 Triton Kernel 的前提下，PyTorch 实现可在 2048 长度下保持与基线相近的推理延迟",
         "falsifiable_criterion": "若分段计算的端到端延迟比原生全量 Attention 高 > 200%，则说明在 0.5B 规模下 Python 层的多次 Kernel Launch 开销已抵消收益，必须等 Triton 融合算子",
         "data_source": "results/real_model_v15_hybrid_protection.json",
-        "status": "pending",
-        "evidence_file": "",
+        "status": "confirmed",
+        "evidence_file": "results/real_model_v15_hybrid_protection.json",
         "ds_admitted_refutation": false,
-        "fate_note": "DS-20261018-006 提出。附加注记：中段禁用 for-loop 遍历群，优先块对角 Mask 一次性 Attention；若显存爆炸退回 for-loop，须单独记录其耗时。"
+        "fate_note": "实测 hybrid blockdiag decode/token 657.9ms vs 原始 368.4ms（+78.6% < 200% 线）→ confirmed。global 消融 +278% 超线，但 CPU 计时噪声敏感（同配置跨跑波动大），且块对角单次合并本就比 global 三段全算更省；以主配置 blockdiag 为准。中段实现按 DS 注记：无 for-loop 遍历群，全部向量化。"
       }
     ]
   },
@@ -703,5 +830,8 @@
       "body": "# 理论背景（Why）\n\n1. **为什么放弃纯 Top-K**：纯 Top-K 在 42.6% Argmax 停滞，根因是检索头信号坍缩 + 注意力归一化几何被破坏。混合策略本质是「稳分母（Sink）+ 保近端（滑窗）+ 提信号（中段 Top-K）」。\n2. **K=4 预注册依据**：Sink+滑窗+Top-M 三通道结构在更大规模上有 99.72% 向量保真度先例；0.5B/41% 预算下 K=4 为保守估计。若 K=4 不过 50%，说明 0.5B 检索头对非连续 KV 拼接容忍度极低，加大 K 只增显存不解决结构性问题。\n3. **45% 证伪线的限定条件**：45% 线只适用于混合保护这一实现。转 7B 前必须先记录 0.5B 无压缩基线 Argmax——若基线本身仅 50-60%，则问题在模型容量而非策略。\n\n# 具体步骤（What）\n\n1. **分段 Attention 实现**：不用单一大 Mask 的 SDPA；分别计算 attn_sink(4)/attn_local(128)/attn_mid(群数×K)，各自 Softmax 前处理或合并时用 torch.logsumexp 做数值稳定归一化；特别注意 attn_mid 的分数缩放，防止被 Sink/Local 绝对值淹没。\n2. **显存与延迟双记录**：JSON 中除 argmax/cos 外，必须记录 peak_memory_mb、latency_ms_per_token（vs 基线）、mid_kv_retention_ratio（中段实际保留/原始中段）。\n3. **实现注记**：中段禁用 for-loop 遍历群——把各群保留的 K 个 KV 在 seq_len 维 torch.cat 成长张量，用块对角 Mask 一次性 Attention；显存爆炸才退回 for-loop 并单独记录其耗时。\n4. **注入包微调**：核心指标加 `(Baseline: Cos=1.000 · Argmax=100%)` 对照；最新实验状态写「进行中」。\n\n# 验收标准（How）\n\n- **H-DS7**：Pass = Argmax≥50% 且 Cos≥0.80 且延迟不超基线 200%；Fail = Argmax<45%，此时先跑 0.5B 无压缩基线 Argmax，若基线 <70% 则判定 0.5B 检索头容量不足，升级 Kaggle 7B。\n- **H-DS8**：若混合 Cos ≤ 纯 Top-K=8 的 0.765，检查 attn_mid LogSumExp 归一化。\n- **H-DS9**：延迟比原生全量 Attention 高 >200% 判负。\n- **数据存证**：results/real_model_v15_hybrid_protection.json；若触发 H-DS7 Fail，立即标记 refuted 并附无压缩基线数据决定是否转 Kaggle。"
     }
   ],
-  "open_items": []
+  "open_items": [
+    "H-DS7",
+    "H-DS8"
+  ]
 }
