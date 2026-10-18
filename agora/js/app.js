@@ -319,7 +319,7 @@
     lines.push(`- 假设台账: ${rawUrl("results/hypothesis_ledger.yaml")}`);
     lines.push(`- 纪律台账: ${rawUrl("results/discipline_ledger.yaml")}`);
     if (latestReview) lines.push(`- 最新评审: ${rawUrl("results/ds_reviews/" + latestReview.file)}`);
-    lines.push(`- 看板单文件: ${rawUrl("index.standalone.html")}`);
+    lines.push(`- 看板单文件: ${rawUrl("index.html")}`);
     lines.push("");
     lines.push("## 🚨 需要 DeepSeek 决策的问题");
     if (decisions.length) {
