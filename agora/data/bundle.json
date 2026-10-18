@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-18T13:33:13.664434+00:00",
+  "generated_at": "2026-10-18T13:55:00.941216+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
       "meta": {
         "protocol": "DISCIPLINE.md §六",
         "rounds": [],
-        "last_round": "R7",
-        "last_run": "2026-10-18T21:33:13"
+        "last_round": "R8",
+        "last_run": "2026-10-18T21:55:00"
       }
     },
     "rounds": [
@@ -419,11 +419,73 @@
           "fail": 0,
           "verdict": "GREEN-WITH-WARN"
         }
+      },
+      {
+        "round": "R8",
+        "timestamp": "2026-10-18T21:55:00",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 10 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "17 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "4 份报告三段式齐全"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "10 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 10,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
       }
     ],
     "last_round": {
-      "round": "R7",
-      "timestamp": "2026-10-18T21:33:13",
+      "round": "R8",
+      "timestamp": "2026-10-18T21:55:00",
       "checks": [
         {
           "check": "D1 契约优先",
@@ -467,35 +529,32 @@
         },
         {
           "check": "DS-D4 结论对齐数据",
-          "status": "WARN",
-          "detail": "被数据推翻但未显式承认的假设（待 DS 下一轮承认）: ['H-DS7', 'H-DS8']"
+          "status": "PASS",
+          "detail": "refuted 假设均有数据证据；已承认或无需承认"
         },
         {
           "check": "DS-D5 假设台账状态",
           "status": "PASS",
-          "detail": "9 条假设状态合法"
+          "detail": "10 条假设状态合法"
         }
       ],
       "summary": {
-        "pass": 9,
-        "warn": 1,
+        "pass": 10,
+        "warn": 0,
         "fail": 0,
-        "verdict": "GREEN-WITH-WARN"
+        "verdict": "GREEN"
       }
     },
-    "last_verdict": "GREEN-WITH-WARN"
+    "last_verdict": "GREEN"
   },
   "hypotheses": {
     "meta": {
       "protocol": "DISCIPLINE.md §DeepSeek 对等纪律",
-      "total": 9,
+      "total": 10,
       "confirmed": 3,
       "refuted": 5,
-      "pending": 1,
-      "open_items_for_ds": [
-        "H-DS7",
-        "H-DS8"
-      ]
+      "pending": 2,
+      "open_items_for_ds": []
     },
     "items": [
       {
@@ -572,8 +631,8 @@
         "data_source": "results/real_model_v15_hybrid_protection.json",
         "status": "refuted",
         "evidence_file": "results/real_model_v15_hybrid_protection.json",
-        "ds_admitted_refutation": false,
-        "fate_note": "E1.5 实测（0.5B/2048，pos 0.5）：hybrid blockdiag argmax=26.05%、global 消融 28.51%，均远低于 45% 证伪线（对照 topk K8/win128 = 44.91%，cos 0.7650 复现）。触发 DS-006 仲裁分支：无压缩原始模型 needle 3 位置仅 1/3 命中（0.25 命中 '42'，0.5/0.75 失败）→ 0.5B 检索头容量不足，升级 Kaggle 7B。"
+        "ds_admitted_refutation": true,
+        "fate_note": "E1.5 实测（0.5B/2048，pos 0.5）：hybrid blockdiag argmax=26.05%、global 消融 28.51%，均远低于 45% 证伪线（对照 topk K8/win128 = 44.91%，cos 0.7650 复现）。触发 DS-006 仲裁分支：无压缩原始模型 needle 3 位置仅 1/3 命中（0.25 命中 '42'，0.5/0.75 失败）→ 0.5B 检索头容量不足。DS 于 DS-20261018-007 显式承认：0.5B 基线塌陷是根因，非策略问题，转 7B。"
       },
       {
         "id": "H-DS8",
@@ -583,7 +642,7 @@
         "data_source": "results/real_model_v15_hybrid_protection.json",
         "status": "refuted",
         "evidence_file": "results/real_model_v15_hybrid_protection.json",
-        "ds_admitted_refutation": false,
+        "ds_admitted_refutation": true,
         "fate_note": "实测 hybrid cos 0.6962（blockdiag）/ 0.7242（global）均 < 0.765，且 KV 节省 43.2% > 41%（更多预算仍更差）。DS 指向的 LogSumExp 归一化排查已完成：分段 logsumexp 合并数学上严格等价联合 softmax（runner _hybrid_attention 有证明注释），回归主因是中段 K=4<8 与块对角限制，非数值误差。注：字面联合判据（且节省≤41%）未同时满足，按判据精神（同预算下保真度更差）裁定 refuted，请 DS 复核。"
       },
       {
@@ -596,6 +655,17 @@
         "evidence_file": "results/real_model_v15_hybrid_protection.json",
         "ds_admitted_refutation": false,
         "fate_note": "实测 hybrid blockdiag decode/token 657.9ms vs 原始 368.4ms（+78.6% < 200% 线）→ confirmed。global 消融 +278% 超线，但 CPU 计时噪声敏感（同配置跨跑波动大），且块对角单次合并本就比 global 三段全算更省；以主配置 blockdiag 为准。中段实现按 DS 注记：无 for-loop 遍历群，全部向量化。"
+      },
+      {
+        "id": "H-DS10",
+        "source_review": "DS-20261018-007",
+        "statement": "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax",
+        "falsifiable_criterion": "若 7B 无压缩基线 needle ≥ 70%，但混合策略 argmax < 50%，则说明多段拼接结构在 GQA 上失效；若 7B 无压缩基线本身 <70%，则 7B 也需换更大模型（如 14B/32B）",
+        "data_source": "results/kaggle_7b_hybrid.json",
+        "status": "pending",
+        "evidence_file": "",
+        "ds_admitted_refutation": false,
+        "fate_note": "DS-20261018-007 批准。门禁：7B 裸基线 3 位置命中 ≥2/3（DS 建议目标 ≥80% 方有验证资格）；裸基线失败 → 换 Llama-3-8B 或开 YaRN。通过线：混合保护 argmax ≥50% 且 cos ≥0.85。存证 kaggle_7b_baseline.json / kaggle_7b_hybrid.json。"
       }
     ]
   },
@@ -828,10 +898,62 @@
         ]
       },
       "body": "# 理论背景（Why）\n\n1. **为什么放弃纯 Top-K**：纯 Top-K 在 42.6% Argmax 停滞，根因是检索头信号坍缩 + 注意力归一化几何被破坏。混合策略本质是「稳分母（Sink）+ 保近端（滑窗）+ 提信号（中段 Top-K）」。\n2. **K=4 预注册依据**：Sink+滑窗+Top-M 三通道结构在更大规模上有 99.72% 向量保真度先例；0.5B/41% 预算下 K=4 为保守估计。若 K=4 不过 50%，说明 0.5B 检索头对非连续 KV 拼接容忍度极低，加大 K 只增显存不解决结构性问题。\n3. **45% 证伪线的限定条件**：45% 线只适用于混合保护这一实现。转 7B 前必须先记录 0.5B 无压缩基线 Argmax——若基线本身仅 50-60%，则问题在模型容量而非策略。\n\n# 具体步骤（What）\n\n1. **分段 Attention 实现**：不用单一大 Mask 的 SDPA；分别计算 attn_sink(4)/attn_local(128)/attn_mid(群数×K)，各自 Softmax 前处理或合并时用 torch.logsumexp 做数值稳定归一化；特别注意 attn_mid 的分数缩放，防止被 Sink/Local 绝对值淹没。\n2. **显存与延迟双记录**：JSON 中除 argmax/cos 外，必须记录 peak_memory_mb、latency_ms_per_token（vs 基线）、mid_kv_retention_ratio（中段实际保留/原始中段）。\n3. **实现注记**：中段禁用 for-loop 遍历群——把各群保留的 K 个 KV 在 seq_len 维 torch.cat 成长张量，用块对角 Mask 一次性 Attention；显存爆炸才退回 for-loop 并单独记录其耗时。\n4. **注入包微调**：核心指标加 `(Baseline: Cos=1.000 · Argmax=100%)` 对照；最新实验状态写「进行中」。\n\n# 验收标准（How）\n\n- **H-DS7**：Pass = Argmax≥50% 且 Cos≥0.80 且延迟不超基线 200%；Fail = Argmax<45%，此时先跑 0.5B 无压缩基线 Argmax，若基线 <70% 则判定 0.5B 检索头容量不足，升级 Kaggle 7B。\n- **H-DS8**：若混合 Cos ≤ 纯 Top-K=8 的 0.765，检查 attn_mid LogSumExp 归一化。\n- **H-DS9**：延迟比原生全量 Attention 高 >200% 判负。\n- **数据存证**：results/real_model_v15_hybrid_protection.json；若触发 H-DS7 Fail，立即标记 refuted 并附无压缩基线数据决定是否转 Kaggle。"
+    },
+    {
+      "file": "20261018_007_review.md",
+      "meta": {
+        "review_id": "DS-20261018-007",
+        "source_url": "https://chat.deepseek.com/share/4ygt7b3uvvx8xfmkim",
+        "date": "2026-10-18",
+        "reviewer": "DeepSeek",
+        "focus": "H-DS7/8/9 承认闭环 + 批准 H-DS10（Kaggle 7B）+ 终止 0.5B 压缩优化 + 自动同步管道",
+        "disciplines_proposed": [],
+        "sources": [],
+        "hypotheses": [
+          {
+            "id": "H-DS7",
+            "statement": "混合保护策略（Sink+Win+Mid-TopK）可将 argmax 推至 ≥50%",
+            "falsifiable_criterion": "若 argmax 一致率 < 45%，则判定 0.5B 检索头容量已达上限",
+            "data_source": "results/real_model_v15_hybrid_protection.json",
+            "status": "refuted",
+            "evidence_file": "results/real_model_v15_hybrid_protection.json",
+            "ds_admitted_refutation": true,
+            "fate_note": "DS 于 DS-20261018-007 显式承认：blockdiag 26.05% / global 28.51%，均远低于 45% 证伪线；根因为 0.5B 基线塌陷（无压缩 needle 仅 1/3），非策略问题。"
+          },
+          {
+            "id": "H-DS8",
+            "statement": "KV 节省率维持 41% 左右时，混合保护 Cos 应高于纯 Top-K=8 的 0.765",
+            "falsifiable_criterion": "若混合保护 Cos ≤ 0.765 且 KV 节省率 ≤ 41%，则策略失败",
+            "data_source": "results/real_model_v15_hybrid_protection.json",
+            "status": "refuted",
+            "evidence_file": "results/real_model_v15_hybrid_protection.json",
+            "ds_admitted_refutation": true,
+            "fate_note": "DS 于 DS-20261018-007 显式承认：cos 0.6962/0.7242 全面低于 0.765，KV 节省 43.2% 但保真度全面下降；接受 WorkBuddy 的 LogSumExp 数学等价排查结论（非数值误差）。"
+          },
+          {
+            "id": "H-DS9",
+            "statement": "分段计算延迟增幅可接受（<200%）",
+            "falsifiable_criterion": "若分段计算端到端延迟比原生全量 Attention 高 > 200%，则必须等 Triton 融合算子",
+            "data_source": "results/real_model_v15_hybrid_protection.json",
+            "status": "confirmed",
+            "evidence_file": "results/real_model_v15_hybrid_protection.json",
+            "ds_admitted_refutation": false,
+            "fate_note": "DS 于 DS-20261018-007 确认：主配置 +78.6% 可接受；global 消融 +278% 认定为 CPU 计时噪声/非优化路径；以主配置为准。"
+          },
+          {
+            "id": "H-DS10",
+            "statement": "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax",
+            "falsifiable_criterion": "若 7B 无压缩基线 needle ≥ 70%，但混合策略 argmax < 50%，则说明多段拼接结构在 GQA 上失效；若 7B 无压缩基线本身 <70%，则 7B 也需换更大模型（如 14B/32B）",
+            "data_source": "results/kaggle_7b_hybrid.json",
+            "status": "pending",
+            "evidence_file": "",
+            "ds_admitted_refutation": false,
+            "fate_note": "DS-20261018-007 批准。门禁：Kaggle 7B 无压缩裸基线 3 位置命中 ≥2/3（DS 建议目标 ≥80% 方具备验证 H-DS10 资格）；若裸基线失败 → 换 Llama-3-8B 或开启 YaRN。通过线：混合保护 argmax ≥ 50% 且 cos ≥ 0.85。存证：results/kaggle_7b_baseline.json + results/kaggle_7b_hybrid.json。"
+          }
+        ]
+      },
+      "body": "# 理论背景（Why）\n\n0.5B 的「基线塌陷」是 E1.5 崩溃的根本原因：无压缩原始模型 needle 3 位置仅 1/3 命中，检索头本身极度脆弱；在此基座上任何混合拼接都引入指数级 OOD 偏移。在 0.5B 上继续调优压缩策略等于在沙滩上建高楼。\n\nLogSumExp 等价性排查排除了数值误差；块对角损失 2.5pp 是保证特权位（needle 可达）的必要 Trade-off，DS 接受。\n\n# 具体步骤（What）\n\n1. **仲裁**：立即终止所有 0.5B 压缩侧优化；唯一战场转移至 Kaggle 7B（Qwen2.5-7B-Instruct，4-bit 量化，FP16 KV Cache）。\n2. **7B 第一步先测裸基线**：7B + 8K 上下文 + 无压缩 needle（3 位置）。裸基线 ≥2/3（目标 ≥80%）才具备验证 H-DS10 的资格；若 7B 长上下文迷失 → 换 Llama-3-8B 或开启 YaRN。\n3. **工作流**：废弃手动上传，WorkBuddy 建立 git push / GitHub API 自动同步管道（用户配置一次 PAT）。\n\n# 验收标准（How）\n\n- H-DS10 门禁：7B 裸基线 3 位置命中 ≥ 2/3；通过线：混合保护 argmax ≥ 50% 且 cos ≥ 0.85。\n- 数据存证：results/kaggle_7b_baseline.json、results/kaggle_7b_hybrid.json。\n- 工作流：交付 one-click-sync——用户说「同步」即自动 push 本地最新 JSON/YAML/index.html 到 GitHub 并回报 Raw 链接。"
     }
   ],
-  "open_items": [
-    "H-DS7",
-    "H-DS8"
-  ]
+  "open_items": []
 }
