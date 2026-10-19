@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# 🔒 封存存档（SEALED · DS-20261019-026-WB1）：本测试针对 WB2 旧 RelationModelV2 权重，
+#   该权重已被 DS 裁定不可用于 per-query 路由。代码保留作回归基线，待 WB2 新 MLP
+#   权重到达后，可参照本测试骨架编写新验收。不要删除。
 """H-DS24 真实权重验收：WB1 适配器 ↔ WB2 自带 RouterShell 交叉验证。
 
 验收目标（DS-20261019-024-WB1 收尾）：

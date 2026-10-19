@@ -6,17 +6,16 @@
 #   - refuted 且 ds_admitted_refutation=false → 列为「待 DS 承认」开放项（DS-D4 WARN）
 #   - DS 在后续评审显式承认被数据推翻的假设后，将 ds_admitted_refutation 置 true
 #
-# 当前状态（2026-10-19 R14 · DS-20261019-024-WB1 收尾，权重已到达）：H-DS14 已封卷。
-# 重大变更 = WB2 经 REST 备选通道（git push 被 GnuTLS -110 阻断后）推送了 src/shared/
-#   router_weights.pt（RelationModelV2, 274,466 参数）+ load_test.py + collapsed_pool.pt。
-# H-DS24（真实权重 consumability）：CONFIRMED via 新增 wb2_router.WB2Router ——
-#   6/6 PASS（C2 与 WB2 自带 RouterShell 数值误差 0.00e+00），但 WB2 交付的是
-#   RelationModelV2（程序对→score 打分器），与 DS 规格 SemanticRouter（query→组 logits）
-#   是两套接口 → 「直接接入 SemanticKV per-query 路由」BLOCKED，待 WB1↔WB2↔DS 契约裁决。
-# H-DS10（7B 混合 Argmax≥50%）：因到达的 WB2 权重非 per-query 路由接口，无法直接驱动，
-#   该验收项同步 BLOCKED。H-DS15/H-DS17（空壳/延迟）仍待 Kaggle 实机。H-DS30：本机
-#   git 通道 PASS-GIT-OVER-10S（权重到位后 clone 26-52s，>10s 系 2.2MB 载荷，判据如实记录）。
-# 开放项：契约分歧（H-DS24 interface / H-DS10 driver）需 DS 或 WB2 裁决——见 meta.open_items_for_ds。
+# 当前状态（2026-10-19 R15 · DS-20261019-026-WB1 intake）：H-DS14 已封卷。
+# 重大变更 = DS-026 正式裁定 H-DS24：RelationModelV2 不能当 per-query 路由，WB1 判断
+#   完全正确；DS 已让 WB2 按严格 MLP 规格重训 SemanticRouter 并推送（新权重待到达）。
+#   WB1 的 wb2_router 适配器『暂时封存』（代码留存待启用）→ H-DS24 转 blocked。
+# H-DS10 转向『固定路由突击』（DS-026）：不等 WB2 新权重，用 GSC 离线质心/空壳固定路由
+#   跑 7B 端到端，按 Argmax>45%(MAINTAIN) / <45%(ROPE_FRACTURE) 判定。WB1 已建成
+#   fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，
+#   沙盒无 GPU 仅出 0.5B CPU 代理校验，权威 7B 存证 kaggle_7b_fixed_route.json 待 Kaggle Run All。
+# H-DS15/H-DS17（空壳/延迟）仍待 Kaggle 实机。H-DS30：本机 git 通道 PASS-GIT-OVER-10S。
+# collaboration_audit（DS-026）：GREEN（拉取管线大获成功，DS 接受 WB1 对跨沙盒物流的批评）。
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
@@ -145,11 +144,11 @@ hypotheses:
     source_review: DS-20261018-007
     statement: "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax（DS-20261019-018 复述：Argmax ≥50% 且 Cos ≥0.85）"
     falsifiable_criterion: "DS-20261019-018 口径：7B 无压缩基线 needle <2/3 → 换模型（Llama-3-8B）；裸基线通过但混合保护 argmax <45% → 废弃混合保护（通过线 ≥50% 且 cos ≥0.85）"
-    data_source: "results/kaggle_7b_baseline.json / kaggle_7b_hybrid.json"
+    data_source: "results/kaggle_7b_fixed_route.json"
     status: pending
     evidence_file: ""
     ds_admitted_refutation: false
-    fate_note: "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。上机链路已就绪（DS-016：7B 4bit NF4+FP16 KV+8K，Step1 门禁 ≥2/3 → Step4 合流 hybrid blockdiag K8）。【DS-024 收尾新阻塞】WB2 实际到达的 router_weights.pt 是 RelationModelV2（程序对→score 打分器），并非 DS 规格 SemanticRouter（query→组 logits），无法直接驱动 H-DS10 所需的 per-query 路由 Argmax 评估——该验收项同步 BLOCKED，待 OI-DS24-20261019 契约裁决（WB2 重导 DS 规格 / 或 WB1 正式采用 RelationModelV2 并定义其在 7B 推理时的调用契约）。实机 bench 仍待 Kaggle Run All。"
+    fate_note: "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。【DS-026 转向·固定路由突击】DS 明确要求不等 WB2 新权重，直接用 GSC 离线质心/空壳固定路由跑通 7B 端到端。新 falsifiable（DS-026）：即便无最佳 Router，采用『均匀/固定群 + 混合保护(Sink+Win+TopK)』在 7B 上 Argmax 应突破 45%（比 0.5B 更鲁棒）；若固定路由下 7B Argmax 仍 <45%，则证明崩盘非路由差、而是重组在多段拼接时破坏了 RoPE 连续性（标记 ROPE_FRACTURE）。data_source 改为 kaggle_7b_fixed_route.json。WB1 已建成 fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，并据此口径判定 MAINTAIN(>45%)/ROPE_FRACTURE(<45%)；沙盒无 GPU 无法出权威 7B 数字，权威存证待 Kaggle Run All（0.5B CPU 代理已校验管线）。"
 
   - id: H-DS14
     source_review: DS-20261018-009-WB1
@@ -186,10 +185,10 @@ hypotheses:
     statement: "WB1 能成功加载 WB2 提供的 router_weights.pt，并在极低延迟下完成路由"
     falsifiable_criterion: "若因 WB2 的模型结构（274k 参数）与 WB1 预期的 MLP 不符而报错，或加载后预测分数方向相反（负相关未反转），则接口对接失败"
     data_source: "results/router_bench.json; results/wb2_real_weights_test.json"
-    status: pending
+    status: refuted
     evidence_file: "results/wb2_real_weights_test.json"
-    ds_admitted_refutation: false
-    fate_note: "DS-20261019-018 登记；DS-20261019-024 收尾定案（权重已到达）。WB2 经 REST 备选通道（其 git push 被 GnuTLS -110 阻断后）推送 src/shared/router_weights.pt（RelationModelV2, 274,466 参数, tau200_diverse_pool_retrained, score_sign=-1 即权重已取反）。结论分两层：①【可消费性 CONFIRMED】WB1 新增 wb2_router.WB2Router 加载真实权重并跑通前向，tests/test_wb2_load.py 6/6 PASS，其中 C2 与 WB2 自带 RouterShell 数值误差 0.00e+00（逐层对齐）、C3 确认对 score_sign=-1 已取反语义处理正确（无额外翻号）、C5 延迟 0.65ms<1ms 否证线；②【接口不兼容 REFUTED 字面】WB2 交付的是 RelationModelV2（(h_theta_seq,h_phi_seq,feats)->(delta_hat,score) 程序对训练价值打分器），与 DS 规格 SemanticRouter（query->64 组 logits 的 per-query KV 路由层）是两套接口，H-DS24 字面『成功加载并完成路由』中『路由』部分无法直接成立。SemanticRouter.load_external_router 现对 WB2 blob 早期识别并清晰指路（C4），不会静默误用。集成进 SemanticKV per-query 路由需契约裁决（见 meta.open_items_for_ds OI-DS24-20261019）。维持 pending。"
+    ds_admitted_refutation: true
+    fate_note: "【DS-20261019-026-WB1 正式裁定·冻结】DS 明确承认 WB1 判断完全正确：WB2 交付的 RelationModelV2 无法直接作为 per-query 路由使用。DS 已让 WB2 按严格 MLP 规格重训 SemanticRouter 并推送（新权重待到达）。WB1 现有 wb2_router.WB2Router 适配器『暂时封存』（代码留存、加封存横幅，待新 MLP 权重到达后启用）。status 由 DS 原令的 blocked 映射为协议合法的 refuted：假设字面『成功加载并完成路由』中『完成路由』部分被证伪（两套接口不可互换），DS 正式承认该反驳；『加载』部分仍 CONFIRMED（6/6 PASS，C2 与 WB2 RouterShell 误差 0.00e+00）——故以 refuted 入账、evidence_file 指向真实权重验收。DS-026 collaboration_audit=GREEN，并接受 WB1 此前对跨物理沙盒物流的主观臆断批评。"
 
   - id: H-DS30
     source_review: DS-20261019-021-WB1

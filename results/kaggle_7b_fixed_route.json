@@ -1,0 +1,138 @@
+{
+  "config": {
+    "model": "Qwen/Qwen2.5-0.5B",
+    "hf_endpoint": "https://hf-mirror.com",
+    "dtype": "float32",
+    "load_in_4bit": false,
+    "device": "cpu",
+    "ctx": 512,
+    "paragraphs": 6,
+    "repeats": 4,
+    "target_layer": 12,
+    "group_layer": "final",
+    "smooth_window": 8,
+    "group_mode": "gsc,uniform,qk",
+    "n_groups": 16,
+    "metric": "centered",
+    "gsc_k": 16,
+    "gsc_tau": 0.97,
+    "qk_tau": 0.9,
+    "compress_mode": "hybrid",
+    "topk_per_group": 8,
+    "sink_tokens": 4,
+    "window_tokens": 64,
+    "mid_scope": "blockdiag",
+    "compress_layers": "0.25-0.75",
+    "kmean_renorm": "none",
+    "group_score_prior": "logcount",
+    "needle": "请注意，一个重要事实：小王最喜欢的数字是 42。",
+    "needle_positions": "0.15,0.5,0.85",
+    "question": "小王最喜欢的数字是多少？请只回答数字：",
+    "max_new_tokens": 8,
+    "out": "results/kaggle_7b_fixed_route.json",
+    "environment": "local-sandbox-cpu-proxy-0.5B"
+  },
+  "environment": {
+    "kind": "local-sandbox-cpu-proxy-0.5B",
+    "model": "Qwen/Qwen2.5-0.5B",
+    "device": "cpu",
+    "load_in_4bit": false,
+    "note": "0.5B CPU 代理仅校验管线；权威 7B 数字需 Kaggle 实机（--environment kaggle-7b）。"
+  },
+  "gate": {
+    "baseline_hit_rate": 1.0,
+    "gate_pass": true,
+    "baseline_positions": [
+      0.15,
+      0.5,
+      0.85
+    ],
+    "baseline_hits": [
+      true,
+      true,
+      true
+    ]
+  },
+  "fixed_route_assault": [
+    {
+      "group_mode": "gsc",
+      "n_groups": 14,
+      "positions": [
+        0.15,
+        0.5,
+        0.85
+      ],
+      "compressed_hits": [
+        true,
+        true,
+        true
+      ],
+      "argmax": 1.0,
+      "rope_fracture": false,
+      "prefill_final_hidden_cos_mean": [
+        0.8086294646984621,
+        0.8044456533749732,
+        0.8056453374248055
+      ],
+      "prefill_final_hidden_cos_p05": [
+        0.5732882035064326,
+        0.5857071925169434,
+        0.5787463640758913
+      ]
+    },
+    {
+      "group_mode": "uniform",
+      "n_groups": 16,
+      "positions": [
+        0.15,
+        0.5,
+        0.85
+      ],
+      "compressed_hits": [
+        true,
+        true,
+        true
+      ],
+      "argmax": 1.0,
+      "rope_fracture": false,
+      "prefill_final_hidden_cos_mean": [
+        0.824321121002037,
+        0.8148452483977973,
+        0.8120902831247608
+      ],
+      "prefill_final_hidden_cos_p05": [
+        0.5990523017225986,
+        0.5805853541196463,
+        0.6101153371126887
+      ]
+    },
+    {
+      "group_mode": "qk",
+      "n_groups": 2,
+      "positions": [
+        0.15,
+        0.5,
+        0.85
+      ],
+      "compressed_hits": [
+        true,
+        true,
+        true
+      ],
+      "argmax": 1.0,
+      "rope_fracture": false,
+      "prefill_final_hidden_cos_mean": [
+        0.732707489362873,
+        0.7295901711163495,
+        0.7023140427883724
+      ],
+      "prefill_final_hidden_cos_p05": [
+        0.49821174559658443,
+        0.4916622549481735,
+        0.48330379249727845
+      ]
+    }
+  ],
+  "verdict": "MAINTAIN",
+  "note": "所有固定路由下 7B 混合保护 Argmax >45%：混合保护在多段拼接下仍稳住底线，维持方案（H-DS10 DS-026 口径）。"
+}

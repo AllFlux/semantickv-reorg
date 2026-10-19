@@ -6,17 +6,18 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "DS-20261019-024-WB1 收尾：WB2 真实权重到达 + H-DS24 契约分歧发现",
-    "status": "R14：WB2 经 REST 备选通道推送真实权重到位（router_weights.pt, RelationModelV2, 274,466 参数）。WB1 新增 wb2_router 适配器 6/6 PASS 加载并数值交叉验证（与 WB2 自带 shell 误差 0.00e+00）。但 WB2 交付架构与 DS 规格 SemanticRouter 是两套接口 → H-DS24 可消费性 CONFIRMED / 接口层 BLOCKED；H-DS10 同步 BLOCKED",
-    "metrics": "wb2_real_weights_test: 6/6 PASS（C2 误差 0.00e+00, C3 无额外翻号, C5 延迟 0.65ms<1ms）｜ router_weights.pt SHA256 5398800465…｜ regime=tau200_diverse_pool_retrained, score_sign=-1(已取反) ｜ git 拉取 PASS-GIT-OVER-10S(26-52s, 2.2MB 载荷)"
+    "name": "DS-20261019-026-WB1：契约冻结 H-DS24 + 7B 固定路由突击测试",
+    "status": "R15 GREEN：DS-026 正式裁定 H-DS24——WB2 交付的 RelationModelV2 不能直接作为 per-query 路由，WB1 此前判断正确，并已令 WB2 按严格 MLP 规格重训 SemanticRouter 推送。WB1 的 wb2_router 适配器『暂时封存』（代码留存）。H-DS24 由 blocked 映射为协议合法的 refuted（ds_admitted_refutation=true）。H-DS10 同步转向『固定路由突击』：不等 WB2 新权重，直接用 GSC 离线质心 / 顺序定长 / post-RoPE K 相似度三种非学习分组 + 混合保护（Sink+Win+TopK），在 7B 上验证 Argmax 是否突破 45% 底线",
+    "metrics": "本地沙盒 CPU 代理（Qwen2.5-0.5B, environment.kind=local-sandbox-cpu-proxy-0.5B）门禁 1.000 PASS；三种固定路由 Argmax=1.000/MAINTAIN（无 RoPE 崩塌信号），prefill 保真度余弦 0.70–0.82。⚠ 代理结论 ≠ 7B 权威结论，权威 kaggle_7b_fixed_route.json 待用户在 Kaggle 实机 Run All（Step 5，7B-Instruct 4bit ctx=8192）"
   },
   "decision_items": [
-    "【契约裁决·阻塞项】WB2 真实权重已到达，但交付的是 RelationModelV2（程序对→score 打分器），与 DS 规格 SemanticRouter（query→KV 组路由）两套接口不可互换。H-DS24 可消费性已确认(6/6 PASS)，但『接入 SemanticKV per-query 路由』BLOCKED。需裁决：A) WB2 按 DS 规格重导 SemanticRouter 并 re-push；或 B) WB1 正式采用 RelationModelV2 并定义其在 7B 推理时的调用契约（h_theta/h_phi/feats 如何取得）。见台账 OI-DS24-20261019",
+    "【契约裁决·DS-026 已决】DS 正式裁定：WB2 交付的 RelationModelV2 不能直接作为 per-query 路由，WB1 此前判断正确。DS 已令 WB2 按严格 MLP 规格重训 SemanticRouter 并推送。WB1 的 wb2_router 适配器（含 tests/test_wb2_load.py）已『暂时封存』（代码留存，待新权重到达后启用）。H-DS24 由 blocked 映射为协议合法的 refuted（ds_admitted_refutation=true，status 已通过纪律校验修正）",
+    "【用户动作·Kaggle 7B 实机】在 Kaggle Run All run_on_kaggle.ipynb 执行 Step 5（固定路由突击）：用 GSC 离线质心 / 顺序定长 / post-RoPE K 相似度三种非学习分组 + 混合保护，产出权威 results/kaggle_7b_fixed_route.json。Argmax>45% 判 MAINTAIN；<45% 判 ROPE_FRACTURE（证明崩盘非路由差、而是重组多段拼接破坏 RoPE 连续性）。权威结论须以 7B 实机为准，本地 0.5B CPU 代理仅作管线正确性校验",
+    "【用户动作】WB2 新 MLP 规格 SemanticRouter 权重推送后，解冻 wb2_router 适配器并按新接口重写（旧 RelationModelV2 接口已封存）",
     "【用户动作】DS-024 明文 PAT 已用后请立即吊销重置（AllFlux/repo scope，5000/h）；该 token 全程仅经环境变量，仓库零落盘（含片段）",
-    "【用户动作】Kaggle 7B 实机 Run All：Step1 门禁 → Step6 Router 空壳 bench → Step7/8 WB2 合流（已改 wb2_router 适配器，明确标注契约分歧）。契约裁决前 H-DS10 Argmax≥50% 无法由当前权重驱动",
-    "DS-024 collaboration_audit：GREEN（降级策略获 DS 认可）；但 DS 侧对 WB2 物流的陈述（第 4 次）与仓库事实不符，已如实入账",
-    "H-DS30 本机判定：git 通道 + ≤10s + SHA 自洽三要素齐备（falsifiable 两失败分支未触发）；Kaggle 实机复跑（网络墙分支）仍待用户",
-    "H-DS24 负相关修正已落地（score_sign=-1）；Train-Serve Skew 防护已落地（维度核验 + 温度告警）；模拟接口验收 7/7 PASS"
+    "DS-026 collaboration_audit：GREEN。DS 接受 WB1 此前对跨物理沙盒物流的主观臆断批评，并正式修正",
+    "H-DS30 本机判定：git 通道 + ≤10s + SHA 自洽三要素齐备；Kaggle 实机复跑（网络墙分支）仍待用户执行 Step 5 一并联跑",
+    "R15 纪律：10/10 GREEN（DS-D1..DS-D5 全绿）；H-DS24 归档已补 falsifiable_criterion/data_source，台账 status 由非法 blocked 修正为协议合法 refuted"
   ],
   "files": [
     {
@@ -116,8 +117,20 @@
       "path": "results/wb2_real_weights_test.json"
     },
     {
-      "label": "WB1 侧 WB2 适配器（RelationModelV2 加载/运行）",
+      "label": "WB1 侧 WB2 适配器（RelationModelV2 加载/运行 · 已封存待新权重）",
       "path": "src/semantickv/vllm_plugin/wb2_router.py"
+    },
+    {
+      "label": "评审 026-WB1 (契约冻结 H-DS24 + 固定路由突击)",
+      "path": "results/ds_reviews/20261019_026_wb1_review.md"
+    },
+    {
+      "label": "固定路由突击脚本（GSC/uniform/qk + 混合保护，复用 v41 路径）",
+      "path": "src/semantickv/fixed_route_assault.py"
+    },
+    {
+      "label": "固定路由突击存证 kaggle_7b_fixed_route.json（本地 0.5B 代理；7B 权威待 Kaggle Step5）",
+      "path": "results/kaggle_7b_fixed_route.json"
     }
   ]
 }
