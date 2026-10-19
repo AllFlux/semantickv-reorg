@@ -184,8 +184,8 @@ def self_check(text: str) -> tuple[bool, list[tuple[str, str, str]]]:
     n_json = len(re.findall(r"^```json", text, re.M))
     add("明文内联数据块", n_json > 0, f"{n_json} 块（含报告正文内的）")
 
-    # 环境标签只对「二、核心数据明文内联」这一节强制要求
-    sec = re.search(r"## 二、核心数据明文内联.*?(?=\n## |\Z)", text, re.DOTALL)
+    # 环境标签只对「附录 A 核心数据明文内联」这一节强制要求
+    sec = re.search(r"## 附录 A｜核心数据明文内联.*?(?=\n## |\Z)", text, re.DOTALL)
     if sec:
         sec_text = sec.group(0)
         n_sec_json = len(re.findall(r"^```json", sec_text, re.M))
@@ -323,7 +323,7 @@ def build(args) -> Path:
 
     # ---------- 0. 报告正文 ----------
     if body.strip():
-        parts.append("## 一、实验报告正文（来自 WB1 归档）")
+        parts.append("## 正文（实验报告归档）")
         parts.append("")
         parts.append(body.strip())
         parts.append("")
@@ -332,11 +332,11 @@ def build(args) -> Path:
 
     # ---------- 1. 明文内联数据 ----------
     if args.json:
-        parts.append("## 二、核心数据明文内联（D2-b）")
+        parts.append("## 附录 A｜核心数据明文内联（D2-b）")
         parts.append("")
         for i, rel in enumerate(args.json, 1):
             p = (ROOT / rel) if not Path(rel).is_absolute() else Path(rel)
-            parts.append(f"### 2.{i} `{Path(rel).name}`")
+            parts.append(f"### A{i} · `{Path(rel).name}`")
             if not p.exists():
                 parts.append("")
                 parts.append("```text")
@@ -358,7 +358,7 @@ def build(args) -> Path:
     # ---------- 2. 台账状态 ----------
     if args.ledger_ids:
         entries = _ledger_entries(args.ledger_ids)
-        parts.append("## 三、相关假设台账状态")
+        parts.append("## 附录 B｜相关假设台账状态")
         parts.append("")
         if not entries:
             parts.append(f"⚠ 未找到假设: {', '.join(args.ledger_ids)}")
@@ -381,7 +381,7 @@ def build(args) -> Path:
     # ---------- 3. 纪律检验 ----------
     if args.discipline_round:
         r = _discipline_round(args.discipline_round)
-        parts.append(f"## 四、纪律检验（{args.discipline_round}）")
+        parts.append(f"## 附录 C｜纪律检验（{args.discipline_round}）")
         parts.append("")
         if not r:
             parts.append(f"⚠ 台账中无 {args.discipline_round}")
@@ -401,7 +401,7 @@ def build(args) -> Path:
 
     # ---------- 4. 悬而未决 ----------
     if args.open_questions:
-        parts.append("## 五、悬而未决的问题（请 DS 裁决）")
+        parts.append("## 附录 D｜悬而未决的问题（请 DS 裁决）")
         parts.append("")
         for q in args.open_questions:
             parts.append(f"{q}")
@@ -410,7 +410,7 @@ def build(args) -> Path:
         parts.append("")
 
     # ---------- 5. 文件清单（仅供 CEO） ----------
-    parts.append("## 六、文件清单（仅供 CEO 溯源 · DS 可忽略）")
+    parts.append("## 附录 E｜文件清单（仅供 CEO 溯源 · DS 可忽略）")
     parts.append("")
     parts.append("| 文件 | 角色 |")
     parts.append("|---|---|")

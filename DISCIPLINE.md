@@ -164,7 +164,25 @@ WorkBuddy 每轮交付必须附：
 1. 最新代码 `semantickv-reorg.tar.gz`（含本次全部变更）；
 2. 核心结论 Markdown（**含负结果**，三段式：数据表/结论/文件清单）；
 3. 「悬而未决的问题」清单（需 DeepSeek 审查的决策点）；
-4. **纪律检验台账条目**（`tools/check_discipline.py` 输出，RED 时附未绿项说明）。
+4. **纪律检验台账条目**（`tools/check_discipline.py` 输出，RED 时附未绿项说明）；
+5. **给 DS 的投喂包**（v2.0 强制）：`results/_ds_brief/R<轮次>_TO_DS.md`，
+   由 `tools/make_ds_brief.py` 生成，且 7 项发送前自检全绿。
+   **发给 DS 的必须是该文件的全文纯文本，不得只发链接或路径。**
+
+### 一键收尾
+
+```bash
+bash tools/round_close.sh R19 "R19 交付：<标题>"
+# 需要精确控制时：
+bash tools/round_close.sh R19 "R19 交付：<标题>" \
+  --report results/<报告>.md --json results/<数据>.json \
+  --ledger-ids H-DS10 --open-questions "<请 DS 裁决的问题>"
+```
+
+产出 `results/_ds_brief/R19_TO_DS.md`。**打开 → 全选 → 复制 → 整段粘给 DS**。
+
+> 为什么必须整段明文：DS 无浏览器，链接与路径对它等于不存在（详见 D2-b）。
+> 只发路径 = 让 DS 盲猜，本项目已因此产生 4 次物流误判。
 
 DeepSeek/用户接收后必须明确回应：「已复核，同意」或「发现数据异常，
 需要查看具体 JSON」——不允许已读不回。
