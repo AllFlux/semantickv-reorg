@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-19T12:29:21.568553+00:00",
+  "generated_at": "2026-10-19T13:14:14.996915+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
       "meta": {
         "protocol": "DISCIPLINE.md v2.0 (D6 双轨制· D2-b/D3-b · D7缓存固化)",
         "rounds": [],
-        "last_round": "R23",
-        "last_run": "2026-10-19T20:28:15"
+        "last_round": "R24",
+        "last_run": "2026-10-19T21:14:07"
       }
     },
     "rounds": [
@@ -1446,11 +1446,78 @@
           "fail": 0,
           "verdict": "GREEN"
         }
+      },
+      {
+        "round": "R24",
+        "timestamp": "2026-10-19T21:14:07",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 11 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "27 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "5 份报告三段式齐全"
+          },
+          {
+            "check": "D6 双轨制报告",
+            "status": "PASS",
+            "detail": "5 份报告双轨制合规（frontmatter+正文+反直觉专节+内联）"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "18 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 11,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
       }
     ],
     "last_round": {
-      "round": "R23",
-      "timestamp": "2026-10-19T20:28:15",
+      "round": "R24",
+      "timestamp": "2026-10-19T21:14:07",
       "checks": [
         {
           "check": "D1 契约优先",
@@ -2401,6 +2468,24 @@
         }
       },
       "body": "# 理论背景（Why）\n\nCEO 已进入阿里云 PAI-DSW 启动台，DS 给出三步操作指引：\n\n1. JupyterLab 上传 `autodl_deploy.tar.gz` 到 `/mnt/workspace/`；\n2. Terminal 里解压并 `bash run_all.sh`；\n3. 从 `results/` 下载两个产物后停止并删除实例。\n\n随后 CEO 问「我手机里有这个包吗」，DS 判断没有，改为**从 GitHub 直接拉取**，\n并给出 `git clone` / `wget` 两条路径。\n\n这两处判断都对，但 DS 无法核对仓库实际内容（无浏览器），因此指令里有两处\n与事实不符——正好印证纪律 v2.0 的 D2-b：**DS 只能依据描述推断**。\n\n# 具体步骤（What）\n\nDS 给 CEO 的目标命令序列（经 WB1 核对后）：\n\n```bash\ncd /mnt/workspace\ntar -xzf autodl_deploy.tar.gz\ncd deploy_autodl\nexport HF_ENDPOINT=https://hf-mirror.com\nexport HF_HOME=/mnt/workspace/hf_cache\nbash run_all.sh\n```\n\n# 验收标准（How）\n\n- 两个产物：`kaggle_7b_fixed_route.json`（env 须为 `autodl-7b` 且四断言全绿）\n  与 `real_features_7b.npz`（`(N,3584)`）。\n- 回传后停止并删除实例。\n\n> 本评审不含新假设（纯运维指引 + 工程修复），台账不新增条目。\n\n---\n\n## WB1 核查与修复\n\n### ① 指令里两处与仓库实际不符（已修）\n\n| DS 指令 | 实际情况 | 处置 |\n|---|---|---|\n| `cd deploy_autodl`（隐含解压出顶层目录） | tar 原为**扁平结构**（`./run_all.sh`），该命令必然失败 | **改打包结构**，解压出 `deploy_autodl/` |\n| `wget <链接>`（需 WB1 给链接） | 仓库**公开**，raw 链接可匿名访问 | 实测 `HTTP 200`，链接固定写入 README |\n\nraw 链接实测：\n\n```text\n$ curl -sS -o /dev/null -w \"HTTP %{http_code}  size=%{size_download}\\n\" -L \\\n    https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/dist/autodl_deploy.tar.gz\nHTTP 200  size=46854\n```\n\n### ② 端到端冒烟：在干净目录模拟 PAI 全流程\n\n```text\n$ cd /tmp/pai_sim4 && tar -xzf autodl_deploy.tar.gz && cd deploy_autodl\n$ export HF_ENDPOINT=https://hf-mirror.com HF_HOME=/tmp/pai_sim4/hf_cache\n$ SMOKE=1 bash run_all.sh\n[gpu] ⚠ 未检测到 CUDA。7B 4bit 需要 GPU；继续会在加载时报错。\n[deps] 检查运行依赖 → 齐全\n[baseline] 命中率 1.000 门禁=PASS\n[assault:gsc]     Argmax=1.000 OK(>45%)\n[assault:uniform] Argmax=1.000 OK(>45%)\n[assault:qk]      Argmax=1.000 OK(>45%)\n[done] results/kaggle_7b_fixed_route.json | verdict=MAINTAIN | baseline=1.000\n[特征导出] dim=896  check=PROXY  tokens=236  groups=7\n✔ 两步均成功。\nexit=0   （耗时 56s）\n```\n\n产物三个文件齐全，`environment.kind=local-sandbox-cpu-proxy-0.5B`，\n`claims_checked` 四项**全为 false** —— 证明守卫不会把这次代理运行误标成 7B。\n\n### ③ 冒烟过程中发现 4 个真缺陷（其中 1 个会杀死 7B 实跑）\n\n| # | 缺陷 | 后果 | 修复 |\n|---|---|---|---|\n| 1 | `safe_softmax` 用 `clamp(min=-1e30)` | **fp16 上限仅 65504 → `RuntimeError: cannot be converted to c10::Half without overflow`**。7B 用 4bit+fp16 必炸 | 半精度输入先升 fp32 计算再转回；fp32/bf16 行为不变 |\n| 2 | `SMOKE` 给突击脚本传 `--max-tokens` | 参数名应为 `--max-new-tokens`，Step 5 秒退 | 两脚本用独立变量 |\n| 3 | Step 失败后脚本仍 `exit 0` | 用户会以为成功、回传半成品 | 累计 `FAILED`，末尾 `exit $FAILED` |\n| 4 | 依赖检查 `import importlib` 却用 `importlib.util` | `AttributeError` 被吞成「依赖齐全」 | 改为 `importlib.util`，且按模式区分是否需要 bnb |\n\nfp16 修复后的三 dtype 单测：\n\n```text\ntorch.float32    -> torch.float32,  finite=True, row0_sum=1.0000, row1_sum=0.0000\ntorch.float16    -> torch.float16,  finite=True, row0_sum=1.0000, row1_sum=0.0000\ntorch.bfloat16   -> torch.bfloat16, finite=True, row0_sum=1.0000, row1_sum=0.0000\n```\n\n> 全 `-inf` 行仍返回全 0（非 NaN），正常行和为 1 —— 原语义保留。\n\n---\n\n## 反直觉与异常观测\n\n### 1. 「一键脚本跑通了」是假象，直到我把它解压到空目录\n\n第一次端到端冒烟 `exit=0`，我差点就宣布成功——但 `results/` 里只有特征文件，\n**没有固定路由 JSON**。原因是 Step 5 因参数名错误秒退，而脚本用\n`|| { echo 失败; }` 吞掉了退出码，最后仍返回 0。\n**\"跑完了\"和\"跑对了\"是两件事**；退出码不传递，等于没有验收。\n\n### 2. 真正会炸的是 fp16，而不是 0.5B 的 CPU 路径\n\nCPU 冒烟默认 float32，一路顺利；但 7B 实机是 4bit + fp16 compute。\n`safe_softmax` 里 `clamp(min=-1e30)` 在 fp16 下直接溢出——**这个 bug 在沙盒里\n永远不会出现，只有在真正花钱租卡那一刻才会出现**。\n是 SMOKE 模式把 dtype 切到 float16 试跑一次才暴露的（随后为速度改回 fp32，\n但单测保留三 dtype 覆盖）。\n\n### 3. DS 的指令是对的，但它没法验证「包解压后长什么样」\n\n`cd deploy_autodl` 这句话在 DS 看来天经地义（它以为 tar 带顶层目录），\n而实际是扁平结构。这不是 DS 的错——它没有浏览器、也没法 `tar -tzf`。\n**凡是涉及\"文件系统实际形态\"的指令，都必须由能执行的一方核对**。\n这条已作为 D2-b 的实例记入。\n\n## 结论\n\n1. DS 的 PAI-DSW 三步流程可用；两处与实际不符已修（包结构、下载链接）。\n2. 端到端冒烟 exit=0，两产物齐全，守卫未误标。\n3. 修掉 4 个缺陷，其中 fp16 clamp 溢出**是 7B 实跑的致命项**。\n4. 新增 `SMOKE=1` 模式：无 GPU 也能先验证包完整性。\n\n## 文件清单\n\n| 文件 | 内容 |\n|---|---|\n| `tools/build_deploy_bundle.sh` | 打包改为含顶层 `deploy_autodl/` |\n| `deploy/autodl/run_all.sh` | SMOKE 模式 / 依赖预检 / 退出码传递 / 目录自定位 |\n| `src/semantickv/v41_torch_native_runner.py` | `safe_softmax` fp16 安全 |\n| `deploy/autodl/README.md` | 新增「零上传路径」与 SMOKE 说明 |\n| `dist/autodl_deploy.tar.gz` | 重建（48,608B / 8 文件） |\n| `results/deploy_bundle_manifest.json` | 增加 layout / zero_upload / end_to_end_smoke |\n| `results/ds_reviews/20261019_040_wb1_review.md` | 本归档 |"
+    },
+    {
+      "file": "20261019_041_wb1_review.md",
+      "meta": {
+        "review_id": "DS-20261019-041-WB1",
+        "source_url": "https://chat.deepseek.com/share/asg1i3lrr821w6isgj",
+        "date": "2026-10-19",
+        "topic": "CEO 手机端粘贴卡死 → 一行入口 + 后台运行 + 可选回传",
+        "status": "accepted",
+        "experiment_id": "R24 (PAI 手机端易用性轮)",
+        "environment": "local-sandbox-cpu-proxy-0.5B",
+        "hypotheses": [],
+        "collaboration_audit": {
+          "status": "GREEN",
+          "contract_check": "DS 主动指出自身无法操作 CEO 的云实例（无 IP/无凭据/无法控制手机），并把方案收敛为『一键脚本 + nohup 后台 + GitHub 回传』。边界判断准确。"
+        }
+      },
+      "body": "# 理论背景（Why）\n\nCEO 在阿里云 PAI-DSW 用手机浏览器操作终端：多行粘贴会卡死，断网会中断任务。\nDS 提出两条路径：\n\n1. **一行入口**：把 wget→解压→环境变量→pip→运行压成一条极短命令；\n2. **后台运行 + 自动回传**：`nohup` 挂起，跑完把产物推回 GitHub。\n\nDS 同时明确边界：WB 无法直接 SSH 进 CEO 的实例（无公网 IP、无凭据、无法控制手机）。\n这个判断是对的。\n\n# 具体步骤（What）\n\n1. 写一个仓库内的入口脚本，用户只粘一行；\n2. 支持后台模式，关掉手机不中断；\n3. 可选：跑完自动把产物推回 GitHub。\n\n# 验收标准（How）\n\n- 一行命令在无 GPU 环境（SMOKE）下能跑通；\n- 后台模式能返回 PID，且进程结束后产物完整；\n- 下载环节在「raw 被墙」时仍能成功。\n\n> 本评审不含新假设（运维易用性改进），台账不新增条目。\n\n---\n\n## WB1 执行记录\n\n| DS 建议 | 落地 | 证据 |\n|---|---|---|\n| 一行入口 | `deploy/autodl/bootstrap.sh`，`curl … \\| bash` | 实测 exit=0 |\n| 后台运行 | `--bg` → `nohup … &`，打印 PID 与 tail 命令 | 实测 PID 完成、产物齐全 |\n| 自动回传 | `--upload`（需 `GITHUB_TOKEN`，推 `results/<host>-<ts>` 分支） | 未实测（无 token），代码已就绪 |\n| 先后台、再回看 | `tail -f run.log` / `grep -E \"^✔|^⚠\" run.log` | 已写入提示 |\n\n### 一行命令实测（从公网拉取，模拟 CEO 操作）\n\n```text\n$ curl -sL --max-time 90 \"https://ghfast.top/<raw>/deploy/autodl/bootstrap.sh\" | bash -s -- --features-first\n[bootstrap] workdir=/tmp/oneline4\n[1/4] 下载部署包（约 48KB）\n      尝试 cdn.jsdelivr.net … OK（49091 字节，校验通过）\n[2/4] 解压\n[3/4] 环境与依赖   缺少: 无\n[4/4] 运行\n[arch] hidden_size=896  layers=24  kv_heads=2\n✔ 已执行的步骤均成功。\nexit=0   （26s）\n```\n\n后台模式：\n\n```text\n 已后台启动，PID=52232\n 看进度： tail -f /tmp/bs_bg/deploy_autodl/run.log\n$ ps -p 52232        -> 已结束\n$ ls results/        -> real_features_7b.npz (394,753B) + .json\n```\n\n### 下载通道实测（本轮最意外的发现）\n\n```text\nraw.githubusercontent.com          -> 10s 无响应（被墙）\ncdn.jsdelivr.net                  -> HTTP 200 / 3.3s（但 bootstrap 缓存滞后）\ncdn.statically.io                 -> FAIL\nghfast.top                        -> HTTP 200 / 新版\ngh-proxy.com                      -> HTTP 200 / 新版\n```\n\n三个可用通道下载的包体一致：\n\n```text\nghfast.top       size=49091 sha=a6be2b0be7f5 ✓\ngh-proxy.com     size=49091 sha=a6be2b0be7f5 ✓\ncdn.jsdelivr.net size=49091 sha=a6be2b0be7f5 ✓\n```\n\n---\n\n## 反直觉与异常观测\n\n### 1. DS 给的 raw 链接在我的沙盒里**直接超时**，但在 DS 的推演里是「能下」\n\n这不是 DS 的错——它无法实测。但它意味着：**任何「一行 curl」方案如果只写 raw，\n在国内环境有相当概率第一条命令就卡死**，而 CEO 只会看到光标不动。\n\n### 2. CDN 的「包已更新、入口脚本仍旧」是最阴的失败模式\n\njsDelivr 上 tarball 已刷新（49091），但 `bootstrap.sh` 仍返回旧版（期望 48618）。\n若用户此刻跑 jsDelivr 的一行命令，旧脚本会拿 48618 去校验 49091 的包 →\n**必然判失败**，而错误信息看起来像「下载坏了」，实际是版本错位。\n\n处置：① 主入口改用 `ghfast.top`（直通 raw，无 CDN 缓存滞后）；\n② 增加**版本漂移兜底**——严格哈希全失败后，若包是合法 gzip 且含\n`deploy_autodl/run_all.sh`，则打印期望/实际 sha 并继续；`STRICT_VERIFY=1` 可拒绝。\n\n### 3. 打包脚本会改 README，README 又在包里 → 哈希自我变化\n\n`build_deploy_bundle.sh` 把 README 打进包，所以「改一句文档」也会让 sha 变。\n若不联动 bootstrap 的 `EXPECT_SHA`，每次改文档都会让用户下不了包。\n已在打包脚本末尾加自动同步（避免人肉记哈希）。\n\n### 4. 后台任务的「成功」必须看退出码，不能看进程消失\n\n第一次后台测试，进程没了、日志也有输出，但 `results/` 里少一个文件——\n因为 Step 5 早退而脚本当时还 `exit 0`。已改为累计 `FAILED` 并传递退出码。\n\n## 结论\n\n1. 一行入口 + 后台运行已交付并实测（26s / exit=0 / 产物齐全）。\n2. 下载改为三镜像回退 + 逐镜像哈希校验 + 版本漂移兜底；raw 被墙不再是阻塞。\n3. 自动回传代码就绪但未实测（需 CEO 的 token），默认关闭。\n4. 打包脚本与 bootstrap 校验值已自动联动，消除人肉维护。\n\n## 文件清单\n\n| 文件 | 内容 |\n|---|---|\n| `deploy/autodl/bootstrap.sh` | 一行入口 / `--bg` / 多镜像 / 漂移兜底 / `--upload` |\n| `deploy/autodl/README.md` | 第八节：手机端一行跑、后台、只跑特征、回传 |\n| `tools/build_deploy_bundle.sh` | 打包后自动同步 bootstrap 校验常量 |\n| `dist/autodl_deploy.tar.gz` | 最新部署包 |\n| `results/ds_reviews/20261019_041_wb1_review.md` | 本归档 |"
     }
   ],
   "open_items": []

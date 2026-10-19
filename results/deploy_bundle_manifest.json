@@ -1,14 +1,14 @@
 {
   "purpose": "7B 实机最小部署包清单（DS-20261019-035-WB1 步骤 1 验收）",
-  "created_at": "2026-10-19T12:27:56+00:00",
+  "created_at": "2026-10-19T13:14:04+00:00",
   "environment": {
     "kind": "local-sandbox-cpu-proxy-0.5B",
     "note": "打包与校验在 CPU 沙盒完成；包内脚本需 GPU 才能跑 7B。"
   },
   "bundle": {
     "path": "dist/autodl_deploy.tar.gz",
-    "bytes": 48608,
-    "sha256": "c8ea2c0118d550ff102162421821977fea2d2285508a535a8d0c45e7899d2e47",
+    "bytes": 49195,
+    "sha256": "32348271e211720054ad25d64333f3024d82a24ef3eacfc4c50f423533fbfaf3",
     "n_files": 8,
     "files": [
       {
@@ -29,7 +29,7 @@
       },
       {
         "name": "deploy_autodl/run_all.sh",
-        "bytes": 6953
+        "bytes": 6965
       },
       {
         "name": "deploy_autodl/requirements.txt",
@@ -37,7 +37,7 @@
       },
       {
         "name": "deploy_autodl/README.md",
-        "bytes": 4843
+        "bytes": 6371
       },
       {
         "name": "deploy_autodl/eval_runner.py",
@@ -45,7 +45,7 @@
       }
     ]
   },
-  "entrypoint": "bash run_all.sh",
+  "entrypoint": "bash run_all.sh  （或一行：curl -sL https://ghfast.top/<raw>/deploy/autodl/bootstrap.sh | bash -s -- --bg --features-first）",
   "env_vars": {
     "HF_ENDPOINT": "https://hf-mirror.com",
     "SEMANTICKV_THREADS": "8",
@@ -113,21 +113,25 @@
     "note": "tar 含顶层目录，`cd deploy_autodl` 可直接执行（原为扁平结构，会让手册命令失败）"
   },
   "zero_upload": {
-    "wget": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/dist/autodl_deploy.tar.gz",
-    "verified": "HTTP 200, 匿名可下（无需 PAT）",
-    "smoke_cmd": "SMOKE=1 bash run_all.sh"
+    "primary": "https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh",
+    "alternates": [
+      "https://gh-proxy.com/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh",
+      "https://cdn.jsdelivr.net/gh/AllFlux/semantickv-reorg@main/deploy/autodl/bootstrap.sh"
+    ],
+    "measured": {
+      "raw_github": "10s 无响应（被墙）",
+      "jsdelivr": "200/3.3s（缓存可能滞后）",
+      "ghfast": "200 新版",
+      "gh-proxy": "200 新版",
+      "statically": "FAIL"
+    },
+    "one_liner": "curl -sL <primary> | bash -s -- --features-first",
+    "bg": "... | bash -s -- --bg --features-first"
   },
   "end_to_end_smoke": {
-    "cmd": "模拟 PAI：解压 → cd deploy_autodl → export HF_ENDPOINT/HF_HOME → SMOKE=1 bash run_all.sh",
+    "cmd": "curl|bash 一行（SMOKE=1，--features-first）",
     "exit": 0,
-    "duration_s": 56,
-    "outputs": [
-      "results/kaggle_7b_fixed_route.json",
-      "results/real_features_7b.npz",
-      "results/real_features_7b.json"
-    ],
-    "verdict": "MAINTAIN",
-    "claims_all_false": true,
-    "note": "0.5B 代理；claims 四项全 false 证明守卫在本机不会误标 7B"
+    "duration_s": 26,
+    "note": "下载→校验→解压→依赖→运行 全链路；产物 real_features_7b.npz/.json 生成"
   }
 }

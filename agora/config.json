@@ -6,11 +6,12 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "DS-20261019-040：PAI-DSW 上机指引核对 + 部署包实测修复（含 fp16 致命 bug）",
-    "status": "R23 GREEN：CEO 已进阿里云 PAI-DSW。DS 给三步指引（JupyterLab 上传→Terminal 执行→回传停实例），发现 CEO 手机无包后改『从 GitHub 直接拉』。WB1 核对修两处不符：① tar 原为扁平结构→改为解压出 deploy_autodl/，否则 `cd deploy_autodl` 必失败；② raw 链接实测 HTTP 200 匿名可下，已固定写入 README（零上传路径）。端到端冒烟（干净目录模拟 PAI）exit=0 / 56s，两产物齐全、claims 四项全 false 证明未误标。冒烟中揪出 4 个真缺陷，其中 safe_softmax 在 fp16 下 clamp(-1e30) 溢出会在 7B 实跑必炸，已修并加三 dtype 单测。",
-    "metrics": "R23 11/11 PASS｜包 48,608B/8文件/含顶层目录｜raw HTTP 200｜e2e SMOKE exit=0 56s｜safe_softmax fp32/fp16/bf16 全 finite｜守卫 7/7｜18 条假设（无新增）"
+    "name": "DS-20261019-041：手机端一行入口 + 后台运行（raw 被墙 → 三镜像回退）",
+    "status": "R24 GREEN：CEO 手机端粘贴长命令会卡死。DS 判断 WB 无法直接操作云实例（无 IP/凭据/屏幕），方案收敛为『一行入口 + nohup 后台 + 可选回传』。WB1 已交付 deploy/autodl/bootstrap.sh：curl|bash 一行完成 下载→校验→解压→依赖→运行；--bg 后台（关手机不中断，打印 PID/tail）；--features-first 先拿关键产物；--upload 可选回传（需 token，未实测）。本轮最大意外：raw.githubusercontent 在沙盒 10s 无响应（被墙），jsDelivr 可用但 bootstrap 缓存滞后会拿旧哈希校验新包 → 必然失败。故改为三镜像逐个尝试+逐个校验，并加『版本漂移兜底』（结构完整即放行，STRICT_VERIFY=1 可拒绝）。",
+    "metrics": "R24 11/11 PASS｜一行命令实测 exit=0 / 26s｜后台 PID 完成后产物齐全｜通道实测 raw=超时 / jsDelivr=200·3.3s(缓存滞后) / ghfast=200新版 / gh-proxy=200新版 / statically=FAIL｜包 49195B sha=32348271…｜18 条假设（无新增）"
   },
   "decision_items": [
+    "【立即可执行·手机端】一行：curl -sL https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --bg --features-first  （回车即返回 PID，关手机不中断）",
     "【立即可执行·PAI-DSW】终端两条命令即可，无需手机传文件：wget raw 链接 → tar -xzf → cd deploy_autodl → export HF_ENDPOINT/HF_HOME → bash run_all.sh（详见 deploy/autodl/README.md 第七节）",
     "【验收通过·DS-038】部署包与 autodl-7b 守卫获 DS 肯定，代码不再修改。npz 键名已统一 hidden_states（--key-name hs 可切）",
     "【进展·WB2 3584 重训到位】GAP-DS26-01 解除（input_dim=3584, [512,3584], 1.87M 参数, loadtest 6/6）。但 proxy_data=true 未变 → 仍需 real_features_7b.npz 做真实分布重训",
@@ -192,6 +193,14 @@
     {
       "label": "评审 040 (PAI-DSW 指引核对 + fp16 致命 bug 修复)",
       "path": "results/ds_reviews/20261019_040_wb1_review.md"
+    },
+    {
+      "label": "评审 041 (一行入口 / 后台 / 多镜像回退)",
+      "path": "results/ds_reviews/20261019_041_wb1_review.md"
+    },
+    {
+      "label": "一行入口脚本 bootstrap.sh",
+      "path": "deploy/autodl/bootstrap.sh"
     }
   ]
 }
