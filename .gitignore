@@ -1,10 +1,8 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-.ipynb_checkpoints/
-
-# 本地环境 / 临时
-.DS_Store
-*.log
-.venv/
+# 推送范围严格限定 src/shared/（DS-20261019-023-WB2 范围裁定，2026-10-19）
+# 机器通道只搬运双方协作所需的代码与极小权重；历史 JSON 与全量权重留本地。
+# 白名单式：默认忽略仓库根下一切，仅放行 src/shared/ 与本声明文件自身。
+/*
+!/src/
+!/.gitignore
+/src/*
+!/src/shared/
