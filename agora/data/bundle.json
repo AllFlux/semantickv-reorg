@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-19T07:44:14.749233+00:00",
+  "generated_at": "2026-10-19T09:54:08.299748+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
       "meta": {
         "protocol": "DISCIPLINE.md v2.0 (D6 双轨制· D2-b/D3-b · D7缓存固化)",
         "rounds": [],
-        "last_round": "R18",
-        "last_run": "2026-10-19T15:21:17"
+        "last_round": "R20",
+        "last_run": "2026-10-19T17:53:53"
       }
     },
     "rounds": [
@@ -1111,11 +1111,145 @@
           "fail": 0,
           "verdict": "GREEN"
         }
+      },
+      {
+        "round": "R19",
+        "timestamp": "2026-10-19T15:44:22",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 11 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "25 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "5 份报告三段式齐全"
+          },
+          {
+            "check": "D6 双轨制报告",
+            "status": "PASS",
+            "detail": "5 份报告双轨制合规（frontmatter+正文+反直觉专节+内联）"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "17 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 11,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
+      },
+      {
+        "round": "R20",
+        "timestamp": "2026-10-19T17:53:53",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 11 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "25 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "5 份报告三段式齐全"
+          },
+          {
+            "check": "D6 双轨制报告",
+            "status": "PASS",
+            "detail": "5 份报告双轨制合规（frontmatter+正文+反直觉专节+内联）"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "18 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 11,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
       }
     ],
     "last_round": {
-      "round": "R18",
-      "timestamp": "2026-10-19T15:21:17",
+      "round": "R20",
+      "timestamp": "2026-10-19T17:53:53",
       "checks": [
         {
           "check": "D1 契约优先",
@@ -1170,7 +1304,7 @@
         {
           "check": "DS-D5 假设台账状态",
           "status": "PASS",
-          "detail": "16 条假设状态合法"
+          "detail": "18 条假设状态合法"
         }
       ],
       "summary": {
@@ -1185,10 +1319,10 @@
   "hypotheses": {
     "meta": {
       "protocol": "DISCIPLINE.md §DeepSeek 对等纪律 (v2.0)",
-      "total": 17,
+      "total": 18,
       "confirmed": 3,
       "refuted": 6,
-      "pending": 8,
+      "pending": 9,
       "open_items_for_ds": [
         {
           "id": "OI-DS24-20261019",
@@ -1403,6 +1537,17 @@
         "evidence_file": "results/ds_reviews/20261019_029_wb1_review.md",
         "ds_admitted_refutation": false,
         "fate_note": "DS-20261019-029 登记。执行条件：Kaggle 7B-Instruct 4bit + ctx8192 跑 Step 5。WB1 已就绪：① fixed_route_assault.py 增加环境口径守卫（model_is_7b/load_in_4bit/ctx_ge_4096/device_uses_cuda 四条断言，任一不满足拒绝以 kaggle-7b 落盘，负向测试 exit=1 且未生成文件）；② 新建 export_real_features.py 导出 7B Prefill 真实隐状态(3584)+真实 GSC 标签，0.5B 冒烟通过（236×896，7 群，meta 显式标注不可交付）。判定需用户 Kaggle 实机产出权威数字，故 pending。"
+      },
+      {
+        "id": "H-DS36",
+        "source_review": "DS-20261019-035-WB1",
+        "statement": "用 7B 真实隐状态(3584) + 真实 GSC 标签重训后，WB2 的 SemanticRouter 能显著优于随机（1/64≈1.56%），从而打破合成数据自证循环",
+        "falsifiable_criterion": "若 WB2 在真实特征上重训后 Top-1 仍不显著高于随机基线 1.56%，或仍需退回合成数据，则『真实特征导出』未构成破局点。",
+        "data_source": "results/real_features_7b.json",
+        "status": "pending",
+        "evidence_file": "results/ds_reviews/20261019_035_wb1_review.md",
+        "ds_admitted_refutation": false,
+        "fate_note": "DS-20261019-035 登记。DS 依据 WB2 低秩几何证据（泛化间隙 0.26→0.015）判定 Router 架构无问题，把真实特征导出定为唯一破局点。WB1 已交付：48KB 部署包（7 文件，deploy/autodl/README.md）、--expect-dim 3584 硬校验（0.5B 标 autodl-7b 时 return 4 拒产）、autodl-7b 兼容（守卫抽为纯函数 + 7 条单测全过）。判定依赖用户 AutoDL 实跑产出 real_features_7b.npz 后 WB2 重训结果。"
       }
     ]
   },
@@ -1975,6 +2120,8 @@
         "date": "2026-10-19",
         "topic": "批准 MAINTAIN + 令跑 Kaggle 7B Step 5 + 导出真实特征 + KVFundaBench 备选",
         "status": "completed",
+        "experiment_id": "R19 (DS-029 执行轮)",
+        "environment": "local-sandbox-cpu-proxy-0.5B",
         "action_required": "Run Kaggle 7B Step 5; do not unfreeze wb2_router",
         "collaboration_audit": {
           "status": "GREEN",
@@ -1990,7 +2137,33 @@
           }
         ]
       },
-      "body": "# 理论背景（Why）\n\nDS-029 是对 R18 交付的三点裁决：\n\n1. **批准 MAINTAIN**。0.5B CPU 代理下 1.000 证明「管线 / RoPE 连续性 / 混合保护」\n   逻辑自洽，DS 正式认可该判定。\n2. **push 被拒未 force** 被评为「卓越的工程素养」——若当时 `--force`，WB2 的 7 个\n   提交与新权重会被永久覆盖。DS 把「永不 force push 共享仓库」定为军规。\n3. **GAP-DS26-01（1024 vs 3584）复核精准**。DS 已勒令 WB2 按 3584 重训；\n   WB1「维持封存 wb2_router」被明确肯定——**不要在错误维度上浪费时间**。\n\nDS 同时给出一条重要判断：**0.5B 数据已完全饱和**（3/3 全中，GSC 与 qk 无法区分），\n继续在 0.5B 上调参毫无信息量。唯一有价值的动作是把同一脚本搬上 7B。\n\n# 具体步骤（What）\n\n1. **Kaggle 7B Run All（Step 5）**：加载 `Qwen2.5-7B-Instruct`（4bit，8K），\n   产出权威 `kaggle_7b_fixed_route.json`。\n2. **导出真实特征**：7B Prefill 阶段的 `Query_Hidden_State`（3584 维）+\n   真实 GSC 分组标签 → `.npz`/`.json`，交给 WB2 打破「合成数据自证」的循环论证。\n3. **回传与审计**：7B Argmax ≥45% 交数据；若仍 1.000（needle 过易）→ 改用\n   **KVFundaBench 推理密集型子集**；若 <45% → 标记 `ROPE_FRACTURE` 转查位置编码。\n\n# 验收标准（How）\n\n- `kaggle_7b_fixed_route.json` 的 `environment` 必须明确标 `kaggle-7b`，\n  且**不得把代理环境冒称为 7B**。\n- 输出真实 7B Argmax 数值 + 3584 维隐状态样本导出包。\n\n---\n\n## WB1 执行记录\n\n| DS 指令 | WB1 状态 | 证据 |\n|---|---|---|\n| ① Kaggle 7B Step 5 | **阻塞（需用户）**：沙盒无 GPU、无 7B 权重、HF 网络不可达 | — |\n| ② 真实特征导出 | **脚本已建成 + 0.5B 冒烟通过** | `src/semantickv/export_real_features.py` |\n| ③ KVFundaBench 备选 | 判定口径已写入 H-DS35 证伪标准，待 7B 结果触发 | `hypothesis_ledger.yaml` |\n| 验收：environment 必须 kaggle-7b | **已加硬守卫**（三条断言 + 拒绝落盘） | `fixed_route_assault.py` |\n| 维持封存 wb2_router | 遵守，不解冻 | `wb2_router.py` 封存横幅 |\n\n### ② 特征导出脚本的实测输出（明文内联 · D2-b）\n\n0.5B CPU 冒烟（**仅验证管线，不是交付物**）：\n\n```text\n[arch] hidden_size=896  layers=24  kv_heads=2\n[input] N=236 tokens\n[done] /tmp/feat_smoke.npz  (0.4 MB)\n       hidden (236, 896) = (tokens, 896)   labels (236,)   G=7\n       env=local-sandbox-cpu-proxy-0.5B\n       ⚠ 非 7B 实机产物：仅用于管线冒烟，不可交付 WB2。\n```\n\n`.npz` 结构核验：\n\n```json\n{\n  \"keys\": [\"hidden\", \"labels\", \"meta\"],\n  \"hidden\": {\"shape\": [236, 896], \"dtype\": \"float16\"},\n  \"labels\": {\"shape\": [236], \"dtype\": \"int32\", \"n_groups\": 7},\n  \"meta.hidden_size\": 896,\n  \"meta.env.kind\": \"local-sandbox-cpu-proxy-0.5B\",\n  \"meta.provenance.real_gsc_available\": true\n}\n```\n\n> 维度 896 ≠ 3584，脚本在 meta 里显式写明「不可作为 WB2 交付物」。\n> 只有 `--load-in-4bit --device cuda` 的 7B 实机产物才标 `kaggle-7b`。\n\n### 验收项的环境守卫（负向测试）\n\n```text\n$ python3 src/semantickv/fixed_route_assault.py \\\n    --model .../Qwen2.5-0.5B --device cpu --ctx 512 --environment kaggle-7b\n[FATAL] 环境标签不一致：声明 kaggle-7b，但以下条件不满足\n        ['model_is_7b', 'load_in_4bit', 'ctx_ge_4096', 'device_uses_cuda']。\n        拒绝落盘，避免把代理结果误标为 7B 权威结论（DS-029 验收标准）。\nexit=1   （且目标文件未生成）\n```\n\n四条断言：`model_is_7b` / `load_in_4bit` / `ctx_ge_4096` / `device_uses_cuda`。\n任一不满足即拒绝以 `kaggle-7b` 落盘。\n\n---\n\n## 反直觉与异常观测\n\n### 1. 「0.5B 全中」其实是坏消息，不是好消息\n\n三种路由 Argmax 全 1.000、needle 全 3/3，直觉上像\"方案大成功\"。但 GSC 分 14 群、\nqk 只分 2 群，两者差异巨大，结果却完全相同——说明**任务难度低于模型能力，\n指标已经饱和**。DS 的判断（\"0.5B 数据已完全饱和，继续跑毫无意义\"）与观测一致。\n教训：**指标全满时先怀疑任务太简单，而不是庆祝**。\n\n### 2. 特征导出最容易错的地方是「维度悄悄不对」\n\n`hidden_from_capture` 返回的是 `(N, hidden_size)`，0.5B 是 896、7B 是 3584，\n代码路径完全相同。若不显式核对 `hidden.shape[1] == config.hidden_size`，\n就可能导出一份\"看起来正常、维度却错\"的文件，WB2 拿去重训会再次踩 GAP-DS26-01。\n故脚本在落盘前强制断言，并把真实维度写进 meta。\n\n### 3. 环境标签是唯一能防止「假 7B 结论」的闸门\n\n`--environment kaggle-7b` 是一个**人可以随手打上的字符串**。若不加守卫，\n任何人（包括未来的我）都能在 CPU 上跑 0.5B 然后把结果标成 7B 权威数据——\n这正是 D3 要防的事。故把标签从「注释」升级为「需通过四条断言才允许写入」。\n\n## 结论\n\n1. DS-029 三点裁决已入账：MAINTAIN 获批准、wb2_router 维持封存、GAP-DS26-01 由 WB2 重训。\n2. 步骤 ②（真实特征导出）**已交付可执行脚本**，0.5B 冒烟通过，7B 实机待 Kaggle。\n3. 验收项「environment 必须 kaggle-7b」**已加硬守卫**并有负向测试。\n4. 步骤 ①③ 受硬件阻塞，需用户在 Kaggle 执行。\n\n## 文件清单\n\n| 文件 | 内容 |\n|---|---|\n| `src/semantickv/export_real_features.py` | 真实隐状态 + GSC 标签导出（新建） |\n| `src/semantickv/fixed_route_assault.py` | 新增环境口径守卫（四条断言） |\n| `results/ds_reviews/20261019_029_wb1_review.md` | 本归档 |\n| `results/hypothesis_ledger.yaml` | H-DS35 新登记 |\n| `results/kaggle_7b_fixed_route.json` | 现有为 0.5B 代理，权威版待 Kaggle |"
+      "body": "# 理论背景（Why）\n\nDS-029 是对 R18 交付的三点裁决：\n\n1. **批准 MAINTAIN**。0.5B CPU 代理下 1.000 证明「管线 / RoPE 连续性 / 混合保护」\n   逻辑自洽，DS 正式认可该判定。\n2. **push 被拒未 force** 被评为「卓越的工程素养」——若当时 `--force`，WB2 的 7 个\n   提交与新权重会被永久覆盖。DS 把「永不 force push 共享仓库」定为军规。\n3. **GAP-DS26-01（1024 vs 3584）复核精准**。DS 已勒令 WB2 按 3584 重训；\n   WB1「维持封存 wb2_router」被明确肯定——**不要在错误维度上浪费时间**。\n\nDS 同时给出一条重要判断：**0.5B 数据已完全饱和**（3/3 全中，GSC 与 qk 无法区分），\n继续在 0.5B 上调参毫无信息量。唯一有价值的动作是把同一脚本搬上 7B。\n\n# 具体步骤（What）\n\n1. **Kaggle 7B Run All（Step 5）**：加载 `Qwen2.5-7B-Instruct`（4bit，8K），\n   产出权威 `kaggle_7b_fixed_route.json`。\n2. **导出真实特征**：7B Prefill 阶段的 `Query_Hidden_State`（3584 维）+\n   真实 GSC 分组标签 → `.npz`/`.json`，交给 WB2 打破「合成数据自证」的循环论证。\n3. **回传与审计**：7B Argmax ≥45% 交数据；若仍 1.000（needle 过易）→ 改用\n   **KVFundaBench 推理密集型子集**；若 <45% → 标记 `ROPE_FRACTURE` 转查位置编码。\n\n# 验收标准（How）\n\n- `kaggle_7b_fixed_route.json` 的 `environment` 必须明确标 `kaggle-7b`，\n  且**不得把代理环境冒称为 7B**。\n- 输出真实 7B Argmax 数值 + 3584 维隐状态样本导出包。\n\n---\n\n## WB1 执行记录\n\n| DS 指令 | WB1 状态 | 证据 |\n|---|---|---|\n| ① Kaggle 7B Step 5 | **阻塞（需用户）**：沙盒无 GPU、无 7B 权重、HF 网络不可达 | — |\n| ② 真实特征导出 | **脚本已建成 + 0.5B 冒烟通过** | `src/semantickv/export_real_features.py` |\n| ③ KVFundaBench 备选 | 判定口径已写入 H-DS35 证伪标准，待 7B 结果触发 | `hypothesis_ledger.yaml` |\n| 验收：environment 必须 kaggle-7b | **已加硬守卫**（四条断言 + 拒绝落盘） | `fixed_route_assault.py` |\n| 维持封存 wb2_router | 遵守，不解冻 | `wb2_router.py` 封存横幅 |\n\n### ② 特征导出脚本的实测输出（明文内联 · D2-b）\n\n0.5B CPU 冒烟（**仅验证管线，不是交付物**）：\n\n```text\n[arch] hidden_size=896  layers=24  kv_heads=2\n[input] N=236 tokens\n[done] /tmp/feat_smoke.npz  (0.4 MB)\n       hidden (236, 896) = (tokens, 896)   labels (236,)   G=7\n       env=local-sandbox-cpu-proxy-0.5B\n       ⚠ 非 7B 实机产物：仅用于管线冒烟，不可交付 WB2。\n```\n\n`.npz` 结构核验：\n\n```json\n{\n  \"keys\": [\"hidden\", \"labels\", \"meta\"],\n  \"hidden\": {\"shape\": [236, 896], \"dtype\": \"float16\"},\n  \"labels\": {\"shape\": [236], \"dtype\": \"int32\", \"n_groups\": 7},\n  \"meta.hidden_size\": 896,\n  \"meta.env.kind\": \"local-sandbox-cpu-proxy-0.5B\",\n  \"meta.provenance.real_gsc_available\": true\n}\n```\n\n> 维度 896 ≠ 3584，脚本在 meta 里显式写明「不可作为 WB2 交付物」。\n> 只有 `--load-in-4bit --device cuda` 的 7B 实机产物才标 `kaggle-7b`。\n\n### 验收项的环境守卫（负向测试）\n\n```text\n$ python3 src/semantickv/fixed_route_assault.py \\\n    --model .../Qwen2.5-0.5B --device cpu --ctx 512 --environment kaggle-7b\n[FATAL] 环境标签不一致：声明 kaggle-7b，但以下条件不满足\n        ['model_is_7b', 'load_in_4bit', 'ctx_ge_4096', 'device_uses_cuda']。\n        拒绝落盘，避免把代理结果误标为 7B 权威结论（DS-029 验收标准）。\nexit=1   （且目标文件未生成）\n```\n\n四条断言：`model_is_7b` / `load_in_4bit` / `ctx_ge_4096` / `device_uses_cuda`。\n任一不满足即拒绝以 `kaggle-7b` 落盘。\n\n---\n\n## 反直觉与异常观测\n\n### 1. 「0.5B 全中」其实是坏消息，不是好消息\n\n三种路由 Argmax 全 1.000、needle 全 3/3，直觉上像\"方案大成功\"。但 GSC 分 14 群、\nqk 只分 2 群，两者差异巨大，结果却完全相同——说明**任务难度低于模型能力，\n指标已经饱和**。DS 的判断（\"0.5B 数据已完全饱和，继续跑毫无意义\"）与观测一致。\n教训：**指标全满时先怀疑任务太简单，而不是庆祝**。\n\n### 2. 特征导出最容易错的地方是「维度悄悄不对」\n\n`hidden_from_capture` 返回的是 `(N, hidden_size)`，0.5B 是 896、7B 是 3584，\n代码路径完全相同。若不显式核对 `hidden.shape[1] == config.hidden_size`，\n就可能导出一份\"看起来正常、维度却错\"的文件，WB2 拿去重训会再次踩 GAP-DS26-01。\n故脚本在落盘前强制断言，并把真实维度写进 meta。\n\n### 3. 环境标签是唯一能防止「假 7B 结论」的闸门\n\n`--environment kaggle-7b` 是一个**人可以随手打上的字符串**。若不加守卫，\n任何人（包括未来的我）都能在 CPU 上跑 0.5B 然后把结果标成 7B 权威数据——\n这正是 D3 要防的事。故把标签从「注释」升级为「需通过四条断言才允许写入」。\n\n## 结论\n\n1. DS-029 三点裁决已入账：MAINTAIN 获批准、wb2_router 维持封存、GAP-DS26-01 由 WB2 重训。\n2. 步骤 ②（真实特征导出）**已交付可执行脚本**，0.5B 冒烟通过，7B 实机待 Kaggle。\n3. 验收项「environment 必须 kaggle-7b」**已加硬守卫**并有负向测试。\n4. 步骤 ①③ 受硬件阻塞，需用户在 Kaggle 执行。\n\n## 文件清单\n\n| 文件 | 内容 |\n|---|---|\n| `src/semantickv/export_real_features.py` | 真实隐状态 + GSC 标签导出（新建） |\n| `src/semantickv/fixed_route_assault.py` | 新增环境口径守卫（四条断言） |\n| `results/ds_reviews/20261019_029_wb1_review.md` | 本归档 |\n| `results/hypothesis_ledger.yaml` | H-DS35 新登记 |\n| `results/kaggle_7b_fixed_route.json` | 现有为 0.5B 代理，权威版待 Kaggle |"
+    },
+    {
+      "file": "20261019_035_wb1_review.md",
+      "meta": {
+        "review_id": "DS-20261019-035-WB1",
+        "source_url": "（用户直接粘贴全文）",
+        "date": "2026-10-19",
+        "topic": "7B 真实特征导出为唯一破局点 + 要求极简部署清单（AutoDL 4090D）",
+        "status": "action_required",
+        "experiment_id": "R20 (DS-035 执行轮)",
+        "environment": "local-sandbox-cpu-proxy-0.5B",
+        "collaboration_audit": {
+          "status": "GREEN",
+          "contract_check": "DS 依据 WB2 低秩几何证据（泛化间隙 0.26→0.015）判定 Router 架构无问题，并把 Step 6 真实特征导出定为唯一破局点；与 WB1 的 GAP-DS26-02（合成数据自证循环）判断一致。"
+        },
+        "hypotheses": [
+          {
+            "id": "H-DS36",
+            "statement": "用 7B 真实隐状态(3584) + 真实 GSC 标签重训后，WB2 的 SemanticRouter 能显著优于随机（1/64≈1.56%），从而打破合成数据自证循环",
+            "falsifiable_criterion": "若 WB2 在真实特征上重训后 Top-1 仍不显著高于随机基线 1.56%，或仍需退回合成数据，则『真实特征导出』未构成破局点。",
+            "data_source": "results/real_features_7b.json",
+            "status": "pending"
+          }
+        ]
+      },
+      "body": "# 理论背景（Why）\n\nDS-035 给出两条判断：\n\n1. **Router 架构已经不是问题**。WB2 用低秩几何证明泛化间隙从 0.26 降到 0.015——\n   即模型本身有能力，之前表现差是**训练数据**的问题，不是结构问题。\n2. **7B 真实特征导出（Step 6）是当前整个项目唯一破局点**，且「不需要任何更多的\n   代理数据」。\n\n这与 WB1 在 DS-029 轮提出的 GAP-DS26-02 完全一致：WB2 现有权重是在\n`proxy_data=true`（64 个正交质心 + 高斯噪声、离线 K-means 标签）上训的，\n属于**用自己造的分组证明自己会分组**的循环论证。真实 3584 维隐状态 + 真实 GSC\n标签，是唯一能打破该循环的输入。\n\n# 具体步骤（What）\n\n1. **准备部署包**：整理极简清单（上传哪些文件、环境变量、一条 shell 命令）。\n2. **在 AutoDL（RTX 4090D）或 Colab 上跑**：下 7B-Instruct 4bit，跑 8K 固定路由\n   测试与真实特征导出。\n\n# 验收标准（How）\n\n- `kaggle_7b_fixed_route.json` 的环境标签须被四条断言验证为 `kaggle-7b`\n  **或 `autodl-7b`**（全尺寸显卡，DS-035 新增）。\n- `real_features_7b.npz` 的维度必须**严格是 (N, 3584)**。\n\n---\n\n## WB1 执行记录\n\n| DS 指令 | WB1 状态 | 证据 |\n|---|---|---|\n| ① 极简部署清单 | **已交付**：8 文件（5 个 .py + 3 个部署件）+ 1 条命令，48KB 包 | `deploy/autodl/README.md`、`dist/autodl_deploy.tar.gz` |\n| ① 环境变量 | `HF_ENDPOINT` / `SEMANTICKV_THREADS` / `HF_HUB_ENABLE_HF_TRANSFER` 已内置默认 | `deploy/autodl/run_all.sh` |\n| ① 一条命令 | `bash run_all.sh`（两个脚本串联，可 `--skip-*`） | `deploy/autodl/run_all.sh` |\n| ② AutoDL 实跑 | **阻塞（需用户显卡）**：本沙盒无 GPU | — |\n| 验收：兼容 autodl-7b | **已支持**，并抽出纯函数 + 7 条单测 | `fixed_route_assault.py`、`tests/test_env_guard.py` |\n| 验收：(N,3584) 严格 | **已加断言**（`--expect-dim 3584`），不符返回 4 并拒产 | `export_real_features.py` |\n| 产物命名 | `<out>` 默认 `real_features_7b`，与 DS 口径一致 | `export_real_features.py` |\n\n### 部署包实测（从压缩包解压到空目录跑）\n\n```text\n$ tar -xzf autodl_deploy.tar.gz -C /tmp/deploy_test\n$ find . -type f | sort\n./README.md  ./requirements.txt  ./run_all.sh  ./eval_runner.py\n./src/semantickv/{fixed_route_assault,export_real_features,v41_torch_native_runner,mock_grouper}.py\n\n$ python3 src/semantickv/export_real_features.py --model <0.5B> ... \\\n    --out out/real_features_7b --environment local-sandbox-cpu-proxy-0.5B\n[done] out/real_features_7b.npz  (0.1 MB)\n       hidden (90, 896) = (tokens, 896)   labels (90,)   G=1\n       env=local-sandbox-cpu-proxy-0.5B\n       ⚠ 非 7B 实机产物：仅用于管线冒烟，不可交付 WB2。\nexit=0\n```\n\n> 这一步暴露了最小集缺 `eval_runner.py`（`mock_grouper` 懒加载 `GroupAssignment`），\n> 已补入包内并重新验证通过。**只有解压到空目录实跑，才发现的缺陷。**\n\n### 维度硬验收（负向测试）\n\n```text\n$ python3 src/semantickv/export_real_features.py --model <0.5B> \\\n    --expect-dim 3584 --environment autodl-7b\n[FATAL] 声明 autodl-7b，但 model.config.hidden_size=896 != 期望 3584。\n        拒绝产出（DS-035 验收标准）。\nexit=4    （且未生成 .npz/.json）\n```\n\n### 四项断言单测（`tests/test_env_guard.py`）\n\n```text\n [✔] 7B 4bit cuda 8K → kaggle-7b        ok=True\n [✔] 7B 4bit cuda 8K → autodl-7b        ok=True\n [✔] 0.5B CPU 冒充 kaggle-7b             ok=False failed=['model_is_7b','load_in_4bit','ctx_ge_4096','device_uses_cuda']\n [✔] 7B 但跑 CPU 冒充 autodl-7b          ok=False failed=['load_in_4bit','ctx_ge_4096','device_uses_cuda']\n [✔] 7B 4bit 但 ctx=2048 冒充 autodl-7b  ok=False failed=['ctx_ge_4096']\n [✔] 代理标签永远放行                     ok=True\n [✔] 未知标签不拦截                       ok=True\n⟹ PASS (7/7)\n```\n\n---\n\n## 反直觉与异常观测\n\n### 1. 「最小部署包」第一次并不最小，反而缺文件\n\n按 import 关系列了 4 个 `.py`，看起来完整。但解压到空目录一跑就崩：\n`mock_grouper.fit` 在函数体内部才 `from eval_runner import GroupAssignment`——\n**懒加载不体现在顶部 import，静态阅读看不出来**。\n教训：依赖清单不能靠读 import 生成，必须**在干净环境里实跑一次**。\n\n### 2. 加 `autodl-7b` 不是加一个字符串，是加一处逻辑分支\n\n若把环境名硬编码成 `if env == \"kaggle-7b\"`，新增平台就要改多处、容易漏。\n故把判断抽成 `compute_env_claims()` + `validate_env_label()` 两个纯函数，\n标签集合变成 `AUTHORITATIVE_ENVS = {\"kaggle-7b\", \"autodl-7b\"}`，\n新增平台只改一行，且能用单测覆盖全部拒绝分支。\n\n### 3. 「维度严格 (N,3584)」这条验收，只能靠断言守住\n\n`--expect-dim` 若只写进文档，任何人跑 0.5B 时都会得到 `(N,896)` 而毫无提示。\n把它做成 `env in AUTHORITATIVE and true_dim != expect_dim → return 4`，\n才真正把「严格」变成不可绕过。负向测试已确认：不产出任何文件。\n\n## 结论\n\n1. DS-035 的两项验收（autodl-7b 兼容、(N,3584) 严格）**均已落地并有负向测试**。\n2. 极简部署包已产出：**48KB / 8 文件 / 一条命令**，并在空目录解压实跑通过。\n3. AutoDL 实跑受显卡阻塞，需用户执行；WB1 侧无任何待办。\n\n## 文件清单\n\n| 文件 | 内容 |\n|---|---|\n| `deploy/autodl/README.md` | 极简部署清单（上传/环境变量/命令/自检/FAQ） |\n| `deploy/autodl/run_all.sh` | 一条命令跑 Step 5 + Step 6 |\n| `deploy/autodl/requirements.txt` | 依赖 |\n| `dist/autodl_deploy.tar.gz` | 48KB 部署包（7 文件） |\n| `tools/build_deploy_bundle.sh` | 打包脚本（含语法自检） |\n| `tests/test_env_guard.py` | 环境守卫 7 条单测 |\n| `src/semantickv/fixed_route_assault.py` | 抽出守卫纯函数 + autodl-7b |\n| `src/semantickv/export_real_features.py` | `--expect-dim` 硬校验 + 产物名 real_features_7b |"
     }
   ],
   "open_items": []

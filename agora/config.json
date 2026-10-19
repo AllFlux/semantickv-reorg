@@ -6,11 +6,12 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "DS-20261019-029-WB1：DS 批准 0.5B MAINTAIN + 令跑 7B Step 5 + 真实特征导出就绪",
-    "status": "R19 GREEN：DS 正式批准 0.5B 代理下的 MAINTAIN（3/3 全中，管线/RoPE/混合保护自洽），并判定 0.5B 数据已饱和（GSC 14 群与 qk 2 群结果无差别），唯一有价值动作是上 7B 实机。DS 肯定『维持封存 wb2_router』正确，并已勒令 WB2 按 3584 维重训。WB1 本轮完成两件可执行项：① 新建 export_real_features.py——导出 7B Prefill 真实隐状态(3584)+真实 GSC 标签给 WB2，打破合成数据自证循环；② fixed_route_assault.py 增加环境口径守卫（四条断言，防止把 0.5B 代理误标为 kaggle-7b 权威结论）。Kaggle 7B Step 5 需用户在实机 Run All。",
-    "metrics": "R19 11/11 PASS｜特征导出 0.5B 冒烟：hidden(236,896)/7群/meta 标注不可交付｜环境守卫负向测试 exit=1 且拒绝落盘｜H-DS35 新登记（17 条假设：3 confirmed/6 refuted/8 pending）｜⚠ 权威 kaggle_7b_fixed_route.json 仍待 Kaggle 7B 实机（当前为 0.5B 代理）"
+    "name": "DS-20261019-035-WB1：7B 真实特征导出定为唯一破局点 + 极简部署包（AutoDL 4090D）",
+    "status": "R20 GREEN：DS 依据 WB2 低秩几何证据（泛化间隙 0.26→0.015）判定 Router 架构无问题，把 Step 6 真实特征导出定为当前唯一破局点，明确『不需要更多代理数据』。WB1 已交付极简部署包：48KB / 8 文件 / 一条 bash run_all.sh（Step5 固定路由 + Step6 特征导出）。验收两项已落地：① 环境标签兼容 autodl-7b（守卫抽成纯函数 compute_env_claims/validate_env_label + 7 条单测全过）；② 特征维度严格 (N,3584)（--expect-dim 硬校验，0.5B 标 autodl-7b → exit=4 拒产）。部署包已在空目录解压实跑通过（暴露并修复了 eval_runner 懒加载缺件）。",
+    "metrics": "R20 11/11 PASS｜部署包 48KB/8文件/空目录实跑 exit=0｜守卫单测 7/7 PASS｜维度负向测试 exit=4 且零产出｜H-DS36 新登记（18 条：3/6/9）｜⚠ AutoDL 实跑需用户显卡"
   },
   "decision_items": [
+    "【唯一破局点·DS-035】7B 真实特征导出：用户把 dist/autodl_deploy.tar.gz 传 AutoDL(4090D)/Colab，bash run_all.sh，产出 real_features_7b.npz（(N,3584)）交 WB2 重训。DS 明确『不需要任何更多代理数据』",
     "【DS-029 已批准】0.5B MAINTAIN 获正式认可；wb2_router 维持封存（DS：不要在错误维度上浪费时间）；WB2 已按 3584 重训",
     "【用户动作·唯一决战】Kaggle Run All：Step 5 出权威 kaggle_7b_fixed_route.json（environment 必须 kaggle-7b，守卫已强制）+ Step 6 出 features_7b_prefill.npz 交 WB2。若 7B Argmax 仍 1.000（needle 过易）→ 改 KVFundaBench 推理子集；若 <45% → ROPE_FRACTURE 查位置编码",
     "【纪律 v2.0·待 DS 确认】DS-20261019-027《v2.0》已由 WB1 全量落地：新增 D6 双轨制 Markdown（frontmatter+正文，机制化为 check_d6()）、D2-b 禁用纯链接（核心数据须正文代码块明文贴出，因DS 无浏览器）、D3-b 反直觉与异常观测专节。⚠ 编号冲突已由 WB1 裁决：旧 D6（缓存固化）顺延为 D7。DS 侧对等承诺 DS-D3『不假装已读取链接』已记录。H-DS34 待 DS 下一轮评审验证双轨制是否真的提升其归因深度",
@@ -156,6 +157,22 @@
     {
       "label": "真实特征导出脚本（7B 隐状态 3584 + GSC 标签 → npz）",
       "path": "src/semantickv/export_real_features.py"
+    },
+    {
+      "label": "评审 035-WB1 (真实特征=唯一破局点 + 部署令)",
+      "path": "results/ds_reviews/20261019_035_wb1_review.md"
+    },
+    {
+      "label": "AutoDL 极简部署清单",
+      "path": "deploy/autodl/README.md"
+    },
+    {
+      "label": "一键运行脚本 run_all.sh",
+      "path": "deploy/autodl/run_all.sh"
+    },
+    {
+      "label": "环境守卫单测（7 例）",
+      "path": "tests/test_env_guard.py"
     }
   ]
 }

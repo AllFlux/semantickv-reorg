@@ -149,6 +149,34 @@ def run_needle(model, tok, args, ids_n: torch.Tensor,
             "prefill_final_hidden_cos": cos}
 
 
+# ── 权威环境标签与守卫（DS-20261019-029 / DS-20261019-035）────────────────
+# kaggle-7b ：Kaggle T4/P100（16GB 级）
+# autodl-7b  ：AutoDL RTX 4090D / Colab（全尺寸显卡，DS-035 新增兼容）
+AUTHORITATIVE_ENVS = {"kaggle-7b", "autodl-7b"}
+
+
+def compute_env_claims(model: str, load_in_4bit: bool, ctx: int,
+                       device: str, cuda_available: bool) -> dict:
+    """把「是否真的是 7B 实机」拆成四条可核验断言。"""
+    return {
+        "model_is_7b": "7B" in str(model),
+        "load_in_4bit": bool(load_in_4bit),
+        "ctx_ge_4096": int(ctx) >= 4096,
+        "device_uses_cuda": (device == "cuda") or bool(cuda_available),
+    }
+
+
+def validate_env_label(env_kind: str, claims: dict) -> Tuple[bool, List[str]]:
+    """权威标签必须四条断言全绿；代理标签一律放行。
+
+    返回 (ok, failed)。ok=False 时调用方必须拒绝落盘。
+    """
+    if env_kind not in AUTHORITATIVE_ENVS:
+        return True, []
+    failed = [k for k, v in claims.items() if not v]
+    return (not failed), failed
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="7B 混合保护固定路由突击测试（DS-026）")
     ap.add_argument("--model", default="Qwen/Qwen2.5-0.5B")
@@ -276,30 +304,22 @@ def main() -> int:
                         (torch.cuda.is_available() and "7B" in args.model))
         else f"local-sandbox-cpu-proxy-{ '7B' if '7B' in args.model else '0.5B'}")
 
-    # ── 环境口径守卫（DS-20261019-029-WB1 验收标准）────────────────────────
-    # 权威文件必须标 kaggle-7b，且不得把代理结果冒称为 kaggle-7b。
-    # 三条硬条件任一不满足 → 拒绝以 kaggle-7b 落盘（宁可报错，不出假数据）。
-    claims = []
-    if "7B" in args.model:
-        claims.append(("model_is_7b", True))
-    else:
-        claims.append(("model_is_7b", False))
-    claims.append(("load_in_4bit", bool(args.load_in_4bit)))
-    claims.append(("ctx_ge_4096", args.ctx >= 4096))
-    claims.append(("device_uses_cuda", (args.device == "cuda") or torch.cuda.is_available()))
-    failed = [n for n, ok in claims if not ok]
-
-    if env_kind == "kaggle-7b" and failed:
+    # ── 环境口径守卫（DS-20261019-029 验收项；DS-035 兼容 autodl-7b）──────
+    # 权威文件必须标 kaggle-7b 或 autodl-7b，且不得把代理结果冒称为 7B 权威结论。
+    claims = compute_env_claims(args.model, args.load_in_4bit, args.ctx,
+                                args.device, torch.cuda.is_available())
+    ok, failed = validate_env_label(env_kind, claims)
+    if not ok:
         raise SystemExit(
-            f"[FATAL] 环境标签不一致：声明 kaggle-7b，但以下条件不满足 {failed}。\n"
+            f"[FATAL] 环境标签不一致：声明 {env_kind}，但以下条件不满足 {failed}。\n"
             f"        model={args.model} ctx={args.ctx} device={args.device} "
             f"4bit={args.load_in_4bit}\n"
-            f"        拒绝落盘，避免把代理结果误标为 7B 权威结论（DS-029 验收标准）。\n"
-            f"        若只是本地冒烟，请去掉 --environment kaggle-7b。")
+            f"        拒绝落盘，避免把代理结果误标为 7B 权威结论（DS-029/035 验收标准）。\n"
+            f"        若只是本地冒烟，请去掉 --environment {env_kind}。")
 
-    env_note = ("7B 实机权威结果（kaggle-7b）。" if env_kind == "kaggle-7b"
-                else "0.5B/小模型 CPU 代理仅校验管线；权威 7B 数字需 Kaggle 实机"
-                     "（--environment kaggle-7b）。")
+    env_note = (f"7B 实机权威结果（{env_kind}）。" if env_kind in AUTHORITATIVE_ENVS
+                else "0.5B/小模型 CPU 代理仅校验管线；权威 7B 数字需实机"
+                     "（--environment kaggle-7b 或 autodl-7b）。")
 
     report = {
         "config": vars(args),
@@ -308,7 +328,7 @@ def main() -> int:
             "model": args.model, "device": args.device,
             "load_in_4bit": args.load_in_4bit,
             "ctx": args.ctx,
-            "claims_checked": {n: bool(ok) for n, ok in claims},
+            "claims_checked": {n: bool(v) for n, v in claims.items()},
             "note": env_note,
         },
         "gate": {"baseline_hit_rate": round(base_rate, 4), "gate_pass": gate_pass,

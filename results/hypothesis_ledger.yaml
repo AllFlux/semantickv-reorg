@@ -25,10 +25,10 @@
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律 (v2.0)"
-  total: 17
+  total: 18
   confirmed: 3
   refuted: 6
-  pending: 8
+  pending: 9
   open_items_for_ds:
     - id: OI-DS24-20261019
       raised_by: WB1
@@ -215,3 +215,13 @@ hypotheses:
     evidence_file: "results/ds_reviews/20261019_029_wb1_review.md"
     ds_admitted_refutation: false
     fate_note: "DS-20261019-029 登记。执行条件：Kaggle 7B-Instruct 4bit + ctx8192 跑 Step 5。WB1 已就绪：① fixed_route_assault.py 增加环境口径守卫（model_is_7b/load_in_4bit/ctx_ge_4096/device_uses_cuda 四条断言，任一不满足拒绝以 kaggle-7b 落盘，负向测试 exit=1 且未生成文件）；② 新建 export_real_features.py 导出 7B Prefill 真实隐状态(3584)+真实 GSC 标签，0.5B 冒烟通过（236×896，7 群，meta 显式标注不可交付）。判定需用户 Kaggle 实机产出权威数字，故 pending。"
+
+  - id: H-DS36
+    source_review: DS-20261019-035-WB1
+    statement: "用 7B 真实隐状态(3584) + 真实 GSC 标签重训后，WB2 的 SemanticRouter 能显著优于随机（1/64≈1.56%），从而打破合成数据自证循环"
+    falsifiable_criterion: "若 WB2 在真实特征上重训后 Top-1 仍不显著高于随机基线 1.56%，或仍需退回合成数据，则『真实特征导出』未构成破局点。"
+    data_source: "results/real_features_7b.json"
+    status: pending
+    evidence_file: "results/ds_reviews/20261019_035_wb1_review.md"
+    ds_admitted_refutation: false
+    fate_note: "DS-20261019-035 登记。DS 依据 WB2 低秩几何证据（泛化间隙 0.26→0.015）判定 Router 架构无问题，把真实特征导出定为唯一破局点。WB1 已交付：48KB 部署包（7 文件，deploy/autodl/README.md）、--expect-dim 3584 硬校验（0.5B 标 autodl-7b 时 return 4 拒产）、autodl-7b 兼容（守卫抽为纯函数 + 7 条单测全过）。判定依赖用户 AutoDL 实跑产出 real_features_7b.npz 后 WB2 重训结果。"

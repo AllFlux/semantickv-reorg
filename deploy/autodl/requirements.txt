@@ -1,0 +1,10 @@
+# 7B 实机依赖（AutoDL 镜像一般已带 torch，其余按需装）
+# 安装：pip install -r requirements.txt
+torch>=2.1
+transformers>=4.40
+accelerate>=0.29
+bitsandbytes>=0.43      # 4bit NF4 量化（仅 CUDA）
+numpy>=1.24
+pyyaml>=6.0
+huggingface_hub>=0.23
+hf_transfer>=0.1.6      # 可选：加速下载；失败可去掉

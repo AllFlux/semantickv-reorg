@@ -68,8 +68,12 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--gsc-tau", type=float, default=0.97)
     ap.add_argument("--max-tokens", type=int, default=0,
                     help="只导出前 N 个 token（0=全部；用于控制 .npz 体积）")
-    ap.add_argument("--out", default=str(ROOT / "results" / "features_7b_prefill"))
-    ap.add_argument("--environment", default=None, help="环境标签，如 kaggle-7b")
+    ap.add_argument("--out", default=str(ROOT / "results" / "real_features_7b"),
+                    help="输出前缀（生成 <out>.npz 与 <out>.json）")
+    ap.add_argument("--environment", default=None,
+                    help="环境标签：kaggle-7b / autodl-7b（权威）；缺省自动判定")
+    ap.add_argument("--expect-dim", type=int, default=3584,
+                    help="权威标签下强制校验的隐状态维度（Qwen2.5-7B=3584）")
     return ap.parse_args()
 
 
@@ -121,11 +125,21 @@ def main() -> int:
         "kaggle-7b" if (args.load_in_4bit and "7B" in args.model)
         else f"local-sandbox-cpu-proxy-{'7B' if '7B' in args.model else '0.5B'}")
 
+    # 权威标签下强制维度校验（DS-035 验收：必须严格 (N, 3584)）
+    AUTHORITATIVE = {"kaggle-7b", "autodl-7b"}
+    if env in AUTHORITATIVE and true_dim != args.expect_dim:
+        print(f"[FATAL] 声明 {env}，但 model.config.hidden_size={true_dim} "
+              f"!= 期望 {args.expect_dim}。拒绝产出（DS-035 验收标准）。", file=sys.stderr)
+        return 4
+
     meta = {
         "purpose": "WB2 真实特征重训数据（DS-20261019-029-WB1 步骤 2）",
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "model": args.model,
         "hidden_size": true_dim,
+        "expected_dim": args.expect_dim,
+        "dim_check": ("PASS" if true_dim == args.expect_dim and env in AUTHORITATIVE
+                      else ("PROXY" if env not in AUTHORITATIVE else "FAIL")),
         "n_tokens": int(take),
         "n_groups": G,
         "label_method": f"GSC offline clustering (k={args.gsc_k}, tau={args.gsc_tau}, metric={args.metric})",
@@ -138,7 +152,7 @@ def main() -> int:
             "real_hidden_state_available": True,
             "real_gsc_available": True,
             "note": "这是真实 7B 隐状态与真实 GSC 标签；非合成代理件。"
-                    if env == "kaggle-7b" else
+                    if env in AUTHORITATIVE else
                     "本次为本地小模型冒烟，维度与 7B 不符，不可作为 WB2 交付物。",
         },
         "consumption_contract": {
@@ -160,8 +174,10 @@ def main() -> int:
     print(f"\n[done] {out.with_suffix('.npz')}  ({size_mb:.1f} MB)")
     print(f"       hidden {hidden.shape} = (tokens, {true_dim})   labels {labels.shape}   G={G}")
     print(f"       env={env}")
-    if env != "kaggle-7b":
+    if env not in AUTHORITATIVE:
         print("       ⚠ 非 7B 实机产物：仅用于管线冒烟，不可交付 WB2。")
+    elif hidden.shape[1] != args.expect_dim:
+        print(f"       ⚠ 维度 {hidden.shape[1]} != {args.expect_dim}，不可交付。")
     return 0
 
 

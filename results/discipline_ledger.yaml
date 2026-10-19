@@ -1,8 +1,8 @@
 meta:
   protocol: DISCIPLINE.md v2.0 (D6 双轨制· D2-b/D3-b · D7缓存固化)
   rounds: []
-  last_round: R19
-  last_run: '2026-10-19T15:44:22'
+  last_round: R20
+  last_run: '2026-10-19T17:53:53'
 rounds:
 - round: R1
   timestamp: '2026-10-18T15:15:47'
@@ -715,6 +715,47 @@ rounds:
   - check: DS-D5 假设台账状态
     status: PASS
     detail: 17 条假设状态合法
+  summary:
+    pass: 11
+    warn: 0
+    fail: 0
+    verdict: GREEN
+- round: R20
+  timestamp: '2026-10-19T17:53:53'
+  checks:
+  - check: D1 契约优先
+    status: PASS
+    detail: --check-interfaces 全部通过
+  - check: D2 负面结果归档
+    status: PASS
+    detail: 清单 11 项全部在档
+  - check: D3 环境隔离
+    status: PASS
+    detail: 25 个结果文件全部带环境标签
+  - check: D4 参数冻结
+    status: PASS
+    detail: mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1
+  - check: D5 格式统一
+    status: PASS
+    detail: 5 份报告三段式齐全
+  - check: D6 双轨制报告
+    status: PASS
+    detail: 5 份报告双轨制合规（frontmatter+正文+反直觉专节+内联）
+  - check: DS-D1 指令结构化
+    status: PASS
+    detail: 全部 DS 评审符合模板（frontmatter+三段式）
+  - check: DS-D2 假设可证伪+来源
+    status: PASS
+    detail: 全部假设带可证伪标准与数据来源
+  - check: DS-D3 引用可核查
+    status: PASS
+    detail: DS 跨域/文献断言均登记可核查来源（或无外部引用）
+  - check: DS-D4 结论对齐数据
+    status: PASS
+    detail: refuted 假设均有数据证据；已承认或无需承认
+  - check: DS-D5 假设台账状态
+    status: PASS
+    detail: 18 条假设状态合法
   summary:
     pass: 11
     warn: 0
