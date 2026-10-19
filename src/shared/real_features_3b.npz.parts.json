@@ -1,0 +1,22 @@
+{
+  "original": "real_features_3b.npz",
+  "byte_size": 8215605,
+  "sha256": "84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261",
+  "chunk_size": 4194304,
+  "n_parts": 2,
+  "parts": [
+    {
+      "name": "real_features_3b.npz.part1",
+      "byte_size": 4194304,
+      "sha256": "574282d82adf3388f27046fc73429e314ec94118b1863876910d0cf3a9f33e24"
+    },
+    {
+      "name": "real_features_3b.npz.part2",
+      "byte_size": 4021301,
+      "sha256": "22ec79367f032de2ead018941dbb3a06cdb4e5f0c71416e3530a40c7c1e5265c"
+    }
+  ],
+  "reassembly": "cat <part1> <part2> ... > <original>   或 python3 tools/validate_wb1_export.py --assemble <this_manifest>",
+  "created_at": "2026-10-19T17:16:58+00:00",
+  "note": "DS-20261020-051 大文件分卷：>5MB 自动分卷防 CDN 截断；下载后逐卷 sha256 比对，再拼整体 sha256 校验。"
+}

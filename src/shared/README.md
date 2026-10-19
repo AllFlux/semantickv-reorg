@@ -181,4 +181,41 @@ python3 tools/run_ds_r2_router.py          # 全实验：双 regime + 导出 .pt
 ⚠️ **归一化污染历史（DS-044 已修复）**：早期版本误将单位向量导出；若直接喂给 WB2，Router 在真实场景拿到原始幅值会崩溃。本交付已确保 `l2_normalized=false`、`raw_hidden_exported=true`，WB2 必须按原始幅值消费。
 
 相关验证证据：`kaggle_3b_fixed_route.json`（3B 三路由固定突击 Argmax 全 1.000、gate 1.000、`verdict=MAINTAIN`）。
+
+### 9.1 交付机制化（DS-20261020-051-WB1）
+
+WB2 反馈：经 CDN 下载 8.2MB 的 `.npz` 时因限速/掐断导致文件损坏（`Bad magic number`）。
+DS-051 据此把三件事**机制化**（不再依赖人工重试）：
+
+| 机制 | 实现 | 落点 |
+|---|---|---|
+| **路径固化** | `export_real_features.py` 缺省与显式 `--out` 均被强制重定向到 `src/shared/`；并断言 `out.parent == ROOT/"shared"`，否则 `[FATAL]` 拒产 | 交付件**只**在 `src/shared/`，不再写 `results/` |
+| **内联哈希** | 生成 `.npz` 后**在导出脚本内**用 `hashlib.sha256()` 直接算哈希，写 `meta.sha256` 与 `meta.byte_size`（根 `meta` 与内层 `meta["meta"]` 双写） | WB2 下载后比对基准 |
+| **大文件分卷** | `>5MB` 自动按 4MB/份 分卷为 `real_features_3b.npz.part1/.part2` + `real_features_3b.npz.parts.json`（含合并 sha256、各卷 sha256、重装说明） | 单卷 <5MB，规避 CDN 截断 |
+
+**当前交付物（`src/shared/`）**：
+
+| 文件 | 说明 |
+|---|---|
+| `real_features_3b.npz` | 主交付，8215605 bytes（7.84 MB），`sha256=84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261` |
+| `real_features_3b.json` | 契约同伴，`meta` 含 `raw_hidden_exported=true` / `l2_normalized=false` / `sha256` / `byte_size` / `dim_check=PASS_DIM_CPU` |
+| `real_features_3b.npz.part1` / `.part2` | 分卷（各 ≤4MB），CDN 友好 |
+| `real_features_3b.npz.parts.json` | 分卷 manifest（合并 sha256 + 各卷 sha256） |
+
+**WB2 使用约定（防损坏）**：
+
+```bash
+# 单文件下载后完整性校验：
+python3 tools/validate_wb1_export.py --npz real_features_3b.npz --json real_features_3b.json --check
+# SHA256 不匹配 → 下载损坏，重拉。
+
+# 分卷下载后逐卷 + 拼整体校验：
+python3 tools/validate_wb1_export.py --parts real_features_3b.npz.parts.json --json real_features_3b.json
+# 校验通过后自动/手动拼接还原：
+python3 tools/validate_wb1_export.py --assemble real_features_3b.npz.parts.json --out real_features_3b.npz
+# （或：cat part1 part2 > real_features_3b.npz）
+```
+
+> **版本冻结**：DS-048/051 均标记 `version_freeze=true`。本特征交付链路（导出 + 校验 + 分卷）已闭合；
+> 在收到 WB2 最终权重并集成测试前，暂停其他代码改动（仅允许上述机制化修补）。
 ```

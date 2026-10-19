@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-#  export_real_features.py — 导出 7B Prefill 真实 Query 隐状态 + GSC 分组标签
+#  export_real_features.py — 导出真实 Prefill 隐状态 + GSC 分组标签（3B/7B 通用）
 #                             (DS-20261019-029-WB1 步骤 2)
 # ----------------------------------------------------------------------------
 #  为什么需要：WB2 的 semantic_router.pt 是在**合成数据**上训的
@@ -15,10 +15,11 @@
 #                 键名可由 --key-name hs 切换；只写一份，不复制数组
 #    <out>.json   元数据（模型、真实维度、群数、参数、环境、provenance）
 #
-#  用法（Kaggle 7B）：
+#  用法（Kaggle 7B，交付件自动落 src/shared/）：
 #    python3 src/semantickv/export_real_features.py \
 #      --model Qwen/Qwen2.5-7B-Instruct --load-in-4bit --device cuda \
-#      --ctx 8192 --out results/features_7b_prefill
+#      --ctx 8192
+#    # --out 缺省即 src/shared/real_features_7b（显式 --out 也会被强制重定向到 src/shared/）
 #
 #  本地冒烟（0.5B CPU，仅验证管线，不产出 7B 特征）：
 #    python3 src/semantickv/export_real_features.py \
@@ -31,10 +32,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
-import shutil
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -51,6 +51,68 @@ from v41_torch_native_runner import (  # noqa: E402
     hidden_from_capture, metric_transform, smooth_hidden,
 )
 from mock_grouper import MockSemanticGrouper  # noqa: E402
+
+
+# npz 本质是 zip 归档，文件头魔数为 "PK\x03\x04"
+NPZ_MAGIC = b"PK\x03\x04"
+
+# DS-20261020-051 大文件分卷：单卷上限与分卷大小（均明显小于 5MB CDN 截断阈值）
+CHUNK_MAX_BYTES = 5 * 1024 * 1024      # 超过此体积才分卷
+CHUNK_PART_BYTES = 4 * 1024 * 1024     # 每份 4MB，留足余量
+
+
+def sha256_of(path) -> str:
+    """流式计算文件 SHA256（DS-20261020-051 要求用 hashlib.sha256）。"""
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for blk in iter(lambda: f.read(1 << 20), b""):
+            h.update(blk)
+    return h.hexdigest()
+
+
+def chunk_file(path, max_bytes=CHUNK_MAX_BYTES, part_bytes=CHUNK_PART_BYTES):
+    """DS-20261020-051：>5MB 文件自动分卷为 .partN + manifest，防 CDN 截断。
+
+    返回 manifest dict；未超过阈值返回 None。manifest 含 original / byte_size /
+    sha256（合并后整体哈希，= meta.sha256）/ chunk_size / n_parts /
+    parts[{name, byte_size, sha256}] 与重装说明，供 WB2 下载后逐卷校验 + 拼整体校验。
+    """
+    size = path.stat().st_size
+    if size <= max_bytes:
+        return None
+    parts = []
+    idx = 1
+    with open(path, "rb") as f:
+        while True:
+            data = f.read(part_bytes)
+            if not data:
+                break
+            part_path = Path(f"{path}.part{idx}")
+            part_path.write_bytes(data)
+            parts.append({
+                "name": part_path.name,
+                "byte_size": len(data),
+                "sha256": sha256_of(part_path),
+            })
+            idx += 1
+    manifest = {
+        "original": path.name,
+        "byte_size": size,
+        "sha256": sha256_of(path),       # 合并后整体哈希（= meta.sha256）
+        "chunk_size": part_bytes,
+        "n_parts": len(parts),
+        "parts": parts,
+        "reassembly": ("cat <part1> <part2> ... > <original>   "
+                       "或 python3 tools/validate_wb1_export.py "
+                       "--assemble <this_manifest>"),
+        "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "note": ("DS-20261020-051 大文件分卷：>5MB 自动分卷防 CDN 截断；"
+                 "下载后逐卷 sha256 比对，再拼整体 sha256 校验。"),
+    }
+    manifest_path = Path(f"{path}.parts.json")
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2),
+                             encoding="utf-8")
+    return manifest
 
 
 def parse_args() -> argparse.Namespace:
@@ -72,7 +134,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--max-tokens", type=int, default=0,
                     help="只导出前 N 个 token（0=全部；用于控制 .npz 体积）")
     ap.add_argument("--out", default=None,
-                    help="输出前缀（缺省按模型规模：results/real_features_{3b|7b}）")
+                    help="输出前缀（DS-20261020-051 路径固化：缺省/强制均落 src/shared/real_features_{3b|7b}）")
     ap.add_argument("--environment", default=None,
                     help="环境标签：kaggle-7b / autodl-7b（权威）；缺省自动判定")
     ap.add_argument("--expect-dim", type=int, default=0,
@@ -100,8 +162,16 @@ def main() -> int:
     sz = next((s for s in ("7B", "3B") if s in str(args.model).upper()), None)
     if args.expect_dim == 0:
         args.expect_dim = SIZE_DIMS.get(sz, true_dim)
+    # ── DS-20261020-051 路径固化：交付件强制落 src/shared/ ──
+    # 缺省按规模命名；若显式传入 --out（任何目录），取文件名主干后强制重定向到
+    # src/shared/，杜绝把交付件丢在 results/ 或其他位置。
     if args.out is None:
-        args.out = str(ROOT / "results" / f"real_features_{(sz or '0.5B').lower()}")
+        args.out = str(ROOT / "shared" / f"real_features_{(sz or '0.5B').lower()}")
+    else:
+        base = Path(args.out)
+        if base.suffix.lower() in (".npz", ".json"):
+            base = base.with_suffix("")
+        args.out = str(ROOT / "shared" / base.name)
     n_layers = int(model.config.num_hidden_layers)
     print(f"[arch] hidden_size={true_dim}  layers={n_layers}  "
           f"kv_heads={getattr(model.config, 'num_key_value_heads', '?')}", flush=True)
@@ -292,12 +362,18 @@ def main() -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     npz_path = Path(str(out) + ".npz")
     json_path = Path(str(out) + ".json")
+
+    # ── DS-20261020-051 路径固化：交付件只落 src/shared/，禁止写 results/ ──
+    # （--out 已在上面被强制重定向到 src/shared/，这里再做一次断言兜底。）
+    if out.parent != (ROOT / "shared"):
+        print(f"[FATAL] 交付路径非法（DS-051 路径固化）：{out.parent} "
+              f"必须为 {ROOT / 'shared'}", file=sys.stderr)
+        return 6
+
     np.savez_compressed(npz_path,
                         labels=labels,
                         meta=np.array(json.dumps(meta, ensure_ascii=False)),
                         **{key: hidden})
-    json_path.write_text(
-        json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # 回读自校验：键名/形状/dtype 必须与契约一致
     with np.load(npz_path) as chk:
@@ -306,11 +382,30 @@ def main() -> int:
         assert chk[key].shape == hidden.shape, "npz 隐状态形状不符"
         assert chk["labels"].shape == labels.shape, "npz 标签形状不符"
 
-    size_mb = npz_path.stat().st_size / 1024 / 1024
+    # ── DS-20261020-051 要求②：导出脚本内直接用 hashlib.sha256() 计算并写入 meta ──
+    # 字段名按 DS-051 口径：sha256 / byte_size（顶层 meta 与内层 meta["meta"] 双写，
+    # 后者满足 DS-046 的「meta 内显式标注」惯例）。
+    digest = sha256_of(npz_path)
+    size = npz_path.stat().st_size
+    meta["sha256"] = digest
+    meta["byte_size"] = size
+    meta["validated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    meta["meta"]["sha256"] = digest
+    meta["meta"]["byte_size"] = size
+    meta["meta"]["validated_at"] = meta["validated_at"]
+    meta["meta"]["flag_provenance"] = (
+        "DS-20261019-046-WB1 验收要求 meta 显式标注保真标记；"
+        "DS-20261020-051 要求导出脚本内 hashlib.sha256() 写入 sha256/byte_size")
+    json_path.write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    size_mb = size / 1024 / 1024
     print(f"\n[done] {npz_path}  ({size_mb:.1f} MB)")
     print(f"       keys = {sorted(set(np.load(npz_path).files))}")
     print(f"       {key} {hidden.shape} = (tokens, {true_dim})   labels {labels.shape}   G={G}")
     print(f"       env={env}   dim_check={dim_check}")
+    print(f"       [sha256] {digest}")
+    print(f"       [byte_size] {size} ({size_mb:.2f} MB)")
     if dim_check in ("PASS", "PASS_DIM_CPU"):
         print("       ✔ 可交付 WB2：真实模型前向的真实隐状态 + 真实 GSC 标签。")
         if dim_check == "PASS_DIM_CPU":
@@ -318,32 +413,17 @@ def main() -> int:
     else:
         print(f"       ⚠ dim_check={dim_check}：不可作为 WB2 交付物。")
 
-    # ── DS-20261020-048-WB1：自动同步到 src/shared/ 并写入导出校验 ──
-    # 要求①：导出后自动 cp 一份到 src/shared/（WB2 稳定拉取源，避免只留 results/）。
-    # 要求②：计算 SHA256 + 精确 byte_size 写入 json meta，供 WB2 下载后比对防损坏。
-    shared_dir = ROOT / "src" / "shared"
-    shared_dir.mkdir(parents=True, exist_ok=True)
-    shared_npz = shared_dir / npz_path.name
-    shared_json = shared_dir / json_path.name
-    shutil.copy(npz_path, shared_npz)
-    shutil.copy(json_path, shared_json)
-    print(f"\n[sync] 已同步到 {shared_npz}")
-    try:
-        r = subprocess.run(
-            [sys.executable, str(ROOT / "tools" / "validate_wb1_export.py"),
-             "--npz", str(shared_npz), "--json", str(shared_json), "--write"],
-            capture_output=True, text=True, timeout=120)
-        if r.stdout:
-            print(r.stdout.rstrip())
-        if r.returncode != 0 and r.stderr:
-            print(r.stderr.rstrip(), file=sys.stderr)
-        else:
-            # 把带校验 meta 的 json 同步回 results（两处保持一致）
-            shutil.copy(shared_json, json_path)
-            print(f"[sync] json meta(sha256/byte_size) 已回写 {json_path}")
-    except Exception as e:  # noqa: BLE001
-        # 校验脚本失败不应阻断交付物落地，但必须显式告警
-        print(f"[warn] 校验脚本调用失败（导出本身成功）: {e}", file=sys.stderr)
+    # ── DS-20261020-051 要求③：>5MB 大文件自动分卷（防 CDN 截断）──
+    manifest = chunk_file(npz_path)
+    if manifest:
+        print(f"\n[chunk] {npz_path.name} > 5MB，已分卷为 {manifest['n_parts']} 份 + manifest：")
+        for p in manifest["parts"]:
+            print(f"         {p['name']}  {p['byte_size']} bytes  sha256={p['sha256'][:16]}...")
+        print(f"         manifest: {Path(str(npz_path) + '.parts.json').name}")
+        print(f"         WB2 下载后校验：python3 tools/validate_wb1_export.py "
+              f"--parts {Path(str(npz_path) + '.parts.json').name}")
+    else:
+        print(f"\n[chunk] 文件 <= 5MB，无需分卷（单文件传输安全）。")
     return 0
 
 
