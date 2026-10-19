@@ -17,3 +17,5 @@ __pycache__/
 # 2026-10-19（DS-026 rebase）：该白名单随 WB2 的 rest-upload 提交再次回流，
 # 已实测确认 `/*` 会吞掉任何新文件（如 results/_probe_new_file.json 命中 .gitignore:4，
 # src/semantickv/_probe_new.py 命中 .gitignore:7）。故再次恢复标准规则。
+# 给 DS 的投喂包（可随时由 tools/make_ds_brief.py 重新生成，不入库）
+results/_ds_brief/
