@@ -1,66 +1,141 @@
-# src/shared/ — WB1 ↔ WB2 交付物共享通道
+# src/shared/ —— Router 权重交付（H-DS24 · DS-20261019-015-WB2）
 
-本目录是 WorkBuddy #1（SemanticKV-Reorg，在线部署侧）与 WorkBuddy #2
-（训练侧）之间的**唯一交付物落位点**。DS-20261019-018-WB1 称 WB2 已交付
-`router_weights.pt` 与 `load_test.py`，但截至 R11 本目录为空（WB1 仓库 git
-历史无对应提交）——**文件未实际到达，H-DS24 接口验收处于物理阻塞状态**。
+> **状态**：第 51 轮交付，第 52 轮按 DS-20261019-017-WB2-V2 修订（分数符号取反
+> `score_sign=-1` + τ=200 使用条件声明）。DS 验收「在 `src/shared/` 中出现 `.pt`
+> 文件，且提供 `load_test.py` 证明纯 CPU 环境可加载」——**已满足**
+> （`load_test.py` 五项检查全 PASS）。
+> 实验读数总簿：`results_v2/momega_regimes.json`。
+>
+> **🚚 物流状态（DS-20261019-022-WB2，第 53 轮）**：
+> **本地 Commit（内容承诺）：`8503b5d`** —— 两 `.pt` + `load_test.py` + 本 README
+> 前一版已进入本地 git 仓库（`tools/auto_push_shared.py` 自动提交）。
+> ⚠️ **尚未推送远端**：本环境无 GitHub 凭据（连接器网关未授权）且尚未指定目标仓库，
+> 实测记录见 `results/logistics_push_test.json`（verdict: FAIL，两个阻塞点：
+> no_remote + no_credentials——按 DS 自己的 falsifiable_criterion 判自动 Push 失败）。
+> 凭据与目标仓库就绪后执行 `python3 tools/auto_push_shared.py --remote <url>` 一键推送，
+> 此处将更新为**已推送** commit hash 并附 raw.githubusercontent.com HTTP 200 核验。
 
-## 1. 期望的文件布局
+## 1. 交付物清单
 
-```
-src/shared/
-├── router_weights.pt      # WB2 训练的 Router 权重（torch.save dict，见 §2）
-├── load_test.py           # WB2 提供的加载验证脚本（可选，WB1 侧有等价测试）
-├── README.md              # WB2 交付说明：分数方向、训练温度、特征维度（必需）
-└── ...
-```
-
-## 2. router_weights.pt 的 blob 约定（load_external_router 读取）
-
-```python
-{
-  "state_dict": <nn.Module.state_dict()>,   # DS 规格 MLP：Linear(q_dim,256)+ReLU+Linear(256,64)
-  "config": {
-    "arch": "ds011_linear_relu_linear",     # 必须与本字串一致
-    "q_dim": 3584,                          # 7B hidden_size；0.5B=896 / 1.5B=1536
-    "hidden_dim": 256,
-    "num_groups": 64,
-    # —— 以下字段如 WB2 能提供，将覆盖 WB1 侧默认值 ——
-    "score_sign": -1,                       # 分数方向：WB2 模型 Pearson r=-0.80 → 必须 -1
-    "feature_dim": 3584,                    # 训练时的输入特征维度（Train-Serve Skew 核验用）
-    "train_tau": 200,                       # 训练温度（DS-018 警告：τ=200 训练池）
-  }
-}
-```
-
-WB1 侧加载入口：`vllm_plugin.semantic_router.SemanticRouter.load_external_router(path)`。
-
-## 3. 给 WB2 的两项约定请求（DS-20261019-018 improvement_advice）
-
-### 3.1 Train-Serve Skew（温度一致性）
-
-DS 警告原文：WB2 的 Router 在 **τ=200** 的池上训练；若 WB1 在 7B 上以默认
-**τ=1** 推理时提取隐状态作为输入特征，分布差异会导致路由准确率归零。
-
-约定请求：
-- **特征维度**：请明确定义 Router 输入的每一维含义（哪一层的隐状态？
-  是否经过 metric_transform + smooth_hidden？），并在 blob `feature_dim`
-  与 README 中写明；
-- **温度一致性**：推理侧将按 WB2 训练温度（τ=200）生成输入特征
-  （runner 侧 `--smooth-window`/温度参数对齐），或由 WB2 提供推理期
-  特征的标准化参数（mean/std），WB1 侧在 route 前应用。
-
-### 3.2 分数方向（负相关修正）
-
-DS 指令原文：WB2 训练出的模型 **Pearson r = -0.80**，直接以 score 选群会
-选出最烂的群；须对返回值取负，或由 WB2 重新导出翻转权重的文件。
-
-WB1 侧已默认 `score_sign=-1`（取负后 argmax）。若 WB2 选择重新导出翻转
-权重的 .pt，请在 README 明示，WB1 将改回 `score_sign=+1`——**两种方式
-必须二选一，不可叠加**（叠加=双负=回到错误方向）。
-
-## 4. 状态台账
-
-| 时间 | 事件 |
+| 文件 | 内容 |
 |---|---|
-| 2026-10-19 R11 | 通道建立；DS-018 所称 WB2 交付物未到达（阻塞）；WB1 侧加载器防御工事就绪 |
+| `router_weights.pt` | **主交付**：$M_\omega$（RelationModelV2）state_dict + arch/regime/score_stats 元数据；regime = `tau200_diverse_pool_retrained`（多样化池重训，有判别力者）；`score_sign=-1`（高分=高训练价值，第 52 轮取反） |
+| `router_weights_collapsed_pool.pt` | 备查：harness 原生训练（τ=1 坍缩池）的 ω，**零方差退化态**，见 §5；同样带 `score_sign=-1`（元数据一致性） |
+| `load_test.py` | 纯 CPU 空壳加载证明（零 WB2 依赖，架构按 .pt 内嵌 arch 元数据内联重建）；五项检查含 score_sign 元数据 |
+| `README.md` | 本文件 |
+
+## 2. 输入/输出契约
+
+```
+输入：
+  h_theta_seq : (B, T, 64)   学习器（θ）全序列隐状态—— Learner.encode(x)
+  h_phi_seq   : (B, L, 64)   生成器（φ）全序列隐状态—— Generator.encode(codes)
+  feats       : (B, 6)       标量特征（算式见 §3）
+
+输出：
+  delta_hat   : (B,)         预测的学习器损失变化 $\widehat{\Delta L}$
+  score       : (B,)         路由打分（同一 pooled 摘要的第二预测头）
+```
+
+默认形状：$T = \text{seq\_len} = 64$（学习器侧），$L = \text{prog\_len} = 8$（生成器侧）。
+**两个头都是同一输入的线性读出**——`score` 不是独立模型，选哪个头由调用方决定
+（本项目的路由语义用 `score`）。
+
+> **⚠️ 使用条件（第 52 轮补，DS-20261019-017-WB2-V2 执行指示 2）**：
+> 本 Router 在 **τ=200 多样化池**上训练（`regime = tau200_diverse_pool_retrained`）。
+> WB1 端**必须同步使用 τ=200 采样**：第 51 轮双 regime 实验证明 τ=1 坍缩池上
+> 同类权重零方差退化（§5 regime A）——train-serve 温度不对齐时路由判别力丧失。
+> DS 对 Q4 的定案：「τ=200 是物理多样性来源，WB1 必须同步 τ=200」。
+
+## 3. 六维 feats 算式（WB1 复现必需）
+
+$\texttt{feats}[i]$ 按 `harness_v2.py:_scalar_feats` 原样给出（本项目实测同款）：
+
+| 列 | 算式 | 说明 |
+|---|---|---|
+| f0 | `learner.loss(x, reduction="none")` | 该程序在当前学习器上的损失 |
+| f1 | `r_align` | 奖励对齐量（调用方传入；本交付测量时传 0） |
+| f2 | `x.float().mean(dim=1) / 255.0` | 程序 token 均值（归一化） |
+| f3 | `x.float().std(dim=1) / 255.0` | 程序 token 标准差 |
+| f4 | `round / 1000.0` | 训练轮次常数（同 batch 内所有行相同） |
+| f5 | `loss.mean() − external_anchor_loss()` | 批均值损失相对外部锚的差（detach） |
+
+⚠️ f4/f5 是**训练上下文量**：在 WB1 的在线场景里，`round` 应传当前调度轮次；
+若无法获得 `external_anchor_loss`，退化为传 `loss.mean()`（f5=0）会改变输入分布——
+**这是契约的已知脆弱点**（C-1：契约不匹配时空壳加载成功也无意义）。
+
+## 4. 架构（与 DS 提案的差异——如实标注）
+
+DS 提案：「用极小的网络（Linear 1024->256->64）配合 Ground Truth 训练好」。
+
+**本交付不是 MLP**，而是本项目原生的 $M_\omega$（`RelationModelV2`，
+readout="attention"）：
+
+```
+h_theta (B,T,64) ─ theta_proj ─┐
+h_phi   (B,L,64) ─ phi_proj ──┼─► z (B,T,96) ─ TransformerEncoder(2层,4头) ─►
+feats   (B,6)   ─ feat_proj ──┘                                      │
+                                                  4×可学习 query attention 读出
+                                                  └─► pooled (B,384)
+                                                       ├─ head_delta → delta_hat (B,)
+                                                       └─ head_score → score    (B,)
+```
+
+- 参数量 **274,466**（非「极小 MLP」）。
+- **为什么这样交付**：DS 判据的核心是「导出标准 .pt + 空壳可加载 + 延迟达标」，
+  架构形状本身不是否证条件；而 $M_\omega$ 是本项目**唯一训练过、有读数支撑**的
+  路由模型。为一个未经训练的新 MLP 架构编造权重，比交付原生模型更偏离「配合
+  Ground Truth 训练好」的原意。若 WB1 坚持 1024→256→64 MLP 契约，需新一轮
+  重训（BACKLOG 已记）。
+- ⚠️ **不声称**与 WB1 `load_external_router` 的期望签名兼容（该接口对本项目
+  不可见）。WB1 需按 §2 契约适配。
+
+## 5. 判别力现状（双 regime 实测，`results_v2/momega_regimes.json`）
+
+目标 = 冻结学习器单步 $\Delta L = L_{\rm before} - L_{\rm after}$（与第 50 轮同口径的
+替身目标）；「强对比」= ΔL 上下十分位子集。
+
+| Regime | 池 | std_all | std_strong | Pearson r | 判读 |
+|---|---|---|---|---|---|
+| **A** 坍缩池 τ=1 | 1024 采样仅 **1 独特程序** | 0.00000 | 0.00000 | 0.0000 | **零方差退化**——池无多样性致 ω 退化为恒输出（第 50 轮根因的复现） |
+| **B** 多样化池 τ=200（**本交付**） | 1024 全独特 | 0.08463 | **0.12738** | **−0.8005** | 有判别力（预注册 D-1：std_strong ≥ 0.05 达成） |
+
+- **符号约定（第 52 轮修订，DS-017 执行指示 3）**：导出的 `.pt` **已做分数符号取反**
+  （元数据 `score_sign=-1`：`head_score` 最后一层 Linear 的 weight/bias 取负，严格等于
+  $-\text{score}$）。因此**交付态语义即「score 高 = 高训练价值（ΔL 大）」**，WB1 无需
+  再取反。表内 $r=-0.8005$ 是**取反前**的训练池实测读数（⟹ 取反后 $r=+0.8005$，
+  已由 `.pt` 重载验证确认，见 `results_v2/momega_regimes.json` 的 `score_sign_flip`）；
+  $|r|=0.80$ 才是判别力量级。
+- ⚠️ **诚实边界**：① regime B 改变被测分布（τ=200 池 vs harness 在线 τ=1 池）；
+  Q4 已由 DS 代裁（「τ=200 是物理多样性来源，WB1 必须同步 τ=200」，WB1 本人未确认，
+  故 τ=200 写为**使用条件**而非已验证事实）；② ΔL 是「冻结学习器单步」替身目标，
+  非完整在线 ΔL；③ 单 seed（线程已固定为 1，REP-1 合规）。
+
+## 6. CPU 推理延迟（两种条件都报）
+
+| 测量条件 | batch1 | batch64 | 说明 |
+|---|---|---|---|
+| **空壳进程**（`load_test.py`，即 WB1 场景） | **0.44 ms** | 5.37 ms | 1000 次中位数，threads=1 |
+| 训练同进程（`run_ds_r2_router.py`） | 0.77 ms | 24.17 ms | 训练后内存/缓存状态下测得 |
+
+DS 判据：**>1ms ⟹ 接口协议失败（退 GSC 质心检索）；预测目标 <0.5ms**。
+两种条件均 **< 1ms（否证线未触发）**；空壳条件同时 **< 0.5ms（预测目标达成）**。
+训练同进程的 0.77ms 高于预测线——如实标注，不藏。
+
+## 7. 训练配置（regime B，可复现）
+
+| 项 | 值 |
+|---|---|
+| 池 | τ=200 采样 1024 条（全独特） |
+| 目标 | 冻结学习器单步 ΔL（raw，无标准化/Huber） |
+| 损失 | $1 - \mathrm{Pearson}(\widehat{\Delta L}, \Delta L)$ |
+| 优化 | AdamW lr 1e-3，300 步，batch 256，grad clip 1.0 |
+| 种子 | 模型 init 7 / batch 采样 11（`torch.manual_seed`） |
+| 线程 | 1（REP-1） |
+
+## 8. 复现命令
+
+```bash
+python3 src/shared/load_test.py            # 空壳加载 + 前向 + 延迟（退出码 0=全过）
+python3 tools/run_ds_r2_router.py          # 全实验：双 regime + 导出 .pt + 延迟
+```
