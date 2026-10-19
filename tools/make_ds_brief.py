@@ -202,7 +202,10 @@ def self_check(text: str) -> tuple[bool, list[tuple[str, str, str]]]:
     has_anom = "反直觉与异常观测" in text
     add("反直觉与异常观测(D3-b)", has_anom, "存在" if has_anom else "缺失")
 
-    links = LINK_RE.findall(text)
+    # 只检查**正文散文**里的链接：代码块中的 URL 是可执行命令的组成部分
+    # （如 wget <raw 链接>），不是「请 DS 去点开」，不应误报。
+    prose = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+    links = LINK_RE.findall(prose)
     add("仓库/分享链接(D2-b)", not links, f"检出 {len(links)} 个" if links else "0 个")
 
     secrets = SECRET_RE.findall(text)
