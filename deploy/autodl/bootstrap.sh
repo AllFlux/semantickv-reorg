@@ -6,7 +6,7 @@
 #  本脚本从仓库直接拉取，用户只需粘**一行**。
 #
 #  一行用法：
-#    curl -sL https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash
+#    curl -sL https://cdn.jsdelivr.net/gh/AllFlux/semantickv-reorg@main/deploy/autodl/bootstrap.sh | bash
 #
 #  后台跑（关掉手机也不中断，最推荐）：
 #    curl -sL .../bootstrap.sh | bash -s -- --bg
@@ -20,9 +20,8 @@
 set -uo pipefail
 
 REPO_RAW="https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main"
-PKG_URL="$REPO_RAW/dist/autodl_deploy.tar.gz"
-EXPECT_BYTES=48618
-EXPECT_SHA="76bd7ca2496bbf052932b1137afcda41b86f67f1838eadb297452501edce73b5"
+EXPECT_BYTES=49091
+EXPECT_SHA="a6be2b0be7f560fdeb073d6dbc7bb4d111ddf84af284b523f1baa60469d03f98"
 SKIP_VERIFY="${SKIP_VERIFY:-0}"
 
 BG=0
@@ -47,30 +46,48 @@ cd "$WORKDIR" || { echo "[FATAL] 无法进入 $WORKDIR"; exit 1; }
 echo "[bootstrap] workdir=$WORKDIR"
 
 # ---------------------------------------------------------------- 1. 下载
+# 国内环境 raw.githubusercontent 常被墙（实测 10s 无响应），故优先 jsDelivr CDN，
+# 再回退 GitHub raw。任一镜像只要大小+sha 对得上就用；都不行才报错。
 echo "[1/4] 下载部署包（约 48KB）"
-if ! wget -q -O pkg.tgz "$PKG_URL"; then
-  echo "[FATAL] wget 失败。若在公司/校园网，试试："
-  echo "  curl -L -o pkg.tgz $PKG_URL"
-  exit 1
-fi
+MIRRORS=(
+  "https://cdn.jsdelivr.net/gh/AllFlux/semantickv-reorg@main/dist/autodl_deploy.tar.gz"
+  "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/dist/autodl_deploy.tar.gz"
+  "https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/dist/autodl_deploy.tar.gz"
+)
 
-SIZE=$(stat -c %s pkg.tgz 2>/dev/null || stat -f %z pkg.tgz)
-if [ "$SKIP_VERIFY" != "1" ] && [ "$SIZE" != "$EXPECT_BYTES" ]; then
-  echo "[FATAL] 包大小 $SIZE != $EXPECT_BYTES（下载不完整或远端已更新）"
-  echo "  当前远端（如需取新校验值）：$PKG_URL"
-  exit 1
-fi
-if [ "$SKIP_VERIFY" != "1" ] && command -v sha256sum >/dev/null 2>&1; then
-  GOT=$(sha256sum pkg.tgz | cut -d' ' -f1)
-  if [ "$GOT" != "$EXPECT_SHA" ]; then
-    echo "[FATAL] sha256 不匹配"
-    echo "  期望 $EXPECT_SHA"
-    echo "  实际 $GOT"
-    exit 1
+OK=0
+for u in "${MIRRORS[@]}"; do
+  host=$(echo "$u" | sed -E 's#https?://([^/]+).*#\1#')
+  printf "      尝试 %s … " "$host"
+  rm -f pkg.tgz
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL --connect-timeout 8 --max-time 120 -o pkg.tgz "$u" || true
+  else
+    wget -q --timeout=20 -O pkg.tgz "$u" || true
   fi
-  echo "      校验通过（$SIZE 字节，sha256 一致）"
-else
-  echo "      大小校验通过（$SIZE 字节；无 sha256sum 跳过哈希）"
+  [ -s pkg.tgz ] || { echo "失败"; continue; }
+
+  SIZE=$(stat -c %s pkg.tgz 2>/dev/null || stat -f %z pkg.tgz)
+  if [ "$SKIP_VERIFY" != "1" ] && [ "$SIZE" != "$EXPECT_BYTES" ]; then
+    echo "大小不符（$SIZE ≠ $EXPECT_BYTES）"; continue
+  fi
+  if [ "$SKIP_VERIFY" != "1" ] && command -v sha256sum >/dev/null 2>&1; then
+    GOT=$(sha256sum pkg.tgz | cut -d' ' -f1)
+    if [ "$GOT" != "$EXPECT_SHA" ]; then
+      echo "sha256 不符（可能 CDN 缓存旧版）"; continue
+    fi
+  fi
+  echo "OK（$SIZE 字节，校验通过）"
+  OK=1
+  break
+done
+
+if [ "$OK" -ne 1 ]; then
+  echo "[FATAL] 所有镜像均不可用或校验不通过。"
+  echo "  可手动下载后放到 $WORKDIR/pkg.tgz 再运行本脚本。"
+  echo "  镜像列表："
+  printf '    %s\n' "${MIRRORS[@]}"
+  exit 1
 fi
 
 # ---------------------------------------------------------------- 2. 解压

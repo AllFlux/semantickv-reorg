@@ -30,6 +30,21 @@ bash -n "$PKG/run_all.sh"
 mkdir -p dist
 tar -czf "$OUT" -C "$STAGE" deploy_autodl
 
+# 同步 bootstrap.sh 的校验常量（bootstrap 不在包内，无循环依赖）。
+# 若不同步，包一变 bootstrap 就会因大小/sha 不符而硬失败。
+python3 - "$OUT" <<'PY_SYNC'
+import hashlib, re, sys, pathlib
+pkg = pathlib.Path(sys.argv[1])
+size = pkg.stat().st_size
+sha = hashlib.sha256(pkg.read_bytes()).hexdigest()
+p = pathlib.Path("deploy/autodl/bootstrap.sh")
+t = p.read_text(encoding="utf-8")
+t = re.sub(r"EXPECT_BYTES=\d+", f"EXPECT_BYTES={size}", t)
+t = re.sub(r'EXPECT_SHA="[0-9a-f]{64}"', f'EXPECT_SHA="{sha}"', t)
+p.write_text(t, encoding="utf-8")
+print(f"[sync] bootstrap 常量已同步：{size} 字节 / {sha[:12]}…")
+PY_SYNC
+
 echo "[OK] $OUT"
 echo "     大小: $(du -h "$OUT" | cut -f1)"
 echo "     内容:"
