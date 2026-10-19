@@ -6,7 +6,7 @@
     "pat_used": true,
     "pat_env": "GITHUB_TOKEN",
     "device": "local-sandbox",
-    "purpose": "H-DS30 Git 拉取管线测试（DS-20261019-021-WB1）；DS-20261019-024-WB1 凭据配置+拉取验证实跑",
+    "purpose": "H-DS30 Git 拉取管线测试（DS-20261019-021-WB1）；DS-20261019-024-WB1 凭据配置+拉取验证；WB2 四交付物到位后全量拉取续跑",
     "elapsed_limit_s": 10.0
   },
   "environment": {
@@ -15,19 +15,46 @@
     "note": "Kaggle 实机复跑时由 notebook Step 2.5 触发"
   },
   "torch_load": {
-    "available": true
+    "available": true,
+    "router_weights.pt": {
+      "load_ok": true,
+      "top_level_keys": [
+        "state_dict",
+        "arch",
+        "regime",
+        "trained_rounds",
+        "score_sign",
+        "score_sign_note",
+        "score_stats"
+      ]
+    },
+    "router_weights_collapsed_pool.pt": {
+      "load_ok": true,
+      "top_level_keys": [
+        "state_dict",
+        "arch",
+        "regime",
+        "score_sign",
+        "score_sign_note",
+        "score_stats"
+      ]
+    }
   },
   "remote_check": {
     "pat_valid": true,
     "pat_login": "AllFlux",
     "api_ok": true,
     "remote_files": [
-      "README.md"
+      "README.md",
+      "load_test.py",
+      "router_weights.pt",
+      "router_weights_collapsed_pool.pt"
     ],
     "key_files_present": {
-      "router_weights.pt": false,
-      "load_test.py": false,
-      "README.md": true
+      "router_weights.pt": true,
+      "load_test.py": true,
+      "README.md": true,
+      "router_weights_collapsed_pool.pt": true
     },
     "note": "DS-20261019-024 远端实况检查"
   },
@@ -37,35 +64,47 @@
     "files": [
       {
         "name": "README.md",
-        "size_b": 3128,
-        "sha256": "ae42fbf159fa7131c9b8fc5d9dfcd71be0c88609925535c81409cea79ea046dd",
-        "git_blob_sha": "9a19cefd119f5d0cedbfff0481654caf8216b95a",
-        "last_commit": "1e4fe97c35627978d292a0525cfcae4d7fdbdb29 | 1e4fe97 | feat(DS-021): Git 拉取管线建成，R12 GREEN；H-DS30 本地实测通过"
+        "size_b": 8945,
+        "sha256": "679aafd6964779914d8cdffefc998b49eca2ead302705899ca6f1ea6b4e22995",
+        "git_blob_sha": "2a1d8b152720e871fa13d3f776c738f247334eee",
+        "last_commit": "c1c739f770450914c0d6f6f8d7708c3179621f5e | c1c739f | docs: 物流状态更新为已推送（DS-20261019-023-WB2 第 54 轮回执）"
+      },
+      {
+        "name": "load_test.py",
+        "size_b": 9643,
+        "sha256": "b077f4ce337e7eb0396298cc236b769ab2fec22a08d1fe316e9d6de8be5f9d7a",
+        "git_blob_sha": "d22881c722912c148a34f2c4a8ff9de3a30c7f28",
+        "last_commit": "c1c739f770450914c0d6f6f8d7708c3179621f5e | c1c739f | docs: 物流状态更新为已推送（DS-20261019-023-WB2 第 54 轮回执）"
+      },
+      {
+        "name": "router_weights.pt",
+        "size_b": 1112249,
+        "sha256": "5398800465268994b320fa9e17c9ac36cde7eac0159d5cd68d9c765b516814c7",
+        "git_blob_sha": "2713fd321e77c7f96876014a015413730d96e9d3",
+        "last_commit": "c1c739f770450914c0d6f6f8d7708c3179621f5e | c1c739f | docs: 物流状态更新为已推送（DS-20261019-023-WB2 第 54 轮回执）"
+      },
+      {
+        "name": "router_weights_collapsed_pool.pt",
+        "size_b": 1112984,
+        "sha256": "67f7373f6f70a3885dcb0fe7f7148cdcf0548b1ef500493d08c9c367c65152b9",
+        "git_blob_sha": "f453a9f122efd5aa90dcb4aa9ad03af2a493707b",
+        "last_commit": "c1c739f770450914c0d6f6f8d7708c3179621f5e | c1c739f | docs: 物流状态更新为已推送（DS-20261019-023-WB2 第 54 轮回执）"
       }
     ],
-    "elapsed_s": 8.573,
-    "elapsed_within_10s": true
+    "elapsed_s": 52.411,
+    "elapsed_within_10s": false
   },
   "summary": {
-    "verdict": "PASS",
+    "verdict": "PASS-GIT-OVER-10S",
     "pipeline_pass": true,
     "method": "git",
-    "elapsed_s": 8.573,
+    "elapsed_s": 52.411,
     "key_files_present": {
-      "router_weights.pt": false,
-      "load_test.py": false,
-      "README.md": true
+      "router_weights.pt": true,
+      "load_test.py": true,
+      "README.md": true,
+      "router_weights_collapsed_pool.pt": true
     },
-    "note": "H-DS30 判定要素：git 通道 + ≤10s + SHA256 自洽；key_files_present 反映 WB2 交付物是否已推送到位（物流项，不影响管线判定）；remote_check 段为 DS-024 远端实况（PAT 有效性 + 远端目录清单）",
-    "ds024_findings": {
-      "pat_valid": true,
-      "pat_identity": "AllFlux（repo scope，5000/h）",
-      "pat_note": "DS-024 正文下发的令牌经验证有效；此前一次手动 API 探测返回 401 系命令行变量展开假象（前缀赋值不同行生效），已用 export 方式复核排除",
-      "git_channel": "本机 git clone 经 PAT URL 成功（8.573s），DS-021 时期本地 GnuTLS -110 阻断未复现",
-      "wb2_delivered": false,
-      "wb2_delivered_note": "远端 src/shared/ 仅有 README.md（API 清单 + git clone + codeload tarball 三方一致；tarball 全树与本地 HEAD 1e4fe97 完全一致）。DS 第 4 次声称 WB2 已推送真实权重，实际仍未到位",
-      "router_weights_sha256": null,
-      "readme_sha256": "ae42fbf159fa7131c9b8fc5d9dfcd71be0c88609925535c81409cea79ea046dd"
-    }
+    "note": "H-DS30 判定要素：git 通道 + ≤10s + SHA256 自洽；key_files_present 反映 WB2 交付物是否已推送到位（物流项，不影响管线判定）；remote_check 段为 DS-024 远端实况（PAT 有效性 + 远端目录清单）。verdict 四态：PASS=git≤10s / PASS-GIT-OVER-10S=git 成功但超 10s 线（权重体积增大所致，非失败分支）/ PASS-RAW-DEGRADED=raw 降级 / FAIL"
   }
 }

@@ -80,6 +80,21 @@ class SemanticRouter:
 
         blob = torch.load(p, map_location="cpu", weights_only=False)
         cfg = blob.get("config", {}) if isinstance(blob, dict) else {}
+
+        # 早期识别 WB2 RelationModelV2 blob（与 DS 规格 SemanticRouter 是两套接口）。
+        # 直接给清晰指路，避免误当 MLP 报一堆 missing/unexpected keys 误导排查。
+        try:
+            from .wb2_router import is_wb2_blob
+            if isinstance(blob, dict) and is_wb2_blob(blob):
+                raise RuntimeError(
+                    "传入的是 WB2 RelationModelV2 权重（arch.readout_mode='attention'），"
+                    "不是 DS 规格的 SemanticRouter MLP。两者接口不同（query→组 vs 程序对→score），"
+                    "不可经本方法加载。请改用 wb2_router.WB2Router.from_pt(path)。"
+                    "注：WB2 blob 的 score_sign=-1 意为「权重已取反、消费方直接用」，"
+                    "与本法 score_sign=-1（消费方取负）恰好相反，切勿混用。")
+        except ImportError:
+            pass
+
         net = LearnedSemanticRouter(
             q_dim=cfg.get("q_dim", 1024),
             hidden_dim=cfg.get("hidden_dim", 256),

@@ -1,0 +1,44 @@
+{
+  "file": "/workspace/semantickv-reorg/src/shared/router_weights.pt",
+  "sha256_input": null,
+  "config": {
+    "device": "cpu-synthetic",
+    "model": "WB2 router_weights.pt (RelationModelV2)",
+    "dtype": "fp32",
+    "purpose": "H-DS24 真实权重 consumability 验收（CPU 实测，非 mock）"
+  },
+  "checks": [
+    {
+      "id": "C0_wb2_blob_recognized",
+      "pass": true,
+      "detail": "readout_mode=attention"
+    },
+    {
+      "id": "C1_wb1_adapter_forward",
+      "pass": true,
+      "detail": "deltatorch.Size([4]) scoretorch.Size([4]) score_stats={'mean': 0.12286, 'std': 0.08463, 'preflip_mean': -0.12286}"
+    },
+    {
+      "id": "C2_numeric_parity_vs_wb2_shell",
+      "pass": true,
+      "detail": "max|score_wb1 - score_wb2|=0.00e+00 (阈值 1e-5)"
+    },
+    {
+      "id": "C3_no_extra_flip",
+      "pass": true,
+      "detail": "adapter.score == raw head_score, max_err=0.00e+00; blob score_sign=-1（=-1 表示已取反，消费方直接用）"
+    },
+    {
+      "id": "C4_external_router_rejects_wb2_with_guide",
+      "pass": true,
+      "detail": "传入的是 WB2 RelationModelV2 权重（arch.readout_mode='attention'），不是 DS 规格的 SemanticRouter MLP。两者接口不同（query→组 vs 程序对→score），不可经"
+    },
+    {
+      "id": "C5_latency_under_1ms",
+      "pass": true,
+      "detail": "batch1 中位数延迟=0.676ms（DS 否证线 >1ms ⟹ 失败）"
+    }
+  ],
+  "verdict": "PASS",
+  "note": "H-DS24 真实权重 consumability：WB1 适配器可加载 WB2 真实 .pt 并跑通前向，且与 WB2 自带 RouterShell 数值完全一致（C2）；适配器对 score_sign=-1 的「已取反」语义处理正确（C3，无额外翻号）。但 WB2 交付的是 RelationModelV2（程序对→score 打分），与 DS 规格 SemanticRouter（query→组 logits）是两套接口——C1/C2 只证明权重可消费，不证明可直接接入 SemanticKV 的 per-query 路由（见台账 H-DS24 real_weights 状态与 notebook Step 4 改写说明）。"
+}

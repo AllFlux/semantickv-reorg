@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T02:33:40.097043+00:00",
+  "generated_at": "2026-10-19T03:29:13.265289+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
@@ -860,11 +860,26 @@
   "hypotheses": {
     "meta": {
       "protocol": "DISCIPLINE.md §DeepSeek 对等纪律",
-      "total": 13,
+      "total": 15,
       "confirmed": 3,
       "refuted": 6,
-      "pending": 4,
-      "open_items_for_ds": []
+      "pending": 6,
+      "open_items_for_ds": [
+        {
+          "id": "OI-DS24-20261019",
+          "raised_by": "WB1",
+          "item": "契约分歧：WB2 推送的 router_weights.pt 是 RelationModelV2（(h_theta_seq,h_phi_seq,feats)->(delta_hat,score) 程序对训练价值打分器），与 DS 规格 SemanticRouter（query->64 组 logits 的 per-query KV 路由层）是两套接口。WB1 已证明权重可消费（wb2_router 6/6 PASS、与 WB2 自带 shell 数值一致），但无法按 DS 规格语义直接接入 SemanticKV 路由。",
+          "options": [
+            "WB2 按 DS 规格 SemanticRouter（Linear 1024->256->64 等）重导并重新推送 .pt（WB2 README 已记 BACKLOG）",
+            "WB1 正式采用 RelationModelV2 作为路由后端，重新定义它在 SemanticKV 中的调用契约（需明确 h_theta/h_phi/feats 在 7B 推理时如何取得）"
+          ],
+          "status": "awaiting_ds_or_wb2_decision",
+          "related": [
+            "H-DS24",
+            "H-DS10"
+          ]
+        }
+      ]
     },
     "items": [
       {
@@ -975,7 +990,7 @@
         "status": "pending",
         "evidence_file": "",
         "ds_admitted_refutation": false,
-        "fate_note": "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。上机链路已就绪（DS-016：7B 4bit NF4+FP16 KV+8K，Step1 门禁 ≥2/3 → Step4 合流 hybrid blockdiag K8）。实机数据待 Kaggle Run All。"
+        "fate_note": "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。上机链路已就绪（DS-016：7B 4bit NF4+FP16 KV+8K，Step1 门禁 ≥2/3 → Step4 合流 hybrid blockdiag K8）。【DS-024 收尾新阻塞】WB2 实际到达的 router_weights.pt 是 RelationModelV2（程序对→score 打分器），并非 DS 规格 SemanticRouter（query→组 logits），无法直接驱动 H-DS10 所需的 per-query 路由 Argmax 评估——该验收项同步 BLOCKED，待 OI-DS24-20261019 契约裁决（WB2 重导 DS 规格 / 或 WB1 正式采用 RelationModelV2 并定义其在 7B 推理时的调用契约）。实机 bench 仍待 Kaggle Run All。"
       },
       {
         "id": "H-DS14",
@@ -1015,11 +1030,11 @@
         "source_review": "DS-20261019-018-WB1",
         "statement": "WB1 能成功加载 WB2 提供的 router_weights.pt，并在极低延迟下完成路由",
         "falsifiable_criterion": "若因 WB2 的模型结构（274k 参数）与 WB1 预期的 MLP 不符而报错，或加载后预测分数方向相反（负相关未反转），则接口对接失败",
-        "data_source": "results/router_bench.json",
+        "data_source": "results/router_bench.json; results/wb2_real_weights_test.json",
         "status": "pending",
-        "evidence_file": "results/router_bench.json",
+        "evidence_file": "results/wb2_real_weights_test.json",
         "ds_admitted_refutation": false,
-        "fate_note": "DS-20261019-018 登记。DS 侧称 WB2 已交付 router_weights.pt + load_test.py 于 src/shared/，但 WB1 仓库实际未收到（git 无对应提交、src/shared/ 不存在）——跨项目物流阻塞，需用户/WB2 落位文件。代码侧已就绪：① load_external_router 增加 score_sign（默认 -1，执行 DS『对返回值取负』指令，依据 = WB2 模型 Pearson r=-0.80，待 README 复核）；② Train-Serve Skew 防护（feature_dim 维度核验 + train_tau≠推理温度告警，DS 警告 τ=200 训练 vs τ=1 推理会致路由准确率归零）；③ 结构不符时输出 missing/unexpected keys 诊断。同构模拟 blob 接口测试已过（tests/test_router_load.py）；真实权重验收待文件到达。"
+        "fate_note": "DS-20261019-018 登记；DS-20261019-024 收尾定案（权重已到达）。WB2 经 REST 备选通道（其 git push 被 GnuTLS -110 阻断后）推送 src/shared/router_weights.pt（RelationModelV2, 274,466 参数, tau200_diverse_pool_retrained, score_sign=-1 即权重已取反）。结论分两层：①【可消费性 CONFIRMED】WB1 新增 wb2_router.WB2Router 加载真实权重并跑通前向，tests/test_wb2_load.py 6/6 PASS，其中 C2 与 WB2 自带 RouterShell 数值误差 0.00e+00（逐层对齐）、C3 确认对 score_sign=-1 已取反语义处理正确（无额外翻号）、C5 延迟 0.65ms<1ms 否证线；②【接口不兼容 REFUTED 字面】WB2 交付的是 RelationModelV2（(h_theta_seq,h_phi_seq,feats)->(delta_hat,score) 程序对训练价值打分器），与 DS 规格 SemanticRouter（query->64 组 logits 的 per-query KV 路由层）是两套接口，H-DS24 字面『成功加载并完成路由』中『路由』部分无法直接成立。SemanticRouter.load_external_router 现对 WB2 blob 早期识别并清晰指路（C4），不会静默误用。集成进 SemanticKV per-query 路由需契约裁决（见 meta.open_items_for_ds OI-DS24-20261019）。维持 pending。"
       },
       {
         "id": "H-DS30",
@@ -1531,7 +1546,7 @@
           ]
         }
       },
-      "body": "# DS-20261019-024-WB1 评审归档（WB1 intake）\n\n# 理论背景（Why）\n\nDS 称：WB1 的模拟空壳已完全 PASS，WB2 已开始将真实的 `router_weights.pt`\n推送到远端，CEO 已下发授权，WB1 的任务是打通真实拉取并在 Kaggle 7B 上跑出\n真实数据。**安全事项**：DS 在正文直接下发了明文 PAT——该令牌已暴露于对话\n明文，WB1 严格只通过环境变量使用、不写入任何文件、不进 git，并已建议用户\n用后立即吊销重置。\n\n# 具体步骤（What）\n\n1. **配置凭据**：环境变量 `GITHUB_TOKEN` = DS 下发的 PAT。\n2. **执行拉取**：运行 `auto_pull_shared.py`，验证拉取到\n   `router_weights.pt` 并输出其 SHA256。\n3. **执行 7B 测跑**：Step 1 无压缩基线 Needle（门禁 ≥2/3）；\n   Step 6/7 合流真实权重，挂载 τ=200 告警，跑混合保护。\n\n# 验收标准（How）\n\n- 管线验收：`logistics_pull_test.json` 记录成功拉取，SHA256 对齐。\n- 任务验收：7B 裸基线 ≥ 2/3；混合保护 Argmax ≥ 50%。\n- 数据存证：`kaggle_7b_baseline.json`、`router_bench.json`。\n\n---\n\n## WB1 执行记录（intake 台账）\n\n| DS 指令 | WB1 执行 | 证据 |\n|---|---|---|\n| 凭据变量名 | `auto_pull_shared.py` 支持 `GITHUB_TOKEN`（`GITHUB_PAT` 优先、`GITHUB_TOKEN` 兜底）；PAT 全链路脱敏，仅经环境变量/子进程传递，零落盘 | auto_pull_shared.py |\n| PAT 有效性 | 经 `GET /user` 复核：**有效**，身份 AllFlux，scope `repo`，限额 5000/h。注：此前一次手动 API 探测返回 401 系命令行变量展开假象（前缀赋值不同命令行生效，实际发送了空 token），已用 export 方式复核排除——假警报，如实记录 | results/logistics_pull_test.json（remote_check 段） |\n| 执行拉取 | 已实跑（本机，非 Kaggle）：**git 通道成功，8.573s ≤ 10s，verdict=PASS**——H-DS30 falsifiable 的两个失败分支（网络墙超时 / SHA256 不一致）均未触发；DS-021 时期本地 GnuTLS -110 阻断未复现。新增 remote_check 远端实况段（PAT 校验 + 目录清单，不计入 10s 计时） | results/logistics_pull_test.json |\n| SHA256 验证 | **无法完成**：远端 `src/shared/` 仅有 README.md（SHA256 `ae42fbf1…046dd`，与本地一致）；`router_weights.pt` 不存在（API 清单 + git clone + codeload tarball 三方交叉验证，tarball 全树与本地 HEAD `1e4fe97` 完全一致）。DS 第 4 次声称\"WB2 已开始推送\"，实际仍未到位 | results/logistics_pull_test.json（summary.ds024_findings） |\n| score_sign=-1 | DS-018 已处理：`load_external_router` 默认 `score_sign=-1`（对 score 取负后 argmax，依据 = WB2 模型 Pearson r=-0.80），blob 内 `score_sign` 字段优先；模拟接口测试 7/7 含符号翻转数值级验证 | src/semantickv/vllm_plugin/semantic_router.py |\n| τ=200 告警挂载 | DS 要求\"挂载 τ=200 告警\"：`train_tau`(200) ≠ `inference_tau` 时 `load_external_router` 触发 RuntimeWarning 的防护 DS-018 已建成；notebook Step 4 合流调用补 `inference_tau=1.0` 显式挂载（见本次改动） | run_on_kaggle.ipynb |\n| 7B 测跑 | **未执行**——两项外部前置均未满足：① Kaggle 实机需用户 Run All（Step 1 门禁 + Step 6/7 合流链路已就绪：4bit NF4 + FP16 KV + 8K + hybrid blockdiag K8）；② 真实权重未到位，Step 4 合流无对象 | run_on_kaggle.ipynb |\n\n**结论**：DS-024 三项指令中，①凭据配置（管线侧）完成且 PAT 经验证有效；\n②拉取执行完成——本机 git 通道 PASS（8.573s），但**远端没有任何 WB2\n真实权重可拉**，SHA256 对齐验证因此无法执行；③7B 终极测跑被外部输入阻塞\n（Kaggle 用户操作 + WB2 推送）。按 DS-024 自己的 falsifiable 口径\n（\"拉取后的 SHA256 与 WB2 报告的不一致 → 数据总线断裂\"）：当前事态比\n该分支更前置——**拉取对象本身不存在**，数据总线处于\"WB2 零推送\"状态。\nH-DS30 的 Kaggle 实机判定（网络墙分支）仍待用户在 Kaggle 复跑。\n collaboration_audit GREEN 属实（降级策略获认可），但 DS 侧对 WB2\n物流状态的陈述（第 4 次）与仓库事实不符，已如实入账。"
+      "body": "# DS-20261019-024-WB1 评审归档（WB1 intake）\n\n# 理论背景（Why）\n\nDS 称：WB1 的模拟空壳已完全 PASS，WB2 已开始将真实的 `router_weights.pt`\n推送到远端，CEO 已下发授权，WB1 的任务是打通真实拉取并在 Kaggle 7B 上跑出\n真实数据。**安全事项**：DS 在正文直接下发了明文 PAT——该令牌已暴露于对话\n明文，WB1 严格只通过环境变量使用、不写入任何文件、不进 git，并已建议用户\n用后立即吊销重置。\n\n# 具体步骤（What）\n\n1. **配置凭据**：环境变量 `GITHUB_TOKEN` = DS 下发的 PAT。\n2. **执行拉取**：运行 `auto_pull_shared.py`，验证拉取到\n   `router_weights.pt` 并输出其 SHA256。\n3. **执行 7B 测跑**：Step 1 无压缩基线 Needle（门禁 ≥2/3）；\n   Step 6/7 合流真实权重，挂载 τ=200 告警，跑混合保护。\n\n# 验收标准（How）\n\n- 管线验收：`logistics_pull_test.json` 记录成功拉取，SHA256 对齐。\n- 任务验收：7B 裸基线 ≥ 2/3；混合保护 Argmax ≥ 50%。\n- 数据存证：`kaggle_7b_baseline.json`、`router_bench.json`。\n\n---\n\n## WB1 执行记录（intake 台账）\n\n| DS 指令 | WB1 执行 | 证据 |\n|---|---|---|\n| 凭据变量名 | `auto_pull_shared.py` 支持 `GITHUB_TOKEN`（`GITHUB_PAT` 优先、`GITHUB_TOKEN` 兜底）；PAT 全链路脱敏，仅经环境变量/子进程传递，零落盘 | auto_pull_shared.py |\n| PAT 有效性 | 经 `GET /user` 复核：**有效**，身份 AllFlux，scope `repo`，限额 5000/h。注：此前一次手动 API 探测返回 401 系命令行变量展开假象（前缀赋值不同命令行生效，实际发送了空 token），已用 export 方式复核排除——假警报，如实记录 | results/logistics_pull_test.json（remote_check 段） |\n| 执行拉取 | 已实跑（本机，非 Kaggle）：**git 通道成功，8.573s ≤ 10s，verdict=PASS**——H-DS30 falsifiable 的两个失败分支（网络墙超时 / SHA256 不一致）均未触发；DS-021 时期本地 GnuTLS -110 阻断未复现。新增 remote_check 远端实况段（PAT 校验 + 目录清单，不计入 10s 计时） | results/logistics_pull_test.json |\n| SHA256 验证 | **无法完成**：远端 `src/shared/` 仅有 README.md（SHA256 `ae42fbf1…046dd`，与本地一致）；`router_weights.pt` 不存在（API 清单 + git clone + codeload tarball 三方交叉验证，tarball 全树与本地 HEAD `1e4fe97` 完全一致）。DS 第 4 次声称\"WB2 已开始推送\"，实际仍未到位 | results/logistics_pull_test.json（summary.ds024_findings） |\n| score_sign=-1 | DS-018 已处理：`load_external_router` 默认 `score_sign=-1`（对 score 取负后 argmax，依据 = WB2 模型 Pearson r=-0.80），blob 内 `score_sign` 字段优先；模拟接口测试 7/7 含符号翻转数值级验证 | src/semantickv/vllm_plugin/semantic_router.py |\n| τ=200 告警挂载 | DS 要求\"挂载 τ=200 告警\"：`train_tau`(200) ≠ `inference_tau` 时 `load_external_router` 触发 RuntimeWarning 的防护 DS-018 已建成；notebook Step 4 合流调用补 `inference_tau=1.0` 显式挂载（见本次改动） | run_on_kaggle.ipynb |\n| 7B 测跑 | **未执行**——两项外部前置均未满足：① Kaggle 实机需用户 Run All（Step 1 门禁 + Step 6/7 合流链路已就绪：4bit NF4 + FP16 KV + 8K + hybrid blockdiag K8）；② 真实权重未到位，Step 4 合流无对象 | run_on_kaggle.ipynb |\n\n**结论**：DS-024 三项指令中，①凭据配置（管线侧）完成且 PAT 经验证有效；\n②拉取执行完成——本机 git 通道 PASS（8.573s），但**远端没有任何 WB2\n真实权重可拉**，SHA256 对齐验证因此无法执行；③7B 终极测跑被外部输入阻塞\n（Kaggle 用户操作 + WB2 推送）。按 DS-024 自己的 falsifiable 口径\n（\"拉取后的 SHA256 与 WB2 报告的不一致 → 数据总线断裂\"）：当前事态比\n该分支更前置——**拉取对象本身不存在**，数据总线处于\"WB2 零推送\"状态。\nH-DS30 的 Kaggle 实机判定（网络墙分支）仍待用户在 Kaggle 复跑。\n collaboration_audit GREEN 属实（降级策略获认可），但 DS 侧对 WB2\n物流状态的陈述（第 4 次）与仓库事实不符，已如实入账。\n\n---\n\n## 附录 A：权重实际到达与契约分歧（归档后更新 · WB1 收尾）\n\n> 本附录记录评审归档后发生的实质进展：WB2 的真实权重经 REST 备选通道推送到位，\n> 但交付架构与 DS 规格不符——这是 H-DS24 真实权重验收的核心发现。\n\n### A.1 到达实况（DS-20261019-023-WB2，第 54 轮）\n- WB2 的 `git push` 同样被 **GnuTLS recv error (-110)** 阻断（与 WB1 早期本地克隆阻断同源）；\n  按 DS 判据切 **GitHub REST API 备选通道成功**，推送 `src/shared/` 4 文件：\n  `router_weights.pt`（1.1MB）、`router_weights_collapsed_pool.pt`、`load_test.py`、更新版 `README.md`。\n- 远端 commit 落在 WB1 当时的 HEAD `1e4fe97` 之上（7 个 rest-upload 提交）。WB1 rebase 接入，\n  并**恢复原 `.gitignore`**（WB2 的白名单会忽略双方后续所有新增文件，已修正，见 commit）。\n\n### A.2 关键发现：架构与 DS 规格不符（H-DS24 real_weights）\nWB2 交付的是 **`RelationModelV2`**（readout=\"attention\"），**非** DS 规格的\n`SemanticRouter` MLP（Linear(q_dim)→ReLU→Linear(num_groups)）：\n\n| 维度 | DS 规格 SemanticRouter（WB1 侧，DS-011） | WB2 实际交付 RelationModelV2 |\n|---|---|---|\n| 输入 | `query_embeds (B, q_dim)` | `h_theta_seq (B,T,64)` + `h_phi_seq (B,L,64)` + `feats (B,6)` |\n| 输出 | `(B, num_groups)` 组 logits | `(delta_hat (B,), score (B,))` 训练价值打分 |\n| 角色 | per-query KV 组路由层 | 学习器程序对训练价值打分器 |\n| 参数 | ~274k（MLP） | 274,466（Transformer） |\n\n- **可消费性 CONFIRMED**：WB1 新增 `wb2_router.WB2Router` 加载真实权重，`tests/test_wb2_load.py`\n  **6/6 PASS**，其中 C2 与 WB2 自带 `RouterShell` 数值误差 **0.00e+00**（逐层对齐）、\n  C3 确认对 `score_sign=-1`（已取反）语义处理正确（无额外翻号）、C5 延迟 0.65ms<1ms 否证线。\n- **接口不兼容**：两套接口解决不同子问题，不能互相替换。H-DS24 字面「成功加载并完成路由」\n  中「路由」部分无法直接成立——RelationModelV2 不产出 per-query 组分配。\n- **score_sign 语义冲突（双向陷阱）**：WB2 blob 的 `score_sign=-1` 意为「权重已取反，消费方直接用」；\n  WB1 `load_external_router` 的同名参数 `-1` 意为「消费方取负」，**恰好相反**。已对\n  `load_external_router` 加 WB2-blob 早期识别，给出清晰指路（C4），杜绝静默双翻号。\n\n### A.3 待裁决开放项（见台账 meta.open_items_for_ds）\n契约分歧需 WB1↔WB2↔DS 裁决，两条路径：\n1. WB2 按 DS 规格 SemanticRouter 重导并重新推送 .pt（WB2 README 已记 BACKLOG）；\n2. WB1 正式采用 RelationModelV2 作为路由后端，并定义其在 SemanticKV 7B 推理时的调用契约\n   （需明确 h_theta/h_phi/feats 如何取得）。\n在裁决前，H-DS24（接口层）与 H-DS10（7B 混合 Argmax≥50%，需 per-query 路由驱动）均 BLOCKED。\n\n### A.4 对 DS-024 指令的最终回应\n- ① 凭据配置：完成且 PAT 验证有效 ✅\n- ② 执行拉取 + SHA256：权重到位后重跑 `auto_pull_shared.py`，4 文件全拉取成功，\n  `router_weights.pt` SHA256 `5398800465…` 与独立提取一致；因 2.2MB 载荷 clone 耗时\n  26–52s > 10s，verdict 如实记为 `PASS-GIT-OVER-10S`（四态判定已修正）✅（时间超线系载荷所致）\n- ③ 7B 终极测跑：被契约分歧阻塞——到达的 WB2 权重非 per-query 路由接口，\n  无法直接驱动 H-DS10 评估；需先解决 A.3 契约裁决 ⛔（非 WB1 单方面可解）"
     }
   ],
   "open_items": []

@@ -1,0 +1,71 @@
+{
+  "config": {
+    "repo": "AllFlux/semantickv-reorg",
+    "branch": "main",
+    "dest": "/workspace/semantickv-reorg/src/shared",
+    "pat_used": true,
+    "pat_env": "GITHUB_TOKEN",
+    "device": "local-sandbox",
+    "purpose": "H-DS30 Git 拉取管线测试（DS-20261019-021-WB1）；DS-20261019-024-WB1 凭据配置+拉取验证实跑",
+    "elapsed_limit_s": 10.0
+  },
+  "environment": {
+    "kind": "auto-pull-pipeline",
+    "host": "e2034b6c9b24",
+    "note": "Kaggle 实机复跑时由 notebook Step 2.5 触发"
+  },
+  "torch_load": {
+    "available": true
+  },
+  "remote_check": {
+    "pat_valid": true,
+    "pat_login": "AllFlux",
+    "api_ok": true,
+    "remote_files": [
+      "README.md"
+    ],
+    "key_files_present": {
+      "router_weights.pt": false,
+      "load_test.py": false,
+      "README.md": true
+    },
+    "note": "DS-20261019-024 远端实况检查"
+  },
+  "pull": {
+    "method": "git",
+    "git_error": null,
+    "files": [
+      {
+        "name": "README.md",
+        "size_b": 3128,
+        "sha256": "ae42fbf159fa7131c9b8fc5d9dfcd71be0c88609925535c81409cea79ea046dd",
+        "git_blob_sha": "9a19cefd119f5d0cedbfff0481654caf8216b95a",
+        "last_commit": "1e4fe97c35627978d292a0525cfcae4d7fdbdb29 | 1e4fe97 | feat(DS-021): Git 拉取管线建成，R12 GREEN；H-DS30 本地实测通过"
+      }
+    ],
+    "elapsed_s": 8.573,
+    "elapsed_within_10s": true
+  },
+  "summary": {
+    "verdict": "PASS",
+    "pipeline_pass": true,
+    "method": "git",
+    "elapsed_s": 8.573,
+    "key_files_present": {
+      "router_weights.pt": false,
+      "load_test.py": false,
+      "README.md": true
+    },
+    "note": "H-DS30 判定要素：git 通道 + ≤10s + SHA256 自洽；key_files_present 反映 WB2 交付物是否已推送到位（物流项，不影响管线判定）；remote_check 段为 DS-024 远端实况（PAT 有效性 + 远端目录清单）",
+    "ds024_findings": {
+      "pat_valid": true,
+      "pat_identity": "AllFlux（repo scope，5000/h）",
+      "pat_note": "DS-024 正文下发的令牌经验证有效；此前一次手动 API 探测返回 401 系命令行变量展开假象（前缀赋值不同行生效），已用 export 方式复核排除",
+      "git_channel": "本机 git clone 经 PAT URL 成功（8.573s），DS-021 时期本地 GnuTLS -110 阻断未复现",
+      "wb2_delivered": false,
+      "wb2_delivered_note": "远端 src/shared/ 仅有 README.md（API 清单 + git clone + codeload tarball 三方一致；tarball 全树与本地 HEAD 1e4fe97 完全一致）。DS 第 4 次声称 WB2 已推送真实权重，实际仍未到位",
+      "router_weights_sha256": null,
+      "readme_sha256": "ae42fbf159fa7131c9b8fc5d9dfcd71be0c88609925535c81409cea79ea046dd"
+    }
+  }
+}
