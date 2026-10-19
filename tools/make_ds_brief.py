@@ -56,20 +56,20 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "results"
 MAX_LIST = 12          # 列表超过这么多项就折叠
-MAX_DEPTH = 3          # JSON 嵌套深度上限
-MAX_JSON_CHARS = 6000  # 单个 JSON 代码块字符上限
+MAX_DEPTH = 8          # JSON 嵌套深度上限（太小会把第3层数组折叠成字符串）
+MAX_JSON_CHARS = 20000 # 单个 JSON 代码块字符上限（超限整块省略，不做中途截断）
 
 
 # ----------------------------------------------------------------------
 # 工具函数
 # ----------------------------------------------------------------------
 def _trim(obj, depth=0):
-    """递归瘦身：深列表折叠、过深层截断。返回 (新对象, 是否被裁剪)。"""
+    """递归瘦身。返回 (新对象, 是否裁剪)。保证 JSON 始终合法。"""
     if depth >= MAX_DEPTH:
         if isinstance(obj, dict):
-            return "{…字段已省略}", True
+            return {"省略": f"嵌套超过{MAX_DEPTH}层"}, True
         if isinstance(obj, list):
-            return f"[…共{len(obj)}项]", True
+            return [f"省略{len(obj)}项（嵌套过深）"], True
         return obj, False
     if isinstance(obj, dict):
         out, cut = {}, False
@@ -81,19 +81,19 @@ def _trim(obj, depth=0):
     if isinstance(obj, list):
         cut = len(obj) > MAX_LIST
         shown = obj[:MAX_LIST] if cut else obj
-        out = []
+        out, any_cut = [], False
         for v in shown:
             nv, c = _trim(v, depth + 1)
             out.append(nv)
-            cut = cut or c
+            any_cut = any_cut or c
         if cut:
-            out.append(f"…（共 {len(obj)} 项，仅显示前 {MAX_LIST} 项）")
-        return out, cut
+            out.append(f"…（共{len(obj)}项，仅显示前{MAX_LIST}项）")
+        return out, (cut or any_cut)
     return obj, False
 
 
-def _fmt_json(path: Path) -> tuple[str, str]:
-    """返回 (代码块内容, 环境标签说明)。"""
+def _fmt_json(path: Path, indent: int = 2) -> tuple[str, str]:
+    """返回 (代码块内容, 环境标签说明)。始终输出合法 JSON，绝不中途截断。"""
     raw = path.read_text(encoding="utf-8")
     try:
         d = json.loads(raw)
@@ -104,13 +104,17 @@ def _fmt_json(path: Path) -> tuple[str, str]:
             env = (e.get("kind") or cfg.get("environment")
                    or cfg.get("device") or "未标注（⚠ 需补 D3 标签）")
         trimmed, cut = _trim(d)
-        text = json.dumps(trimmed, ensure_ascii=False, indent=2)
-        note = f"（超大已瘦身：列表>12项折叠、嵌套>3层截断）" if cut else ""
+        text = json.dumps(trimmed, ensure_ascii=False, indent=indent)
+        note = "（已瘦身：超长列表/过深嵌套已折叠）" if cut else ""
     except json.JSONDecodeError as exc:
-        text, env, note = f"⚠ JSON 解析失败: {exc}\n\n{raw[:2000]}", "解析失败", ""
+        text, env, note = "", "解析失败", f"JSON 解析失败: {exc}"
+        return text, f"{env} {note}".strip()
+
     if len(text) > MAX_JSON_CHARS:
-        text = text[:MAX_JSON_CHARS] + f"\n…（已截断，原文件 {len(raw)} 字符）"
-        note += "（单块超长已截断）"
+        # 整块省略优于半截非法 JSON
+        return ("__OMITTED__",
+                f"{env} ⚠ 体积 {len(text)} 字符超上限 {MAX_JSON_CHARS}，"
+                f"已省略内联（完整数据见仓库同路径文件）")
     return text, f"environment={env} {note}".strip()
 
 
@@ -290,6 +294,10 @@ def autodetect() -> tuple[str | None, list[str], list[str], str | None]:
 # 主流程
 # ----------------------------------------------------------------------
 def build(args) -> Path:
+    global MAX_LIST, MAX_JSON_CHARS
+    if getattr(args, "compact", False):
+        MAX_LIST = 4
+        MAX_JSON_CHARS = 9000
     now = datetime.now()
     parts: list[str] = []
 
@@ -315,8 +323,9 @@ def build(args) -> Path:
     parts.append("audience: DeepSeek(无浏览器-只能读明文)")
     parts.append("---")
     parts.append("")
-    parts.append(f"# {args.title}")
-    parts.append("")
+    if not (body.lstrip().startswith("# ")):
+        parts.append(f"# {args.title}")
+        parts.append("")
     parts.append("> **致 DS**：本文所有关键数据已明文内联，你无需访问任何链接。"
                  "文末文件路径仅供 CEO 溯源，你可忽略。")
     parts.append("")
@@ -344,13 +353,18 @@ def build(args) -> Path:
                 parts.append("```")
                 parts.append("")
                 continue
-            text, envnote = _fmt_json(p)
+            text, envnote = _fmt_json(p, indent=(1 if getattr(args, "compact", False) else 2))
             parts.append("")
             parts.append(f"**环境标签**：`{envnote}`")
             parts.append("")
-            parts.append("```json")
-            parts.append(text)
-            parts.append("```")
+            if text == "__OMITTED__":
+                parts.append("```text")
+                parts.append("（本块体积过大，按纪律改为省略；关键数值已在正文表格中给出。）")
+                parts.append("```")
+            else:
+                parts.append("```json")
+                parts.append(text)
+                parts.append("```")
             parts.append("")
         parts.append("---")
         parts.append("")
@@ -410,17 +424,18 @@ def build(args) -> Path:
         parts.append("")
 
     # ---------- 5. 文件清单（仅供 CEO） ----------
-    parts.append("## 附录 E｜文件清单（仅供 CEO 溯源 · DS 可忽略）")
-    parts.append("")
-    parts.append("| 文件 | 角色 |")
-    parts.append("|---|---|")
-    if rep_path.exists():
-        parts.append(f"| `{args.report}` | 报告归档 |")
-    for rel in (args.json or []):
-        parts.append(f"| `{rel}` | 原始数据 |")
-    parts.append("| `results/hypothesis_ledger.yaml` | 假设台账 |")
-    parts.append("| `results/discipline_ledger.yaml` | 纪律台账 |")
-    parts.append("")
+    if not getattr(args, "compact", False):
+        parts.append("## 附录 E｜文件清单（仅供 CEO 溯源 · DS 可忽略）")
+        parts.append("")
+        parts.append("| 文件 | 角色 |")
+        parts.append("|---|---|")
+        if rep_path.exists():
+            parts.append(f"| `{args.report}` | 报告归档 |")
+        for rel in (args.json or []):
+            parts.append(f"| `{rel}` | 原始数据 |")
+        parts.append("| `results/hypothesis_ledger.yaml` | 假设台账 |")
+        parts.append("| `results/discipline_ledger.yaml` | 纪律台账 |")
+        parts.append("")
 
     text = "\n".join(parts)
 
@@ -433,6 +448,17 @@ def build(args) -> Path:
         RESULTS / "_ds_brief" / f"{now.strftime('%Y%m%d_%H%M%S')}_brief.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text, encoding="utf-8")
+
+    # ---------- 聊天可复制版（四反引号包裹）----------
+    # 报告内部有多处 ``` 代码块，若用 ``` 包裹会被提前闭合 → 必须用更长的围栏。
+    if getattr(args, "chat", False):
+        runs = [len(m) for m in re.findall(r"`+", text)]
+        fence = "`" * max(4, (max(runs) + 1) if runs else 4)
+        chat_path = out.with_suffix(".chat.md")
+        chat_path.write_text(
+            f"{fence}markdown\n{text.rstrip()}\n{fence}\n", encoding="utf-8")
+        print(f"[chat] 可复制块已生成：{chat_path}（围栏 {len(fence)} 个反引号）")
+
     return out
 
 
@@ -447,6 +473,10 @@ def main() -> int:
     ap.add_argument("--open-questions", nargs="*", default=[], help="悬而未决问题（每条一个参数）")
     ap.add_argument("--title", default="WB1 交付简报")
     ap.add_argument("--out", default=None, help="输出路径（默认 results/_ds_brief/<时间戳>_brief.md）")
+    ap.add_argument("--compact", action="store_true",
+                    help="紧凑模式：JSON 缩进 1、长列表折叠到 4 项（体积约减半）")
+    ap.add_argument("--chat", action="store_true",
+                    help="额外生成 .chat.md：用 N 个反引号整段包裹，便于聊天框一键复制")
     args = ap.parse_args()
 
     if args.auto:
