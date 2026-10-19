@@ -6,12 +6,13 @@
 #   - refuted 且 ds_admitted_refutation=false → 列为「待 DS 承认」开放项（DS-D4 WARN）
 #   - DS 在后续评审显式承认被数据推翻的假设后，将 ds_admitted_refutation 置 true
 #
-# 当前状态（2026-10-19 R12 · DS-20261019-021-WB1 intake）：H-DS14 已封卷。唯一战场 =
+# 当前状态（2026-10-19 R13 · DS-20261019-024-WB1 intake）：H-DS14 已封卷。唯一战场 =
 # Kaggle 7B 实机。H-DS10 pending（DS-018 口径）。H-DS15/H-DS17 pending。H-DS24 pending
 # （WB2 权重接口验收，模拟测试 7/7 已过，真实权重待到达）。H-DS30 pending（DS-021 新登记：
-# Git 拉取管线——auto_pull_shared.py 已建成并本地实测通过，Kaggle 实机复跑待用户）。
-# DS-021 collaboration_audit：YELLOW（基建缺失）——根因 = 跨沙盒物流断裂，管线已建，
-# 解药 = WB2 推送 + Kaggle 复跑。DS-018 audit GREEN。更早：H-DS7/H-DS8 已于
+# Git 拉取管线——DS-024 实跑：PAT 有效（AllFlux/repo scope），本机 git 通道 8.573s PASS，
+# 但 WB2 交付物第 4 次被声称已推送而实际未到位；Kaggle 实机复跑待用户）。
+# DS-024 collaboration_audit：GREEN（DS 自评），但 WB2 物流声明与实际仓库状态不符。
+# DS-021 audit YELLOW 已随管线建成解除。DS-018 audit GREEN。更早：H-DS7/H-DS8 已于
 # DS-20261018-007 承认，H-DS9 confirmed。
 
 meta:
@@ -187,4 +188,4 @@ hypotheses:
     status: pending
     evidence_file: "results/logistics_pull_test.json"
     ds_admitted_refutation: false
-    fate_note: "DS-20261019-021 登记（基建令，collaboration_audit YELLOW 的应对）。auto_pull_shared.py 已建成：PAT 优先/匿名兜底 git clone --depth 1 → 复制 src/shared/ → SHA256 + 最后修改 commit 双比对 → 计时；git 失败自动降级 Raw wget（H-DS30 falsifiable 的预置退路）；PAT 全链路脱敏；--verify-torch-load 对 .pt 做加载冒烟。本地实测：管线 PASS（耗时/SHA/commit 自洽），但 src/shared/ 现仅 README.md——WB2 交付物仍未到位。Kaggle 实机复跑（10s 判据 + 网络墙分支）待用户执行。"
+    fate_note: "DS-20261019-021 登记（基建令，collaboration_audit YELLOW 的应对）。auto_pull_shared.py 已建成：PAT 优先/匿名兜底 git clone --depth 1 → 复制 src/shared/ → SHA256 + 最后修改 commit 双比对 → 计时；git 失败自动降级 Raw wget（H-DS30 falsifiable 的预置退路）；PAT 全链路脱敏；--verify-torch-load 对 .pt 做加载冒烟。DS-20261019-024-WB1 实跑更新：① DS 正文下发的 PAT 经 /user 复核有效（AllFlux 身份、repo scope、5000/h；此前一次手动 API 401 系命令行变量展开假象，已排除）；② 本机（非 Kaggle）git clone 经 PAT URL 成功，8.573s ≤ 10s，verdict=PASS（DS-021 时期本地 GnuTLS -110 阻断未复现）——falsifiable 的两个失败分支（网络墙超时 / SHA 不一致）均未触发；③ 但远端 src/shared/ 仍仅 README.md（API 清单 + git clone + codeload tarball 三方一致，tarball 全树 = 本地 HEAD 1e4fe97）——WB2 交付物第 4 次被 DS 声称已推送而实际未到位，物流阻塞未解。Kaggle 实机复跑（10s 判据 + 网络墙分支）仍待用户执行，故维持 pending。"

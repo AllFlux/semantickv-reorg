@@ -6,39 +6,110 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "Git 拉取管线建成（DS-20261019-021-WB1 执行完毕）",
-    "status": "R12 GREEN（10/10）；H-DS30 管线本地实测通过；Kaggle 复跑 + WB2 推送待用户",
-    "metrics": "auto_pull_shared: 本地实测 PASS-RAW-DEGRADED（git 通道被沙盒网络限制，raw 降级成功拉取 README.md）｜ H-DS24 模拟接口验收: 7/7 PASS ｜ 上机规格: 7B NF4 4-bit + FP16 KV + 8K ctx ｜ E1.5: Argmax=26.05% (<45%)"
+    "name": "DS-20261019-024-WB1 执行：凭据实配 + 拉取验证（PAT 有效，git 通道 PASS）",
+    "status": "R13 GREEN（10/10）；PAT 经 /user 复核有效（AllFlux/repo scope）；本机 git clone 8.573s ≤10s PASS；WB2 交付物第 4 次被声称已推送而实际未到位（src/shared/ 仅 README.md）",
+    "metrics": "auto_pull_shared: git 通道 PASS 8.573s（DS-021 期 GnuTLS 阻断未复现）｜ 远端 src/shared/: 仅 README.md（API+clone+tarball 三方一致）｜ H-DS24 模拟接口验收: 7/7 PASS ｜ 上机规格: 7B NF4 4-bit + FP16 KV + 8K ctx ｜ E1.5: Argmax=26.05% (<45%)"
   },
   "decision_items": [
-    "【用户动作①】DS-021 基建已完成：auto_pull_shared.py（PAT/匿名 git clone → 复制 src/shared/ → SHA256+commit 双比对 → 计时；git 失败自动降级 Raw wget；PAT 脱敏）+ notebook Step 2.5 挂载 + README 用法。Kaggle 复跑（配 GITHUB_PAT Secret）即完成 H-DS30 终判（10s 判据）",
-    "【用户动作②】WB2 交付物仍未推送到 src/shared/（router_weights.pt / load_test.py 远端不存在，管线实测如实记录）——请推动 WB2 推送，或手动放入仓库 src/shared/ 后 push",
-    "【用户动作③】Kaggle 7B 实机 Run All（Step1 门禁 ≥2/3 → Step6 Router 空壳 bench → Step7 权重合流），回传 JSON 做 H-DS10/H-DS15/H-DS17 终裁",
-    "DS-021 collaboration_audit：YELLOW（基建缺失）——管线已建成，审计状态转绿待 Kaggle 复跑 + WB2 推送两个外部输入",
+    "【用户动作①】DS-024 凭据已实配验证：PAT 有效（AllFlux/repo scope，5000/h）。Kaggle Secrets 请配 GITHUB_TOKEN（GITHUB_PAT 同效），Step 2.5 自动拉取。安全提醒：该 PAT 已在对话明文暴露，用后请立即去 GitHub Settings → Developer settings 吊销重置",
+    "【用户动作②】WB2 交付物仍未推送到 src/shared/（router_weights.pt / load_test.py 远端不存在；tarball 全树 = 本地 HEAD 1e4fe97，WB2 零推送）——DS 已第 4 次声称推送，请推动 WB2 落位或手动放入仓库 src/shared/ 后 push",
+    "【用户动作③】Kaggle 7B 实机 Run All（Step1 门禁 ≥2/3 → Step6 Router 空壳 bench → Step7 权重合流，inference_tau=1.0 已挂载 τ=200 告警），回传 JSON 做 H-DS10/H-DS15/H-DS17 终裁",
+    "DS-024 collaboration_audit：GREEN（降级策略获 DS 认可）；但 DS 侧对 WB2 物流的陈述（第 4 次）与仓库事实不符，已如实入账",
+    "H-DS30 本机判定：git 通道 + ≤10s + SHA 自洽三要素齐备（falsifiable 两失败分支未触发）；Kaggle 实机复跑（网络墙分支）仍待用户",
     "H-DS24 负相关修正已落地（score_sign=-1）；Train-Serve Skew 防护已落地（维度核验 + 温度告警）；模拟接口验收 7/7 PASS"
   ],
   "files": [
-    { "label": "假设台账 hypothesis_ledger.yaml", "path": "results/hypothesis_ledger.yaml" },
-    { "label": "纪律台账 discipline_ledger.yaml", "path": "results/discipline_ledger.yaml" },
-    { "label": "评审 001 (DS-20261018-001)", "path": "results/ds_reviews/20261018_001_review.md" },
-    { "label": "评审 002 (DS-20261018-002)", "path": "results/ds_reviews/20261018_002_review.md" },
-    { "label": "评审 003 (DS-20261018-003)", "path": "results/ds_reviews/20261018_003_review.md" },
-    { "label": "评审 004 (DS-20261018-004 承认闭环)", "path": "results/ds_reviews/20261018_004_review.md" },
-    { "label": "评审 005 (DS-20261018-005 注入器+E1.5)", "path": "results/ds_reviews/20261018_005_review.md" },
-    { "label": "评审 006 (DS-20261018-006 E1.5 规格)", "path": "results/ds_reviews/20261018_006_review.md" },
-    { "label": "评审 007 (DS-20261018-007 承认+批准7B)", "path": "results/ds_reviews/20261018_007_review.md" },
-    { "label": "评审 009-WB1 (GQA验证+插件+cross_talk)", "path": "results/ds_reviews/20261018_009_wb1_review.md" },
-    { "label": "评审 011-WB1 (Router架构+7B挺进)", "path": "results/ds_reviews/20261018_011_wb1_review.md" },
-    { "label": "评审 016-WB1 (GQA定案+Kaggle上机+WB2验收)", "path": "results/ds_reviews/20261019_016_wb1_review.md" },
-    { "label": "评审 018-WB1 (7B冲关+Router挂载+Skew警告)", "path": "results/ds_reviews/20261019_018_wb1_review.md" },
-    { "label": "评审 021-WB1 (Git拉取管线基建)", "path": "results/ds_reviews/20261019_021_wb1_review.md" },
-    { "label": "拉取管线实测 logistics_pull_test.json (H-DS30)", "path": "results/logistics_pull_test.json" },
-    { "label": "Router 基准 router_bench.json (H-DS17)", "path": "results/router_bench.json" },
-    { "label": "GQA 对齐验证 gqa_alignment_check.json", "path": "results/gqa_alignment_check.json" },
-    { "label": "E1.5 主实验 real_model_v15_hybrid_protection.json", "path": "results/real_model_v15_hybrid_protection.json" },
-    { "label": "E1.5 消融 real_model_v15_hybrid_global.json", "path": "results/real_model_v15_hybrid_global.json" },
-    { "label": "对照+基线 real_model_v15_topk8_win128_baseline.json", "path": "results/real_model_v15_topk8_win128_baseline.json" },
-    { "label": "对等纪律要求书 REQUEST_TO_DEEPSEEK.md", "path": "results/REQUEST_TO_DEEPSEEK.md" },
-    { "label": "真实模型校验 REAL_MODEL_VALIDATION_V15.md", "path": "results/REAL_MODEL_VALIDATION_V15.md" }
+    {
+      "label": "假设台账 hypothesis_ledger.yaml",
+      "path": "results/hypothesis_ledger.yaml"
+    },
+    {
+      "label": "纪律台账 discipline_ledger.yaml",
+      "path": "results/discipline_ledger.yaml"
+    },
+    {
+      "label": "评审 001 (DS-20261018-001)",
+      "path": "results/ds_reviews/20261018_001_review.md"
+    },
+    {
+      "label": "评审 002 (DS-20261018-002)",
+      "path": "results/ds_reviews/20261018_002_review.md"
+    },
+    {
+      "label": "评审 003 (DS-20261018-003)",
+      "path": "results/ds_reviews/20261018_003_review.md"
+    },
+    {
+      "label": "评审 004 (DS-20261018-004 承认闭环)",
+      "path": "results/ds_reviews/20261018_004_review.md"
+    },
+    {
+      "label": "评审 005 (DS-20261018-005 注入器+E1.5)",
+      "path": "results/ds_reviews/20261018_005_review.md"
+    },
+    {
+      "label": "评审 006 (DS-20261018-006 E1.5 规格)",
+      "path": "results/ds_reviews/20261018_006_review.md"
+    },
+    {
+      "label": "评审 007 (DS-20261018-007 承认+批准7B)",
+      "path": "results/ds_reviews/20261018_007_review.md"
+    },
+    {
+      "label": "评审 009-WB1 (GQA验证+插件+cross_talk)",
+      "path": "results/ds_reviews/20261018_009_wb1_review.md"
+    },
+    {
+      "label": "评审 011-WB1 (Router架构+7B挺进)",
+      "path": "results/ds_reviews/20261018_011_wb1_review.md"
+    },
+    {
+      "label": "评审 016-WB1 (GQA定案+Kaggle上机+WB2验收)",
+      "path": "results/ds_reviews/20261019_016_wb1_review.md"
+    },
+    {
+      "label": "评审 018-WB1 (7B冲关+Router挂载+Skew警告)",
+      "path": "results/ds_reviews/20261019_018_wb1_review.md"
+    },
+    {
+      "label": "评审 021-WB1 (Git拉取管线基建)",
+      "path": "results/ds_reviews/20261019_021_wb1_review.md"
+    },
+    {
+      "label": "拉取管线实测 logistics_pull_test.json (H-DS30)",
+      "path": "results/logistics_pull_test.json"
+    },
+    {
+      "label": "Router 基准 router_bench.json (H-DS17)",
+      "path": "results/router_bench.json"
+    },
+    {
+      "label": "GQA 对齐验证 gqa_alignment_check.json",
+      "path": "results/gqa_alignment_check.json"
+    },
+    {
+      "label": "E1.5 主实验 real_model_v15_hybrid_protection.json",
+      "path": "results/real_model_v15_hybrid_protection.json"
+    },
+    {
+      "label": "E1.5 消融 real_model_v15_hybrid_global.json",
+      "path": "results/real_model_v15_hybrid_global.json"
+    },
+    {
+      "label": "对照+基线 real_model_v15_topk8_win128_baseline.json",
+      "path": "results/real_model_v15_topk8_win128_baseline.json"
+    },
+    {
+      "label": "对等纪律要求书 REQUEST_TO_DEEPSEEK.md",
+      "path": "results/REQUEST_TO_DEEPSEEK.md"
+    },
+    {
+      "label": "真实模型校验 REAL_MODEL_VALIDATION_V15.md",
+      "path": "results/REAL_MODEL_VALIDATION_V15.md"
+    },
+    {
+      "label": "评审 024-WB1 (PAT实配+拉取验证+7B终极测跑令)",
+      "path": "results/ds_reviews/20261019_024_wb1_review.md"
+    }
   ]
 }

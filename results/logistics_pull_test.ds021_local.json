@@ -1,0 +1,44 @@
+{
+  "config": {
+    "repo": "AllFlux/semantickv-reorg",
+    "branch": "main",
+    "dest": "/tmp/pull_test/src/shared",
+    "pat_used": false,
+    "purpose": "H-DS30 Git 拉取管线测试（DS-20261019-021-WB1）",
+    "elapsed_limit_s": 10.0,
+    "device": "local-sandbox",
+    "device_note": "Kaggle 实机复跑时由 notebook Step 2.5 覆盖为 Kaggle 环境"
+  },
+  "environment": {
+    "kind": "auto-pull-pipeline",
+    "host": "4fb59eac4d84",
+    "note": "Kaggle 实机复跑时由 notebook Step 2.5 触发"
+  },
+  "pull": {
+    "method": "raw_wget",
+    "git_error": "Command '['git', 'clone', '--depth', '1', '--branch', 'main', 'https://github.com/AllFlux/semantickv-reorg.git', '/tmp/auto_pull_jv5svzq1/temp_repo']' timed out after 60 seconds",
+    "files": [
+      {
+        "name": "README.md",
+        "size_b": 3128,
+        "sha256": "ae42fbf159fa7131c9b8fc5d9dfcd71be0c88609925535c81409cea79ea046dd",
+        "git_blob_sha": null,
+        "last_commit": null
+      }
+    ],
+    "elapsed_s": 156.964,
+    "elapsed_within_10s": false
+  },
+  "summary": {
+    "verdict": "PASS-RAW-DEGRADED",
+    "pipeline_pass": true,
+    "method": "raw_wget",
+    "elapsed_s": 156.964,
+    "key_files_present": {
+      "router_weights.pt": false,
+      "load_test.py": false,
+      "README.md": true
+    },
+    "note": "H-DS30 判定要素：git 通道 + ≤10s + SHA256 自洽；key_files_present 反映 WB2 交付物是否已推送到位（物流项，不影响管线判定）"
+  }
+}
