@@ -47,6 +47,7 @@
 | `load_test.py` | 纯 CPU 空壳加载证明（零 WB2 依赖，架构按 .pt 内嵌 arch 元数据内联重建）；五项检查含 score_sign 元数据 |
 | `semantic_router.pt` | **🆕 GAP-DS26-01 主交付**：**`Linear(3584,512)→ReLU→Linear(512,64)`**（DS-028 裁决）的 **fp16** state_dict（3.567MB）+ arch/num_groups/input_dim/data_provenance/`proxy_mode` 元数据；`net.0.weight = [512,3584]` |
 | `semantic_router_loadtest.py` | **🆕 GAP-DS26-01**：纯 CPU 加载证明（零 WB2 依赖，架构按 .pt 内嵌 arch 重建）；**六项检查**含 `net.0.weight` 形状断言 `[512,3584]`、fp16→fp32 加载、`proxy_mode` 声明 |
+| 🆕 `semantic_router_real.pt` | **真实数据微调产物（占位）**——WB1 回传 npz 后用 `tools/real_data_finetuner.py` 生成；**默认不覆盖主交付**，须 `--promote` 才提升。当前内容为假数据演练产物，`proxy_mode=real_wb1_npz` 但数据是合成的，**不得用于生产** |
 | `README.md` | 本文件 |
 
 ## 2. 输入/输出契约
