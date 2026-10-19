@@ -78,7 +78,8 @@ bash run_all.sh --skip-assault    # 只跑 Step 6
 | `environment.claims_checked` | 四项全 `true` |
 | `real_features_7b.json` 的 `hidden_size` | **3584** |
 | `real_features_7b.json` 的 `dim_check` | `PASS` |
-| `real_features_7b.npz` 的 `hidden.shape` | **(N, 3584)** |
+| `real_features_7b.npz` 的键名 | **`hidden_states`** / `labels` / `meta` |
+| `real_features_7b.npz` 的 `hidden_states.shape` | **(N, 3584)** |
 | `labels.shape` | `(N,)`，群数 `n_groups` |
 
 任一项不符，脚本会打印 `[FATAL]` 并**拒绝落盘**（不会产出假数据）。

@@ -11,7 +11,8 @@
 #  导出成 .npz，交给 WB2 做「真实特征 + 真实真值」的重训。
 #
 #  输出：
-#    <out>.npz    hidden(N,D) float16 / labels(N,) int32 / meta(json string)
+#    <out>.npz    hidden_states(N,D) float16 / labels(N,) int32 / meta(json string)
+#                 键名可由 --key-name hs 切换；只写一份，不复制数组
 #    <out>.json   元数据（模型、真实维度、群数、参数、环境、provenance）
 #
 #  用法（Kaggle 7B）：
@@ -74,6 +75,9 @@ def parse_args() -> argparse.Namespace:
                     help="环境标签：kaggle-7b / autodl-7b（权威）；缺省自动判定")
     ap.add_argument("--expect-dim", type=int, default=3584,
                     help="权威标签下强制校验的隐状态维度（Qwen2.5-7B=3584）")
+    ap.add_argument("--key-name", default="hidden_states",
+                    choices=["hidden_states", "hs"],
+                    help="npz 中隐状态数组的键名（DS-038：默认 hidden_states，可选 hs）")
     return ap.parse_args()
 
 
@@ -162,17 +166,47 @@ def main() -> int:
         },
     }
 
+    # ── 键名统一（DS-20261019-038-WB1）─────────────────────────────────
+    # 主键 hidden_states（与 DS 口径及 anchor_grouper 命名一致）；
+    # 可选 --key-name hs 兼容 WB2 的短名。**只写一份**，避免把 58MB 数组存两遍。
+    key = (args.key_name or "hidden_states").strip()
+    if key not in ("hidden_states", "hs"):
+        print(f"[FATAL] 不支持的键名 {key!r}；只允许 hidden_states / hs", file=sys.stderr)
+        return 5
+
+    meta["npz_contract"] = {
+        "key_hidden": key,
+        "key_labels": "labels",
+        "key_meta": "meta",
+        "hidden_shape": [int(hidden.shape[0]), int(hidden.shape[1])],
+        "hidden_dtype": str(hidden.dtype),
+        "labels_shape": [int(labels.shape[0])],
+        "labels_dtype": str(labels.dtype),
+        "accepted_aliases": ["hidden_states", "hs", "hidden"],
+        "note": "单键写入（不复制数组）；WB2 侧请按 accepted_aliases 容错读取。",
+    }
+
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(out.with_suffix(".npz"),
-                        hidden=hidden, labels=labels,
-                        meta=np.array(json.dumps(meta, ensure_ascii=False)))
+    npz_path = out.with_suffix(".npz")
+    np.savez_compressed(npz_path,
+                        labels=labels,
+                        meta=np.array(json.dumps(meta, ensure_ascii=False)),
+                        **{key: hidden})
     out.with_suffix(".json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    size_mb = out.with_suffix(".npz").stat().st_size / 1024 / 1024
-    print(f"\n[done] {out.with_suffix('.npz')}  ({size_mb:.1f} MB)")
-    print(f"       hidden {hidden.shape} = (tokens, {true_dim})   labels {labels.shape}   G={G}")
+    # 回读自校验：键名/形状/dtype 必须与契约一致
+    with np.load(npz_path) as chk:
+        got = set(chk.files)
+        assert key in got and "labels" in got and "meta" in got, f"npz 键缺失: {got}"
+        assert chk[key].shape == hidden.shape, "npz 隐状态形状不符"
+        assert chk["labels"].shape == labels.shape, "npz 标签形状不符"
+
+    size_mb = npz_path.stat().st_size / 1024 / 1024
+    print(f"\n[done] {npz_path}  ({size_mb:.1f} MB)")
+    print(f"       keys = {sorted(set(np.load(npz_path).files))}")
+    print(f"       {key} {hidden.shape} = (tokens, {true_dim})   labels {labels.shape}   G={G}")
     print(f"       env={env}")
     if env not in AUTHORITATIVE:
         print("       ⚠ 非 7B 实机产物：仅用于管线冒烟，不可交付 WB2。")

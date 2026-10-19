@@ -1,14 +1,14 @@
 {
   "purpose": "7B 实机最小部署包清单（DS-20261019-035-WB1 步骤 1 验收）",
-  "created_at": "2026-10-19T09:54:01+00:00",
+  "created_at": "2026-10-19T10:19:50+00:00",
   "environment": {
     "kind": "local-sandbox-cpu-proxy-0.5B",
     "note": "打包与校验在 CPU 沙盒完成；包内脚本需 GPU 才能跑 7B。"
   },
   "bundle": {
     "path": "dist/autodl_deploy.tar.gz",
-    "bytes": 46128,
-    "sha256": "fa1eb70eb5055d5bb9df1a1aee927341d4cf6db7b57ec6ff43a568c6c4fd076d",
+    "bytes": 46854,
+    "sha256": "a0047f3c37879f60af1e7bf79330e6e707822cb42ff525aac0532516f44cefc1",
     "n_files": 8,
     "files": [
       {
@@ -17,7 +17,7 @@
       },
       {
         "name": "./src/semantickv/export_real_features.py",
-        "bytes": 8705
+        "bytes": 10514
       },
       {
         "name": "./src/semantickv/v41_torch_native_runner.py",
@@ -37,7 +37,7 @@
       },
       {
         "name": "./README.md",
-        "bytes": 3797
+        "bytes": 3883
       },
       {
         "name": "./eval_runner.py",
@@ -68,7 +68,18 @@
       "device_uses_cuda"
     ],
     "feature_dim_expected": 3584,
-    "dim_guard_on_mismatch": "return 4, 拒绝产出（已负向验证：0.5B + autodl-7b → exit=4，零文件）"
+    "dim_guard_on_mismatch": "return 4, 拒绝产出（已负向验证：0.5B + autodl-7b → exit=4，零文件）",
+    "npz_keys": {
+      "key_hidden": "hidden_states",
+      "aliases": [
+        "hidden_states",
+        "hs",
+        "hidden"
+      ],
+      "key_labels": "labels",
+      "key_meta": "meta",
+      "note": "DS-038：默认 hidden_states；--key-name hs 可切；单键写入不复制数组"
+    }
   },
   "guard_test": {
     "cmd": "python3 tests/test_env_guard.py",
@@ -88,8 +99,8 @@
   "clean_dir_smoke": {
     "cmd": "解压到空目录后跑 export_real_features.py（0.5B 代理）",
     "exit": 0,
-    "result": "hidden (90,896) labels (90,) env=local-sandbox-cpu-proxy-0.5B",
-    "note": "证明包自包含；维度 896 非交付件"
+    "result": "keys=['hidden_states','labels','meta']; (90,896)",
+    "note": "证明包自包含且键名已统一；维度 896 非交付件"
   },
   "config": {
     "device": "cpu",
