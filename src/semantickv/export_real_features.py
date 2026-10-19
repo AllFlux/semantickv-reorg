@@ -236,8 +236,11 @@ def main() -> int:
         },
         "consumption_contract": {
             "expected_by_wb2": "Linear(hidden_size, 256) 首层；hidden_size 必须等于本文件 hidden_size",
-            "wb2_current_mismatch": ("WB2 semantic_router.pt 为 input_dim=1024，"
-                                     "与 7B 的 3584 不符（GAP-DS26-01）"),
+            "wb2_current_mismatch": (
+                f"WB2 当前发布的 semantic_router.pt 为 input_dim=3584（7B 版，1,868,352 参数）；"
+                f"本特征为 input_dim={args.expect_dim}，两者不匹配。"
+                f"WB2 需按 input_dim={args.expect_dim} 出对应版本（GAP-DS26-01 已随 3584 版解除，"
+                f"但 3B 口径需要新的 2048 版）。"),
         },
     }
 

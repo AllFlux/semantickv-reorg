@@ -1,6 +1,6 @@
 {
   "purpose": "WB2 真实特征重训数据（DS-20261019-029-WB1 步骤 2）",
-  "created_at": "2026-10-19T15:24:05+00:00",
+  "created_at": "2026-10-19T15:27:32+00:00",
   "model": "/workspace/models/Qwen2.5-3B-Instruct",
   "hidden_size": 2048,
   "expected_dim": 2048,
@@ -56,7 +56,7 @@
   },
   "consumption_contract": {
     "expected_by_wb2": "Linear(hidden_size, 256) 首层；hidden_size 必须等于本文件 hidden_size",
-    "wb2_current_mismatch": "WB2 semantic_router.pt 为 input_dim=1024，与 7B 的 3584 不符（GAP-DS26-01）"
+    "wb2_current_mismatch": "WB2 当前发布的 semantic_router.pt 为 input_dim=3584（7B 版，1,868,352 参数）；本特征为 input_dim=2048，两者不匹配。WB2 需按 input_dim=2048 出对应版本（GAP-DS26-01 已随 3584 版解除，但 3B 口径需要新的 2048 版）。"
   },
   "npz_contract": {
     "key_hidden": "hidden_states",
