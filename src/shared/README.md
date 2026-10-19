@@ -17,6 +17,14 @@
 > 证据：`results/logistics_push_test.json`（verdict 语义 success，git 失败历史保留）+
 > `results/logistics_rest_upload.json`（+ `_run1.json` 首跑留痕）。远端 commit sha 见证据 JSON
 > `rest_fallback.uploads[].commit_sha`。PAT 未落任何文件、未进 .git/config（推完即还原纪律）。
+>
+> **🆕 H-DS33（DS-20261019-025-WB2，第 56 轮·已推送）**：SemanticRouter 重训件 `semantic_router.pt`
+> —— 严格按 DS 规格的纯 PyTorch 极简 MLP `Linear(1024,256)→ReLU→Linear(256,64)`，替代原生 GSC
+> 质心聚类。验收达成（代理数据）：Top-1=78.9% >75%、体积 1.07MB <5MB、CPU 延迟 0.033ms ≪1ms；
+> `semantic_router_loadtest.py` 五项检查全 PASS。**⚠️ 数据真实性边界**：本沙盒无 GPU/真实 LLM 权重，
+> hidden_states 为 dim=1024 合成向量（64 正交质心+高斯噪声）、标签为离线 K-means 64 群（DS 规格第 2 步
+> 允许备选）——**代理训练件**，准确率不构成与真实 WB1 GSC 的 Top-1 对比；真实 hidden_states + 真实 GSC
+> 真值 + vLLM 插件消费待 WB1 侧验证。`results_v2/semantic_router_retrain.json` 含完整代理声明。
 
 ## 1. 交付物清单
 
@@ -25,6 +33,8 @@
 | `router_weights.pt` | **主交付**：$M_\omega$（RelationModelV2）state_dict + arch/regime/score_stats 元数据；regime = `tau200_diverse_pool_retrained`（多样化池重训，有判别力者）；`score_sign=-1`（高分=高训练价值，第 52 轮取反） |
 | `router_weights_collapsed_pool.pt` | 备查：harness 原生训练（τ=1 坍缩池）的 ω，**零方差退化态**，见 §5；同样带 `score_sign=-1`（元数据一致性） |
 | `load_test.py` | 纯 CPU 空壳加载证明（零 WB2 依赖，架构按 .pt 内嵌 arch 元数据内联重建）；五项检查含 score_sign 元数据 |
+| `semantic_router.pt` | **🆕 H-DS33 主交付**：严格规格纯 MLP `Linear(1024,256)→ReLU→Linear(256,64)` 的 state_dict + arch/num_groups/input_dim/data_provenance 元数据；替代原生 GSC 质心聚类（代理数据边界见本文件物流段 H-DS33） |
+| `semantic_router_loadtest.py` | **🆕 H-DS33**：`semantic_router.pt` 纯 CPU 空壳加载证明（零 WB2 依赖，架构按 .pt 内嵌 arch 元数据内联重建）；五项检查含数据代理声明 |
 | `README.md` | 本文件 |
 
 ## 2. 输入/输出契约
