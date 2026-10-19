@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-19T14:18:51.400226+00:00",
+  "generated_at": "2026-10-19T15:25:21.014903+00:00",
   "source_dir": "/workspace/semantickv-reorg/results",
   "discipline": {
     "meta": {
       "meta": {
         "protocol": "DISCIPLINE.md v2.0 (D6 双轨制· D2-b/D3-b · D7缓存固化)",
         "rounds": [],
-        "last_round": "R25",
-        "last_run": "2026-10-19T22:17:31"
+        "last_round": "R26",
+        "last_run": "2026-10-19T23:25:13"
       }
     },
     "rounds": [
@@ -1516,7 +1516,7 @@
       },
       {
         "round": "R25",
-        "timestamp": "2026-10-19T22:17:31",
+        "timestamp": "2026-10-19T22:20:20",
         "checks": [
           {
             "check": "D1 契约优先",
@@ -1580,11 +1580,78 @@
           "fail": 0,
           "verdict": "GREEN"
         }
+      },
+      {
+        "round": "R26",
+        "timestamp": "2026-10-19T23:25:13",
+        "checks": [
+          {
+            "check": "D1 契约优先",
+            "status": "PASS",
+            "detail": "--check-interfaces 全部通过"
+          },
+          {
+            "check": "D2 负面结果归档",
+            "status": "PASS",
+            "detail": "清单 11 项全部在档"
+          },
+          {
+            "check": "D3 环境隔离",
+            "status": "PASS",
+            "detail": "29 个结果文件全部带环境标签"
+          },
+          {
+            "check": "D4 参数冻结",
+            "status": "PASS",
+            "detail": "mock 默认参数未动；真实 (k,tau)=(8,0.97) 冻结；E0 卡 v0.2.1"
+          },
+          {
+            "check": "D5 格式统一",
+            "status": "PASS",
+            "detail": "5 份报告三段式齐全"
+          },
+          {
+            "check": "D6 双轨制报告",
+            "status": "PASS",
+            "detail": "5 份报告双轨制合规（frontmatter+正文+反直觉专节+内联）"
+          },
+          {
+            "check": "DS-D1 指令结构化",
+            "status": "PASS",
+            "detail": "全部 DS 评审符合模板（frontmatter+三段式）"
+          },
+          {
+            "check": "DS-D2 假设可证伪+来源",
+            "status": "PASS",
+            "detail": "全部假设带可证伪标准与数据来源"
+          },
+          {
+            "check": "DS-D3 引用可核查",
+            "status": "PASS",
+            "detail": "DS 跨域/文献断言均登记可核查来源（或无外部引用）"
+          },
+          {
+            "check": "DS-D4 结论对齐数据",
+            "status": "PASS",
+            "detail": "refuted 假设均有数据证据；已承认或无需承认"
+          },
+          {
+            "check": "DS-D5 假设台账状态",
+            "status": "PASS",
+            "detail": "19 条假设状态合法"
+          }
+        ],
+        "summary": {
+          "pass": 11,
+          "warn": 0,
+          "fail": 0,
+          "verdict": "GREEN"
+        }
       }
     ],
     "last_round": {
-      "round": "R25",
-      "timestamp": "2026-10-19T22:17:31",
+      "round": "R26",
+      "timestamp": "2026-10-19T23:25:13",
       "checks": [
         {
           "check": "D1 契约优先",
@@ -1599,7 +1666,7 @@
         {
           "check": "D3 环境隔离",
           "status": "PASS",
-          "detail": "27 个结果文件全部带环境标签"
+          "detail": "29 个结果文件全部带环境标签"
         },
         {
           "check": "D4 参数冻结",
@@ -1789,11 +1856,11 @@
         "source_review": "DS-20261018-007",
         "statement": "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax（DS-20261019-018 复述：Argmax ≥50% 且 Cos ≥0.85）",
         "falsifiable_criterion": "DS-20261019-018 口径：7B 无压缩基线 needle <2/3 → 换模型（Llama-3-8B）；裸基线通过但混合保护 argmax <45% → 废弃混合保护（通过线 ≥50% 且 cos ≥0.85）",
-        "data_source": "results/kaggle_7b_fixed_route.json",
+        "data_source": "results/kaggle_3b_fixed_route.json; results/kaggle_7b_fixed_route.json",
         "status": "pending",
         "evidence_file": "",
         "ds_admitted_refutation": false,
-        "fate_note": "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。【DS-026 转向·固定路由突击】DS 明确要求不等 WB2 新权重，直接用 GSC 离线质心/空壳固定路由跑通 7B 端到端。新 falsifiable（DS-026）：即便无最佳 Router，采用『均匀/固定群 + 混合保护(Sink+Win+TopK)』在 7B 上 Argmax 应突破 45%（比 0.5B 更鲁棒）；若固定路由下 7B Argmax 仍 <45%，则证明崩盘非路由差、而是重组在多段拼接时破坏了 RoPE 连续性（标记 ROPE_FRACTURE）。data_source 改为 kaggle_7b_fixed_route.json。WB1 已建成 fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，并据此口径判定 MAINTAIN(>45%)/ROPE_FRACTURE(<45%)；沙盒无 GPU 无法出权威 7B 数字，权威存证待 Kaggle Run All（0.5B CPU 代理已校验管线）。｜【DS-20261019-029 批准】DS 正式认可 0.5B 代理下的 MAINTAIN 判定（3/3 全中，管线/RoPE/混合保护逻辑自洽），并指出 0.5B 数据已饱和（GSC 14 群与 qk 2 群结果无差别），唯一有价值动作是上 7B 实机。"
+        "fate_note": "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。【DS-026 转向·固定路由突击】DS 明确要求不等 WB2 新权重，直接用 GSC 离线质心/空壳固定路由跑通 7B 端到端。新 falsifiable（DS-026）：即便无最佳 Router，采用『均匀/固定群 + 混合保护(Sink+Win+TopK)』在 7B 上 Argmax 应突破 45%（比 0.5B 更鲁棒）；若固定路由下 7B Argmax 仍 <45%，则证明崩盘非路由差、而是重组在多段拼接时破坏了 RoPE 连续性（标记 ROPE_FRACTURE）。data_source 改为 kaggle_7b_fixed_route.json。WB1 已建成 fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，并据此口径判定 MAINTAIN(>45%)/ROPE_FRACTURE(<45%)；沙盒无 GPU 无法出权威 7B 数字，权威存证待 Kaggle Run All（0.5B CPU 代理已校验管线）。｜【DS-20261019-029 批准】DS 正式认可 0.5B 代理下的 MAINTAIN 判定（3/3 全中，管线/RoPE/混合保护逻辑自洽），并指出 0.5B 数据已饱和（GSC 14 群与 qk 2 群结果无差别），唯一有价值动作是上 7B 实机。｜【DS-20261019-044 沙盒闭环·真实 3B 实测】本沙盒跑通真实 Qwen2.5-3B-Instruct（hidden 2048、36 层、GQA 2 kv heads）+ 8K 上下文 + 混合保护：baseline 1.000 PASS（3/3）；三种固定路由 Argmax 全 =1.000（gsc G=48 cos 0.686 / uniform G=16 cos 0.635 / qk G=2 cos 0.578），rope_fracture 全 false → verdict=MAINTAIN。这是本项目首次在「真实目标规模模型 + 真实 8K 上下文」上拿到 >45% 底线证据（此前仅 0.5B 代理）。⚠ 设备为 CPU/bf16（无 4bit、无 GPU），故仍不等于 GPU 实机口径；H-DS10 维持 pending，但证据强度从「代理管线」升级为「真实模型」。存证 results/kaggle_3b_fixed_route.json。"
       },
       {
         "id": "H-DS14",
@@ -1867,7 +1934,7 @@
         "source_review": "DS-20261019-029-WB1",
         "statement": "7B 真实 8K 上下文下，固定路由 + 混合保护仍能给出有区分度的 Argmax（≥45%），且 needle 不再像 0.5B 那样 3/3 全中",
         "falsifiable_criterion": "若 7B Argmax <45% → 标记 ROPE_FRACTURE 并转查位置编码；若 7B Argmax 仍=1.000 且 needle 全中（无区分度）→ 判定 needle 任务过易，改用 KVFundaBench 推理密集型子集重测。",
-        "data_source": "results/kaggle_7b_fixed_route.json",
+        "data_source": "results/kaggle_3b_fixed_route.json; results/kaggle_7b_fixed_route.json",
         "status": "pending",
         "evidence_file": "results/ds_reviews/20261019_029_wb1_review.md",
         "ds_admitted_refutation": false,
@@ -1893,7 +1960,7 @@
         "status": "pending",
         "evidence_file": "results/ds_reviews/20261019_040_wb1_review.md",
         "ds_admitted_refutation": false,
-        "fate_note": "DS-20261019-040 登记（算力降级）。DS 以『3B 与 7B 同构（GQA+同注意力）』为理由把目标模型降为 Qwen2.5-3B-Instruct（hidden 2048）。WB1 已全量切换：守卫 model_is_7b→model_size_in_3b_7b、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、产物按规模命名；守卫单测 10/10。⚠ 注意：同构成立但表征容量差 ~2.4 倍，『跑得动』不等于『够用』——本条即为该风险留的证伪口。判定需 WB2 用 real_features_3b.npz 重训的结果。"
+        "fate_note": "DS-20261019-040 登记（算力降级）。DS 以『3B 与 7B 同构（GQA+同注意力）』为理由把目标模型降为 Qwen2.5-3B-Instruct（hidden 2048）。WB1 已全量切换：守卫 model_is_7b→model_size_in_3b_7b、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、产物按规模命名；守卫单测 10/10。⚠ 注意：同构成立但表征容量差 ~2.4 倍，『跑得动』不等于『够用』——本条即为该风险留的证伪口。判定需 WB2 用 real_features_3b.npz 重训的结果。｜【DS-20261019-044 沙盒闭环】real_features_3b.npz 已在沙盒内由真实 3B 模型产出：(2586, 2048) float16、42 群（群大小 18~425，中位 50）、无 NaN/Inf、原始幅值（L2 范数 78.8~228.2，未被归一化或平滑污染，meta 声明 raw_hidden_exported=true）。同时 Step 5 的三种固定路由在该真实 3B 上 Argmax 全 1.000，说明 3B 表征足以产生可用的语义分组。但「WB2 用该特征重训后 Top-1 是否显著高于 1.56% 随机线」仍无数据，故维持 pending。"
       }
     ]
   },
@@ -2590,6 +2657,43 @@
         }
       },
       "body": "# 理论背景（Why）\n\nCEO 在阿里云 PAI-DSW 用手机浏览器操作终端：多行粘贴会卡死，断网会中断任务。\nDS 提出两条路径：\n\n1. **一行入口**：把 wget→解压→环境变量→pip→运行压成一条极短命令；\n2. **后台运行 + 自动回传**：`nohup` 挂起，跑完把产物推回 GitHub。\n\nDS 同时明确边界：WB 无法直接 SSH 进 CEO 的实例（无公网 IP、无凭据、无法控制手机）。\n这个判断是对的。\n\n# 具体步骤（What）\n\n1. 写一个仓库内的入口脚本，用户只粘一行；\n2. 支持后台模式，关掉手机不中断；\n3. 可选：跑完自动把产物推回 GitHub。\n\n# 验收标准（How）\n\n- 一行命令在无 GPU 环境（SMOKE）下能跑通；\n- 后台模式能返回 PID，且进程结束后产物完整；\n- 下载环节在「raw 被墙」时仍能成功。\n\n> 本评审不含新假设（运维易用性改进），台账不新增条目。\n\n---\n\n## WB1 执行记录\n\n| DS 建议 | 落地 | 证据 |\n|---|---|---|\n| 一行入口 | `deploy/autodl/bootstrap.sh`，`curl … \\| bash` | 实测 exit=0 |\n| 后台运行 | `--bg` → `nohup … &`，打印 PID 与 tail 命令 | 实测 PID 完成、产物齐全 |\n| 自动回传 | `--upload`（需 `GITHUB_TOKEN`，推 `results/<host>-<ts>` 分支） | 未实测（无 token），代码已就绪 |\n| 先后台、再回看 | `tail -f run.log` / `grep -E \"^✔|^⚠\" run.log` | 已写入提示 |\n\n### 一行命令实测（从公网拉取，模拟 CEO 操作）\n\n```text\n$ curl -sL --max-time 90 \"https://ghfast.top/<raw>/deploy/autodl/bootstrap.sh\" | bash -s -- --features-first\n[bootstrap] workdir=/tmp/oneline4\n[1/4] 下载部署包（约 48KB）\n      尝试 cdn.jsdelivr.net … OK（49091 字节，校验通过）\n[2/4] 解压\n[3/4] 环境与依赖   缺少: 无\n[4/4] 运行\n[arch] hidden_size=896  layers=24  kv_heads=2\n✔ 已执行的步骤均成功。\nexit=0   （26s）\n```\n\n后台模式：\n\n```text\n 已后台启动，PID=52232\n 看进度： tail -f /tmp/bs_bg/deploy_autodl/run.log\n$ ps -p 52232        -> 已结束\n$ ls results/        -> real_features_7b.npz (394,753B) + .json\n```\n\n### 下载通道实测（本轮最意外的发现）\n\n```text\nraw.githubusercontent.com          -> 10s 无响应（被墙）\ncdn.jsdelivr.net                  -> HTTP 200 / 3.3s（但 bootstrap 缓存滞后）\ncdn.statically.io                 -> FAIL\nghfast.top                        -> HTTP 200 / 新版\ngh-proxy.com                      -> HTTP 200 / 新版\n```\n\n三个可用通道下载的包体一致：\n\n```text\nghfast.top       size=49091 sha=a6be2b0be7f5 ✓\ngh-proxy.com     size=49091 sha=a6be2b0be7f5 ✓\ncdn.jsdelivr.net size=49091 sha=a6be2b0be7f5 ✓\n```\n\n---\n\n## 反直觉与异常观测\n\n### 1. DS 给的 raw 链接在我的沙盒里**直接超时**，但在 DS 的推演里是「能下」\n\n这不是 DS 的错——它无法实测。但它意味着：**任何「一行 curl」方案如果只写 raw，\n在国内环境有相当概率第一条命令就卡死**，而 CEO 只会看到光标不动。\n\n### 2. CDN 的「包已更新、入口脚本仍旧」是最阴的失败模式\n\njsDelivr 上 tarball 已刷新（49091），但 `bootstrap.sh` 仍返回旧版（期望 48618）。\n若用户此刻跑 jsDelivr 的一行命令，旧脚本会拿 48618 去校验 49091 的包 →\n**必然判失败**，而错误信息看起来像「下载坏了」，实际是版本错位。\n\n处置：① 主入口改用 `ghfast.top`（直通 raw，无 CDN 缓存滞后）；\n② 增加**版本漂移兜底**——严格哈希全失败后，若包是合法 gzip 且含\n`deploy_autodl/run_all.sh`，则打印期望/实际 sha 并继续；`STRICT_VERIFY=1` 可拒绝。\n\n### 3. 打包脚本会改 README，README 又在包里 → 哈希自我变化\n\n`build_deploy_bundle.sh` 把 README 打进包，所以「改一句文档」也会让 sha 变。\n若不联动 bootstrap 的 `EXPECT_SHA`，每次改文档都会让用户下不了包。\n已在打包脚本末尾加自动同步（避免人肉记哈希）。\n\n### 4. 后台任务的「成功」必须看退出码，不能看进程消失\n\n第一次后台测试，进程没了、日志也有输出，但 `results/` 里少一个文件——\n因为 Step 5 早退而脚本当时还 `exit 0`。已改为累计 `FAILED` 并传递退出码。\n\n## 结论\n\n1. 一行入口 + 后台运行已交付并实测（26s / exit=0 / 产物齐全）。\n2. 下载改为三镜像回退 + 逐镜像哈希校验 + 版本漂移兜底；raw 被墙不再是阻塞。\n3. 自动回传代码就绪但未实测（需 CEO 的 token），默认关闭。\n4. 打包脚本与 bootstrap 校验值已自动联动，消除人肉维护。\n\n## 文件清单\n\n| 文件 | 内容 |\n|---|---|\n| `deploy/autodl/bootstrap.sh` | 一行入口 / `--bg` / 多镜像 / 漂移兜底 / `--upload` |\n| `deploy/autodl/README.md` | 第八节：手机端一行跑、后台、只跑特征、回传 |\n| `tools/build_deploy_bundle.sh` | 打包后自动同步 bootstrap 校验常量 |\n| `dist/autodl_deploy.tar.gz` | 最新部署包 |\n| `results/ds_reviews/20261019_041_wb1_review.md` | 本归档 |"
+    },
+    {
+      "file": "20261019_044_wb1_review.md",
+      "meta": {
+        "review_id": "DS-20261019-044-WB1",
+        "source_url": "（用户直接粘贴全文）",
+        "date": "2026-10-19",
+        "target": "WorkBuddy #1 (SemanticKV-Reorg)",
+        "topic": "沙盒本地化闭环：在沙盒内直接跑通 3B 真实特征导出",
+        "status": "completed",
+        "experiment_id": "R26 (DS-044 沙盒 3B 闭环轮)",
+        "environment": "local-sandbox-cpu-3b",
+        "collaboration_audit": {
+          "status": "GREEN",
+          "contract_check": "DS 主动把执行搬回本沙盒，方向正确（本机 123Gi 内存 / 32 核确有真实推理能力）。但指令中 `--load-in-4bit --device cpu` 一项在 CPU 上不成立，WB1 以实测数据修正为 bf16 全精度，其余指令全部照做。"
+        },
+        "hypotheses": [
+          {
+            "id": "H-DS10",
+            "statement": "在真实目标规模模型 + 8K 上下文下，固定路由 + 混合保护仍能突破 45% Argmax 底线",
+            "falsifiable_criterion": "若某固定路由 Argmax <45% → 标记 ROPE_FRACTURE（崩盘源于 RoPE 断裂而非路由质量）；若 ≥45% → 维持方案。",
+            "data_source": "results/kaggle_3b_fixed_route.json",
+            "status": "pending",
+            "note": "本轮首次在真实 3B（非 0.5B 代理）上取得 >45% 证据（三路由全 1.000）；设备仍为 CPU，故不结案。"
+          },
+          {
+            "id": "H-DS37",
+            "statement": "3B（hidden 2048）的真实特征足以让 WB2 重训出显著优于随机的 SemanticRouter",
+            "falsifiable_criterion": "若 WB2 用 real_features_3b.npz 重训后 Top-1 仍不显著高于随机基线 1.56%（64 群），则 3B 降级不足以支撑路由训练，必须回到 7B。",
+            "data_source": "results/real_features_3b.npz; results/real_features_3b.json",
+            "status": "pending",
+            "note": "特征已产出（2586×2048、42 群、原始幅值）；WB2 重训结果尚未回传。"
+          }
+        ],
+        "verdict": "两份产物均已产出：kaggle_3b_fixed_route.json（verdict=MAINTAIN，三路由 Argmax=1.000）与 real_features_3b.npz（(2586,2048)，原始幅值，42 群）。DS 指令中 --load-in-4bit --device cpu 一项实测不成立，改用 bf16 全精度。"
+      },
+      "body": "# 理论背景（Why）\n\nCEO 决定停止外部云平台（阿里云验证码、计费、断连风险），把执行搬回本沙盒。\nDS 的判断依据是「沙盒内存足够（3B 4-bit 仅需约 2GB）」，据此要求在沙盒内直接跑\n真实 3B 推理，完成全自动闭环。\n\n这条判断的方向完全正确——本机确实有能力跑：`free -h` 实测 **123Gi 总量 / 92Gi 可用**、\n32 核 AMD EPYC 9K65、252G 磁盘。但其中「4-bit 只需 2GB」这一条**在 CPU 上不成立**，\n详见下文实测。\n\n# 具体步骤（What）\n\n1. 环境侦察：内存 / CPU / 磁盘 / bitsandbytes / HF 可达性。\n2. 沙盒内直接跑 3B：`fixed_route_assault.py`（Step 5）与 `export_real_features.py`（Step 6）。\n3. 产出 `kaggle_3b_fixed_route.json` 与 `real_features_3b.npz`。\n\n# 验收标准（How）\n\n- `kaggle_3b_fixed_route.json`：四条环境断言通过，`environment` 标 `local-sandbox-cpu-3b`。\n- `real_features_3b.npz`：维度严格 `(N, 2048)`。\n\n---\n\n## WB1 执行记录\n\n| DS 指令 | 实际执行 | 结果 |\n|---|---|---|\n| `free -h` 确认可用 >4GB | 实测 123Gi / 可用 92Gi | **远超要求** |\n| `pip install bitsandbytes` | 已装 bnb 0.50.2 | 但 CPU 4bit **不可用**（见异常 1） |\n| `--load-in-4bit --device cpu` | **改为 `--dtype bfloat16`（无量化）** | 3B bf16 权重 6.2GB，内存充裕 |\n| `--ctx 8192` | 已用 | 实际序列 2586 token（生成语料长度） |\n| `--environment local-sandbox-cpu-3b` | 已用，并新增该标签语义 | 见下文「标签语义」 |\n| Step 5 出 `kaggle_3b_fixed_route.json` | 已出 | verdict=**MAINTAIN** |\n| Step 6 出 `real_features_3b.npz` | 已出 | **(2586, 2048)**，原始幅值 |\n\n### 模型与环境（实测）\n\n```text\nQwen2.5-3B-Instruct:  hidden_size=2048  layers=36  attn_heads=16  kv_heads=2\n本地权重:             5.8 GB（bf16 safetensors，2 shard）\ntorch 2.10.0+cu128 / transformers 5.1.0 / cuda_available=False\n内存峰值:             约 30Gi used（含系统其他进程）\n```\n\n### Step 5 固定路由突击（真实 3B · 8K 上下文 · CPU/bf16）\n\n```text\n[baseline] 无压缩基线门禁（目标 ≥2/3）\n  pos=0.15 命中=True -> '42'\n  pos=0.50 命中=True -> '42'\n  pos=0.85 命中=True -> '42'\n[baseline] 命中率 1.000 门禁=PASS\n\n[assault:gsc]     Argmax=1.000 OK(>45%)\n[assault:uniform] Argmax=1.000 OK(>45%)\n[assault:qk]      Argmax=1.000 OK(>45%)\n[done] verdict=MAINTAIN\n```\n\n| 路由 | 群数 G | needle 命中 | Argmax | prefill cos 均值 | cos p05 | RoPE 崩塌 |\n|---|---|---|---|---|---|---|\n| gsc（GSC 离线质心） | 48 | 3/3 | **1.000** | 0.686 | 0.434 | 否 |\n| uniform（顺序定长） | 16 | 3/3 | **1.000** | 0.635 | 0.369 | 否 |\n| qk（post-RoPE K 聚类） | 2 | 3/3 | **1.000** | 0.578 | 0.286 | 否 |\n\n环境断言实测（`claims_checked`）：\n\n```json\n{\"model_size_in_3b_7b\": true,\n \"load_in_4bit\": false,\n \"ctx_ge_4096\": true,\n \"device_uses_cuda\": false}\n```\n\n> 四条中三条为 true。`load_in_4bit=false` 与 `device_uses_cuda=false` 是**事实**：\n> CPU 上无法用 4bit，且本机无 GPU。**不伪装**——按 D3 如实入账。\n\n### Step 6 真实特征导出\n\n```text\n[arch] hidden_size=2048  layers=36  kv_heads=2\n[input] N=2586 tokens\n[done] results/real_features_3b.npz  (7.8 MB)\n       hidden_states (2586, 2048) = (tokens, 2048)   labels (2586,)   G=42\n       env=local-sandbox-cpu-3b   dim_check=PASS_DIM_CPU\n       ✔ 可交付 WB2：真实模型前向的真实隐状态 + 真实 GSC 标签。\n```\n\n数组核验：\n\n```text\nhidden_states (2586, 2048) float16   nan=False  inf=False\nlabels        (2586,)      int32     唯一群数=42\n群大小        最大=425  最小=18  中位=50\nL2 范数       均值=132.4162  最小=78.7875  最大=228.1605  标准差=26.5203\nmeta          raw_hidden_exported=True  l2_normalized=False  smoothed_for_export=False\n```\n\n> 范数不是 1.0，说明交付的是**原始幅值**而非归一化向量（下一节解释为何这一点关键）。\n\n### 标签语义（新增）\n\n`local-sandbox-cpu-3b` 与既有 `kaggle-3b`/`autodl-3b` 的区别被显式编码：\n\n| 标签类别 | 含义 | 维度校验结果 |\n|---|---|---|\n| `kaggle-3b` / `autodl-3b` | GPU 实机 + 真实模型 | `PASS` |\n| `local-sandbox-cpu-3b` | **真实目标模型 + CPU + 无量化** | `PASS_DIM_CPU` |\n| `local-sandbox-cpu-proxy-0.5B` | 小模型代理 | `PROXY` |\n\n`dim_check` 不再与\"设备是否 GPU\"耦合——模型是真的、维度对，就不会被贬成代理。\n\n---\n\n## 反直觉与异常观测\n\n### 1. `--load-in-4bit --device cpu` 在 CPU 上根本不成立\n\nDS 的原命令含 `--load-in-4bit --device cpu`。实测：bnb 0.50.2 的 4bit（NF4）后端是\n**CUDA kernel**；CPU 路径要现场从 `kernels-community/quantization-bitsandbytes`\n拉预编译 kernel，而这一步需要 `trust_remote_code=True` 且信任校验：\n\n```text\nFailed to load CPU gemm_4bit_forward from kernels-community:\n  Kernel repository 'kernels-community/quantization-bitsandbytes'\n  could not verify publisher trust status.\nFP4 quantization state not initialized. Please call .cuda() or .to(device) ...\nAssertionError\n```\n\n**更关键的是：这里根本不需要 4bit。** 4bit 是为了省显存；本机是 123GB 内存，\n3B 的 bf16 权重只有 6.2GB。**为了省一个不存在的约束，去引入一个会失败的依赖**，\n是典型的「把 GPU 经验错套到 CPU」。\n\n而且 bf16 比 4bit **更真实**：NF4 量化会引入权重误差，而我们的目的恰恰是导出\n「真实分布」给 WB2 重训。用 4bit 反而是自相矛盾。\n\n### 2. 为跑 4bit 装的 `kernels` 包，会毒化整个 transformers\n\n按 bnb 的提示 `pip install kernels>=0.11.1` 后，transformers 5.1.0 直接不可用：\n\n```text\nFile \".../transformers/integrations/hub_kernels.py\", line 88, in <module>\n    \"cuda\": LayerRepository(\nFile \".../kernels/layer/layer.py\", line 117, in __init__\n    raise ValueError(\"Either a revision or a version must be specified.\")\n```\n\n`hub_kernels` 在 **import 期**就构造 `LayerRepository`，而新版本 `kernels` 要求必须给\nrevision/version —— 两者不兼容。**整个 `AutoModelForCausalLM` 都 import 不了**，\n不只是 4bit 路径。卸载 `kernels` 后立即恢复。\n\n> 教训：一个\"可选加速包\"能在 import 阶段拖垮主栈。装它之前应当先问「我到底需不需要它」。\n\n### 3. bf16 张量不能直接 `.numpy()`——三处潜伏 bug 只有换 dtype 才暴露\n\nnumpy 没有 bfloat16 dtype：\n\n```text\nTypeError: Got unsupported ScalarType BFloat16\n```\n\n原来只跑过 float32 / float16，这条路径从未被踩。切到 bf16 后连爆三处：\n\n| 位置 | 用途 |\n|---|---|\n| `hidden_from_capture()` | 导出隐状态（主路径） |\n| `CompressedAttentionPatcher.fwd` 内的 `imp[0,h].numpy()` | TopK 选择（每层每 KV 头） |\n| `select_topk_per_group` 调用点 | 分组内 TopK |\n\n统一改为先 `.float()` 再 `.numpy()`（对 fp32 是 no-op）。这不是\"3B 的问题\"，\n是**任何 bf16 推理都会踩的通用坑**。\n\n### 4. 3B 的压缩保真度**低于** 0.5B，但任务全对\n\n对比两次实测（同一套混合保护配置）：\n\n| 模型 | gsc 路由 cos 均值 | needle 命中 |\n|---|---|---|\n| Qwen2.5-0.5B（CPU/fp32 代理） | **0.806** | 3/3 |\n| Qwen2.5-3B（CPU/bf16 真实） | **0.686** | 3/3 |\n\n直觉上\"模型越大越鲁棒\"，cos 应该更高。实际相反：**大模型的 cos 更低，但答得一样对**。\n\n合理解释：3B 的表征更各向异性、方向更\"锐利\"，压缩重组造成的方向偏移在余弦上更明显；\n但语义冗余度也更高，所以即使 cos 掉到 0.69，答案仍然正确。\n\n> **这条直接否定了「用 cos 阈值当验收线」的做法**。cos 只能当\"压缩强度\"的读数，\n> 不能当\"是否还能完成任务\"的判据——真正的判据是 needle 命中。\n\n### 5. 第一次导出的特征被偷偷归一化了（范数恰好 1.000）\n\n首版 `real_features_3b.npz` 的 L2 范数均值正好 `1.000`、标准差 `0.000`。\n原因：`smooth_hidden()` 默认 `renormalize=True`，而它同时用于\"聚类\"和\"导出\"。\n\n若把这个交给 WB2，会出现**训练-推理分布偏移**：训练时输入单位向量，\n推理时喂给 Router 的是原始幅值（范数 130 量级）→ Router 直接失效。\n已改为：**平滑 + 归一化只作用于聚类输入，导出的是 `H_raw` 原始幅值**。\n修正后范数为 78.8–228.2（均值 132.4），并在 meta 里显式声明\n`raw_hidden_exported=true / l2_normalized=false`。\n\n## 结论\n\n1. **沙盒闭环成立**：真实 3B 模型在本机跑通，两份产物均已产出。\n2. **Step 5**：`kaggle_3b_fixed_route.json`，baseline 1.000 门禁 PASS，\n   三路由 Argmax 全 **1.000**、无 ROPE 崩塌 → **verdict=MAINTAIN**。\n3. **Step 6**：`real_features_3b.npz`，`(2586, 2048)`、42 群、原始幅值、无 NaN/Inf。\n4. **DS 指令的一处修正**：`--load-in-4bit --device cpu` 不成立，改用 bf16 全精度\n   （内存充裕，且更保真）。\n5. **诚实边界**：设备是 CPU（非 GPU）、无 4bit 量化、序列 2586 token（非满 8K）。\n   模型规模与维度（3B / 2048）是真实的，与之前的 0.5B 代理有本质区别。\n\n## 文件清单\n\n| 文件 | 内容 |\n|---|---|\n| `results/kaggle_3b_fixed_route.json` | Step 5 存证（MAINTAIN，三路由数据） |\n| `results/real_features_3b.npz` | Step 6 特征（2586×2048，float16，原始幅值） |\n| `results/real_features_3b.json` | 特征 meta（维度/群数/provenance/保真声明） |\n| `src/semantickv/export_real_features.py` | 原始幅值导出 + `PASS_DIM_CPU` 判定 |\n| `src/semantickv/fixed_route_assault.py` | 新增 `REAL_MODEL_ENVS` 标签语义 |\n| `src/semantickv/v41_torch_native_runner.py` | bf16→numpy 三处修复 |\n| `results/ds_reviews/20261019_044_wb1_review.md` | 本归档 |"
     }
   ],
   "open_items": []

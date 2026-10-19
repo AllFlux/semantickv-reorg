@@ -72,7 +72,8 @@ def make_labels(mode: str, H: np.ndarray, k_post: torch.Tensor, N: int,
     if mode == "qk":
         # post-RoPE K: (1, Hkv, N, hd) -> 跨头均值 -> (N, hd)，再 GSC 聚类
         Kh = k_post[0].reshape(k_post.shape[1], N, -1)          # (Hkv, N, hd)
-        Km = Kh.mean(axis=0).numpy().astype(np.float32)          # (N, hd)
+        # bf16 张量不能直接 .numpy()（numpy 无 bfloat16），先升 fp32
+        Km = Kh.mean(axis=0).float().numpy().astype(np.float32)   # (N, hd)
         ga = MockSemanticGrouper(k=gsc_k, tau=qk_tau, metric="cosine").fit(Km)
         return ga.labels[:N].copy(), int(ga.n_groups)
 
@@ -153,6 +154,10 @@ def run_needle(model, tok, args, ids_n: torch.Tensor,
 # kaggle-7b / autodl-7b ：7B（hidden 3584）
 # kaggle-3b / autodl-3b ：3B（hidden 2048）——DS-040 起为省算力的正式口径
 AUTHORITATIVE_ENVS = {"kaggle-7b", "autodl-7b", "kaggle-3b", "autodl-3b"}
+# 真实目标模型但跑在 CPU（无 GPU / 无量化，DS-20261019-044 沙盒闭环）：
+# 模型与隐状态是真的，只有「设备非 GPU」一点不同，不应被说成小模型代理。
+REAL_MODEL_ENVS = {"local-sandbox-cpu-3b", "local-sandbox-cpu-7b",
+                   "local-cpu-3b", "local-cpu-7b"}
 SIZE_DIMS = {"3B": 2048, "7B": 3584}
 
 
@@ -305,9 +310,10 @@ def main() -> int:
         note = "基线门禁未过（无压缩命中 <2/3）：模型容量/加载异常，固定路由结论无效。"
     else:
         verdict = "ROPE_FRACTURE" if any_rope_fracture else "MAINTAIN"
-        note = ("所有固定路由下 7B 混合保护 Argmax >45%：混合保护在多段拼接下仍稳住底线，"
+        _sz = model_size(args.model) or "目标模型"
+        note = (f"所有固定路由下 {_sz} 混合保护 Argmax >45%：混合保护在多段拼接下仍稳住底线，"
                 "维持方案（H-DS10 DS-026 口径）。" if verdict == "MAINTAIN"
-                else "存在固定路由下 7B 混合保护 Argmax <45%：崩盘非路由差，而是重组在多段拼接时"
+                else f"存在固定路由下 {_sz} 混合保护 Argmax <45%：崩盘非路由差，而是重组在多段拼接时"
                      "破坏了 RoPE 连续性（标记 ROPE_FRACTURE，H-DS10 DS-026 口径）。")
 
     sz = model_size(args.model)
@@ -332,8 +338,12 @@ def main() -> int:
             f"        若只是本地冒烟，请去掉 --environment {env_kind}。")
 
     env_note = (f"{sz or ''} 实机权威结果（{env_kind}）。" if env_kind in AUTHORITATIVE_ENVS
-                else "0.5B/小模型 CPU 代理仅校验管线；权威 7B 数字需实机"
-                     "（--environment kaggle-7b 或 autodl-7b）。")
+                else f"真实 {sz or ''} 模型推理，但设备为 CPU / 无量化（{env_kind}）："
+                     "路由与保真度数字来自真实前向，可直接用于方案判断；"
+                     "与 GPU 实机的差异仅在数值精度与算速。"
+                if env_kind in REAL_MODEL_ENVS
+                else "0.5B/小模型 CPU 代理仅校验管线；权威 3B/7B 数字需实机"
+                     "（--environment kaggle-3b / autodl-3b）或真实模型 CPU（local-sandbox-cpu-3b）。")
 
     report = {
         "config": vars(args),

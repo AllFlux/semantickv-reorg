@@ -139,11 +139,11 @@ hypotheses:
     source_review: DS-20261018-007
     statement: "在 7B 模型（含 GQA）上，Sink+滑窗+中段 TopK 的混合保护能突破 50% argmax（DS-20261019-018 复述：Argmax ≥50% 且 Cos ≥0.85）"
     falsifiable_criterion: "DS-20261019-018 口径：7B 无压缩基线 needle <2/3 → 换模型（Llama-3-8B）；裸基线通过但混合保护 argmax <45% → 废弃混合保护（通过线 ≥50% 且 cos ≥0.85）"
-    data_source: "results/kaggle_7b_fixed_route.json"
+    data_source: "results/kaggle_3b_fixed_route.json; results/kaggle_7b_fixed_route.json"
     status: pending
     evidence_file: ""
     ds_admitted_refutation: false
-    fate_note: "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。【DS-026 转向·固定路由突击】DS 明确要求不等 WB2 新权重，直接用 GSC 离线质心/空壳固定路由跑通 7B 端到端。新 falsifiable（DS-026）：即便无最佳 Router，采用『均匀/固定群 + 混合保护(Sink+Win+TopK)』在 7B 上 Argmax 应突破 45%（比 0.5B 更鲁棒）；若固定路由下 7B Argmax 仍 <45%，则证明崩盘非路由差、而是重组在多段拼接时破坏了 RoPE 连续性（标记 ROPE_FRACTURE）。data_source 改为 kaggle_7b_fixed_route.json。WB1 已建成 fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，并据此口径判定 MAINTAIN(>45%)/ROPE_FRACTURE(<45%)；沙盒无 GPU 无法出权威 7B 数字，权威存证待 Kaggle Run All（0.5B CPU 代理已校验管线）。｜【DS-20261019-029 批准】DS 正式认可 0.5B 代理下的 MAINTAIN 判定（3/3 全中，管线/RoPE/混合保护逻辑自洽），并指出 0.5B 数据已饱和（GSC 14 群与 qk 2 群结果无差别），唯一有价值动作是上 7B 实机。"
+    fate_note: "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。【DS-026 转向·固定路由突击】DS 明确要求不等 WB2 新权重，直接用 GSC 离线质心/空壳固定路由跑通 7B 端到端。新 falsifiable（DS-026）：即便无最佳 Router，采用『均匀/固定群 + 混合保护(Sink+Win+TopK)』在 7B 上 Argmax 应突破 45%（比 0.5B 更鲁棒）；若固定路由下 7B Argmax 仍 <45%，则证明崩盘非路由差、而是重组在多段拼接时破坏了 RoPE 连续性（标记 ROPE_FRACTURE）。data_source 改为 kaggle_7b_fixed_route.json。WB1 已建成 fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，并据此口径判定 MAINTAIN(>45%)/ROPE_FRACTURE(<45%)；沙盒无 GPU 无法出权威 7B 数字，权威存证待 Kaggle Run All（0.5B CPU 代理已校验管线）。｜【DS-20261019-029 批准】DS 正式认可 0.5B 代理下的 MAINTAIN 判定（3/3 全中，管线/RoPE/混合保护逻辑自洽），并指出 0.5B 数据已饱和（GSC 14 群与 qk 2 群结果无差别），唯一有价值动作是上 7B 实机。｜【DS-20261019-044 沙盒闭环·真实 3B 实测】本沙盒跑通真实 Qwen2.5-3B-Instruct（hidden 2048、36 层、GQA 2 kv heads）+ 8K 上下文 + 混合保护：baseline 1.000 PASS（3/3）；三种固定路由 Argmax 全 =1.000（gsc G=48 cos 0.686 / uniform G=16 cos 0.635 / qk G=2 cos 0.578），rope_fracture 全 false → verdict=MAINTAIN。这是本项目首次在「真实目标规模模型 + 真实 8K 上下文」上拿到 >45% 底线证据（此前仅 0.5B 代理）。⚠ 设备为 CPU/bf16（无 4bit、无 GPU），故仍不等于 GPU 实机口径；H-DS10 维持 pending，但证据强度从「代理管线」升级为「真实模型」。存证 results/kaggle_3b_fixed_route.json。"
 
   - id: H-DS14
     source_review: DS-20261018-009-WB1
@@ -210,7 +210,7 @@ hypotheses:
     source_review: DS-20261019-029-WB1
     statement: "7B 真实 8K 上下文下，固定路由 + 混合保护仍能给出有区分度的 Argmax（≥45%），且 needle 不再像 0.5B 那样 3/3 全中"
     falsifiable_criterion: "若 7B Argmax <45% → 标记 ROPE_FRACTURE 并转查位置编码；若 7B Argmax 仍=1.000 且 needle 全中（无区分度）→ 判定 needle 任务过易，改用 KVFundaBench 推理密集型子集重测。"
-    data_source: "results/kaggle_7b_fixed_route.json"
+    data_source: "results/kaggle_3b_fixed_route.json; results/kaggle_7b_fixed_route.json"
     status: pending
     evidence_file: "results/ds_reviews/20261019_029_wb1_review.md"
     ds_admitted_refutation: false
@@ -234,4 +234,4 @@ hypotheses:
     status: pending
     evidence_file: "results/ds_reviews/20261019_040_wb1_review.md"
     ds_admitted_refutation: false
-    fate_note: "DS-20261019-040 登记（算力降级）。DS 以『3B 与 7B 同构（GQA+同注意力）』为理由把目标模型降为 Qwen2.5-3B-Instruct（hidden 2048）。WB1 已全量切换：守卫 model_is_7b→model_size_in_3b_7b、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、产物按规模命名；守卫单测 10/10。⚠ 注意：同构成立但表征容量差 ~2.4 倍，『跑得动』不等于『够用』——本条即为该风险留的证伪口。判定需 WB2 用 real_features_3b.npz 重训的结果。"
+    fate_note: "DS-20261019-040 登记（算力降级）。DS 以『3B 与 7B 同构（GQA+同注意力）』为理由把目标模型降为 Qwen2.5-3B-Instruct（hidden 2048）。WB1 已全量切换：守卫 model_is_7b→model_size_in_3b_7b、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、产物按规模命名；守卫单测 10/10。⚠ 注意：同构成立但表征容量差 ~2.4 倍，『跑得动』不等于『够用』——本条即为该风险留的证伪口。判定需 WB2 用 real_features_3b.npz 重训的结果。｜【DS-20261019-044 沙盒闭环】real_features_3b.npz 已在沙盒内由真实 3B 模型产出：(2586, 2048) float16、42 群（群大小 18~425，中位 50）、无 NaN/Inf、原始幅值（L2 范数 78.8~228.2，未被归一化或平滑污染，meta 声明 raw_hidden_exported=true）。同时 Step 5 的三种固定路由在该真实 3B 上 Argmax 全 1.000，说明 3B 表征足以产生可用的语义分组。但「WB2 用该特征重训后 Top-1 是否显著高于 1.56% 随机线」仍无数据，故维持 pending。"

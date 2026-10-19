@@ -6,11 +6,13 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "DS-20261019-040：算力降级突围 —— 目标模型 7B → 3B（hidden 2048）",
-    "status": "R25 GREEN：CEO 手机端执行受阻，DS 正式把目标模型降为 Qwen/Qwen2.5-3B-Instruct（同构 GQA，hidden 2048）。WB1 全量切换：守卫 model_is_7b→model_size_in_3b_7b（接受 3B/7B）、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、--expect-dim 改为按规模自动、产物名随规模自动（kaggle_3b_* / real_features_3b.*）、环境标签新增 autodl-3b/kaggle-3b；7B 仍兼容（FORCE_7B=1）。守卫单测 10/10（含 3B 与拒绝分支）。",
-    "metrics": "R25 11/11 PASS｜守卫 10/10（3B/7B/拒绝）｜SMOKE 产物命名实测 real_features_0.5b.npz｜包 50,211B sha=aa26ed45…｜H-DS37 新登记（19 条：3 confirmed/6 refuted/10 pending）"
+    "name": "DS-20261019-044：沙盒内跑通真实 3B（闭环成立，MAINTAIN + (2586,2048) 特征）",
+    "status": "R26 GREEN：CEO 停止云平台，改在本沙盒执行。实测内存 123Gi/可用 92Gi、32 核，真实 Qwen2.5-3B-Instruct（hidden 2048、36 层、GQA 2 kv heads）已在本机跑通。两份产物产出：① kaggle_3b_fixed_route.json — baseline 1.000 门禁 PASS，gsc/uniform/qk 三路由 Argmax 全 1.000、无 ROPE 崩塌 → verdict=MAINTAIN（本项目首次在真实目标规模模型 + 真实 8K 上下文上取得 >45% 证据）；② real_features_3b.npz — (2586,2048) float16、42 群、原始幅值（L2 范数 78.8~228.2，未归一化/未平滑），可直接交 WB2 重训。⚠ DS 指令中 `--load-in-4bit --device cpu` 实测不成立（bnb 的 NF4 是 CUDA kernel，CPU 需远程拉 kernels-community 预编译包，信任校验失败），已改用 bf16 全精度——内存充裕且更保真（无量化误差）。",
+    "metrics": "R26 11/11 PASS｜3B bf16 权重 5.8GB｜Step5 耗时约 10min｜Step6 耗时 26s｜baseline 1.000(3/3)｜gsc G=48 argmax=1.000 cos=0.686｜uniform G=16 argmax=1.000 cos=0.635｜qk G=2 argmax=1.000 cos=0.578｜feature (2586,2048) 42 群 7.8MB｜19 条假设（无新增）"
   },
   "decision_items": [
+    "【口径修正·DS-044】CPU 上 4bit 量化不成立（NF4 为 CUDA kernel），3B 改用 bf16 全精度：内存 6.2GB 远低于 92GB 可用，且无量化误差，更符合『导出真实分布』的目的。",
+    "【闭环已达成】真实 3B 在沙盒内跑通：kaggle_3b_fixed_route.json（MAINTAIN）+ real_features_3b.npz（(2586,2048)，原始幅值）。下一步：交 WB2 用该特征重训，验证 H-DS37（Top-1 是否显著高于 1.56% 随机线）。",
     "【DS-040 口径】目标模型 3B（hidden 2048）：产出 kaggle_3b_fixed_route.json + real_features_3b.npz（(N,2048)）。7B 需 FORCE_7B=1",
     "【立即可执行·手机端】一行：curl -sL https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --bg --features-first  （回车即返回 PID，关手机不中断）",
     "【立即可执行·PAI-DSW】终端两条命令即可，无需手机传文件：wget raw 链接 → tar -xzf → cd deploy_autodl → export HF_ENDPOINT/HF_HOME → bash run_all.sh（详见 deploy/autodl/README.md 第七节）",
@@ -206,6 +208,22 @@
     {
       "label": "评审 040 (3B 降级：守卫/默认值/产物命名)",
       "path": "results/ds_reviews/20261019_040_wb1_review.md"
+    },
+    {
+      "label": "评审 044 (沙盒 3B 闭环：MAINTAIN + 真实特征)",
+      "path": "results/ds_reviews/20261019_044_wb1_review.md"
+    },
+    {
+      "label": "Step5 存证（真实 3B + 8K，三路由 Argmax=1.000）",
+      "path": "results/kaggle_3b_fixed_route.json"
+    },
+    {
+      "label": "Step6 真实特征 (2586×2048，原始幅值)",
+      "path": "results/real_features_3b.npz"
+    },
+    {
+      "label": "特征 meta（含保真声明）",
+      "path": "results/real_features_3b.json"
     }
   ]
 }

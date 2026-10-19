@@ -1,0 +1,146 @@
+{
+  "config": {
+    "model": "/workspace/models/Qwen2.5-3B-Instruct",
+    "hf_endpoint": "https://hf-mirror.com",
+    "dtype": "bfloat16",
+    "load_in_4bit": false,
+    "device": "cpu",
+    "ctx": 8192,
+    "paragraphs": 8,
+    "repeats": 6,
+    "target_layer": 12,
+    "group_layer": "final",
+    "smooth_window": 8,
+    "group_mode": "gsc,uniform,qk",
+    "n_groups": 16,
+    "metric": "centered",
+    "gsc_k": 16,
+    "gsc_tau": 0.97,
+    "qk_tau": 0.9,
+    "compress_mode": "hybrid",
+    "topk_per_group": 8,
+    "sink_tokens": 4,
+    "window_tokens": 64,
+    "mid_scope": "blockdiag",
+    "compress_layers": "0.25-0.75",
+    "kmean_renorm": "none",
+    "group_score_prior": "logcount",
+    "needle": "请注意，一个重要事实：小王最喜欢的数字是 42。",
+    "needle_positions": "0.15,0.5,0.85",
+    "question": "小王最喜欢的数字是多少？请只回答数字：",
+    "max_new_tokens": 8,
+    "out": "results/kaggle_3b_fixed_route.json",
+    "environment": "local-sandbox-cpu-3b"
+  },
+  "environment": {
+    "kind": "local-sandbox-cpu-3b",
+    "model": "/workspace/models/Qwen2.5-3B-Instruct",
+    "device": "cpu",
+    "load_in_4bit": false,
+    "ctx": 8192,
+    "claims_checked": {
+      "model_size_in_3b_7b": true,
+      "load_in_4bit": false,
+      "ctx_ge_4096": true,
+      "device_uses_cuda": false
+    },
+    "note": "真实 3B 模型推理，但设备为 CPU / 无量化（local-sandbox-cpu-3b）：路由与保真度数字来自真实前向，可直接用于方案判断；与 GPU 实机的差异仅在数值精度与算速。"
+  },
+  "gate": {
+    "baseline_hit_rate": 1.0,
+    "gate_pass": true,
+    "baseline_positions": [
+      0.15,
+      0.5,
+      0.85
+    ],
+    "baseline_hits": [
+      true,
+      true,
+      true
+    ]
+  },
+  "fixed_route_assault": [
+    {
+      "group_mode": "gsc",
+      "n_groups": 48,
+      "positions": [
+        0.15,
+        0.5,
+        0.85
+      ],
+      "compressed_hits": [
+        true,
+        true,
+        true
+      ],
+      "argmax": 1.0,
+      "rope_fracture": false,
+      "prefill_final_hidden_cos_mean": [
+        0.6818931698799133,
+        0.690902054309845,
+        0.6847528219223022
+      ],
+      "prefill_final_hidden_cos_p05": [
+        0.4284968376159668,
+        0.45321547985076904,
+        0.41887614130973816
+      ]
+    },
+    {
+      "group_mode": "uniform",
+      "n_groups": 16,
+      "positions": [
+        0.15,
+        0.5,
+        0.85
+      ],
+      "compressed_hits": [
+        true,
+        true,
+        true
+      ],
+      "argmax": 1.0,
+      "rope_fracture": false,
+      "prefill_final_hidden_cos_mean": [
+        0.6408778429031372,
+        0.6280557513237,
+        0.6360625624656677
+      ],
+      "prefill_final_hidden_cos_p05": [
+        0.3740401268005371,
+        0.3619978427886963,
+        0.37150585651397705
+      ]
+    },
+    {
+      "group_mode": "qk",
+      "n_groups": 2,
+      "positions": [
+        0.15,
+        0.5,
+        0.85
+      ],
+      "compressed_hits": [
+        true,
+        true,
+        true
+      ],
+      "argmax": 1.0,
+      "rope_fracture": false,
+      "prefill_final_hidden_cos_mean": [
+        0.5455434918403625,
+        0.5934451818466187,
+        0.5948378443717957
+      ],
+      "prefill_final_hidden_cos_p05": [
+        0.22000384330749512,
+        0.3217097222805023,
+        0.31722739338874817
+      ]
+    }
+  ],
+  "verdict": "MAINTAIN",
+  "note": "所有固定路由下 3B 混合保护 Argmax >45%：混合保护在多段拼接下仍稳住底线，维持方案（H-DS10 DS-026 口径；本例为真实 3B 模型 + 8K 上下文 + CPU/bf16）。",
+  "note_correction": "原文案硬编码为『7B』，实际运行模型为 Qwen2.5-3B-Instruct；仅修正措辞，所有数值字段未改动。脚本已同步修复。"
+}

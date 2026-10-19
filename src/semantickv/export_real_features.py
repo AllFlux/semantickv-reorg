@@ -118,19 +118,23 @@ def main() -> int:
     finally:
         icept.uninstall()
 
-    H = hidden_from_capture(icept.cap, args.group_layer)      # (N, true_dim)
-    H = smooth_hidden(H, args.smooth_window)
-    Hz = metric_transform(H, args.metric).astype(np.float32)
+    H_raw = hidden_from_capture(icept.cap, args.group_layer)   # 原始逐 token 隐状态
+    # 平滑 + 归一化**只作用于聚类输入**（提高分组质量）；
+    # 交付给 WB2 的是 H_raw —— 未平滑、未归一化的真实幅值。
+    # 理由（DS-044）：WB2 训练分布必须等于推理时喂给 Router 的分布，
+    # 若导出归一化/平滑后的向量，重训出的 Router 在真实推理时会遇到分布偏移。
+    H_clu = smooth_hidden(H_raw, args.smooth_window, renormalize=False)
+    Hz = metric_transform(H_clu, args.metric).astype(np.float32)
     ga = MockSemanticGrouper(k=args.gsc_k, tau=args.gsc_tau, metric=args.metric).fit(Hz)
     labels = ga.labels[:N].astype(np.int32)
     G = int(ga.n_groups)
 
-    if H.shape[1] != true_dim:
-        print(f"[FATAL] 隐状态维度 {H.shape[1]} != config.hidden_size {true_dim}", file=sys.stderr)
+    if H_raw.shape[1] != true_dim:
+        print(f"[FATAL] 隐状态维度 {H_raw.shape[1]} != config.hidden_size {true_dim}", file=sys.stderr)
         return 3
 
     take = N if args.max_tokens <= 0 else min(N, args.max_tokens)
-    hidden = H[:take].astype(np.float16)
+    hidden = H_raw[:take].astype(np.float16)
     labels = labels[:take]
 
     env = args.environment or (
@@ -138,11 +142,31 @@ def main() -> int:
         else f"local-sandbox-cpu-proxy-{sz or '0.5B'}")
 
     # 权威标签下强制维度校验（DS-035/040：严格 (N, 2048) 或 (N, 3584)）
+    # 两类标签分开看（DS-20261019-044）：
+    #   AUTHORITATIVE —— GPU 实机 + 真实模型，设备与模型双权威
+    #   REAL_MODEL    —— 真实模型推理但跑在 CPU（无 GPU / 无量化）；
+    #                    模型是真的、隐状态是真的，只是设备非 GPU。
+    # 二者都要求「声明了就维度必须对」，区别只在 dim_check 的措辞。
     AUTHORITATIVE = {"kaggle-7b", "autodl-7b", "kaggle-3b", "autodl-3b"}
-    if env in AUTHORITATIVE and true_dim != args.expect_dim:
+    REAL_MODEL = {"local-sandbox-cpu-3b", "local-sandbox-cpu-7b",
+                  "local-cpu-3b", "local-cpu-7b"}
+    STRICT_ENVS = AUTHORITATIVE | REAL_MODEL
+
+    if env in STRICT_ENVS and true_dim != args.expect_dim:
         print(f"[FATAL] 声明 {env}，但 model.config.hidden_size={true_dim} "
-              f"!= 期望 {args.expect_dim}。拒绝产出（DS-035 验收标准）。", file=sys.stderr)
+              f"!= 期望 {args.expect_dim}。拒绝产出（DS-035/044 验收标准）。",
+              file=sys.stderr)
         return 4
+
+    # 维度判定与设备权威性解耦：模型是真的且维度对，就不该被贬成 PROXY。
+    if true_dim != args.expect_dim:
+        dim_check = "FAIL" if env in AUTHORITATIVE else "PROXY"
+    elif env in AUTHORITATIVE:
+        dim_check = "PASS"
+    elif env in REAL_MODEL:
+        dim_check = "PASS_DIM_CPU"      # 真实模型·维度对·设备为 CPU
+    else:
+        dim_check = "PROXY_DIM_OK"      # 小模型代理但维度恰好对上
 
     meta = {
         "purpose": "WB2 真实特征重训数据（DS-20261019-029-WB1 步骤 2）",
@@ -150,22 +174,65 @@ def main() -> int:
         "model": args.model,
         "hidden_size": true_dim,
         "expected_dim": args.expect_dim,
-        "dim_check": ("PASS" if true_dim == args.expect_dim and env in AUTHORITATIVE
-                      else ("PROXY" if env not in AUTHORITATIVE else "FAIL")),
+        "dim_check": dim_check,
         "n_tokens": int(take),
         "n_groups": G,
         "label_method": f"GSC offline clustering (k={args.gsc_k}, tau={args.gsc_tau}, metric={args.metric})",
         "group_layer": args.group_layer,
         "target_layer": target,
         "feature_dtype": "float16",
+        # 保真声明（DS-044）：导出的是未平滑、未归一化的原始隐状态；
+        # 平滑与归一化仅用于生成 labels，不影响交付数组。
+        "raw_hidden_exported": True,
+        "l2_normalized": False,
+        "smoothed_for_export": False,
+        "smoothing_used_for_labels_only": int(args.smooth_window),
+        # D3 纪律要求：results/*.json 必须有顶层 environment 块与 config.device。
+        "environment": {
+            "kind": env,
+            "model": args.model,
+            "device": args.device,
+            "dtype": args.dtype,
+            "load_in_4bit": bool(args.load_in_4bit),
+            "note": ("真实目标模型 + CPU + 无量化；隐状态来自真实前向，"
+                     "设备非 GPU 是唯一差异。")
+                    if env in REAL_MODEL else
+                    ("GPU 实机权威结果。" if env in AUTHORITATIVE
+                     else "小模型代理冒烟。"),
+        },
+        "config": {
+            "model": args.model,
+            "device": args.device,
+            "dtype": args.dtype,
+            "load_in_4bit": bool(args.load_in_4bit),
+            "ctx": args.ctx,
+            "paragraphs": args.paragraphs,
+            "repeats": args.repeats,
+            "target_layer": target,
+            "group_layer": args.group_layer,
+            "smooth_window": args.smooth_window,
+            "metric": args.metric,
+            "gsc_k": args.gsc_k,
+            "gsc_tau": args.gsc_tau,
+            "expect_dim": args.expect_dim,
+            "out": str(args.out),
+            "environment": env,
+        },
         "env": {"kind": env, "device": args.device, "load_in_4bit": args.load_in_4bit},
         "provenance": {
             "hidden_state_source": "REAL model prefill (not synthetic)",
             "real_hidden_state_available": True,
             "real_gsc_available": True,
-            "note": "这是真实 7B 隐状态与真实 GSC 标签；非合成代理件。"
-                    if env in AUTHORITATIVE else
-                    "本次为本地小模型冒烟，维度与 7B 不符，不可作为 WB2 交付物。",
+            "model_is_real_target": env in STRICT_ENVS,
+            "device_is_gpu": env in AUTHORITATIVE,
+            "note": (
+                "真实目标模型推理产物，设备为 GPU，可作 WB2 交付物。"
+                if env in AUTHORITATIVE else
+                "真实目标模型推理产物（CPU / 无量化）。隐状态与分组标签均来自真实前向，"
+                "可作为 WB2 重训输入；仅『设备非 GPU』一点与实机不同，故标 PASS_DIM_CPU。"
+                if env in REAL_MODEL else
+                "本地小模型冒烟，维度与目标不符，不可作为 WB2 交付物。"
+            ),
         },
         "consumption_contract": {
             "expected_by_wb2": "Linear(hidden_size, 256) 首层；hidden_size 必须等于本文件 hidden_size",
@@ -221,11 +288,13 @@ def main() -> int:
     print(f"\n[done] {npz_path}  ({size_mb:.1f} MB)")
     print(f"       keys = {sorted(set(np.load(npz_path).files))}")
     print(f"       {key} {hidden.shape} = (tokens, {true_dim})   labels {labels.shape}   G={G}")
-    print(f"       env={env}")
-    if env not in AUTHORITATIVE:
-        print("       ⚠ 非 7B 实机产物：仅用于管线冒烟，不可交付 WB2。")
-    elif hidden.shape[1] != args.expect_dim:
-        print(f"       ⚠ 维度 {hidden.shape[1]} != {args.expect_dim}，不可交付。")
+    print(f"       env={env}   dim_check={dim_check}")
+    if dim_check in ("PASS", "PASS_DIM_CPU"):
+        print("       ✔ 可交付 WB2：真实模型前向的真实隐状态 + 真实 GSC 标签。")
+        if dim_check == "PASS_DIM_CPU":
+            print("         （设备为 CPU / bf16 无量化；分布来自真实模型，非合成件。）")
+    else:
+        print(f"       ⚠ dim_check={dim_check}：不可作为 WB2 交付物。")
     return 0
 
 

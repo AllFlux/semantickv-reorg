@@ -316,7 +316,7 @@ def cosine_per_position(a: torch.Tensor, b: torch.Tensor) -> Dict[str, float]:
     a = a.reshape(-1, a.shape[-1]).double()
     b = b.reshape(-1, b.shape[-1]).double()
     cos = torch.nn.functional.cosine_similarity(a, b, dim=-1)
-    c = cos.numpy()
+    c = cos.float().numpy()
     return {"mean": float(c.mean()), "p05": float(np.percentile(c, 5)),
             "min": float(c.min()), "std": float(c.std())}
 
@@ -649,7 +649,7 @@ class CompressedAttentionPatcher:
                     sel_list, grp_list = [], []
                     for h in range(Hkv):
                         sg, st = select_topk_per_group(
-                            imp[0, h].detach().cpu().numpy(), patcher.labels,
+                            imp[0, h].detach().float().cpu().numpy(), patcher.labels,
                             patcher.G, patcher.topk_per_group)
                         grp_list.append(torch.as_tensor(sg, device=k.device))
                         sel_list.append(torch.as_tensor(st, device=k.device))
@@ -740,14 +740,26 @@ class CompressedAttentionPatcher:
 # 主流程
 # ---------------------------------------------------------------------
 
+def _to_np(t: torch.Tensor) -> np.ndarray:
+    """torch → numpy，兼容 bfloat16。
+
+    numpy 没有 bfloat16 dtype，直接 .numpy() 会抛
+    `TypeError: Got unsupported ScalarType BFloat16`（DS-044 沙盒跑 3B 时暴露）。
+    统一先升 float32 再转换：对 fp32 是 no-op，对 fp16/bf16 保证可落盘。
+    """
+    if t.dtype in (torch.bfloat16, torch.float16):
+        t = t.float()
+    return t.detach().cpu().numpy()
+
+
 def hidden_from_capture(cap: Dict[str, torch.Tensor], group_layer: str) -> np.ndarray:
     """从捕获中取 GSC 分组用的隐状态（**原始幅值** numpy；归一化由
     metric_transform 按度量决定，v0.2.0 起不再强制 L2 归一化）。"""
     if group_layer == "final":
-        H = cap["final_hidden"][0].numpy().astype(np.float32)
+        H = _to_np(cap["final_hidden"][0]).astype(np.float32)
     else:
         gl = int(group_layer)
-        H = cap["hidden_states"][gl + 1][0].numpy().astype(np.float32)
+        H = _to_np(cap["hidden_states"][gl + 1][0]).astype(np.float32)
     return H
 
 
@@ -1132,7 +1144,7 @@ def main() -> int:
             K = max(1, args.topk_per_group)
             sel_list = []
             for h in range(Hkv):
-                _, tsel = select_topk_per_group(imp[0, h].numpy(), lab_p, Gp, K)
+                _, tsel = select_topk_per_group(imp[0, h].float().numpy(), lab_p, Gp, K)
                 sel_list.append(torch.as_tensor(tsel, device=q.device))
             idx_sel = torch.stack(sel_list, dim=0).unsqueeze(0)           # (1,Hkv,S)
             S = idx_sel.shape[-1]
