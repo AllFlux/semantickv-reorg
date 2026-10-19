@@ -1,0 +1,75 @@
+{
+  "purpose": "WB2 按 3584 重训后的 SemanticRouter 复核（DS-20261019-035 期间 rebase 发现新件）",
+  "created_at": "2026-10-19T09:58:38+00:00",
+  "environment": {
+    "kind": "local-sandbox-cpu-proxy-0.5B",
+    "note": "CPU 静态复核 + WB2 自带空壳冒烟；未在 7B 实机消费该权重。"
+  },
+  "artifact": {
+    "path": "src/shared/semantic_router.pt",
+    "bytes": 3740525,
+    "sha256": "d5354f62dec7db7073f458e7e20b146ab1c7b3790fdef2bcce910f0675fa6a8e"
+  },
+  "anatomy": {
+    "input_dim": 3584,
+    "hidden": 512,
+    "num_groups": 64,
+    "n_params": 1868352,
+    "state_dict_shapes": {
+      "net.0.weight": [
+        512,
+        3584
+      ],
+      "net.0.bias": [
+        512
+      ],
+      "net.2.weight": [
+        64,
+        512
+      ],
+      "net.2.bias": [
+        64
+      ]
+    },
+    "arch": {
+      "in_dim": 3584,
+      "hidden": 512,
+      "out": 64,
+      "activation": "ReLU",
+      "loss": "CrossEntropy",
+      "framework": "pure_torch_mlp",
+      "rebuild": "nn.Sequential(nn.Linear(in_dim,hidden), nn.ReLU(), nn.Linear(hidden,out))"
+    }
+  },
+  "gap_ds26_01": {
+    "status": "RESOLVED",
+    "previous": "input_dim=1024（与 7B 的 3584 不符）",
+    "now": "input_dim=3584；net.0.weight=[512, 3584]",
+    "verified_by": "WB2 自带 loadtest 含专门断言『GAP-DS26-01：net.0.weight 形状 = [512,3584]』"
+  },
+  "gap_ds26_02": {
+    "status": "OPEN",
+    "detail": "proxy_data=True；real_hidden_state_available=False；label_source=offline K-means (64 clusters) — DS spec step-2 permitted alternative；hidden_state_source=synthetic dim=3584 (64 orthogonal centroids + gaussian noise) — 形状对齐真实 7B，分布不对齐",
+    "implication": "形状已对齐真实 7B，但分布仍是合成（64 正交质心+高斯噪声）。这正是 DS-035 判定『真实特征导出是唯一破局点』的原因。"
+  },
+  "wb2_selftest": {
+    "exit": 0,
+    "n_pass": 6,
+    "verdict": "PASS",
+    "key_lines": [
+      "[PASS] torch.load(map_location='cpu') 成功",
+      "[PASS] state_dict strict 加载（0 missing / 0 unexpected）",
+      "[PASS] GAP-DS26-01：net.0.weight 形状 = [512, 3584]（期望 [512, 3584]）",
+      "[PASS] 前向：(4, 3584) → (4, 64) 且有限",
+      "[PASS] CPU 延迟 batch1=0.1429ms ⟹ PASS（<否证线 1ms）",
+      "[PASS] 数据代理声明（proxy_data / proxy_mode 均为 True）"
+    ]
+  },
+  "wb1_verdict": "GAP-DS26-01 解决；GAP-DS26-02 未解。H-DS24 维持 refuted（历史加载语义），但『维度不可用』这一具体阻塞已消除；H-DS10 仍 pending，需真实特征重训 + 7B 实机。",
+  "config": {
+    "device": "cpu",
+    "dtype": "float32",
+    "model": "src/shared/semantic_router.pt",
+    "purpose": "WB2 3584 权重静态复核"
+  }
+}

@@ -90,5 +90,11 @@
     "exit": 0,
     "result": "hidden (90,896) labels (90,) env=local-sandbox-cpu-proxy-0.5B",
     "note": "证明包自包含；维度 896 非交付件"
+  },
+  "config": {
+    "device": "cpu",
+    "dtype": "-",
+    "model": "n/a",
+    "purpose": "部署包清单（CPU 打包与校验）"
   }
 }
