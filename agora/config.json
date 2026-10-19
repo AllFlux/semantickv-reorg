@@ -8,12 +8,13 @@
   "latest_experiment": {
     "name": "DS-20261019-026-WB1：契约冻结 H-DS24 + 7B 固定路由突击测试",
     "status": "R15 GREEN：DS-026 正式裁定 H-DS24——WB2 交付的 RelationModelV2 不能直接作为 per-query 路由，WB1 此前判断正确，并已令 WB2 按严格 MLP 规格重训 SemanticRouter 推送。WB1 的 wb2_router 适配器『暂时封存』（代码留存）。H-DS24 由 blocked 映射为协议合法的 refuted（ds_admitted_refutation=true）。H-DS10 同步转向『固定路由突击』：不等 WB2 新权重，直接用 GSC 离线质心 / 顺序定长 / post-RoPE K 相似度三种非学习分组 + 混合保护（Sink+Win+TopK），在 7B 上验证 Argmax 是否突破 45% 底线",
-    "metrics": "本地沙盒 CPU 代理（Qwen2.5-0.5B, environment.kind=local-sandbox-cpu-proxy-0.5B）门禁 1.000 PASS；三种固定路由 Argmax=1.000/MAINTAIN（无 RoPE 崩塌信号），prefill 保真度余弦 0.70–0.82。⚠ 代理结论 ≠ 7B 权威结论，权威 kaggle_7b_fixed_route.json 待用户在 Kaggle 实机 Run All（Step 5，7B-Instruct 4bit ctx=8192）"
+    "metrics": "本地沙盒 CPU 代理（Qwen2.5-0.5B, environment.kind=local-sandbox-cpu-proxy-0.5B）门禁 1.000 PASS；三种固定路由 Argmax=1.000/MAINTAIN（无 RoPE 崩塌信号），prefill 保真度余弦 0.70–0.82。⚠ 代理结论 ≠ 7B 权威结论，权威 kaggle_7b_fixed_route.json 待用户在 Kaggle 实机 Run All（Step 5，7B-Instruct 4bit ctx=8192）。｜ 归档后更新：WB2 新 MLP 权重 semantic_router.pt（H-DS33）已到达，架构=DS 规格 Linear(1024,256)→ReLU→Linear(256,64)，278,848 参数，WB2 自带 loadtest 5/5 PASS；但 input_dim=1024 与 7B query 隐状态 3584 维不符（GAP-DS26-01，blocking）+ 训练数据为代理件（GAP-DS26-02），故 7B per-query 路由仍阻塞，H-DS24 维持 refuted、H-DS10 维持 pending"
   },
   "decision_items": [
     "【契约裁决·DS-026 已决】DS 正式裁定：WB2 交付的 RelationModelV2 不能直接作为 per-query 路由，WB1 此前判断正确。DS 已令 WB2 按严格 MLP 规格重训 SemanticRouter 并推送。WB1 的 wb2_router 适配器（含 tests/test_wb2_load.py）已『暂时封存』（代码留存，待新权重到达后启用）。H-DS24 由 blocked 映射为协议合法的 refuted（ds_admitted_refutation=true，status 已通过纪律校验修正）",
     "【用户动作·Kaggle 7B 实机】在 Kaggle Run All run_on_kaggle.ipynb 执行 Step 5（固定路由突击）：用 GSC 离线质心 / 顺序定长 / post-RoPE K 相似度三种非学习分组 + 混合保护，产出权威 results/kaggle_7b_fixed_route.json。Argmax>45% 判 MAINTAIN；<45% 判 ROPE_FRACTURE（证明崩盘非路由差、而是重组多段拼接破坏 RoPE 连续性）。权威结论须以 7B 实机为准，本地 0.5B CPU 代理仅作管线正确性校验",
     "【用户动作】WB2 新 MLP 规格 SemanticRouter 权重推送后，解冻 wb2_router 适配器并按新接口重写（旧 RelationModelV2 接口已封存）",
+    "【⚠ 阻塞·GAP-DS26-01】WB2 新权重 semantic_router.pt 已到达且架构合规（Linear(1024,256)→ReLU→Linear(256,64), 278,848 参数, loadtest 5/5 PASS），但 input_dim=1024 与 7B query 隐状态 3584 维不符（router_bench.json 已实测 7B q_dim=3584）→ 该权重仍无法直接驱动 7B per-query 路由。另 GAP-DS26-02：训练数据为代理件（合成 hidden + 离线 K-means 标签，非真实 GSC 真值），自报 Top-1=78.9% 不代表真实路由质量。需 WB2 按 input_dim=3584 重训 re-push，或 DS 明确投影方案。WB1 维持封存，H-DS10 仍以 Step 5 固定路由突击为唯一活跃路径",
     "【用户动作】DS-024 明文 PAT 已用后请立即吊销重置（AllFlux/repo scope，5000/h）；该 token 全程仅经环境变量，仓库零落盘（含片段）",
     "DS-026 collaboration_audit：GREEN。DS 接受 WB1 此前对跨物理沙盒物流的主观臆断批评，并正式修正",
     "H-DS30 本机判定：git 通道 + ≤10s + SHA 自洽三要素齐备；Kaggle 实机复跑（网络墙分支）仍待用户执行 Step 5 一并联跑",
@@ -131,6 +132,10 @@
     {
       "label": "固定路由突击存证 kaggle_7b_fixed_route.json（本地 0.5B 代理；7B 权威待 Kaggle Step5）",
       "path": "results/kaggle_7b_fixed_route.json"
+    },
+    {
+      "label": "WB2 新 MLP 权重契约复核（架构合规 / 7B 维度缺口 GAP-DS26-01）",
+      "path": "results/wb2_semantic_router_contract_check.json"
     }
   ]
 }

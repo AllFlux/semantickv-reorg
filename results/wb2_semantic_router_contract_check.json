@@ -1,0 +1,80 @@
+{
+  "config": {
+    "purpose": "H-DS24 归档后·WB2 新 MLP 权重(semantic_router.pt, H-DS33)到达后的 WB1侧契约复核",
+    "review_ref": "DS-20261019-026-WB1 (WB1 归档后更新)",
+    "device": "cpu",
+    "weights_sha_note": "semantic_router.pt 由 WB2 经 GitHub REST 备选通道 rest-upload 推送；本轮 git fetch/rebase 已接入，远端 commit 87f759c",
+    "method": "① torch.load 结构与元数据解剖；② 跑 WB2 自带 semantic_router_loadtest.py；③ 与本仓库 router_bench.json 实测的 7B 维度契约逐项比对"
+  },
+  "environment": {
+    "kind": "local-sandbox-cpu-proxy-0.5B",
+    "note": "本机沙盒无 GPU/无 7B 权重（且HF 网络不可达）；此处仅做权重元数据与维度契约的静态复核 + WB2 自带 CPU 空壳冒烟。绝不代表 7B 实机路由精度或 Argmax 结论。"
+  },
+  "new_weight_anatomy": {
+    "path": "src/shared/semantic_router.pt",
+    "bytes": 1118893,
+    "top_level_keys": [
+      "state_dict",
+      "arch",
+      "num_groups",
+      "input_dim",
+      "n_params",
+      "data_provenance"
+    ],
+    "state_dict_shapes": {
+      "net.0.weight": [256, 1024],
+      "net.0.bias": [256],
+      "net.2.weight": [64, 256],
+      "net.2.bias": [64]
+    },
+    "arch": {
+      "in_dim": 1024,
+      "hidden": 256,
+      "out": 64,
+      "activation": "ReLU",
+      "loss": "CrossEntropy",
+      "framework": "pure_torch_mlp",
+      "rebuild": "nn.Sequential(nn.Linear(in_dim,hidden), nn.ReLU(), nn.Linear(hidden,out))"
+    },
+    "num_groups": 64,
+    "input_dim": 1024,
+    "n_params": 278848,
+    "spec_compliance": "CONFIRMED — 架构严格等于 DS-20261018-011 规格 Linear(q_dim)→ReLU→Linear(num_groups)，q_dim/hidden/num_groups=1024/256/64"
+  },
+  "wb2_selftest": {
+    "command": "python3 src/shared/semantic_router_loadtest.py",
+    "verdict": "5/5 PASS",
+    "checks": {
+      "torch_load_cpu": "PASS (0.002s)",
+      "state_dict_strict": "PASS (0 missing / 0 unexpected)",
+      "forward_shape": "PASS (4,1024)→(4,64) 且有限",
+      "latency_batch1": "PASS 0.0340ms < 1ms 否证线",
+      "proxy_data_declaration": "PASS (proxy_data=True 已如实声明)"
+    },
+    "independent_corroboration": "WB1 独立 torch.load 解剖与 WB2 自带冒烟结论一致（非仅引用其自述）"
+  },
+  "contract_gap_found": {
+    "id": "GAP-DS26-01",
+    "severity": "blocking-for-7B",
+    "title": "input_dim=1024 与 7B query 隐状态 3584 维不符 —— 新权重仍无法直接驱动 7B per-query 路由",
+    "detail": "semantic_router.pt 的 net.0.weight 形状为 [256,1024]，即严格锁定输入为 1024 维。而本项目 7B 目标模型 Qwen2.5-7B-Instruct 的 query 隐状态维度为 3584（router_bench.json 已实测该模型 config：config_name='qwen2.5-7b(hidden=3584)', q_dim=3584 → 参数量 934,208）。1024≠3584，权重无法加载进 7B 维度的 Router；强行喂入会触发既有 Train-Serve Skew 维度守卫（router_bench.json T5_dim_guard：输入999≠训练1024 已能正确诊断）。",
+    "evidence": [
+      "results/router_bench.json rows[1]: config_name='qwen2.5-7b(hidden=3584)', q_dim=3584, params=934208",
+      "src/shared/semantic_router.pt: net.0.weight=[256,1024], input_dim=1024, n_params=278848",
+      "results/hypothesis_ledger.yaml H-DS17 fate_note:『7B 传 q_dim=3584』"
+    ],
+    "secondary_gap": {
+      "id": "GAP-DS26-02",
+      "title": "训练数据为代理件，非真实 GSC 真值",
+      "detail": "WB2 在 data_provenance 中明示 proxy_data=true；hidden_state_source='synthetic dim=1024 (64 orthogonal centroids + gaussian noise)'、label_source='offline K-means (64 clusters)'、real_hidden_state_available=false、real_gsc_available=false。故其自报 Top-1=78.9% 反映的是『拟合合成 K-means 标签』的质量，不代表真实语义路由质量，不能与 WB1 真实 GSC 真值做 Top-1 对比。"
+    },
+    "resolution_paths": [
+      "A) WB2 按 input_dim=3584 重训并 re-push（与 DS-026『按严格 MLP 规格重训』指令一致，最干净）",
+      "B) DS 明确投影方案（如固定随机投影 3584→1024 或 PCA），但需 DS 认可其不损失语义判别力"
+    ],
+    "wb1_position": "维持封存：不因『架构终于对了』就解冻 wb2_router，也不动用新权重驱动 H-DS10。H-DS24 维持 refuted；H-DS10 维持 pending，且继续以Step 5 固定路由突击为当前唯一活跃路径。"
+  },
+  "verdict": "ARCH_CONFIRMED / 7B_ROUTING_STILL_BLOCKED",
+  "note": "诚实边界：本次仅在 CPU 上做静态元数据复核+ WB2 自带空壳冒烟，未在 7B 实机消费该权重（沙盒无 GPU/无 7B 权重、HF 网络不可达）。不宣称该权重在 7B 上可用或 Argmax 表现。",
+  "data_source": "results/wb2_semantic_router_contract_check.json"
+}
