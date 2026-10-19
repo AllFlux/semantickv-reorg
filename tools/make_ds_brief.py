@@ -158,6 +158,55 @@ def _discipline_round(round_id: str) -> dict | None:
 
 SECRET_RE = re.compile(r"ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{30,}")
 
+# 「要求 DS 点开」的链接特征（配置值如 hf-mirror 端点不算）
+LINK_RE = re.compile(
+    r"https?://(?:raw\.githubusercontent\.com|github\.com|gitee\.com|"
+    r"chat\.deepseek\.com|huggingface\.co/[^/\s]+/[^/\s]+/(?:blob|raw))",
+    re.I)
+
+
+def self_check(text: str) -> tuple[bool, list[tuple[str, str, str]]]:
+    """返回 (是否通过, [(检查项, 结果, 说明)…])。"""
+    rows: list[tuple[str, str, str]] = []
+
+    def add(name, ok, detail):
+        rows.append((name, "PASS" if ok else "WARN", detail))
+
+    n_fm = 1 if text.startswith("---") else 0
+    add("YAML frontmatter", n_fm == 1, "存在" if n_fm else "缺失")
+
+    body = text
+    m = re.match(r"^---\s*\n.*?\n---\s*\n?(.*)$", text, re.DOTALL)
+    if m:
+        body = m.group(1)
+    add("正文字数", len(body) >= 800, f"{len(body)} 字符")
+
+    n_json = len(re.findall(r"^```json", text, re.M))
+    add("明文内联数据块", n_json > 0, f"{n_json} 块（含报告正文内的）")
+
+    # 环境标签只对「二、核心数据明文内联」这一节强制要求
+    sec = re.search(r"## 二、核心数据明文内联.*?(?=\n## |\Z)", text, re.DOTALL)
+    if sec:
+        sec_text = sec.group(0)
+        n_sec_json = len(re.findall(r"^```json", sec_text, re.M))
+        n_env = len(re.findall(r"\*\*环境标签\*\*", sec_text))
+        add("环境标签(D3)", n_env >= n_sec_json,
+            f"{n_env}/{n_sec_json} 个数据块已标注")
+    else:
+        add("环境标签(D3)", True, "无内联数据节，跳过")
+
+    has_anom = "反直觉与异常观测" in text
+    add("反直觉与异常观测(D3-b)", has_anom, "存在" if has_anom else "缺失")
+
+    links = LINK_RE.findall(text)
+    add("仓库/分享链接(D2-b)", not links, f"检出 {len(links)} 个" if links else "0 个")
+
+    secrets = SECRET_RE.findall(text)
+    add("密钥泄露", not secrets, f"检出 {len(secrets)} 个" if secrets else "0 个")
+
+    ok = all(r[1] == "PASS" for r in rows)
+    return ok, rows
+
 
 # ----------------------------------------------------------------------
 # --auto：按本轮 git 变更自动挑选
@@ -413,11 +462,23 @@ def main() -> int:
         ap.error("至少给 --report / --json / --auto 之一")
 
     out = build(args)
-    n = len(out.read_text(encoding="utf-8"))
-    print(f"[OK] 投喂包已生成：{out}")
-    print(f"     体积 {n} 字符 / {n/1024:.1f} KB —— 整段全选复制，直接粘给 DS 即可")
-    print("     提示：DS 无浏览器，请勿改发链接。")
-    return 0
+    text = out.read_text(encoding="utf-8")
+    n = len(text)
+
+    ok, rows = self_check(text)
+    print(f"\n[OK] 投喂包已生成：{out}")
+    print(f"     体积 {n} 字符 / {n/1024:.1f} KB")
+    print("\n----- 发送前自检 -----")
+    for name, status, detail in rows:
+        icon = "✔" if status == "PASS" else "△"
+        print(f" [{icon}] {name}: {status}  {detail}")
+    print(" ---------------------")
+    if ok:
+        print(" ⟹ 全部合规。整段全选复制，直接粘给 DS 即可。")
+    else:
+        print(" ⟹ 有 WARN 项，请先处理再发送（DS 读不到链接，缺失项会被静默忽略）。")
+    print(" 提示：DS 无浏览器，请勿改发链接或路径。")
+    return 0 if ok else 2
 
 
 if __name__ == "__main__":
