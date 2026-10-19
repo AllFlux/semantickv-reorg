@@ -275,13 +275,41 @@ def main() -> int:
         "kaggle-7b" if (args.load_in_4bit or
                         (torch.cuda.is_available() and "7B" in args.model))
         else f"local-sandbox-cpu-proxy-{ '7B' if '7B' in args.model else '0.5B'}")
+
+    # ── 环境口径守卫（DS-20261019-029-WB1 验收标准）────────────────────────
+    # 权威文件必须标 kaggle-7b，且不得把代理结果冒称为 kaggle-7b。
+    # 三条硬条件任一不满足 → 拒绝以 kaggle-7b 落盘（宁可报错，不出假数据）。
+    claims = []
+    if "7B" in args.model:
+        claims.append(("model_is_7b", True))
+    else:
+        claims.append(("model_is_7b", False))
+    claims.append(("load_in_4bit", bool(args.load_in_4bit)))
+    claims.append(("ctx_ge_4096", args.ctx >= 4096))
+    claims.append(("device_uses_cuda", (args.device == "cuda") or torch.cuda.is_available()))
+    failed = [n for n, ok in claims if not ok]
+
+    if env_kind == "kaggle-7b" and failed:
+        raise SystemExit(
+            f"[FATAL] 环境标签不一致：声明 kaggle-7b，但以下条件不满足 {failed}。\n"
+            f"        model={args.model} ctx={args.ctx} device={args.device} "
+            f"4bit={args.load_in_4bit}\n"
+            f"        拒绝落盘，避免把代理结果误标为 7B 权威结论（DS-029 验收标准）。\n"
+            f"        若只是本地冒烟，请去掉 --environment kaggle-7b。")
+
+    env_note = ("7B 实机权威结果（kaggle-7b）。" if env_kind == "kaggle-7b"
+                else "0.5B/小模型 CPU 代理仅校验管线；权威 7B 数字需 Kaggle 实机"
+                     "（--environment kaggle-7b）。")
+
     report = {
         "config": vars(args),
         "environment": {
             "kind": env_kind,
             "model": args.model, "device": args.device,
             "load_in_4bit": args.load_in_4bit,
-            "note": "0.5B CPU 代理仅校验管线；权威 7B 数字需 Kaggle 实机（--environment kaggle-7b）。",
+            "ctx": args.ctx,
+            "claims_checked": {n: bool(ok) for n, ok in claims},
+            "note": env_note,
         },
         "gate": {"baseline_hit_rate": round(base_rate, 4), "gate_pass": gate_pass,
                  "baseline_positions": baseline["positions"],

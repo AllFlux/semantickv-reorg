@@ -15,7 +15,9 @@
 #   fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，
 #   沙盒无 GPU 仅出 0.5B CPU 代理校验，权威 7B 存证 kaggle_7b_fixed_route.json 待 Kaggle Run All。
 # H-DS15/H-DS17（空壳/延迟）仍待 Kaggle 实机。H-DS30：本机 git 通道 PASS-GIT-OVER-10S。
-# 当前状态（2026-10-19 R16/R17 · DS-20261019-026/027-WB1 intake）：H-DS24 已由DS-026
+# 当前状态（2026-10-19 R19 · DS-20261019-029-WB1 intake）：DS 批准 0.5B MAINTAIN，
+# 令跑 Kaggle 7B Step 5；H-DS35 登记（7B 有区分度 Argmax），H-DS24/10 维持原判。
+# 历史（R16/R17 · DS-026/027 intake）：H-DS24 已由DS-026
 # 正式裁定（RelationModelV2 不能当 per-query 路由）→ refuted（DS 承认）；H-DS10转
 # 「固定路由突击」（Step 5，等 Kaggle 7B 实机）。H-DS34 新登记（DS-027 纪律 v2.0）。
 # collaboration_audit（DS-026）：GREEN（拉取管线大获成功，DS 接受 WB1 对跨沙盒物流的批评）。
@@ -23,10 +25,10 @@
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律 (v2.0)"
-  total: 16
+  total: 17
   confirmed: 3
   refuted: 6
-  pending: 7
+  pending: 8
   open_items_for_ds:
     - id: OI-DS24-20261019
       raised_by: WB1
@@ -141,7 +143,7 @@ hypotheses:
     status: pending
     evidence_file: ""
     ds_admitted_refutation: false
-    fate_note: "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。【DS-026 转向·固定路由突击】DS 明确要求不等 WB2 新权重，直接用 GSC 离线质心/空壳固定路由跑通 7B 端到端。新 falsifiable（DS-026）：即便无最佳 Router，采用『均匀/固定群 + 混合保护(Sink+Win+TopK)』在 7B 上 Argmax 应突破 45%（比 0.5B 更鲁棒）；若固定路由下 7B Argmax 仍 <45%，则证明崩盘非路由差、而是重组在多段拼接时破坏了 RoPE 连续性（标记 ROPE_FRACTURE）。data_source 改为 kaggle_7b_fixed_route.json。WB1 已建成 fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，并据此口径判定 MAINTAIN(>45%)/ROPE_FRACTURE(<45%)；沙盒无 GPU 无法出权威 7B 数字，权威存证待 Kaggle Run All（0.5B CPU 代理已校验管线）。"
+    fate_note: "DS-20261018-007 批准、DS-20261019-018 复述并收紧证伪线。【DS-026 转向·固定路由突击】DS 明确要求不等 WB2 新权重，直接用 GSC 离线质心/空壳固定路由跑通 7B 端到端。新 falsifiable（DS-026）：即便无最佳 Router，采用『均匀/固定群 + 混合保护(Sink+Win+TopK)』在 7B 上 Argmax 应突破 45%（比 0.5B 更鲁棒）；若固定路由下 7B Argmax 仍 <45%，则证明崩盘非路由差、而是重组在多段拼接时破坏了 RoPE 连续性（标记 ROPE_FRACTURE）。data_source 改为 kaggle_7b_fixed_route.json。WB1 已建成 fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，并据此口径判定 MAINTAIN(>45%)/ROPE_FRACTURE(<45%)；沙盒无 GPU 无法出权威 7B 数字，权威存证待 Kaggle Run All（0.5B CPU 代理已校验管线）。｜【DS-20261019-029 批准】DS 正式认可 0.5B 代理下的 MAINTAIN 判定（3/3 全中，管线/RoPE/混合保护逻辑自洽），并指出 0.5B 数据已饱和（GSC 14 群与 qk 2 群结果无差别），唯一有价值动作是上 7B 实机。"
 
   - id: H-DS14
     source_review: DS-20261018-009-WB1
@@ -203,3 +205,13 @@ hypotheses:
     evidence_file: "results/ds_reviews/20261019_027_wb1_review.md"
     ds_admitted_refutation: false
     fate_note: "DS-20261019-027 登记（《Agora 联合协作纪律 v2.0》）。WB1 已完成机制落地：DISCIPLINE.md 升级 v2.0（新增 D6 双轨制/D2-b 禁纯链接/D3-b 反直觉专节；旧 D6 缓存固化顺延 D7）；检验器新增 check_d6() 机械校验四项（frontmatter 合法且头部无长文本 + 正文≥800字符 + 反直觉专节 + 代码块内联）。DS 对等侧已自行申报 DS-D1/D3/D4 修订（DS-D3 承诺『不假装已读取链接』）。判定依赖 DS 后续评审是否实际引用正文细节，需等 DS 下一轮输出才能评估，故 status=pending。"
+
+  - id: H-DS35
+    source_review: DS-20261019-029-WB1
+    statement: "7B 真实 8K 上下文下，固定路由 + 混合保护仍能给出有区分度的 Argmax（≥45%），且 needle 不再像 0.5B 那样 3/3 全中"
+    falsifiable_criterion: "若 7B Argmax <45% → 标记 ROPE_FRACTURE 并转查位置编码；若 7B Argmax 仍=1.000 且 needle 全中（无区分度）→ 判定 needle 任务过易，改用 KVFundaBench 推理密集型子集重测。"
+    data_source: "results/kaggle_7b_fixed_route.json"
+    status: pending
+    evidence_file: "results/ds_reviews/20261019_029_wb1_review.md"
+    ds_admitted_refutation: false
+    fate_note: "DS-20261019-029 登记。执行条件：Kaggle 7B-Instruct 4bit + ctx8192 跑 Step 5。WB1 已就绪：① fixed_route_assault.py 增加环境口径守卫（model_is_7b/load_in_4bit/ctx_ge_4096/device_uses_cuda 四条断言，任一不满足拒绝以 kaggle-7b 落盘，负向测试 exit=1 且未生成文件）；② 新建 export_real_features.py 导出 7B Prefill 真实隐状态(3584)+真实 GSC 标签，0.5B 冒烟通过（236×896，7 群，meta 显式标注不可交付）。判定需用户 Kaggle 实机产出权威数字，故 pending。"

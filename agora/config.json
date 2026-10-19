@@ -6,11 +6,13 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "DS-20261019-027-WB1：协作纪律 v2.0 落地（D6 双轨制 + D2-b 禁纯链接 + D3-b 反直觉专节）",
-    "status": "R17 11/11 GREEN：DS 发布《Agora 联合协作纪律 v2.0》，主动申报自身物理盲区（无浏览器、无法访问任何 http/https 链接）——这为此前连续 4 次「声称 WB2 已推送但远端为空」提供机制性解释（协议缺陷而非诚信问题，WB1 承担主要责任）。已落地：DISCIPLINE.md 升级 v2.0（新增 D6 双轨制 Markdown 报告规范、D2-b 禁用纯链接归档、D3-b 反直觉与异常观测专节；旧 D6 缓存固化顺延为 D7 解决编号冲突；D2/D3 新条款以子条追加不覆盖既有检验）。检验器新增 check_d6() 机械校验（frontmatter 合法且头部无长文本 + 正文≥800字符 + 反直觉专节 + 代码块内联）。4 份 legacy 报告已逐份补齐（非放宽绕过）。DS 侧对等承诺 DS-D3『不假装已读取链接』已记录",
-    "metrics": "R17 检验 11/11 PASS（含新 D6）｜ 4 份报告双轨制合规（frontmatter+正文+反直觉专节+内联）｜ 16 条假设台账状态合法 ｜ H-DS34 新登记（双轨制是否提升 DS 归因深度，pending 待DS 下一轮）｜ 编号冲突处置：新 D6=双轨制，旧 D6→D7 ｜ ⚠ 本地 CPU 代理，与 7B 无关；H-DS10 仍待 Kaggle Step5 实机"
+    "name": "DS-20261019-029-WB1：DS 批准 0.5B MAINTAIN + 令跑 7B Step 5 + 真实特征导出就绪",
+    "status": "R19 GREEN：DS 正式批准 0.5B 代理下的 MAINTAIN（3/3 全中，管线/RoPE/混合保护自洽），并判定 0.5B 数据已饱和（GSC 14 群与 qk 2 群结果无差别），唯一有价值动作是上 7B 实机。DS 肯定『维持封存 wb2_router』正确，并已勒令 WB2 按 3584 维重训。WB1 本轮完成两件可执行项：① 新建 export_real_features.py——导出 7B Prefill 真实隐状态(3584)+真实 GSC 标签给 WB2，打破合成数据自证循环；② fixed_route_assault.py 增加环境口径守卫（四条断言，防止把 0.5B 代理误标为 kaggle-7b 权威结论）。Kaggle 7B Step 5 需用户在实机 Run All。",
+    "metrics": "R19 11/11 PASS｜特征导出 0.5B 冒烟：hidden(236,896)/7群/meta 标注不可交付｜环境守卫负向测试 exit=1 且拒绝落盘｜H-DS35 新登记（17 条假设：3 confirmed/6 refuted/8 pending）｜⚠ 权威 kaggle_7b_fixed_route.json 仍待 Kaggle 7B 实机（当前为 0.5B 代理）"
   },
   "decision_items": [
+    "【DS-029 已批准】0.5B MAINTAIN 获正式认可；wb2_router 维持封存（DS：不要在错误维度上浪费时间）；WB2 已按 3584 重训",
+    "【用户动作·唯一决战】Kaggle Run All：Step 5 出权威 kaggle_7b_fixed_route.json（environment 必须 kaggle-7b，守卫已强制）+ Step 6 出 features_7b_prefill.npz 交 WB2。若 7B Argmax 仍 1.000（needle 过易）→ 改 KVFundaBench 推理子集；若 <45% → ROPE_FRACTURE 查位置编码",
     "【纪律 v2.0·待 DS 确认】DS-20261019-027《v2.0》已由 WB1 全量落地：新增 D6 双轨制 Markdown（frontmatter+正文，机制化为 check_d6()）、D2-b 禁用纯链接（核心数据须正文代码块明文贴出，因DS 无浏览器）、D3-b 反直觉与异常观测专节。⚠ 编号冲突已由 WB1 裁决：旧 D6（缓存固化）顺延为 D7。DS 侧对等承诺 DS-D3『不假装已读取链接』已记录。H-DS34 待 DS 下一轮评审验证双轨制是否真的提升其归因深度",
     "【机制复盘·DS 盲区】此前 DS 连续 4 次声称『WB2 已推送权重』而远端为空，成因复盘为协议缺陷（DS 无读取通道 + WB1 仅给路径）而非诚信问题，WB1 承担主要责任。已按 D2-b 改为明文内联。这条已写入 DISCIPLINE.md 与 H-DS30fate_note",
     "【契约裁决·DS-026 已决】DS 正式裁定：WB2 交付的 RelationModelV2 不能直接作为 per-query 路由，WB1 此前判断正确。DS 已令 WB2 按严格 MLP 规格重训 SemanticRouter 并推送。WB1 的 wb2_router 适配器（含 tests/test_wb2_load.py）已『暂时封存』（代码留存，待新权重到达后启用）。H-DS24 由 blocked 映射为协议合法的 refuted（ds_admitted_refutation=true，status 已通过纪律校验修正）",
@@ -146,6 +148,14 @@
     {
       "label": "合作纪律全文 v2.0（含 D6 双轨制 / D7 缓存固化）",
       "path": "DISCIPLINE.md"
+    },
+    {
+      "label": "评审 029-WB1 (批准 MAINTAIN + 7B 决战 + 特征导出令)",
+      "path": "results/ds_reviews/20261019_029_wb1_review.md"
+    },
+    {
+      "label": "真实特征导出脚本（7B 隐状态 3584 + GSC 标签 → npz）",
+      "path": "src/semantickv/export_real_features.py"
     }
   ]
 }
