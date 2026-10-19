@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""semantic_router_loadtest.py —— semantic_router.pt 纯 CPU 空壳加载证明（DS-20261019-028-WB2 · GAP-DS26-01）。
+"""semantic_router_loadtest.py —— semantic_router.pt 纯 CPU 空壳加载证明（DS-20261019-041-WB2 · 目标模型 Qwen2.5-3B / 2048 维）。
 
 验收标准（DS 原文）：在 src/shared/ 中出现 .pt 文件，且提供 load_test 证明纯 CPU 环境可加载；
 falsifiable_criterion：推理延迟 > 1ms 或 Top-1 < GSC 纯数学聚类准确率 ⟹ 废弃 Router。
@@ -11,7 +11,7 @@ falsifiable_criterion：推理延迟 > 1ms 或 Top-1 < GSC 纯数学聚类准确
 
 五项检查：torch.load / state_dict strict / 前向契约 / CPU 延迟 / 数据代理元数据声明。
 
-⚠️ 数据真实性：本 .pt 是【代理训练件】（合成 dim=3584 向量 + 离线 K-means 64 群标签，
+⚠️ 数据真实性：本 .pt 是【代理训练件】（合成 dim=2048 向量 + 离线 K-means 64 群标签，
 非真实 LLM 隐状态 / 真实 WB1-GSC）。本脚本验证的是【结构/接口合规】（可加载、可前向、
 延迟合规），不代表真实语义路由质量；与真实 GSC 的 Top-1 对比待 WB1 真实环境验证。
 
@@ -31,6 +31,7 @@ torch.set_num_threads(1)  # REP-1
 HERE = Path(__file__).parent
 DEFAULT_PT = HERE / "semantic_router.pt"
 DS_LATENCY_FAIL_MS = 1.0      # DS falsifiable_criterion：>1ms ⟹ 接口协议失败
+EXPECT_DIM = 2048             # DS-041：目标模型 Qwen2.5-3B-Instruct 的 hidden_size
 
 
 # ─────────────────── 内联架构重建（与 train_semantic_router.py 的 SemanticRouter 对应） ───────────────────
@@ -108,9 +109,12 @@ def main():
         if model is not None:
             w0 = model.net[0].weight
             want = [payload["arch"]["hidden"], payload["arch"]["in_dim"]]
-            checks.append((f"GAP-DS26-01：net.0.weight 形状 = {list(w0.shape)}（期望 {want}）",
-                           list(w0.shape) == want,
-                           f"dtype={w0.dtype}；若为 [256,1024] 说明仍是旧模型（投影/旧维度）"))
+            ok_shape = list(w0.shape) == want
+            ok_dim = want[1] == EXPECT_DIM
+            checks.append((f"DS-041：net.0.weight 形状 = {list(w0.shape)}（期望 {want}），"
+                           f"输入维 = {want[1]}（目标 {EXPECT_DIM}）",
+                           ok_shape and ok_dim,
+                           f"dtype={w0.dtype}；维度不符说明模型仍是旧目标（3584=7B / 1024=旧版）"))
 
         # ── 检查 3：前向契约（B, in_dim）→（B, out）──
         if model is not None:
