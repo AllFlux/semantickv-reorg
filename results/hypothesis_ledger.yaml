@@ -6,21 +6,29 @@
 #   - refuted 且 ds_admitted_refutation=false → 列为「待 DS 承认」开放项（DS-D4 WARN）
 #   - DS 在后续评审显式承认被数据推翻的假设后，将 ds_admitted_refutation 置 true
 #
-# 当前状态（2026-10-19 R11 · DS-20261019-018-WB1 intake）：H-DS14 已封卷（DS 两次确认）。
-# 唯一战场 = Kaggle 7B 实机。H-DS10 pending（DS-018 口径：裸基线 <2/3 换 Llama-3-8B；
-# 裸基线过但混合 <45% 废弃混合保护）。H-DS15 pending。H-DS17 pending（硬件无关项 CPU
-# 已终判，GPU 延迟待 Kaggle）。H-DS24 pending（DS-018 新登记：WB2 router_weights.pt
-# 接口验收——DS 称已交付，但 WB1 仓库 src/shared/ 实际未到达，物理阻塞中；代码侧
-# 符号翻转/Skew 防护/加载诊断已就绪）。DS-018 collaboration_audit：GREEN
-# （auto_sync.py 获好评）。更早：H-DS7/H-DS8 已于 DS-20261018-007 承认，H-DS9 confirmed。
+# 当前状态（2026-10-19 R12 · DS-20261019-021-WB1 intake）：H-DS14 已封卷。唯一战场 =
+# Kaggle 7B 实机。H-DS10 pending（DS-018 口径）。H-DS15/H-DS17 pending。H-DS24 pending
+# （WB2 权重接口验收，模拟测试 7/7 已过，真实权重待到达）。H-DS30 pending（DS-021 新登记：
+# Git 拉取管线——auto_pull_shared.py 已建成并本地实测通过，Kaggle 实机复跑待用户）。
+# DS-021 collaboration_audit：YELLOW（基建缺失）——根因 = 跨沙盒物流断裂，管线已建，
+# 解药 = WB2 推送 + Kaggle 复跑。DS-018 audit GREEN。更早：H-DS7/H-DS8 已于
+# DS-20261018-007 承认，H-DS9 confirmed。
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
-  total: 14
+  total: 15
   confirmed: 3
   refuted: 6
-  pending: 5
-  open_items_for_ds: []   # H-DS14 已承认；DS-018 的 WB2 交付未达属跨项目物流阻塞，见 H-DS24
+  pending: 6
+  open_items_for_ds: []   # H-DS14 已承认；DS-021 YELLOW 属基建/物流状态，见 H-DS30
+
+meta:
+  protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
+  total: 15
+  confirmed: 3
+  refuted: 6
+  pending: 6
+  open_items_for_ds: []   # H-DS14 已承认；DS-021 YELLOW 属基建/物流状态，见 H-DS30
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
@@ -170,3 +178,13 @@ hypotheses:
     evidence_file: "results/router_bench.json"
     ds_admitted_refutation: false
     fate_note: "DS-20261019-018 登记。DS 侧称 WB2 已交付 router_weights.pt + load_test.py 于 src/shared/，但 WB1 仓库实际未收到（git 无对应提交、src/shared/ 不存在）——跨项目物流阻塞，需用户/WB2 落位文件。代码侧已就绪：① load_external_router 增加 score_sign（默认 -1，执行 DS『对返回值取负』指令，依据 = WB2 模型 Pearson r=-0.80，待 README 复核）；② Train-Serve Skew 防护（feature_dim 维度核验 + train_tau≠推理温度告警，DS 警告 τ=200 训练 vs τ=1 推理会致路由准确率归零）；③ 结构不符时输出 missing/unexpected keys 诊断。同构模拟 blob 接口测试已过（tests/test_router_load.py）；真实权重验收待文件到达。"
+
+  - id: H-DS30
+    source_review: DS-20261019-021-WB1
+    statement: "通过配置 GitHub PAT，Kaggle 环境能成功执行 git clone/pull，并在 10 秒内完成从远端仓库提取 WB2 交付物的流程"
+    falsifiable_criterion: "若因 Kaggle 网络墙导致 git 拉取超时，或文件 SHA256 校验不一致，则判定直接 Git 方案失败，需退回 GitHub Raw 文件的 wget 下载方案"
+    data_source: "results/logistics_pull_test.json"
+    status: pending
+    evidence_file: "results/logistics_pull_test.json"
+    ds_admitted_refutation: false
+    fate_note: "DS-20261019-021 登记（基建令，collaboration_audit YELLOW 的应对）。auto_pull_shared.py 已建成：PAT 优先/匿名兜底 git clone --depth 1 → 复制 src/shared/ → SHA256 + 最后修改 commit 双比对 → 计时；git 失败自动降级 Raw wget（H-DS30 falsifiable 的预置退路）；PAT 全链路脱敏；--verify-torch-load 对 .pt 做加载冒烟。本地实测：管线 PASS（耗时/SHA/commit 自洽），但 src/shared/ 现仅 README.md——WB2 交付物仍未到位。Kaggle 实机复跑（10s 判据 + 网络墙分支）待用户执行。"

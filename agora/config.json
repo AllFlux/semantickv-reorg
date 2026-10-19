@@ -6,16 +6,16 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "WB2 Router 接口合流备战（DS-20261019-018-WB1 执行完毕）",
-    "status": "R11 GREEN（10/10）；WB2 交付物物理阻塞（src/shared/ 未到达）；Kaggle 7B 待上机",
-    "metrics": "H-DS24 模拟 blob 接口验收: 7/7 PASS（加载/结构诊断/符号翻转/维度防护/温度告警/延迟）｜ 加载路径 N1 延迟 p50=0.13ms ｜ 上机规格: 7B NF4 4-bit + FP16 KV + 8K ctx ｜ E1.5: Argmax=26.05% (<45%)"
+    "name": "Git 拉取管线建成（DS-20261019-021-WB1 执行完毕）",
+    "status": "R12 GREEN（10/10）；H-DS30 管线本地实测通过；Kaggle 复跑 + WB2 推送待用户",
+    "metrics": "auto_pull_shared: 本地实测 PASS-RAW-DEGRADED（git 通道被沙盒网络限制，raw 降级成功拉取 README.md）｜ H-DS24 模拟接口验收: 7/7 PASS ｜ 上机规格: 7B NF4 4-bit + FP16 KV + 8K ctx ｜ E1.5: Argmax=26.05% (<45%)"
   },
   "decision_items": [
-    "【阻塞·需用户动作】DS-018 称 WB2 已交付 router_weights.pt + load_test.py 于 src/shared/，但 WB1 仓库实际未收到（git 无提交、目录为空）——请将文件放入 src/shared/ 或 /kaggle/working/ 后复跑 tests/test_router_load.py 完成 H-DS24 终判",
-    "负相关修正已落地（DS-018 advice②）：load_external_router 默认 score_sign=-1（WB2 模型 Pearson r=-0.80，取负后 argmax）；blob 内 score_sign 字段优先，两种修正方式不可叠加",
-    "Train-Serve Skew 防护已落地（DS-018 advice①）：route 时校验输入维度≠训练维度即报错；train_tau(200)≠推理温度时 RuntimeWarning；与 WB2 的维度/温度约定请求见 src/shared/README.md §3",
-    "Kaggle 7B 冲关两关（DS-018）：① 7B 4bit/8K 裸基线 needle ≥2/3（不过换 Llama-3-8B）→ ② 挂 sink_protect+router_weights.pt 混合保护 Argmax ≥50%（<45% 则废弃混合保护）",
-    "DS-018 collaboration_audit：GREEN（auto_sync.py 获好评）"
+    "【用户动作①】DS-021 基建已完成：auto_pull_shared.py（PAT/匿名 git clone → 复制 src/shared/ → SHA256+commit 双比对 → 计时；git 失败自动降级 Raw wget；PAT 脱敏）+ notebook Step 2.5 挂载 + README 用法。Kaggle 复跑（配 GITHUB_PAT Secret）即完成 H-DS30 终判（10s 判据）",
+    "【用户动作②】WB2 交付物仍未推送到 src/shared/（router_weights.pt / load_test.py 远端不存在，管线实测如实记录）——请推动 WB2 推送，或手动放入仓库 src/shared/ 后 push",
+    "【用户动作③】Kaggle 7B 实机 Run All（Step1 门禁 ≥2/3 → Step6 Router 空壳 bench → Step7 权重合流），回传 JSON 做 H-DS10/H-DS15/H-DS17 终裁",
+    "DS-021 collaboration_audit：YELLOW（基建缺失）——管线已建成，审计状态转绿待 Kaggle 复跑 + WB2 推送两个外部输入",
+    "H-DS24 负相关修正已落地（score_sign=-1）；Train-Serve Skew 防护已落地（维度核验 + 温度告警）；模拟接口验收 7/7 PASS"
   ],
   "files": [
     { "label": "假设台账 hypothesis_ledger.yaml", "path": "results/hypothesis_ledger.yaml" },
@@ -31,6 +31,8 @@
     { "label": "评审 011-WB1 (Router架构+7B挺进)", "path": "results/ds_reviews/20261018_011_wb1_review.md" },
     { "label": "评审 016-WB1 (GQA定案+Kaggle上机+WB2验收)", "path": "results/ds_reviews/20261019_016_wb1_review.md" },
     { "label": "评审 018-WB1 (7B冲关+Router挂载+Skew警告)", "path": "results/ds_reviews/20261019_018_wb1_review.md" },
+    { "label": "评审 021-WB1 (Git拉取管线基建)", "path": "results/ds_reviews/20261019_021_wb1_review.md" },
+    { "label": "拉取管线实测 logistics_pull_test.json (H-DS30)", "path": "results/logistics_pull_test.json" },
     { "label": "Router 基准 router_bench.json (H-DS17)", "path": "results/router_bench.json" },
     { "label": "GQA 对齐验证 gqa_alignment_check.json", "path": "results/gqa_alignment_check.json" },
     { "label": "E1.5 主实验 real_model_v15_hybrid_protection.json", "path": "results/real_model_v15_hybrid_protection.json" },

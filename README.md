@@ -115,7 +115,31 @@ python3 eval_runner.py --card experiments/E1_semantic_grouping.yaml
    16 线程 152 > 32 线程 98（超订阅反噬）。
 4. **绝对不要 materialize N×N 距离矩阵**：500k 时是 1TB；分块后峰值 ~3GB。
 
-## 5. 结果索引
+## 5. WB2 共享交付物拉取（DS-20261019-021 基建）
+
+WB2 的训练产物（`router_weights.pt` / `load_test.py` 等）以本仓库的
+`src/shared/` 为数据总线。`auto_pull_shared.py` 负责在 Kaggle Notebook
+启动时自动拉取，取代"等本地同步"。
+
+```bash
+# Kaggle: Add-ons → Secrets 添加 GITHUB_PAT（DS 稍后配置），然后：
+python3 auto_pull_shared.py                      # PAT 优先，无 PAT 时公共仓库匿名拉取
+python3 auto_pull_shared.py --verify-torch-load  # 额外对 .pt 做 torch.load 冒烟
+```
+
+- 主路径：`git clone --depth 1 https://{PAT}@github.com/AllFlux/semantickv-reorg.git`
+  → 复制 `src/shared/` → 计算 SHA256 并与最后修改 commit 双比对 → 计时
+  （H-DS30 判据 ≤10s）。
+- 降级路径（H-DS30 falsifiable 预置退路）：git 失败/超时 → GitHub Raw
+  直链逐文件下载。
+- PAT 全链路脱敏（日志/报错/存证均不泄露）。
+- 存证：`results/logistics_pull_test.json`（方法、耗时、每文件 SHA256 与
+  commit、`key_files_present` 反映 WB2 交付物是否已推送）。
+- notebook 已挂载：`run_on_kaggle.ipynb` Step 2.5 cell 自动执行本脚本并
+  确认关键文件可见。
+- blob 字段规范与 Train-Serve Skew 约定请求见 `src/shared/README.md`。
+
+## 6. 结果索引
 
 | 文件 | 内容 |
 |---|---|
