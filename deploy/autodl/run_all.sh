@@ -179,6 +179,6 @@ echo
 if [ "$FAILED" -ne 0 ]; then
   echo "⚠ 有步骤失败（见上方）。不要回传不完整的结果。"
 else
-  echo "✔ 两步均成功。"
+  echo "✔ 已执行的步骤均成功。"
 fi
 exit "$FAILED"

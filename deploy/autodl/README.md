@@ -134,3 +134,43 @@ SMOKE=1 bash run_all.sh      # 0.5B / CPU / 无 4bit / 代理标签，产物不�
 ```
 
 `SMOKE=1` 会把 env 标成 `local-sandbox-cpu-proxy-0.5B`，**不会**冒充 7B 权威结果。
+
+
+---
+
+## 八、手机端一行跑（推荐）
+
+长命令在手机浏览器里粘贴容易卡死。改用入口脚本，**只需粘一行**：
+
+```bash
+curl -sL https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash
+```
+
+### 后台跑（关掉手机也不中断）
+
+```bash
+curl -sL https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --bg
+```
+
+回车后立刻返回 PID。之后随时：
+
+```bash
+tail -f /mnt/workspace/deploy_autodl/run.log      # 看进度
+grep -E "^✔|^⚠" /mnt/workspace/deploy_autodl/run.log   # 看结论
+```
+
+### 先只拿特征（最快，DS 认定的唯一破局点）
+
+```bash
+curl -sL https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --bg --features-first
+```
+
+### 可选：跑完自动回传 GitHub
+
+```bash
+export GITHUB_TOKEN=<有 repo 权限的 PAT>
+curl -sL https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --features-first --upload
+```
+
+会新建分支 `results/<host>-<时间戳>` 并推两个产物。**不做 force push**。
+若无 token，就手动从 JupyterLab 下载 `results/` 下的文件。
