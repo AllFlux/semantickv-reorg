@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""semantic_router_loadtest.py —— semantic_router.pt 纯 CPU 空壳加载证明（DS-20261019-025-WB2 · H-DS33）。
+"""semantic_router_loadtest.py —— semantic_router.pt 纯 CPU 空壳加载证明（DS-20261019-028-WB2 · GAP-DS26-01）。
 
 验收标准（DS 原文）：在 src/shared/ 中出现 .pt 文件，且提供 load_test 证明纯 CPU 环境可加载；
 falsifiable_criterion：推理延迟 > 1ms 或 Top-1 < GSC 纯数学聚类准确率 ⟹ 废弃 Router。
@@ -11,7 +11,7 @@ falsifiable_criterion：推理延迟 > 1ms 或 Top-1 < GSC 纯数学聚类准确
 
 五项检查：torch.load / state_dict strict / 前向契约 / CPU 延迟 / 数据代理元数据声明。
 
-⚠️ 数据真实性：本 .pt 是【代理训练件】（合成 dim=1024 向量 + 离线 K-means 64 群标签，
+⚠️ 数据真实性：本 .pt 是【代理训练件】（合成 dim=3584 向量 + 离线 K-means 64 群标签，
 非真实 LLM 隐状态 / 真实 WB1-GSC）。本脚本验证的是【结构/接口合规】（可加载、可前向、
 延迟合规），不代表真实语义路由质量；与真实 GSC 的 Top-1 对比待 WB1 真实环境验证。
 
@@ -92,13 +92,25 @@ def main():
         # ── 检查 2：state_dict strict ──
         try:
             model = SemanticRouterShell(payload["arch"])
-            missing, unexpected = model.load_state_dict(payload["state_dict"], strict=True)
+            sd = payload["state_dict"]
+            dt = {str(v.dtype) for v in sd.values()}
+            if dt != {"torch.float32"}:          # fp16 存储 → fp32 推理（体积减半，精度由量化损失实测）
+                sd = {k: v.float() for k, v in sd.items()}
+            missing, unexpected = model.load_state_dict(sd, strict=True)
             n_params = sum(p.numel() for p in model.parameters())
             checks.append(("state_dict strict 加载（0 missing / 0 unexpected）", True,
                            f"missing={list(missing)} unexpected={list(unexpected)}；"
                            f"参数量 {n_params}；arch={json.dumps(payload['arch'], ensure_ascii=False)}"))
         except Exception as e:  # noqa: BLE001
             checks.append(("state_dict strict 加载", False, repr(e)))
+
+        # ── 检查 2b：DS-028 形状断言（net.0.weight 必须 [hidden, in_dim]）──
+        if model is not None:
+            w0 = model.net[0].weight
+            want = [payload["arch"]["hidden"], payload["arch"]["in_dim"]]
+            checks.append((f"GAP-DS26-01：net.0.weight 形状 = {list(w0.shape)}（期望 {want}）",
+                           list(w0.shape) == want,
+                           f"dtype={w0.dtype}；若为 [256,1024] 说明仍是旧模型（投影/旧维度）"))
 
         # ── 检查 3：前向契约（B, in_dim）→（B, out）──
         if model is not None:
@@ -126,8 +138,10 @@ def main():
 
         # ── 检查 5：数据代理元数据声明（诚信项）──
         dp = payload.get("data_provenance", {})
-        checks.append(("数据代理声明（proxy_data 元数据存在且 True）", bool(dp.get("proxy_data") is True),
-                       f"proxy_data={dp.get('proxy_data')}；hidden_state_source={dp.get('hidden_state_source')}；"
+        checks.append(("数据代理声明（proxy_data / proxy_mode 均为 True）",
+                       bool(dp.get("proxy_data") is True and dp.get("proxy_mode") is True),
+                       f"proxy_data={dp.get('proxy_data')}；proxy_mode={dp.get('proxy_mode')}；"
+                       f"hidden_state_source={dp.get('hidden_state_source')}；"
                        f"real_hidden_state_available={dp.get('real_hidden_state_available')}；"
                        f"label_source={dp.get('label_source')}"))
 
