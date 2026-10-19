@@ -224,4 +224,4 @@ hypotheses:
     status: pending
     evidence_file: "results/ds_reviews/20261019_035_wb1_review.md"
     ds_admitted_refutation: false
-    fate_note: "DS-20261019-035 登记。DS 依据 WB2 低秩几何证据（泛化间隙 0.26→0.015）判定 Router 架构无问题，把真实特征导出定为唯一破局点。WB1 已交付：48KB 部署包（7 文件，deploy/autodl/README.md）、--expect-dim 3584 硬校验（0.5B 标 autodl-7b 时 return 4 拒产）、autodl-7b 兼容（守卫抽为纯函数 + 7 条单测全过）。判定依赖用户 AutoDL 实跑产出 real_features_7b.npz 后 WB2 重训结果。"
+    fate_note: "DS-20261019-035 登记。DS 依据 WB2 低秩几何证据（泛化间隙 0.26→0.015）判定 Router 架构无问题，把真实特征导出定为唯一破局点。WB1 已交付：48KB 部署包（8 文件，deploy/autodl/README.md）、--expect-dim 3584 硬校验（0.5B 标 autodl-7b 时 return 4 拒产）、autodl-7b 兼容（守卫抽为纯函数 + 7 条单测全过）。判定依赖用户 AutoDL 实跑产出 real_features_7b.npz 后 WB2 重训结果。"
