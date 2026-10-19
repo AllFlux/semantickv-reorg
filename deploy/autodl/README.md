@@ -140,16 +140,19 @@ SMOKE=1 bash run_all.sh      # 0.5B / CPU / 无 4bit / 代理标签，产物不�
 
 ## 八、手机端一行跑（推荐）
 
-长命令在手机浏览器里粘贴容易卡死。改用入口脚本，**只需粘一行**：
+长命令在手机浏览器里粘贴容易卡死。改用入口脚本，**只需粘一行**。
+
+> 国内直连 `raw.githubusercontent.com` 常被墙（实测 10s 无响应），故走 `ghfast.top` 代理。
+> 若该代理不可用，把域名换成 `gh-proxy.com` 即可（其余部分完全相同）。
 
 ```bash
-curl -sL https://cdn.jsdelivr.net/gh/AllFlux/semantickv-reorg@main/deploy/autodl/bootstrap.sh | bash
+curl -sL https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash
 ```
 
 ### 后台跑（关掉手机也不中断）
 
 ```bash
-curl -sL https://cdn.jsdelivr.net/gh/AllFlux/semantickv-reorg@main/deploy/autodl/bootstrap.sh | bash -s -- --bg
+curl -sL https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --bg
 ```
 
 回车后立刻返回 PID。之后随时：
@@ -162,14 +165,14 @@ grep -E "^✔|^⚠" /mnt/workspace/deploy_autodl/run.log   # 看结论
 ### 先只拿特征（最快，DS 认定的唯一破局点）
 
 ```bash
-curl -sL https://cdn.jsdelivr.net/gh/AllFlux/semantickv-reorg@main/deploy/autodl/bootstrap.sh | bash -s -- --bg --features-first
+curl -sL https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --bg --features-first
 ```
 
 ### 可选：跑完自动回传 GitHub
 
 ```bash
 export GITHUB_TOKEN=<有 repo 权限的 PAT>
-curl -sL https://cdn.jsdelivr.net/gh/AllFlux/semantickv-reorg@main/deploy/autodl/bootstrap.sh | bash -s -- --features-first --upload
+curl -sL https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --features-first --upload
 ```
 
 会新建分支 `results/<host>-<时间戳>` 并推两个产物。**不做 force push**。
