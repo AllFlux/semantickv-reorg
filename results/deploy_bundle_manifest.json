@@ -1,9 +1,9 @@
 {
-  "purpose": "7B 实机最小部署包清单（DS-20261019-035-WB1 步骤 1 验收）",
+  "purpose": "3B/7B 实机最小部署包清单（DS-035 初版，DS-040 起默认 3B）",
   "created_at": "2026-10-19T14:18:45+00:00",
   "environment": {
     "kind": "local-sandbox-cpu-proxy-0.5B",
-    "note": "打包与校验在 CPU 沙盒完成；包内脚本需 GPU 才能跑 7B。"
+    "note": "打包与校验在 CPU 沙盒完成；包内脚本需 GPU 才能跑 3B/7B。"
   },
   "bundle": {
     "path": "dist/autodl_deploy.tar.gz",
@@ -52,14 +52,17 @@
     "HF_HUB_ENABLE_HF_TRANSFER": "1"
   },
   "outputs": [
-    "results/kaggle_7b_fixed_route.json",
-    "results/real_features_7b.npz",
-    "results/real_features_7b.json"
+    "results/kaggle_3b_fixed_route.json",
+    "results/real_features_3b.npz",
+    "results/real_features_3b.json",
+    "（7B 口径：kaggle_7b_* / real_features_7b.*）"
   ],
   "acceptance": {
     "env_labels_supported": [
-      "kaggle-7b",
-      "autodl-7b"
+      "autodl-3b",
+      "kaggle-3b",
+      "autodl-7b",
+      "kaggle-7b"
     ],
     "env_claims": [
       "model_size_in_3b_7b",
@@ -71,7 +74,7 @@
       "3B": 2048,
       "7B": 3584
     },
-    "dim_guard_on_mismatch": "return 4, 拒绝产出（已负向验证：0.5B + autodl-7b → exit=4，零文件）",
+    "dim_guard_on_mismatch": "return 4，拒绝产出（已负向验证：0.5B 标 autodl-* → exit=4，零文件）",
     "npz_keys": {
       "key_hidden": "hidden_states",
       "aliases": [
@@ -87,23 +90,26 @@
   "guard_test": {
     "cmd": "python3 tests/test_env_guard.py",
     "exit": 0,
-    "verdict": "PASS 7/7",
+    "verdict": "PASS 10/10",
     "lines": [
-      " [✔] 7B 4bit cuda 8K → kaggle-7b",
-      " [✔] 7B 4bit cuda 8K → autodl-7b",
-      " [✔] 0.5B CPU 冒充 kaggle-7b",
-      " [✔] 7B 但跑 CPU（无 4bit）冒充 autodl-7b",
-      " [✔] 7B 4bit 但 ctx=2048 冒充 autodl-7b",
-      " [✔] 代理标签永远放行（CPU 0.5B）",
-      " [✔] 未知标签不拦截（非权威）",
-      "⟹ PASS  (7/7)"
+      "[✔] 7B 4bit cuda 8K → kaggle-7b",
+      "[✔] 7B 4bit cuda 8K → autodl-7b",
+      "[✔] 3B 4bit cuda 8K → autodl-3b（DS-040 口径）",
+      "[✔] 3B 4bit cuda 8K → kaggle-3b",
+      "[✔] 3B 但 ctx=2048 冒充 autodl-3b",
+      "[✔] 0.5B CPU 冒充 kaggle-7b",
+      "[✔] 7B 但跑 CPU（无 4bit）冒充 autodl-7b",
+      "[✔] 7B 4bit 但 ctx=2048 冒充 autodl-7b",
+      "[✔] 代理标签永远放行（CPU 0.5B）",
+      "[✔] 未知标签不拦截（非权威）",
+      "⟹ PASS  (10/10)"
     ]
   },
   "clean_dir_smoke": {
     "cmd": "解压到空目录后跑 export_real_features.py（0.5B 代理）",
     "exit": 0,
-    "result": "keys=['hidden_states','labels','meta']; (90,896)",
-    "note": "证明包自包含且键名已统一；维度 896 非交付件"
+    "result": "keys=['hidden_states','labels','meta']; (90,896); 产物名 real_features_0.5b.*",
+    "note": "证明包自包含、键名统一；维度 896 为 0.5B 冒烟，非交付件"
   },
   "config": {
     "device": "cpu",
