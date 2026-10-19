@@ -264,6 +264,23 @@ def main() -> int:
         "note": "单键写入（不复制数组）；WB2 侧请按 accepted_aliases 容错读取。",
     }
 
+    # ── DS-20261019-046-WB1 验收：meta 对象显式标注保真标记 ──────────────
+    # 顶层已写 raw_hidden_exported / l2_normalized，但 DS 要求集中在「meta 对象」内标注；
+    # 这里再显式放进 meta["meta"]，使 .json 与 npz 内部 meta 都满足字面验收（不删顶层键，
+    # 以兼容任何仍按顶层读取 npz_contract 的调用方）。
+    meta["meta"] = {
+        "raw_hidden_exported": True,
+        "l2_normalized": False,
+        "smoothed_for_export": False,
+        "feature_dtype": "float16",
+        "dim_check": dim_check,
+        "source": "real Qwen2.5-3B-Instruct prefill (CPU / bf16, no quantization)",
+        "wb2_consumption_note": (
+            "Router 首层 Linear 的 hidden_size 必须等于本特征 hidden_size（2048）；"
+            "严禁按单位向量消费，必须按原始幅值（L2 范数 78.8–228.2，非归一化）。"),
+        "flag_provenance": "DS-20261019-046-WB1 验收要求 meta 显式标注",
+    }
+
     out = Path(args.out)
     # ⚠ 不能用 Path.with_suffix：当 out 形如 "real_features_0.5b" 时，
     # with_suffix(".npz") 会把 ".5b" 当成后缀替换掉 → 变成 real_features_0.npz。

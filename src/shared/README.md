@@ -8,8 +8,9 @@
 >
 > **🚚 物流状态（DS-20261019-023-WB2，第 54 轮·已推送）**：
 > **远端仓库：`https://github.com/AllFlux/semantickv-reorg`（main 分支）** —— DS Q9 范围裁定
-> （严格限定 `src/shared/`，历史 JSON 与全量权重留本地）**已执行并核验**：远端树仅含
+> （严格限定 `src/shared/`，历史 JSON 与全量权重留本地）**已执行并核验**：远端树原仅含
 > `src/shared/` 4 文件 + `.gitignore` 白名单声明（`git ls-tree` + API 双路核验）。
+> **🆕 DS-046-WB1 追加**：`src/shared/` 再增真实特征 3 文件（`real_features_3b.npz` / `real_features_3b.json` / `kaggle_3b_fixed_route.json`）。
 > **双通道记录（如实，不掩盖失败）**：① `git push` 通道**失败**——GnuTLS recv error (-110)
 > TLS 传输层中断（非 403/401 认证拒绝），管线 90s >10s 触发 H-DS32 falsifiable_criterion；
 > ② 按 DS 判据切 **GitHub REST API 备选通道成功**——5 路径全部上传（4×201/200 + update 幂等），
@@ -26,10 +27,10 @@
 > **历史沿革（勿混用）**：1024（旧占位，已废弃）→ 3584（Qwen2.5-7B，DS-028）→ **2048（Qwen2.5-3B，DS-041，当前）**。
 > 3584 版权重与读数已归档在 `PROGRESS.md` 五十八~六十一节；换模型时**必须**重训，不能沿用旧权重（第一层形状不同）。
 >
-> **数据真实性边界**：本沙盒无 GPU/真实 LLM 权重，训练数据为**低秩+各向异性合成代理**
-> （dim=2048、R=128 主成分、谱 λ=exp(−i/τ)、σ=0.6）；标签为离线 K-means。
-> 2048 维下该代理的 cosine margin 中位 **7.11%**（≥5% 验收线），各向同性对照仅 0.051%。
-> **代理准确率不代表真实语义路由质量**；真实数据到位后用 `tools/real_data_finetuner.py` 微调，
+> **数据真实性边界**：`router_weights.pt` / `semantic_router.pt` 的**训练数据为低秩+各向异性合成代理**
+> （dim=2048、R=128 主成分、谱 λ=exp(−i/τ)、σ=0.6）；标签为离线 K-means；代理准确率**不代表真实语义路由质量**。
+> 但 **DS-046-WB1 的真实特征已到位**：`real_features_3b.npz` 是 Qwen2.5-3B-Instruct **真实前向**隐状态
+> （原始幅值、未归一化、input_dim=2048），可用 `tools/real_data_finetuner.py` 直接微调 Router，
 > 并以 WB1 的 `gsc_pred` 为基线判定（详见该脚本 docstring）。
 
 ## 1. 交付物清单
@@ -42,6 +43,9 @@
 | `semantic_router.pt` | **🆕 主交付（DS-041）**：**`Linear(2048,512)→ReLU→Linear(512,64)`** 的 **fp16** state_dict（**2.067MB**）+ arch/num_groups/input_dim/data_provenance/`proxy_mode` 元数据；**`net.0.weight = [512,2048]`** |
 | `semantic_router_loadtest.py` | **🆕 DS-041**：纯 CPU 加载证明（零 WB2 依赖，架构按 .pt 内嵌 arch 重建）；**六项检查**含 `net.0.weight` 形状断言 `[512,2048]`、**输入维 == EXPECT_DIM(2048)**、fp16→fp32 加载、`proxy_mode` 声明 |
 | 🆕 `semantic_router_real.pt` | **真实数据微调产物（占位）**——WB1 回传 npz 后用 `tools/real_data_finetuner.py` 生成；**默认不覆盖主交付**，须 `--promote` 才提升。当前内容为假数据演练产物，`proxy_mode=real_wb1_npz` 但数据是合成的，**不得用于生产** |
+| 🆕 `real_features_3b.npz` | **🆕 真实特征（DS-046-WB1，WB1→WB2 重训输入）**：Qwen2.5-3B-Instruct 真实前向隐状态 `hidden_states (2586,2048) float16` + `labels (2586,) int32` + `meta`(json 字符串)。**原始幅值（L2 范数 78.8–228.2，未归一化）**；42 群 GSC 标签；`dim_check=PASS_DIM_CPU` |
+| 🆕 `real_features_3b.json` | 上述 npz 的契约同伴：含 `npz_contract` / `consumption_contract` / **`meta`**（`raw_hidden_exported=true`、`l2_normalized=false` 显式标注） |
+| 🆕 `kaggle_3b_fixed_route.json` | 相关验证证据（DS-044）：3B 三路由固定突击 Argmax 全 1.000、gate 1.000、`verdict=MAINTAIN` |
 | `README.md` | 本文件 |
 
 ## 2. 输入/输出契约
@@ -158,4 +162,23 @@ DS 判据：**>1ms ⟹ 接口协议失败（退 GSC 质心检索）；预测目�
 ```bash
 python3 src/shared/load_test.py            # 空壳加载 + 前向 + 延迟（退出码 0=全过）
 python3 tools/run_ds_r2_router.py          # 全实验：双 regime + 导出 .pt + 延迟
+```
+
+## 9. 真实特征交付（DS-046-WB1 · WB1→WB2 重训输入）
+
+> 交付目标：让 WB2 用**真实** Qwen2.5-3B-Instruct 隐状态重训 `semantic_router`（按 input_dim=2048 出新版，替代当前 3584 的 7B 版）。
+
+| 项 | 值 |
+|---|---|
+| 文件 | `real_features_3b.npz` + `real_features_3b.json` |
+| hidden_states | `(2586, 2048)` float16，**原始幅值**（L2 范数 78.8–228.2，未归一化） |
+| labels | `(2586,)` int32，42 群（GSC 离线聚类 k=16, τ=0.97, centered） |
+| npz 键 | `hidden_states` / `hs` / `hidden`（主键 `hidden_states`）；`labels`；`meta`(json 字符串，含 `raw_hidden_exported=true`、`l2_normalized=false`) |
+| dim_check | `PASS_DIM_CPU`（真实目标模型 + CPU + 无量化；设备非 GPU 是唯一与实机的差异） |
+| 保真声明 | 导出的是未平滑、未归一化的原始隐状态；平滑/归一化仅用于生成 labels，不影响交付数组 |
+| 消费契约 | Router 首层 `Linear(hidden_size, ·)` 的 `hidden_size` 必须等于 **2048**；WB2 当前 3584 版不匹配，需按 2048 出新版 |
+
+⚠️ **归一化污染历史（DS-044 已修复）**：早期版本误将单位向量导出；若直接喂给 WB2，Router 在真实场景拿到原始幅值会崩溃。本交付已确保 `l2_normalized=false`、`raw_hidden_exported=true`，WB2 必须按原始幅值消费。
+
+相关验证证据：`kaggle_3b_fixed_route.json`（3B 三路由固定突击 Argmax 全 1.000、gate 1.000、`verdict=MAINTAIN`）。
 ```
