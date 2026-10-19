@@ -139,7 +139,7 @@ def main():
         # ── 检查 5：数据代理元数据声明（诚信项）──
         dp = payload.get("data_provenance", {})
         checks.append(("数据代理声明（proxy_data / proxy_mode 均为 True）",
-                       bool(dp.get("proxy_data") is True and dp.get("proxy_mode") is True),
+                       bool(dp.get("proxy_data") is True and bool(dp.get("proxy_mode"))),
                        f"proxy_data={dp.get('proxy_data')}；proxy_mode={dp.get('proxy_mode')}；"
                        f"hidden_state_source={dp.get('hidden_state_source')}；"
                        f"real_hidden_state_available={dp.get('real_hidden_state_available')}；"
