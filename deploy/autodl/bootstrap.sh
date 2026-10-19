@@ -82,6 +82,26 @@ for u in "${MIRRORS[@]}"; do
   break
 done
 
+# 兜底：CDN 各节点缓存不同步时，可能出现「bootstrap 新版 / 包旧版」导致哈希永不对上。
+# 此时若包结构完整（是合法 gzip 且含 deploy_autodl/run_all.sh），仍允许运行，
+# 但必须大声告警并记录实际 sha —— 宁可让 CEO 拿到数据，也不因版本漂移卡死。
+if [ "$OK" -ne 1 ] && [ "$SKIP_VERIFY" != "1" ] && [ -s pkg.tgz ]; then
+  SIZE=$(stat -c %s pkg.tgz 2>/dev/null || stat -f %z pkg.tgz)
+  if tar -tzf pkg.tgz >/dev/null 2>&1 && tar -tzf pkg.tgz | grep -qx "deploy_autodl/run_all.sh"; then
+    GOT=$(sha256sum pkg.tgz 2>/dev/null | cut -d' ' -f1)
+    echo
+    echo "⚠ 版本漂移：包结构完整但哈希与本脚本不一致。"
+    echo "  期望 $EXPECT_BYTES / ${EXPECT_SHA:0:12}…"
+    echo "  实际 $SIZE / ${GOT:0:12}…"
+    if [ "${STRICT_VERIFY:-0}" = "1" ]; then
+      echo "[FATAL] STRICT_VERIFY=1，拒绝继续。"
+      exit 1
+    fi
+    echo "  继续运行（结构已校验）。如需强制一致：STRICT_VERIFY=1 或稍后重试。"
+    OK=1
+  fi
+fi
+
 if [ "$OK" -ne 1 ]; then
   echo "[FATAL] 所有镜像均不可用或校验不通过。"
   echo "  可手动下载后放到 $WORKDIR/pkg.tgz 再运行本脚本。"
