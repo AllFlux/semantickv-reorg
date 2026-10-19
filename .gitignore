@@ -1,20 +1,8 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-.ipynb_checkpoints/
-
-# 本地环境 / 临时
-.DS_Store
-*.log
-.venv/
-
-# 注意（WB1）：DS-20261019-023-WB2 的 src/shared/ 范围裁定约束的是 WB2 侧
-# 推送通道（其 REST 工具 + 本地白名单），不应写成共享仓库的全局白名单。
-# 该白名单已四次随 rest-upload 回流（DS-024/026/035/038），每次都会让 `/*`
-# 吞掉双方新增文件。故共享仓库固定使用标准 Python 规则；
-# WB2 推送范围由其本地工具自行约束，不要写进本文件。
-# 自动修复：bash tools/fix_gitignore.sh（round_close.sh 会先调用）
-
-# 给 DS 的投喂包（可由 tools/make_ds_brief.py 重新生成，不入库）
-results/_ds_brief/
+# 推送范围严格限定 src/shared/（DS-20261019-023-WB2 范围裁定，2026-10-19）
+# 机器通道只搬运双方协作所需的代码与极小权重；历史 JSON 与全量权重留本地。
+# 白名单式：默认忽略仓库根下一切，仅放行 src/shared/ 与本声明文件自身。
+/*
+!/src/
+!/.gitignore
+/src/*
+!/src/shared/
