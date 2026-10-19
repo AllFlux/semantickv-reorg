@@ -211,6 +211,22 @@ def self_check(text: str) -> tuple[bool, list[tuple[str, str, str]]]:
     secrets = SECRET_RE.findall(text)
     add("密钥泄露", not secrets, f"检出 {len(secrets)} 个" if secrets else "0 个")
 
+    # D8 竖式可读：DS 纯文本按行顺序读，宽表/超长单元格会在纯文本流里换行错位
+    max_cols = 0
+    overlong = 0
+    for line in text.splitlines():
+        s = line.strip()
+        if not s.startswith("|") or re.match(r"^[:\-|\s]+$", s):
+            continue
+        cols = s.count("|") - 1
+        max_cols = max(max_cols, cols)
+        for c in s.split("|")[1:-1]:
+            cs = c.strip()
+            if len(cs) > 160 and not re.match(r"^[:\-|\s]+$", cs):
+                overlong += 1
+    add("竖式可读(D8)", max_cols <= 4 and overlong == 0,
+        f"最宽表 {max_cols} 列(≤4合格); 超长单元格 {overlong} 个")
+
     ok = all(r[1] == "PASS" for r in rows)
     return ok, rows
 

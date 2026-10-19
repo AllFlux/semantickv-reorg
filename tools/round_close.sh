@@ -34,11 +34,12 @@ python3 tools/check_discipline.py --round "$ROUND" | tail -6
 CHECK_RC=${PIPESTATUS[0]}
 
 echo
-echo "[2/2] 生成投喂包"
+echo "[2/2] 生成投喂包（含 --chat 四反引号可复制版）"
 python3 tools/make_ds_brief.py \
   --title "$TITLE" \
   --discipline-round "$ROUND" \
   --out "results/_ds_brief/${ROUND}_TO_DS.md" \
+  --chat \
   $EXTRA
 BRIEF_RC=$?
 
@@ -51,4 +52,14 @@ if [ "$BRIEF_RC" -ne 0 ]; then
   exit 2
 fi
 echo "✔ 交付包就绪：results/_ds_brief/${ROUND}_TO_DS.md"
-echo "  下一步：打开该文件，全选复制，整段粘给 DS（不要改发链接）。"
+echo "  下一步：把下方【投喂包全文】整段复制进给 CEO 的回复正文（D8.1 强制内联）。"
+echo
+echo "=============================================="
+echo " 【投喂包全文 · 请整段复制进给 CEO 的回复正文 · DS 竖式可读】"
+echo "=============================================="
+if [ -f "results/_ds_brief/${ROUND}_TO_DS.chat.md" ]; then
+  cat "results/_ds_brief/${ROUND}_TO_DS.chat.md"
+else
+  cat "results/_ds_brief/${ROUND}_TO_DS.md"
+fi
+echo "=============================================="

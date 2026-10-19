@@ -2,7 +2,7 @@ meta:
   protocol: DISCIPLINE.md v2.0 (D6 双轨制· D2-b/D3-b · D7缓存固化)
   rounds: []
   last_round: R27
-  last_run: '2026-10-20T00:19:00'
+  last_run: '2026-10-20T00:31:38'
 rounds:
 - round: R1
   timestamp: '2026-10-18T15:15:47'
@@ -1008,7 +1008,7 @@ rounds:
     fail: 0
     verdict: GREEN
 - round: R27
-  timestamp: '2026-10-20T00:19:00'
+  timestamp: '2026-10-20T00:31:38'
   checks:
   - check: D1 契约优先
     status: PASS
