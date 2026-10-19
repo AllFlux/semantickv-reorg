@@ -450,12 +450,22 @@ def count_topk_slots(labels: np.ndarray, G: int, K: int) -> int:
 def safe_softmax(scores: torch.Tensor) -> torch.Tensor:
     """行全 -inf 时返回全 0（而非 NaN）的 softmax——分段注意力中
     「该段对当前 query 全部被因果/块对角掩码」是正常情形（如早期 query
-    看不到局部窗段），须产出零权重而非 NaN。"""
-    row_max = scores.max(dim=-1, keepdim=True).values
+    看不到局部窗段），须产出零权重而非 NaN。
+
+    ⚠ 半精度安全（DS-20261019-038 期间 PAI 冒烟发现）：
+    fp16 的有限上限仅 65504，`clamp(min=-1e30)` / `clamp(min=1e-30)` 都会
+    触发 `RuntimeError: value cannot be converted to type c10::Half without overflow`。
+    故半精度输入先在 fp32 中计算，再转回原 dtype；fp32/bf16 路径行为不变。
+    """
+    orig_dtype = scores.dtype
+    half = orig_dtype in (torch.float16, torch.bfloat16)
+    s = scores.float() if half else scores
+    row_max = s.max(dim=-1, keepdim=True).values
     bad = torch.isinf(row_max)
-    z = torch.exp(scores - row_max.clamp(min=-1e30))
+    z = torch.exp(s - row_max.clamp(min=-1e30))
     denom = z.sum(dim=-1, keepdim=True).clamp(min=1e-30)
-    return (z / denom).masked_fill(bad, 0.0)
+    out = (z / denom).masked_fill(bad, 0.0)
+    return out.to(orig_dtype) if half else out
 
 
 class CompressedAttentionPatcher:

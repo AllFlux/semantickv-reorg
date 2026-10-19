@@ -6,11 +6,12 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "DS-20261019-038-WB1：部署包验收通过 + npz 键名统一为 hidden_states",
-    "status": "R22 GREEN：DS 验收通过——部署包（48KB/一键/纯函数守卫/7 条单测）与 autodl-7b 物理权威性获肯定，明确『不需要再修改代码』，等 AutoDL 回传。唯一待确认项：npz 键名。WB1 核查发现原键名为 hidden，不在 DS 列出的 hidden_states/hs 之内 → 已统一为 hidden_states（默认），并提供 --key-name hs 切换；写入后回读自校验（键名/形状/dtype）；不复制数组（避免 58MB 数组翻倍）。契约写入 meta.npz_contract（含 accepted_aliases）。部署包已同步重建。",
-    "metrics": "R22 11/11 PASS｜npz keys=['hidden_states','labels','meta']｜hs 别名实测通过｜回读自校验通过｜部署包 46,854B/8文件/sha256=a0047f3c…｜18 条假设（0 新增，DS-038 无新假设）"
+    "name": "DS-20261019-040：PAI-DSW 上机指引核对 + 部署包实测修复（含 fp16 致命 bug）",
+    "status": "R23 GREEN：CEO 已进阿里云 PAI-DSW。DS 给三步指引（JupyterLab 上传→Terminal 执行→回传停实例），发现 CEO 手机无包后改『从 GitHub 直接拉』。WB1 核对修两处不符：① tar 原为扁平结构→改为解压出 deploy_autodl/，否则 `cd deploy_autodl` 必失败；② raw 链接实测 HTTP 200 匿名可下，已固定写入 README（零上传路径）。端到端冒烟（干净目录模拟 PAI）exit=0 / 56s，两产物齐全、claims 四项全 false 证明未误标。冒烟中揪出 4 个真缺陷，其中 safe_softmax 在 fp16 下 clamp(-1e30) 溢出会在 7B 实跑必炸，已修并加三 dtype 单测。",
+    "metrics": "R23 11/11 PASS｜包 48,608B/8文件/含顶层目录｜raw HTTP 200｜e2e SMOKE exit=0 56s｜safe_softmax fp32/fp16/bf16 全 finite｜守卫 7/7｜18 条假设（无新增）"
   },
   "decision_items": [
+    "【立即可执行·PAI-DSW】终端两条命令即可，无需手机传文件：wget raw 链接 → tar -xzf → cd deploy_autodl → export HF_ENDPOINT/HF_HOME → bash run_all.sh（详见 deploy/autodl/README.md 第七节）",
     "【验收通过·DS-038】部署包与 autodl-7b 守卫获 DS 肯定，代码不再修改。npz 键名已统一 hidden_states（--key-name hs 可切）",
     "【进展·WB2 3584 重训到位】GAP-DS26-01 解除（input_dim=3584, [512,3584], 1.87M 参数, loadtest 6/6）。但 proxy_data=true 未变 → 仍需 real_features_7b.npz 做真实分布重训",
     "【唯一破局点·DS-035】7B 真实特征导出：用户把 dist/autodl_deploy.tar.gz 传 AutoDL(4090D)/Colab，bash run_all.sh，产出 real_features_7b.npz（(N,3584)）交 WB2 重训。DS 明确『不需要任何更多代理数据』",
@@ -187,6 +188,10 @@
     {
       "label": "评审 038-WB1 (验收通过 + 键名统一)",
       "path": "results/ds_reviews/20261019_038_wb1_review.md"
+    },
+    {
+      "label": "评审 040 (PAI-DSW 指引核对 + fp16 致命 bug 修复)",
+      "path": "results/ds_reviews/20261019_040_wb1_review.md"
     }
   ]
 }

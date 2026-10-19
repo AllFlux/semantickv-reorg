@@ -105,3 +105,32 @@ results/kaggle_7b_fixed_route.json    → 给 DS（判 ≥45% / ROPE_FRACTURE）
 results/real_features_7b.npz          → 给 WB2（(N,3584) + 真实 GSC 标签）
 results/real_features_7b.json         → 附带元数据（dim_check / provenance）
 ```
+
+---
+
+## 七、零上传路径（阿里云 PAI-DSW / 任意云主机）
+
+包里没有密钥，仓库是公开的，**不用手机传文件**，在终端里直接拉：
+
+```bash
+cd /mnt/workspace
+wget https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/dist/autodl_deploy.tar.gz
+tar -xzf autodl_deploy.tar.gz          # 解压出 deploy_autodl/
+cd deploy_autodl
+export HF_ENDPOINT=https://hf-mirror.com
+export HF_HOME=/mnt/workspace/hf_cache
+pip install -r requirements.txt        # 首次
+bash run_all.sh
+```
+
+> 若 `wget` 报 404：说明远端还没更新到含本包的提交，改用
+> `git clone https://github.com/AllFlux/semantickv-reorg.git` 后
+> `tar -xzf semantickv-reorg/dist/autodl_deploy.tar.gz`。
+
+### 无 GPU 先自检（可选）
+
+```bash
+SMOKE=1 bash run_all.sh      # 0.5B / CPU / 无 4bit / 代理标签，产物不可交付
+```
+
+`SMOKE=1` 会把 env 标成 `local-sandbox-cpu-proxy-0.5B`，**不会**冒充 7B 权威结果。
