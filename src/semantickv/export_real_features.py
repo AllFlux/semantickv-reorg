@@ -33,6 +33,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -315,6 +317,33 @@ def main() -> int:
             print("         （设备为 CPU / bf16 无量化；分布来自真实模型，非合成件。）")
     else:
         print(f"       ⚠ dim_check={dim_check}：不可作为 WB2 交付物。")
+
+    # ── DS-20261020-048-WB1：自动同步到 src/shared/ 并写入导出校验 ──
+    # 要求①：导出后自动 cp 一份到 src/shared/（WB2 稳定拉取源，避免只留 results/）。
+    # 要求②：计算 SHA256 + 精确 byte_size 写入 json meta，供 WB2 下载后比对防损坏。
+    shared_dir = ROOT / "src" / "shared"
+    shared_dir.mkdir(parents=True, exist_ok=True)
+    shared_npz = shared_dir / npz_path.name
+    shared_json = shared_dir / json_path.name
+    shutil.copy(npz_path, shared_npz)
+    shutil.copy(json_path, shared_json)
+    print(f"\n[sync] 已同步到 {shared_npz}")
+    try:
+        r = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "validate_wb1_export.py"),
+             "--npz", str(shared_npz), "--json", str(shared_json), "--write"],
+            capture_output=True, text=True, timeout=120)
+        if r.stdout:
+            print(r.stdout.rstrip())
+        if r.returncode != 0 and r.stderr:
+            print(r.stderr.rstrip(), file=sys.stderr)
+        else:
+            # 把带校验 meta 的 json 同步回 results（两处保持一致）
+            shutil.copy(shared_json, json_path)
+            print(f"[sync] json meta(sha256/byte_size) 已回写 {json_path}")
+    except Exception as e:  # noqa: BLE001
+        # 校验脚本失败不应阻断交付物落地，但必须显式告警
+        print(f"[warn] 校验脚本调用失败（导出本身成功）: {e}", file=sys.stderr)
     return 0
 
 

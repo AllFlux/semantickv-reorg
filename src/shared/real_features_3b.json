@@ -86,6 +86,9 @@
     "dim_check": "PASS_DIM_CPU",
     "source": "real Qwen2.5-3B-Instruct prefill (CPU / bf16, no quantization)",
     "wb2_consumption_note": "Router 首层 Linear 的 hidden_size 必须等于本特征 hidden_size（2048）；严禁按单位向量消费，必须按原始幅值（L2 范数 78.8–228.2，非归一化）。",
-    "flag_provenance": "DS-20261019-046-WB1 验收要求 meta 显式标注"
+    "flag_provenance": "DS-20261020-048-WB1 要求：导出后计算 SHA256 + byte_size 写入 meta，供 WB2 下载后比对防损坏",
+    "export_sha256": "0d6db68aa653f437bc9473b2ea34bc2f8ce6b9389a96e60cfd3ae2056b955f40",
+    "export_byte_size": 8215353,
+    "validated_at": "2026-10-19T16:43:56Z"
   }
 }
