@@ -16,6 +16,8 @@
                        真实运行 (k,tau) 必须等于 E0 校准值 (8,0.97) 或在
                        CHANGELOG 中有记录；E0 卡版本 >= 0.2.1
    D5 格式统一        —— 每份 results/*.md 报告必须含数据表 + 结论 + 文件清单
+   D6 双轨制报告(v2.0) —— 每份报告必须 frontmatter 合法且头部无长文本 + 正文详实
+                        （≥800 字符）+ 含「反直觉与异常观测」专节 + 代码块内联（D2-b/D3-b）
 
   DeepSeek 侧对等纪律（DISCIPLINE.md §DeepSeek 对等纪律，由 check_ds_review 提供）：
   DS-D1 指令结构化   —— ds_reviews/*.md 含 frontmatter + 三段式
@@ -308,6 +310,85 @@ def check_d5() -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------
+# D6 双轨制 Markdown 报告规范（v2.0 新增，DS-20261019-027-WB1）
+#   校验 results/*.md 报告（CHANGELOG 除外）四项：
+#     ① frontmatter 存在且为合法 YAML
+#     ② YAML 头部无 >2 行的长文本（防止把正文塞进头部绕过 D6）
+#     ③ 正文字数达标（≥ MIN_BODY_CHARS，避免交空壳）
+#     ④ 「反直觉与异常观测」专节存在且非空（D3-b）
+#   同时抽样 D2-b：正文须有代码块内联核心数据（DS 无浏览器，路径不可读）
+# ---------------------------------------------------------------------
+FM_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n?(.*)$", re.DOTALL)
+ANOMALY_RE = re.compile(r"(反直觉|异常观测|反常观测|异常记录|反直觉与异常)", re.I)
+MIN_BODY_CHARS = 800  # 正文（去 frontmatter）最少字符数
+
+
+def _split_fm(text: str):
+    m = FM_RE.match(text)
+    if not m:
+        return None, text
+    try:
+        meta = yaml.safe_load(m.group(1))
+    except yaml.YAMLError:
+        meta = "__INVALID_YAML__"
+    return meta, m.group(2)
+
+
+def _long_lines_in_fm(fm_text: str) -> int:
+    """统计 frontmatter 中「看起来像长文本」的行数（>80 字符或含中英长句）。"""
+    n = 0
+    for line in fm_text.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        # 键值对本身不算长文本；只统计值部分超长的行
+        if ":" in s:
+            v = s.split(":", 1)[1].strip()
+            if len(v) > 120:
+                n += 1
+        elif len(s) > 120:
+            n += 1
+    return n
+
+
+def check_d6() -> Dict[str, Any]:
+    problems: List[str] = []
+    reports = sorted(RESULTS.glob("*.md"))
+    checked = 0
+    for p in reports:
+        if p.name == "CHANGELOG.md":
+            continue  # 变更日志不适用双轨制
+        checked += 1
+        text = p.read_text(encoding="utf-8")
+        meta, body = _split_fm(text)
+        # ① frontmatter
+        if meta is None:
+            problems.append(f"{p.name} 缺 YAML frontmatter（D6）")
+            continue
+        if meta == "__INVALID_YAML__":
+            problems.append(f"{p.name} frontmatter 非合法 YAML（D6）")
+            continue
+        # ② YAML 头部无长文本
+        fm_text = text.split("---", 2)[1] if text.startswith("---") else ""
+        if _long_lines_in_fm(fm_text) > 0:
+            problems.append(f"{p.name} YAML 头部含长文本（D6：头部只放硬指标，"
+                            f"长文本应入正文）")
+        # ③ 正文字数
+        if len(body.strip()) < MIN_BODY_CHARS:
+            problems.append(f"{p.name} 正文过短（{len(body.strip())} < "
+                            f"{MIN_BODY_CHARS} 字符，D6：正文需详实）")
+        # ④ 反直觉与异常观测专节（D3-b）
+        if not ANOMALY_RE.search(text):
+            problems.append(f"{p.name} 缺「反直觉与异常观测」专节（D3-b/D6）")
+        # D2-b 抽样：正文须有代码块内联（DS 无浏览器）
+        if "```" not in body:
+            problems.append(f"{p.name} 正文无代码块内联（D2-b：核心数据须明文贴出）")
+    detail = (f"{checked} 份报告双轨制合规（frontmatter+正文+反直觉专节+内联）"
+              if not problems else "；".join(problems))
+    return (_ok if not problems else _fail)("D6 双轨制报告", detail)
+
+
+# ---------------------------------------------------------------------
 # 台账
 # ---------------------------------------------------------------------
 def load_ledger() -> dict:
@@ -348,6 +429,7 @@ def main() -> int:
         round_id = f"R{max(nums) + 1 if nums else 1}"
 
     checks = [check_d1(), check_d2(), check_d3(), check_d4(), check_d5()]
+    checks.append(check_d6())  # v2.0 双轨制 Markdown（含 D2-b/D3-b 抽样）
     checks += _ds_run_all()  # DeepSeek 侧对等纪律 DS-D1..DS-D5
     n_pass = sum(1 for c in checks if c["status"] == "PASS")
     n_warn = sum(1 for c in checks if c["status"] == "WARN")

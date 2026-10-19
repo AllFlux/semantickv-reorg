@@ -1,3 +1,13 @@
+---
+report: "真实模型 V1.5 压缩策略验证报告"
+experiment_id: "v0.2.0 (A/B/C/D 组)"
+model: "Qwen2.5-0.5B-Instruct"
+environment: "no-gpu-sandbox/cpu-float32"
+status: verified-negative
+verdict: "V1.5 argmax 升至28-42%但needle 仍0/3；0.5B 检索能力本身是瓶颈"
+date: 2026-10-18
+---
+
 # 真实模型 V1.5 压缩策略验证报告（v0.2.0）
 
 > 实验日期：2026-10-18 · 模型：Qwen2.5-0.5B（本地快照，CPU float32）
@@ -201,3 +211,53 @@ token 上选择——保护与择优解耦。512 冒烟中 topk 4.6× 即达 0.6
 | `results/discipline_ledger.yaml` | 合作纪律台账（本报告轮次的检验记录） |
 | `src/semantickv/v41_torch_native_runner.py` | V1.5 验证器（v0.2.0，renorm 默认已改 none） |
 | `run_on_kaggle.ipynb` | Kaggle baseline-first 上机脚本（K=8 推荐配置） |
+
+---
+
+## 反直觉与异常观测（D6/D3-b · v2.0 补录）
+
+按纪律 v2.0（D3-b）于 2026-10-19 补录。以下为**当时真实观测**。
+
+### 1. 无压缩基线本身就不是100%——0.5B 检索能力是天花板
+
+- **预期**：needle 命中失败应归因于压缩策略。
+- **实测**：**无压缩**原始模型在 3 个 needle 位置仅命中 1/3（0.25 命中，0.5/0.75
+  失败）。压缩组 needle 0/3 与基线 1/3 差距远小于预期。
+- **含义**：**0.5B 的检索能力本身是瓶颈**，DS-006 预警分支被证实。这直接导致
+  "0.5B 上继续调压缩策略意义有限" 的判断，把验证重心推向 7B。
+
+### 2. Attention Sink 前 4 个 token 拿走近 1/3 注意力质量
+
+- **观测**：sink（前 4 token）在原始注意力中拿走 **33.2%** 注意力质量，但其 V 范数
+  偏小（3.74 vs 常规）。
+- **反直觉点**：**注意力质量高≠ V 范数大**。若按"保留大范数 V"的直觉做压缩，会
+  恰好丢掉这33.2% 的注意力锚点→ 必须给 sink **独占槽位**（sink=4 + window=64），
+  不能让它参与群均值。
+
+### 3. log(群规模) 分数先验救了 flat 模式，但有上限
+
+- flat 模式按"1 个槽"参与归一化，质量被精确槽挤占（少槽 softmax 的系统性偏置）；
+  加入 log(群规模) 先验后可救回，但**不能消除**该偏置。
+
+### 4. 压缩率与argmax 的Pareto 不单调
+
+- D组 Top-K K=8 argmax 42% 已接近 45% 线，但 needle 仍 0/3——**argmax 一致率与
+  needle 命中并不同步**，用argmax 当代理指标会高估效果。
+
+### 核心结论数据（明文内联 · D2-b 供 DS 直读）
+
+以下为本报告四组实验的结论读数（DS 无浏览器，故明文贴出，不附路径）：
+
+```json
+{
+  "结论读数_四组对比": {
+    "A_v1基线(cosine+flat+全层)": {"argmax_agreement": "0.026-0.033", "needle": "0/3", "note": "KV 99% 虚假节省"},
+    "B_V1.5主配置(centered+topkK4+中层+sink)": {"argmax_agreement": "~0.28", "needle": "0/3"},
+    "C_l2度量消融": {"verdict": "低于 centered（负结果）"},
+    "D_TopK_K8": {"argmax_agreement": "~0.42", "cos": 0.7650, "needle": "0/3"}
+  },
+  "无压缩基线（关键反直觉）": {"needle_hit": "1/3", "位置0.25": "命中", "位置0.5": "失败", "位置0.75": "失败"},
+  "attention_sink": {"前4token注意力质量占比": 0.332, "sink_V范数": 3.74},
+  "总体判定": "V1.5 把 argmax 从 2.6% 拉到 28-42%，方向成立；但 needle 仍 0/3，且无压缩基线本身仅 1/3——0.5B 检索能力是天花板，需上 7B。"
+}
+```

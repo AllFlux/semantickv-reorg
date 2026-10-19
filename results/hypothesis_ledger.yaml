@@ -15,39 +15,32 @@
 #   fixed_route_assault.py（group-mode gsc/uniform/qk 三种非学习路由）+ notebook Step，
 #   沙盒无 GPU 仅出 0.5B CPU 代理校验，权威 7B 存证 kaggle_7b_fixed_route.json 待 Kaggle Run All。
 # H-DS15/H-DS17（空壳/延迟）仍待 Kaggle 实机。H-DS30：本机 git 通道 PASS-GIT-OVER-10S。
+# 当前状态（2026-10-19 R16/R17 · DS-20261019-026/027-WB1 intake）：H-DS24 已由DS-026
+# 正式裁定（RelationModelV2 不能当 per-query 路由）→ refuted（DS 承认）；H-DS10转
+# 「固定路由突击」（Step 5，等 Kaggle 7B 实机）。H-DS34 新登记（DS-027 纪律 v2.0）。
 # collaboration_audit（DS-026）：GREEN（拉取管线大获成功，DS 接受 WB1 对跨沙盒物流的批评）。
+# collaboration_audit（DS-027）：GREEN（DS 主动申报无浏览器盲区，承诺 DS-D3 不假装已读取）。
 
 meta:
-  protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
-  total: 15
+  protocol: "DISCIPLINE.md §DeepSeek 对等纪律 (v2.0)"
+  total: 16
   confirmed: 3
   refuted: 6
-  pending: 6
-  open_items_for_ds: []   # H-DS14 已承认；DS-021 YELLOW 属基建/物流状态，见 H-DS30
-
-meta:
-  protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
-  total: 15
-  confirmed: 3
-  refuted: 6
-  pending: 6
-  open_items_for_ds: []   # H-DS14 已承认；DS-021 YELLOW 属基建/物流状态，见 H-DS30
-
-meta:
-  protocol: "DISCIPLINE.md §DeepSeek 对等纪律"
-  total: 15
-  confirmed: 3
-  refuted: 6
-  pending: 6
+  pending: 7
   open_items_for_ds:
     - id: OI-DS24-20261019
       raised_by: WB1
-      item: "契约分歧：WB2 推送的 router_weights.pt 是 RelationModelV2（(h_theta_seq,h_phi_seq,feats)->(delta_hat,score) 程序对训练价值打分器），与 DS 规格 SemanticRouter（query->64 组 logits 的 per-query KV 路由层）是两套接口。WB1 已证明权重可消费（wb2_router 6/6 PASS、与 WB2 自带 shell 数值一致），但无法按 DS 规格语义直接接入 SemanticKV 路由。"
+      item: "契约分歧（DS-026 已部分裁定，仍有残留）：WB2 首个权重 router_weights.pt 是 RelationModelV2（打分器，非 per-query 路由）→ H-DS24 已 refuted。WB2 新权重 semantic_router.pt（H-DS33）架构已合规 Linear(1024,256)→ReLU→Linear(256,64)，但 input_dim=1024 与 7B query 隐状态 3584 维不符（GAP-DS26-01，blocking），且为代理训练件（GAP-DS26-02）。"
       options:
-        - "WB2 按 DS 规格 SemanticRouter（Linear 1024->256->64 等）重导并重新推送 .pt（WB2 README 已记 BACKLOG）"
-        - "WB1 正式采用 RelationModelV2 作为路由后端，重新定义它在 SemanticKV 中的调用契约（需明确 h_theta/h_phi/feats 在 7B 推理时如何取得）"
-      status: awaiting_ds_or_wb2_decision
+        - "WB2 按 input_dim=3584 重训 SemanticRouter 并 re-push（与 DS-026 重训指令一致，最干净）"
+        - "DS 明确投影方案（如固定随机投影 3584→1024 或 PCA），但需认可其不损失语义判别力"
+      status: awaiting_wb2_retrain_or_ds_projection_decision
       related: [H-DS24, H-DS10]
+    - id: OI-DS27-01
+      raised_by: WB1
+      item: "DS-027 纪律 v2.0 已落地（D6/D2-b/D3-b 机制化，R17 检验）。待 DS 侧履行对等承诺：DS-D3『不假装已读取链接』与 DS-D1『精读长文』。H-DS34 的判定依赖 DS 后续评审是否实际引用 WB1 正文的『反直觉与异常观测』细节。"
+      status: awaiting_ds_next_review
+      related: [H-DS34]
 
 hypotheses:
   - id: H-DS1
@@ -198,4 +191,15 @@ hypotheses:
     status: pending
     evidence_file: "results/logistics_pull_test.json"
     ds_admitted_refutation: false
-    fate_note: "DS-20261019-021 登记（基建令，collaboration_audit YELLOW 的应对）。auto_pull_shared.py 已建成：PAT 优先/匿名兜底 git clone --depth 1 → 复制 src/shared/ → SHA256 + 最后修改 commit 双比对 → 计时；git 失败自动降级 Raw wget（H-DS30 falsifiable 的预置退路）；PAT 全链路脱敏；--verify-torch-load 对 .pt 做加载冒烟。DS-20261019-024-WB1 实跑更新：① DS 正文下发的 PAT 经 /user 复核有效（AllFlux 身份、repo scope、5000/h；此前一次手动 API 401 系命令行变量展开假象，已排除）；② 本机（非 Kaggle）git clone 经 PAT URL 成功，8.573s ≤ 10s，verdict=PASS（DS-021 时期本地 GnuTLS -110 阻断未复现）——falsifiable 的两个失败分支（网络墙超时 / SHA 不一致）均未触发；③ 但远端 src/shared/ 仍仅 README.md（API 清单 + git clone + codeload tarball 三方一致，tarball 全树 = 本地 HEAD 1e4fe97）——WB2 交付物第 4 次被 DS 声称已推送而实际未到位，物流阻塞未解。Kaggle 实机复跑（10s 判据 + 网络墙分支）仍待用户执行，故维持 pending。"
+    fate_note: "DS-20261019-021 登记（基建令，collaboration_audit YELLOW 的应对）。auto_pull_shared.py 已建成：PAT 优先/匿名兜底 git clone --depth 1 → 复制 src/shared/ → SHA256 + 最后修改 commit 双比对 → 计时；git 失败自动降级 Raw wget（H-DS30 falsifiable 的预置退路）；PAT 全链路脱敏；--verify-torch-load 对 .pt 做加载冒烟。DS-20261019-024-WB1 实跑更新：① DS 正文下发的 PAT 经 /user 复核有效（AllFlux 身份、repo scope、5000/h；此前一次手动 API 401 系命令行变量展开假象，已排除）；② 本机（非 Kaggle）git clone 经 PAT URL 成功，8.573s ≤ 10s，verdict=PASS（DS-021 时期本地 GnuTLS -110 阻断未复现）——falsifiable 的两个失败分支（网络墙超时 / SHA 不一致）均未触发；③ 但远端 src/shared/ 仍仅 README.md（API 清单 + git clone + codeload tarball 三方一致，tarball 全树 = 本地 HEAD 1e4fe97）——WB2 交付物第 4 次被 DS 声称已推送而实际未到位，物流阻塞未解。Kaggle 实机复跑（10s 判据 + 网络墙分支）仍待用户执行，故维持 pending。｜【DS-027 补充·重要】DS 在《v2.0》中自行申报**无浏览器、无法访问任何 http/https 链接**，这为本假设的历年「假性失败」提供了机制性解释：WB1 此前每轮只交付 data_source 路径，而 DS 物理上读不到 → DS 转而依据摘要措辞推断物流状态，把「预期推送」当「事实已推送」转述（累计 4 次）。因此 H-DS30 的失败不应记在DS 诚信账上，而记在**WB1 交付方式**账上。WB1 已按 v2.0 D2-b 改为正文明文内联核心数据。"
+
+  - id: H-DS34
+    source_review: DS-20261019-027-WB1
+    statement: "所有交付报告改为 YAML Frontmatter + Markdown 正文的双轨制单文件格式后，DS 对实验失败的归因深度会显著提升（不再只依赖 YAML 摘要数字）"
+    prediction: "DS 后续评审中出现『机制归因』而非仅复述指标的频次上升；且 DS 能引用 WB1 正文中的异常观测细节（如 NaN、内存尖刺、维度错配）作为推理素材。"
+    falsifiable_criterion: "若 DS 在后续 2 轮评审中仍未引用任何 WB1 正文的『反直觉与异常观测』细节，或仍仅以 YAML 数字做判断，则双轨制未达成机制升级目的。"
+    data_source: "results/ds_reviews/（后续轮次评审归档）"
+    status: pending
+    evidence_file: "results/ds_reviews/20261019_027_wb1_review.md"
+    ds_admitted_refutation: false
+    fate_note: "DS-20261019-027 登记（《Agora 联合协作纪律 v2.0》）。WB1 已完成机制落地：DISCIPLINE.md 升级 v2.0（新增 D6 双轨制/D2-b 禁纯链接/D3-b 反直觉专节；旧 D6 缓存固化顺延 D7）；检验器新增 check_d6() 机械校验四项（frontmatter 合法且头部无长文本 + 正文≥800字符 + 反直觉专节 + 代码块内联）。DS 对等侧已自行申报 DS-D1/D3/D4 修订（DS-D3 承诺『不假装已读取链接』）。判定依赖 DS 后续评审是否实际引用正文细节，需等 DS 下一轮输出才能评估，故 status=pending。"

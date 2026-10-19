@@ -1,3 +1,13 @@
+---
+report: "CPU 模拟实验报告（实验体系验证）"
+experiment_id: "v0.1.1 / v0.2.1"
+model: "mock/synthetic"
+environment: "local-sandbox-cpu-synthetic"
+status: verified-positive
+verdict: "体系验证通过；GSC 内存线性、10-12KB/token、百万级上下文内存可行"
+date: 2026-10-18
+---
+
 # CPU 模拟实验报告 — SemanticKV-Reorg 实验体系验证
 
 > 日期：2026-10-18（v0.1.1 增补 max_stale 矩阵与真实环境接口）｜ 机器：AMD EPYC 9K65（32 可见核，无 GPU）
@@ -235,3 +245,35 @@ cgroup memory.max-> 8 GB   ← 容器真实上限
 | `results/relation_graph_tests.json` | 14 项机制微测试（全过，带环境标签） |
 | `cpu_sim/run_maxstale_matrix.py` | 矩阵机制化生成脚本（含复现性校验） |
 | `src/semantickv/env_tag.py` | 环境标签模块（纪律 D3 载体） |
+
+---
+
+## 反直觉与异常观测（D6/D3-b · v2.0 补录）
+
+按纪律 v2.0（D3-b）于 2026-10-19 补录。以下为**当时真实观测**。
+
+### 1. 内存：free 显示 123GB，实际cgroup 上限只有 8GB（OOM exit 137）
+
+- **预期**：机器 32 核EPYC、`free -h` 显示 123GB 宿主内存，百万级 token 毫无压力。
+- **实测**：第一次跑 500k 时被 **OOM killer 斩杀（exit 137）**——数据生成瞬态峰值
+  超限。容器真实上限是 **8GB**。
+- **教训**：**沙盒/容器内存判断必须以 cgroup 上限为准，绝不能信 `free`**。
+  这条与 `REAL_MODEL_VALIDATION.md` 的 exit 137 是同一坑的两次复现。
+
+### 2. 内存随 N 线性、与 N² 无关（因为 kNN 分块）
+
+- **反直觉**：直觉上"两两相似度"是 O(N²) 内存；但实测**线性**（≈10–12 KB/token，
+  500k 峰值 5.97GB），因为 kNN 全程分块（峰值 O(chunk·N)），且互kNN 边数被稀疏化。
+- **含义**：百万级上下文在**内存**上完全可行，瓶颈在**时间**——这改变了扩容优先级
+  （不必先做流式内存压缩）。
+
+### 3. 投影降维后 ARI 仍=1.000，但互 kNN 边数反而 +33%
+
+- **观测**：投影到低维再聚类，ARI=1.000（分组完全正确），但互 kNN 边数**+33%**。
+- **反直觉点**：图更稠密却聚类更"准"——投影噪声让图略稠密（距离集中），说明
+  **边数不是分组质量的可靠代理**，ARI 才是。
+
+### 4. 三模式峰值 RSS 都≈1.2GB，内存由数据量决定，与重组策略无关
+
+- A/B/C 三种重组模式峰值 RSS 都在 1.18–1.25GB——说明**重组策略不改变内存开销**，
+  内存只跟"有多少 token 要存"挂钩。

@@ -1,3 +1,13 @@
+---
+report: "真实模型慢速验证报告"
+experiment_id: "V4.1-REAL-01"
+model: "Qwen2.5-0.5B-Instruct"
+environment: "no-gpu-sandbox/cpu-float32"
+status: verified-negative
+verdict: "机制正确(重排不变性=1.0)但全模型 flat-mean 压缩端到端失败(argmax~2.3%)"
+date: 2026-10-18
+---
+
 # 真实模型慢速验证报告（REAL_MODEL_VALIDATION）
 
 > **实验 ID**：V4.1-REAL-01（预注册于 `experiments/E0_baseline_phase.yaml` v0.2.0 的
@@ -207,3 +217,40 @@ done
 | `results/real_model_needle_0.15.json` | needle 位置 0.15 分进程扫描 |
 | `results/real_model_needle_0.85.json` | needle 位置 0.85 分进程扫描 |
 | `src/semantickv/v41_torch_native_runner.py` | 真实模型慢速验证器（v0.1.2 版；v0.2.0 起重写为 V1.5 家族） |
+
+---
+
+## 反直觉与异常观测（D6/D3-b · v2.0 补录）
+
+本节按纪律 v2.0（D3-b）补录于2026-10-19，把当时**写在过程里、但未进结论**的
+现场观察固化下来。内容为**当时真实观测**，非事后重构。
+
+### 1. 机制完美 ≠ 端到端可用（本次最大的认知反差）
+
+- **预期**：若张量机制（gather/scatter 重组、RoPE、GQA、因果掩码、o_proj）有
+  任何错位，V0 重排不变性应<1.0，压缩失败可归因于「实现有 bug」。
+- **实测**：V0 重排不变性 **cos=1.000000**（2048 个位置全为 1，float32 机器精度内），
+  而端到端 final_hidden cos≈0.42、argmax 一致率≈2.3%、needle 全MISS。
+- **含义**：**越是"机制正确"，越要把失败归因到策略层而非实现层**——这直接改变了
+  后续路线：不是去修 bug，而是升级压缩预算/策略（催生 V1.5）。
+
+### 2. flat-mean 压缩的"虚假节省"陷阱
+
+- 压缩率报出 99% KV 节省，但argmax 一致率仅 2.32%——**"省了 99% 的显存"与
+  "模型还能用"是两件事**。极端压缩比下 KV 占用曲线漂亮得具有欺骗性。
+- **教训**：任何 KV 压缩的验收，**必须同时看保真度/argmax/needle**，不能只看
+  压缩率数字漂亮。
+
+### 3. needle 检索失败 ≠ 模型不会答
+
+- needle 全部 MISS，但模型能输出正确「模式串」（知道要答一个数字），**说明模型
+  保留了"答案类型"的线索，却检索不到 needle 的具体值**。
+- **含义**：失败定位在"检索/证据保真"环节，而非"生成/格式"环节——这与 V1.5 里
+  "Top-K 代表 token 保住局部细节"的方向一致。
+
+### 4. 复现踩坑：RSS 与 free 不可信
+
+- 第一次跑 needle 扫描时被 OOM killer 斩杀（exit 137）；`free -h` 显示宿主
+  123GB，但容器 cgroup 真实上限仅 8GB。
+- **处置**：needle 三位置改为**分进程**扫描，每进程独立跑，避免峰值叠加。
+- **教训**：沙盒内存判断必须以 cgroup 上限为准，不能信 `free`。
