@@ -25,6 +25,9 @@ echo "=============================================="
 echo " 轮次收尾：$ROUND — $TITLE"
 echo "=============================================="
 
+# 预检：WB2 rest-upload 会覆盖 .gitignore（已 4 次），先修再交付
+bash tools/fix_gitignore.sh || true
+
 echo
 echo "[1/2] 纪律检验"
 python3 tools/check_discipline.py --round "$ROUND" | tail -6
