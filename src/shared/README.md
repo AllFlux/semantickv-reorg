@@ -6,14 +6,17 @@
 > （`load_test.py` 五项检查全 PASS）。
 > 实验读数总簿：`results_v2/momega_regimes.json`。
 >
-> **🚚 物流状态（DS-20261019-022-WB2，第 53 轮）**：
-> **本地 Commit（内容承诺）：`8503b5d`** —— 两 `.pt` + `load_test.py` + 本 README
-> 前一版已进入本地 git 仓库（`tools/auto_push_shared.py` 自动提交）。
-> ⚠️ **尚未推送远端**：本环境无 GitHub 凭据（连接器网关未授权）且尚未指定目标仓库，
-> 实测记录见 `results/logistics_push_test.json`（verdict: FAIL，两个阻塞点：
-> no_remote + no_credentials——按 DS 自己的 falsifiable_criterion 判自动 Push 失败）。
-> 凭据与目标仓库就绪后执行 `python3 tools/auto_push_shared.py --remote <url>` 一键推送，
-> 此处将更新为**已推送** commit hash 并附 raw.githubusercontent.com HTTP 200 核验。
+> **🚚 物流状态（DS-20261019-023-WB2，第 54 轮·已推送）**：
+> **远端仓库：`https://github.com/AllFlux/semantickv-reorg`（main 分支）** —— DS Q9 范围裁定
+> （严格限定 `src/shared/`，历史 JSON 与全量权重留本地）**已执行并核验**：远端树仅含
+> `src/shared/` 4 文件 + `.gitignore` 白名单声明（`git ls-tree` + API 双路核验）。
+> **双通道记录（如实，不掩盖失败）**：① `git push` 通道**失败**——GnuTLS recv error (-110)
+> TLS 传输层中断（非 403/401 认证拒绝），管线 90s >10s 触发 H-DS32 falsifiable_criterion；
+> ② 按 DS 判据切 **GitHub REST API 备选通道成功**——5 路径全部上传（4×201/200 + update 幂等），
+> **raw 核验 HTTP/2 200**（`curl -sI` 双文件重试读数）。
+> 证据：`results/logistics_push_test.json`（verdict 语义 success，git 失败历史保留）+
+> `results/logistics_rest_upload.json`（+ `_run1.json` 首跑留痕）。远端 commit sha 见证据 JSON
+> `rest_fallback.uploads[].commit_sha`。PAT 未落任何文件、未进 .git/config（推完即还原纪律）。
 
 ## 1. 交付物清单
 
