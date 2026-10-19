@@ -16,9 +16,15 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR" || exit 1
 
-MODEL="${MODEL:-Qwen/Qwen2.5-7B-Instruct}"
+MODEL="${MODEL:-Qwen/Qwen2.5-3B-Instruct}"
 CTX="${CTX:-8192}"
-ENV_TAG="${ENV_TAG:-autodl-7b}"      # 全尺寸显卡用 autodl-7b；Kaggle 用 kaggle-7b
+# 从模型名推断规模档（3b / 7b），用于环境标签与产物命名
+case "$(echo "$MODEL" | tr '[:lower:]' '[:upper:]')" in
+  *7B*) SIZE_TAG=7b ;;
+  *3B*) SIZE_TAG=3b ;;
+  *)    SIZE_TAG="" ;;
+esac
+ENV_TAG="${ENV_TAG:-autodl-${SIZE_TAG:-3b}}"   # 显卡机 autodl-3b/7b；Kaggle 用 kaggle-*
 OUTDIR="${OUTDIR:-results}"
 DTYPE="${DTYPE:-float16}"
 THREADS="${SEMANTICKV_THREADS:-8}"
@@ -44,6 +50,7 @@ if [ "${SMOKE:-0}" = "1" ]; then
   SMOKE_SCALE_ASSAULT="--paragraphs 3 --repeats 2 --target-layer 4"
   SMOKE_SCALE_FEATURES="--paragraphs 3 --repeats 2 --target-layer 4 --max-tokens 512"
   MODEL="${SMOKE_MODEL:-/workspace/models/Qwen2.5-0.5B}"
+  SIZE_TAG=0.5b          # 必须重算：否则会沿用默认 3B 的命名，产物张冠李戴
   CTX=512
   ENV_TAG=local-sandbox-cpu-proxy-0.5B
   DEV=cpu
@@ -115,7 +122,7 @@ if [ "$SKIP_ASSAULT" -eq 0 ]; then
     --topk-per-group 8 --sink-tokens 4 --window-tokens 64 \
     --compress-layers 0.25-0.75 --kmean-renorm none --group-score-prior logcount \
     --needle-positions 0.15,0.5,0.85 \
-    --out "${OUTDIR}/kaggle_7b_fixed_route.json" \
+    --out "${OUTDIR}/kaggle_${SIZE_TAG:-3b}_fixed_route.json" \
     --environment "$ENV_TAG"
   RC=$?
   if [ "$RC" -ne 0 ]; then
@@ -132,7 +139,7 @@ if [ "$SKIP_FEATURES" -eq 0 ]; then
     --model "$MODEL" --dtype "$DTYPE" --device "$DEV" $FOURBIT_ARG \
     --ctx "$CTX" $SMOKE_SCALE_FEATURES --gsc-k 16 --gsc-tau 0.97 --metric centered \
     --max-tokens 8192 --expect-dim 3584 \
-    --out "${OUTDIR}/real_features_7b" \
+    --out "${OUTDIR}/real_features_${SIZE_TAG:-3b}" \
     --environment "$ENV_TAG"
   RC=$?
   if [ "$RC" -ne 0 ]; then
@@ -146,10 +153,10 @@ echo
 echo "=============================================================="
 echo " 产出摘要"
 echo "=============================================================="
-python3 - <<PY
+SIZE_TAG="$SIZE_TAG" python3 - <<PY
 import json, os
 base = "$OUTDIR"
-fr = os.path.join(base, "kaggle_7b_fixed_route.json")
+fr = os.path.join(base, "kaggle_%s_fixed_route.json" % os.environ.get("SIZE_TAG", "3b"))
 if os.path.exists(fr):
     d = json.load(open(fr))
     e = d.get("environment", {})
@@ -160,7 +167,7 @@ if os.path.exists(fr):
 else:
     print("[固定路由] 未产出")
 
-fm = os.path.join(base, "real_features_7b.json")
+fm = os.path.join(base, "real_features_%s.json" % os.environ.get("SIZE_TAG", "3b"))
 if os.path.exists(fm):
     m = json.load(open(fm))
     print(f"[特征导出] dim={m['hidden_size']}  check={m.get('dim_check')}  "
@@ -170,8 +177,8 @@ else:
 PY
 echo
 echo "把这两个文件回传即可（绝对路径）："
-echo "  ${SCRIPT_DIR}/${OUTDIR}/kaggle_7b_fixed_route.json"
-echo "  ${SCRIPT_DIR}/${OUTDIR}/real_features_7b.npz"
+echo "  ${SCRIPT_DIR}/${OUTDIR}/kaggle_${SIZE_TAG:-3b}_fixed_route.json"
+echo "  ${SCRIPT_DIR}/${OUTDIR}/real_features_${SIZE_TAG:-3b}.npz"
 echo
 echo "若 HF_HOME 未设置，模型缓存会落在默认 ~/.cache；"
 echo "在 PAI-DSW / 临时实例上建议：export HF_HOME=/mnt/workspace/hf_cache"

@@ -18,15 +18,23 @@ from fixed_route_assault import compute_env_claims, validate_env_label  # noqa: 
 
 GOOD_7B = dict(model="Qwen/Qwen2.5-7B-Instruct", load_in_4bit=True,
                ctx=8192, device="cuda", cuda_available=True)
+GOOD_3B = dict(model="Qwen/Qwen2.5-3B-Instruct", load_in_4bit=True,
+               ctx=8192, device="cuda", cuda_available=True)
 
 CASES = [
     # (说明, 环境标签, 参数, 期望 ok, 期望失败项)
     ("7B 4bit cuda 8K → kaggle-7b", "kaggle-7b", GOOD_7B, True, []),
     ("7B 4bit cuda 8K → autodl-7b", "autodl-7b", GOOD_7B, True, []),
+    ("3B 4bit cuda 8K → autodl-3b（DS-040 口径）", "autodl-3b", GOOD_3B, True, []),
+    ("3B 4bit cuda 8K → kaggle-3b", "kaggle-3b", GOOD_3B, True, []),
+    ("3B 但 ctx=2048 冒充 autodl-3b", "autodl-3b",
+     dict(model="Qwen/Qwen2.5-3B-Instruct", load_in_4bit=True, ctx=2048,
+          device="cuda", cuda_available=True),
+     False, ["ctx_ge_4096"]),
     ("0.5B CPU 冒充 kaggle-7b", "kaggle-7b",
      dict(model="Qwen/Qwen2.5-0.5B", load_in_4bit=False, ctx=512,
           device="cpu", cuda_available=False),
-     False, ["model_is_7b", "load_in_4bit", "ctx_ge_4096", "device_uses_cuda"]),
+     False, ["model_size_in_3b_7b", "load_in_4bit", "ctx_ge_4096", "device_uses_cuda"]),
     ("7B 但跑 CPU（无 4bit）冒充 autodl-7b", "autodl-7b",
      dict(model="Qwen/Qwen2.5-7B-Instruct", load_in_4bit=False, ctx=2048,
           device="cpu", cuda_available=False),

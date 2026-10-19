@@ -53,7 +53,7 @@ from mock_grouper import MockSemanticGrouper  # noqa: E402
 
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="导出真实 Prefill 隐状态 + GSC 标签（DS-029）")
-    ap.add_argument("--model", default="Qwen/Qwen2.5-0.5B")
+    ap.add_argument("--model", default="Qwen/Qwen2.5-3B-Instruct")
     ap.add_argument("--hf-endpoint", default=os.environ.get("HF_ENDPOINT", ""))
     ap.add_argument("--dtype", default="float16", choices=["float32", "bfloat16", "float16"])
     ap.add_argument("--load-in-4bit", action="store_true")
@@ -69,12 +69,12 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--gsc-tau", type=float, default=0.97)
     ap.add_argument("--max-tokens", type=int, default=0,
                     help="只导出前 N 个 token（0=全部；用于控制 .npz 体积）")
-    ap.add_argument("--out", default=str(ROOT / "results" / "real_features_7b"),
-                    help="输出前缀（生成 <out>.npz 与 <out>.json）")
+    ap.add_argument("--out", default=None,
+                    help="输出前缀（缺省按模型规模：results/real_features_{3b|7b}）")
     ap.add_argument("--environment", default=None,
                     help="环境标签：kaggle-7b / autodl-7b（权威）；缺省自动判定")
-    ap.add_argument("--expect-dim", type=int, default=3584,
-                    help="权威标签下强制校验的隐状态维度（Qwen2.5-7B=3584）")
+    ap.add_argument("--expect-dim", type=int, default=0,
+                    help="权威标签下强制校验的维度；0=按模型规模自动（3B→2048, 7B→3584）")
     ap.add_argument("--key-name", default="hidden_states",
                     choices=["hidden_states", "hs"],
                     help="npz 中隐状态数组的键名（DS-038：默认 hidden_states，可选 hs）")
@@ -92,6 +92,14 @@ def main() -> int:
     model.eval()
 
     true_dim = int(model.config.hidden_size)
+
+    # 规模档与期望维度（DS-040：3B 为正式口径，7B 仍兼容）
+    SIZE_DIMS = {"3B": 2048, "7B": 3584}
+    sz = next((s for s in ("7B", "3B") if s in str(args.model).upper()), None)
+    if args.expect_dim == 0:
+        args.expect_dim = SIZE_DIMS.get(sz, true_dim)
+    if args.out is None:
+        args.out = str(ROOT / "results" / f"real_features_{(sz or '0.5B').lower()}")
     n_layers = int(model.config.num_hidden_layers)
     print(f"[arch] hidden_size={true_dim}  layers={n_layers}  "
           f"kv_heads={getattr(model.config, 'num_key_value_heads', '?')}", flush=True)
@@ -126,11 +134,11 @@ def main() -> int:
     labels = labels[:take]
 
     env = args.environment or (
-        "kaggle-7b" if (args.load_in_4bit and "7B" in args.model)
-        else f"local-sandbox-cpu-proxy-{'7B' if '7B' in args.model else '0.5B'}")
+        f"kaggle-{sz.lower()}" if (args.load_in_4bit and sz)
+        else f"local-sandbox-cpu-proxy-{sz or '0.5B'}")
 
-    # 权威标签下强制维度校验（DS-035 验收：必须严格 (N, 3584)）
-    AUTHORITATIVE = {"kaggle-7b", "autodl-7b"}
+    # 权威标签下强制维度校验（DS-035/040：严格 (N, 2048) 或 (N, 3584)）
+    AUTHORITATIVE = {"kaggle-7b", "autodl-7b", "kaggle-3b", "autodl-3b"}
     if env in AUTHORITATIVE and true_dim != args.expect_dim:
         print(f"[FATAL] 声明 {env}，但 model.config.hidden_size={true_dim} "
               f"!= 期望 {args.expect_dim}。拒绝产出（DS-035 验收标准）。", file=sys.stderr)
@@ -187,13 +195,19 @@ def main() -> int:
     }
 
     out = Path(args.out)
+    # ⚠ 不能用 Path.with_suffix：当 out 形如 "real_features_0.5b" 时，
+    # with_suffix(".npz") 会把 ".5b" 当成后缀替换掉 → 变成 real_features_0.npz。
+    # 这里按字符串拼接，并容忍用户显式传入 .npz/.json。
+    if out.suffix.lower() in (".npz", ".json"):
+        out = Path(str(out)[: -len(out.suffix)])
     out.parent.mkdir(parents=True, exist_ok=True)
-    npz_path = out.with_suffix(".npz")
+    npz_path = Path(str(out) + ".npz")
+    json_path = Path(str(out) + ".json")
     np.savez_compressed(npz_path,
                         labels=labels,
                         meta=np.array(json.dumps(meta, ensure_ascii=False)),
                         **{key: hidden})
-    out.with_suffix(".json").write_text(
+    json_path.write_text(
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # 回读自校验：键名/形状/dtype 必须与契约一致

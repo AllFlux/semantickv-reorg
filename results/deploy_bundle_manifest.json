@@ -1,23 +1,23 @@
 {
   "purpose": "7B 实机最小部署包清单（DS-20261019-035-WB1 步骤 1 验收）",
-  "created_at": "2026-10-19T13:14:04+00:00",
+  "created_at": "2026-10-19T14:18:45+00:00",
   "environment": {
     "kind": "local-sandbox-cpu-proxy-0.5B",
     "note": "打包与校验在 CPU 沙盒完成；包内脚本需 GPU 才能跑 7B。"
   },
   "bundle": {
     "path": "dist/autodl_deploy.tar.gz",
-    "bytes": 49195,
-    "sha256": "32348271e211720054ad25d64333f3024d82a24ef3eacfc4c50f423533fbfaf3",
+    "bytes": 50211,
+    "sha256": "aa26ed45a706f6d6258f9cfe48058a69ae72dd95448272be29f97d9e04bf6267",
     "n_files": 8,
     "files": [
       {
         "name": "deploy_autodl/src/semantickv/fixed_route_assault.py",
-        "bytes": 18255
+        "bytes": 18762
       },
       {
         "name": "deploy_autodl/src/semantickv/export_real_features.py",
-        "bytes": 10514
+        "bytes": 11292
       },
       {
         "name": "deploy_autodl/src/semantickv/v41_torch_native_runner.py",
@@ -29,7 +29,7 @@
       },
       {
         "name": "deploy_autodl/run_all.sh",
-        "bytes": 6965
+        "bytes": 7418
       },
       {
         "name": "deploy_autodl/requirements.txt",
@@ -37,7 +37,7 @@
       },
       {
         "name": "deploy_autodl/README.md",
-        "bytes": 6371
+        "bytes": 6836
       },
       {
         "name": "deploy_autodl/eval_runner.py",
@@ -62,12 +62,15 @@
       "autodl-7b"
     ],
     "env_claims": [
-      "model_is_7b",
+      "model_size_in_3b_7b",
       "load_in_4bit",
       "ctx_ge_4096",
       "device_uses_cuda"
     ],
-    "feature_dim_expected": 3584,
+    "feature_dim_expected": {
+      "3B": 2048,
+      "7B": 3584
+    },
     "dim_guard_on_mismatch": "return 4, 拒绝产出（已负向验证：0.5B + autodl-7b → exit=4，零文件）",
     "npz_keys": {
       "key_hidden": "hidden_states",
@@ -133,5 +136,20 @@
     "exit": 0,
     "duration_s": 26,
     "note": "下载→校验→解压→依赖→运行 全链路；产物 real_features_7b.npz/.json 生成"
+  },
+  "model_policy": {
+    "default": "Qwen/Qwen2.5-3B-Instruct",
+    "hidden_size": 2048,
+    "compat": {
+      "Qwen/Qwen2.5-7B-Instruct": 3584
+    },
+    "naming": "kaggle_{3b|7b}_fixed_route.json / real_features_{3b|7b}.npz",
+    "env_labels": [
+      "autodl-3b",
+      "kaggle-3b",
+      "autodl-7b",
+      "kaggle-7b"
+    ],
+    "note": "DS-20261019-040 起 3B 为正式口径；7B 需 FORCE_7B=1 或显式 --model"
   }
 }

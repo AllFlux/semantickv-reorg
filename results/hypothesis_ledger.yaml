@@ -25,10 +25,10 @@
 
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律 (v2.0)"
-  total: 18
+  total: 19
   confirmed: 3
   refuted: 6
-  pending: 9
+  pending: 10
   open_items_for_ds:
     - id: OI-DS24-20261019
       raised_by: WB1
@@ -225,3 +225,13 @@ hypotheses:
     evidence_file: "results/ds_reviews/20261019_035_wb1_review.md"
     ds_admitted_refutation: false
     fate_note: "DS-20261019-035 登记。DS 依据 WB2 低秩几何证据（泛化间隙 0.26→0.015）判定 Router 架构无问题，把真实特征导出定为唯一破局点。WB1 已交付：48KB 部署包（8 文件，deploy/autodl/README.md）、--expect-dim 3584 硬校验（0.5B 标 autodl-7b 时 return 4 拒产）、autodl-7b 兼容（守卫抽为纯函数 + 7 条单测全过）。判定依赖用户 AutoDL 实跑产出 real_features_7b.npz 后 WB2 重训结果。"
+
+  - id: H-DS37
+    source_review: DS-20261019-040-WB1
+    statement: "3B（hidden 2048）的真实特征足以让 WB2 重训出显著优于随机的 SemanticRouter，从而在不依赖 7B 的前提下完成破局"
+    falsifiable_criterion: "若 WB2 用 real_features_3b.npz 重训后 Top-1 仍不显著高于随机基线 1.56%（64 群），则 3B 降级不足以支撑路由训练，必须回到 7B；若显著高于且混合保护 Argmax ≥45%，则 3B 口径成立。"
+    data_source: "results/real_features_3b.npz; results/kaggle_3b_fixed_route.json"
+    status: pending
+    evidence_file: "results/ds_reviews/20261019_040_wb1_review.md"
+    ds_admitted_refutation: false
+    fate_note: "DS-20261019-040 登记（算力降级）。DS 以『3B 与 7B 同构（GQA+同注意力）』为理由把目标模型降为 Qwen2.5-3B-Instruct（hidden 2048）。WB1 已全量切换：守卫 model_is_7b→model_size_in_3b_7b、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、产物按规模命名；守卫单测 10/10。⚠ 注意：同构成立但表征容量差 ~2.4 倍，『跑得动』不等于『够用』——本条即为该风险留的证伪口。判定需 WB2 用 real_features_3b.npz 重训的结果。"

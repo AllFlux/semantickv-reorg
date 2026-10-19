@@ -1,4 +1,11 @@
-# 7B 实机部署清单（AutoDL RTX 4090D / Colab）
+# 3B / 7B 实机部署清单（PAI-DSW / AutoDL / Colab）
+
+> **⚠ 模型口径（DS-20261019-040 起）**：正式目标模型为 **`Qwen/Qwen2.5-3B-Instruct`**
+> （`hidden_size=2048`），脚本默认值已切换。7B 仍然兼容。
+> **产物名随模型规模自动变化**：3B → `kaggle_3b_fixed_route.json` / `real_features_3b.npz`；
+> 7B → `kaggle_7b_*` / `real_features_7b.*`。下文示例中的 `_7b_` 请按实际模型替换。
+
+
 
 > 目标：产出两个交付物，交给 DS 与 WB2。
 > **极简原则**：只上传 4 个 `.py` + 1 个 `.sh` + `requirements.txt`，不带仓库其余部分。
@@ -74,12 +81,12 @@ bash run_all.sh --skip-assault    # 只跑 Step 6
 
 | 检查 | 期望 |
 |---|---|
-| `kaggle_7b_fixed_route.json` 的 `environment.kind` | `autodl-7b` |
+| `<kaggle>_fixed_route.json` 的 `environment.kind` | `autodl-3b`（3B）/ `autodl-7b`（7B） |
 | `environment.claims_checked` | 四项全 `true` |
-| `real_features_7b.json` 的 `hidden_size` | **3584** |
+| `real_features_*.json` 的 `hidden_size` | 3B→**2048** / 7B→**3584** |
 | `real_features_7b.json` 的 `dim_check` | `PASS` |
 | `real_features_7b.npz` 的键名 | **`hidden_states`** / `labels` / `meta` |
-| `real_features_7b.npz` 的 `hidden_states.shape` | **(N, 3584)** |
+| `real_features_*.npz` 的 `hidden_states.shape` | **(N, 2048)** 或 **(N, 3584)** |
 | `labels.shape` | `(N,)`，群数 `n_groups` |
 
 任一项不符，脚本会打印 `[FATAL]` 并**拒绝落盘**（不会产出假数据）。
@@ -94,7 +101,7 @@ bash run_all.sh --skip-assault    # 只跑 Step 6
 | OOM（4090D 24GB 一般够） | 把 `--ctx 8192` 降到 `4096`；或 `--max-tokens 4096` |
 | 下载卡住 | 确认 `HF_ENDPOINT=https://hf-mirror.com`；或先 `huggingface-cli download` |
 | `[FATAL] 环境标签不一致` | 说明参数没凑齐四条断言（7B / 4bit / ctx≥4096 / CUDA），**这是保护，不要绕过** |
-| `hidden_size != 3584` | 模型不是 Qwen2.5-7B-Instruct（如 0.5B）；换模型，别改 `--expect-dim` |
+| 维度与模型不符 | 3B 应为 2048、7B 应为 3584；不符说明模型没选对，别改 `--expect-dim` |
 
 ---
 

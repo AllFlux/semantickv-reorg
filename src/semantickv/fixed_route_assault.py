@@ -149,17 +149,27 @@ def run_needle(model, tok, args, ids_n: torch.Tensor,
             "prefill_final_hidden_cos": cos}
 
 
-# ── 权威环境标签与守卫（DS-20261019-029 / DS-20261019-035）────────────────
-# kaggle-7b ：Kaggle T4/P100（16GB 级）
-# autodl-7b  ：AutoDL RTX 4090D / Colab（全尺寸显卡，DS-035 新增兼容）
-AUTHORITATIVE_ENVS = {"kaggle-7b", "autodl-7b"}
+# ── 权威环境标签与守卫（DS-029 / DS-035 / DS-040 3B 降级）──────────────
+# kaggle-7b / autodl-7b ：7B（hidden 3584）
+# kaggle-3b / autodl-3b ：3B（hidden 2048）——DS-040 起为省算力的正式口径
+AUTHORITATIVE_ENVS = {"kaggle-7b", "autodl-7b", "kaggle-3b", "autodl-3b"}
+SIZE_DIMS = {"3B": 2048, "7B": 3584}
+
+
+def model_size(model: str) -> Optional[str]:
+    """从模型名推断规模档（'3B' / '7B' / None）。"""
+    m = str(model).upper()
+    for s in ("7B", "3B"):
+        if s in m:
+            return s
+    return None
 
 
 def compute_env_claims(model: str, load_in_4bit: bool, ctx: int,
                        device: str, cuda_available: bool) -> dict:
-    """把「是否真的是 7B 实机」拆成四条可核验断言。"""
+    """把「是否真的是 3B/7B 实机」拆成四条可核验断言。"""
     return {
-        "model_is_7b": "7B" in str(model),
+        "model_size_in_3b_7b": model_size(model) is not None,
         "load_in_4bit": bool(load_in_4bit),
         "ctx_ge_4096": int(ctx) >= 4096,
         "device_uses_cuda": (device == "cuda") or bool(cuda_available),
@@ -179,7 +189,7 @@ def validate_env_label(env_kind: str, claims: dict) -> Tuple[bool, List[str]]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="7B 混合保护固定路由突击测试（DS-026）")
-    ap.add_argument("--model", default="Qwen/Qwen2.5-0.5B")
+    ap.add_argument("--model", default="Qwen/Qwen2.5-3B-Instruct")
     ap.add_argument("--hf-endpoint", default=__import__("os").environ.get("HF_ENDPOINT", ""),
                     help="HF 镜像源，如 https://hf-mirror.com（国内加速）")
     ap.add_argument("--dtype", default="float32", choices=["float32", "bfloat16", "float16"])
@@ -210,7 +220,8 @@ def main() -> int:
     ap.add_argument("--needle-positions", default="0.15,0.5,0.85")
     ap.add_argument("--question", default="小王最喜欢的数字是多少？请只回答数字：")
     ap.add_argument("--max-new-tokens", type=int, default=8)
-    ap.add_argument("--out", default=str(ROOT / "results" / "kaggle_7b_fixed_route.json"))
+    ap.add_argument("--out", default=None,
+                    help="缺省按模型规模命名：results/kaggle_{3b|7b}_fixed_route.json")
     ap.add_argument("--environment", default=None,
                     help="环境标签覆盖：如 kaggle-7b / local-sandbox-cpu-proxy-0.5B。默认自动识别")
     args = ap.parse_args()
@@ -299,10 +310,13 @@ def main() -> int:
                 else "存在固定路由下 7B 混合保护 Argmax <45%：崩盘非路由差，而是重组在多段拼接时"
                      "破坏了 RoPE 连续性（标记 ROPE_FRACTURE，H-DS10 DS-026 口径）。")
 
+    sz = model_size(args.model)
+    if args.out is None:
+        args.out = str(ROOT / "results" / f"kaggle_{(sz or '0.5B').lower()}_fixed_route.json")
     env_kind = args.environment or (
-        "kaggle-7b" if (args.load_in_4bit or
-                        (torch.cuda.is_available() and "7B" in args.model))
-        else f"local-sandbox-cpu-proxy-{ '7B' if '7B' in args.model else '0.5B'}")
+        f"kaggle-{sz.lower()}" if (args.load_in_4bit or
+                                   (torch.cuda.is_available() and sz))
+        else f"local-sandbox-cpu-proxy-{sz or '0.5B'}")
 
     # ── 环境口径守卫（DS-20261019-029 验收项；DS-035 兼容 autodl-7b）──────
     # 权威文件必须标 kaggle-7b 或 autodl-7b，且不得把代理结果冒称为 7B 权威结论。
@@ -317,7 +331,7 @@ def main() -> int:
             f"        拒绝落盘，避免把代理结果误标为 7B 权威结论（DS-029/035 验收标准）。\n"
             f"        若只是本地冒烟，请去掉 --environment {env_kind}。")
 
-    env_note = (f"7B 实机权威结果（{env_kind}）。" if env_kind in AUTHORITATIVE_ENVS
+    env_note = (f"{sz or ''} 实机权威结果（{env_kind}）。" if env_kind in AUTHORITATIVE_ENVS
                 else "0.5B/小模型 CPU 代理仅校验管线；权威 7B 数字需实机"
                      "（--environment kaggle-7b 或 autodl-7b）。")
 

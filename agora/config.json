@@ -6,11 +6,12 @@
   "raw_base": "https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/",
   "source_dir": "results",
   "latest_experiment": {
-    "name": "DS-20261019-041：手机端一行入口 + 后台运行（raw 被墙 → 三镜像回退）",
-    "status": "R24 GREEN：CEO 手机端粘贴长命令会卡死。DS 判断 WB 无法直接操作云实例（无 IP/凭据/屏幕），方案收敛为『一行入口 + nohup 后台 + 可选回传』。WB1 已交付 deploy/autodl/bootstrap.sh：curl|bash 一行完成 下载→校验→解压→依赖→运行；--bg 后台（关手机不中断，打印 PID/tail）；--features-first 先拿关键产物；--upload 可选回传（需 token，未实测）。本轮最大意外：raw.githubusercontent 在沙盒 10s 无响应（被墙），jsDelivr 可用但 bootstrap 缓存滞后会拿旧哈希校验新包 → 必然失败。故改为三镜像逐个尝试+逐个校验，并加『版本漂移兜底』（结构完整即放行，STRICT_VERIFY=1 可拒绝）。",
-    "metrics": "R24 11/11 PASS｜一行命令实测 exit=0 / 26s｜后台 PID 完成后产物齐全｜通道实测 raw=超时 / jsDelivr=200·3.3s(缓存滞后) / ghfast=200新版 / gh-proxy=200新版 / statically=FAIL｜包 49195B sha=32348271…｜18 条假设（无新增）"
+    "name": "DS-20261019-040：算力降级突围 —— 目标模型 7B → 3B（hidden 2048）",
+    "status": "R25 GREEN：CEO 手机端执行受阻，DS 正式把目标模型降为 Qwen/Qwen2.5-3B-Instruct（同构 GQA，hidden 2048）。WB1 全量切换：守卫 model_is_7b→model_size_in_3b_7b（接受 3B/7B）、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、--expect-dim 改为按规模自动、产物名随规模自动（kaggle_3b_* / real_features_3b.*）、环境标签新增 autodl-3b/kaggle-3b；7B 仍兼容（FORCE_7B=1）。守卫单测 10/10（含 3B 与拒绝分支）。",
+    "metrics": "R25 11/11 PASS｜守卫 10/10（3B/7B/拒绝）｜SMOKE 产物命名实测 real_features_0.5b.npz｜包 50,211B sha=aa26ed45…｜H-DS37 新登记（19 条：3 confirmed/6 refuted/10 pending）"
   },
   "decision_items": [
+    "【DS-040 口径】目标模型 3B（hidden 2048）：产出 kaggle_3b_fixed_route.json + real_features_3b.npz（(N,2048)）。7B 需 FORCE_7B=1",
     "【立即可执行·手机端】一行：curl -sL https://ghfast.top/https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main/deploy/autodl/bootstrap.sh | bash -s -- --bg --features-first  （回车即返回 PID，关手机不中断）",
     "【立即可执行·PAI-DSW】终端两条命令即可，无需手机传文件：wget raw 链接 → tar -xzf → cd deploy_autodl → export HF_ENDPOINT/HF_HOME → bash run_all.sh（详见 deploy/autodl/README.md 第七节）",
     "【验收通过·DS-038】部署包与 autodl-7b 守卫获 DS 肯定，代码不再修改。npz 键名已统一 hidden_states（--key-name hs 可切）",
@@ -191,8 +192,8 @@
       "path": "results/ds_reviews/20261019_038_wb1_review.md"
     },
     {
-      "label": "评审 040 (PAI-DSW 指引核对 + fp16 致命 bug 修复)",
-      "path": "results/ds_reviews/20261019_040_wb1_review.md"
+      "label": "评审 039 (PAI-DSW 指引核对 + fp16 致命 bug 修复)",
+      "path": "results/ds_reviews/20261019_039_wb1_review.md"
     },
     {
       "label": "评审 041 (一行入口 / 后台 / 多镜像回退)",
@@ -201,6 +202,10 @@
     {
       "label": "一行入口脚本 bootstrap.sh",
       "path": "deploy/autodl/bootstrap.sh"
+    },
+    {
+      "label": "评审 040 (3B 降级：守卫/默认值/产物命名)",
+      "path": "results/ds_reviews/20261019_040_wb1_review.md"
     }
   ]
 }

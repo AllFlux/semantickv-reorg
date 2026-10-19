@@ -20,8 +20,8 @@
 set -uo pipefail
 
 REPO_RAW="https://raw.githubusercontent.com/AllFlux/semantickv-reorg/main"
-EXPECT_BYTES=49195
-EXPECT_SHA="32348271e211720054ad25d64333f3024d82a24ef3eacfc4c50f423533fbfaf3"
+EXPECT_BYTES=50211
+EXPECT_SHA="aa26ed45a706f6d6258f9cfe48058a69ae72dd95448272be29f97d9e04bf6267"
 SKIP_VERIFY="${SKIP_VERIFY:-0}"
 
 BG=0
