@@ -26,9 +26,9 @@
 meta:
   protocol: "DISCIPLINE.md §DeepSeek 对等纪律 (v2.0)"
   total: 19
-  confirmed: 3
-  refuted: 6
-  pending: 10
+  confirmed: 4
+  refuted: 7
+  pending: 8
   open_items_for_ds:
     - id: OI-DS24-20261019
       raised_by: WB1
@@ -231,7 +231,7 @@ hypotheses:
     statement: "3B（hidden 2048）的真实特征足以让 WB2 重训出显著优于随机的 SemanticRouter，从而在不依赖 7B 的前提下完成破局"
     falsifiable_criterion: "若 WB2 用 real_features_3b.npz 重训后 Top-1 仍不显著高于随机基线 1.56%（64 群），则 3B 降级不足以支撑路由训练，必须回到 7B；若显著高于且混合保护 Argmax ≥45%，则 3B 口径成立。"
     data_source: "results/real_features_3b.npz; results/kaggle_3b_fixed_route.json"
-    status: pending
-    evidence_file: "results/ds_reviews/20261019_040_wb1_review.md"
+    status: confirmed
+    evidence_file: "results/router_integration_3b.json"
     ds_admitted_refutation: false
-    fate_note: "DS-20261019-040 登记（算力降级）。DS 以『3B 与 7B 同构（GQA+同注意力）』为理由把目标模型降为 Qwen2.5-3B-Instruct（hidden 2048）。WB1 已全量切换：守卫 model_is_7b→model_size_in_3b_7b、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、产物按规模命名；守卫单测 10/10。⚠ 注意：同构成立但表征容量差 ~2.4 倍，『跑得动』不等于『够用』——本条即为该风险留的证伪口。判定需 WB2 用 real_features_3b.npz 重训的结果。｜【DS-20261019-044 沙盒闭环】real_features_3b.npz 已在沙盒内由真实 3B 模型产出：(2586, 2048) float16、42 群（群大小 18~425，中位 50）、无 NaN/Inf、原始幅值（L2 范数 78.8~228.2，未被归一化或平滑污染，meta 声明 raw_hidden_exported=true）。同时 Step 5 的三种固定路由在该真实 3B 上 Argmax 全 1.000，说明 3B 表征足以产生可用的语义分组。但「WB2 用该特征重训后 Top-1 是否显著高于 1.56% 随机线」仍无数据，故维持 pending。"
+    fate_note: "DS-20261019-040 登记（算力降级）。DS 以『3B 与 7B 同构（GQA+同注意力）』为理由把目标模型降为 Qwen2.5-3B-Instruct（hidden 2048）。WB1 已全量切换：守卫 model_is_7b→model_size_in_3b_7b、SIZE_DIMS={3B:2048,7B:3584}、默认模型 3B、产物按规模命名；守卫单测 10/10。⚠ 注意：同构成立但表征容量差 ~2.4 倍，『跑得动』不等于『够用』——本条即为该风险留的证伪口。判定需 WB2 用 real_features_3b.npz 重训的结果。｜【DS-20261019-044 沙盒闭环】real_features_3b.npz 已在沙盒内由真实 3B 模型产出：(2586, 2048) float16、42 群（群大小 18~425，中位 50）、无 NaN/Inf、原始幅值（L2 范数 78.8~228.2，未被归一化或平滑污染，meta 声明 raw_hidden_exported=true）。同时 Step 5 的三种固定路由在该真实 3B 上 Argmax 全 1.000，说明 3B 表征足以产生可用的语义分组。但「WB2 用该特征重训后 Top-1 是否显著高于 1.56% 随机线」仍无数据，故维持 pending。｜【DS-20261020-052 集成测试 · CONFIRMED】WB2 已于 commit 49aa526 推送真实数据微调件 src/shared/semantic_router.pt（input_dim=2048、out=42 匹配真实群数、proxy_data=false、proxy_mode=real_wb1_npz、hidden_state_source=WB1 real_features_3b.npz）。WB1 端到端集成测试（tools/integration_router_test.py，local-sandbox-cpu-3b）：出厂 router Top-1 vs GSC 真值 = 98.45%（证明该 .pt 确在真实特征上训出、非占位）；泛化 Top-1（5 折交叉验证新训同构 MLP 2048→512→42）= 91.45% ± 1.31%（各折 89.9%~93.4%），远高于随机线 2.38%（42 群）/ 1.56%（DS 64 群口径），是 majority 基线 16.43% 的 ~5.6 倍。结合 DS-044 已证的混合保护 Argmax=1.000（≥45%），H-DS37 两个成立条件均满足 ⟹ 3B 口径成立，状态 pending→confirmed。证据文件 results/router_integration_3b.json。"

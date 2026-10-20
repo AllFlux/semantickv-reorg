@@ -1,0 +1,64 @@
+{
+  "purpose": "DS-20261020-052 §三 端到端集成测试：路由挂载真实 3B 特征后 Top-1/Argmax 判定",
+  "created_at": "2026-10-20T10:22:12+00:00",
+  "model": "/workspace/models/Qwen2.5-3B-Instruct",
+  "environment": {
+    "kind": "local-sandbox-cpu-3b",
+    "model": "/workspace/models/Qwen2.5-3B-Instruct",
+    "device": "cpu",
+    "dtype": "float32",
+    "load_in_4bit": false,
+    "note": "真实 3B 隐状态 + 真实数据微调 router；设备 CPU 是唯一与实机差异。"
+  },
+  "config": {
+    "npz": "src/shared/real_features_3b.npz",
+    "router_pt": "src/shared/semantic_router.pt",
+    "router_arch": {
+      "in_dim": 2048,
+      "hidden": 512,
+      "out": 42,
+      "activation": "ReLU",
+      "framework": "pure_torch_mlp",
+      "rebuild": "nn.Sequential(nn.Linear(in_dim,hidden), nn.ReLU(), nn.Linear(hidden,out))"
+    },
+    "router_data_provenance": {
+      "proxy_data": false,
+      "proxy_mode": "real_wb1_npz",
+      "hidden_state_source": "WB1 npz: real_features_3b.npz (keys=hidden_states/labels)",
+      "real_hidden_state_available": true,
+      "label_source": "WB1 GSC (metric=centered)",
+      "note": "真实数据微调件；准确率判定见 results_v2/real_data_finetune.json"
+    },
+    "cv_folds": 5,
+    "cv_epochs": 60,
+    "features_shape": [
+      2586,
+      2048
+    ],
+    "n_groups": 42,
+    "model": "/workspace/models/Qwen2.5-3B-Instruct",
+    "device": "cpu",
+    "dtype": "float32",
+    "load_in_4bit": false
+  },
+  "results": {
+    "shipped_router_top1": 0.9845321178436279,
+    "generalization_top1_mean": 0.9145321607589721,
+    "generalization_top1_std": 0.013122692159433695,
+    "generalization_top1_folds": [
+      0.9343629479408264,
+      0.924564778804779,
+      0.9032881855964661,
+      0.8994197249412537,
+      0.9110251665115356
+    ],
+    "majority_baseline": 0.16434648105181748,
+    "random_baseline_42": 0.023809523809523808,
+    "random_line_64_hds37": 0.0156,
+    "router_n_params": 1070634
+  },
+  "verdict": "INTEGRATION_PASS",
+  "h_ds37": "confirmed",
+  "h_ds37_criterion": "泛化 Top-1 显著高于随机线（42 群 2.38% / DS 64 群 1.56%）且出厂 router Top-1 > 50% ⟹ 3B 口径成立",
+  "note": "出厂 router 由 WB2 在 real_features_3b.npz 上真实微调（proxy_data=false, proxy_mode=real_wb1_npz）；泛化 Top-1 用 5 折 CV 新训同构 MLP 估计，避免训练集自测高估。"
+}
