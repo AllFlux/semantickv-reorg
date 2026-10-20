@@ -69,12 +69,13 @@ def load_json(js: Path) -> dict:
 
 
 def read_expected_sha(j: dict) -> str | None:
-    """DS-051 字段 sha256 优先；兼容 DS-048 遗留 export_sha256（根/内层均可）。"""
+    """D-65a：export_sha256 为唯一真值（WB2 validate_wb2_input.py 读取），优先读它；
+    回退到 DS-051 别名 sha256（根/内层均可）。"""
     meta = j.get("meta", {})
-    return (j.get("sha256")
-            or meta.get("sha256")
-            or j.get("export_sha256")
-            or meta.get("export_sha256"))
+    return (j.get("export_sha256")
+            or meta.get("export_sha256")
+            or j.get("sha256")
+            or meta.get("sha256"))
 
 
 def magic_and_load(npz: Path):
@@ -178,9 +179,9 @@ def main() -> int:
     ap.add_argument("--npz", help=".npz 文件路径")
     ap.add_argument("--json", help="同伴 .json 文件路径")
     ap.add_argument("--write", action="store_true",
-                    help="把 sha256/byte_size/validated_at 写入 json 的 meta（根+内层）")
+                    help="把 export_sha256(唯一真值)/sha256/byte_size/validated_at 写入 json meta（根+内层）")
     ap.add_argument("--check", action="store_true",
-                    help="比对 json meta 中 sha256，不一致即损坏（exit 4）")
+                    help="比对 json meta 的 export_sha256(唯一真值)，不一致即损坏（exit 4）")
     ap.add_argument("--parts", help="分卷 manifest.json 路径，逐卷+拼整体校验")
     ap.add_argument("--assemble", help="分卷 manifest.json 路径，自动拼接还原为原文件")
     ap.add_argument("--out", help="--assemble 时指定还原输出路径（缺省=原文件名）")
@@ -229,17 +230,24 @@ def main() -> int:
     if int(j.get("hidden_size", 0)) != (int(hs.shape[1]) if hs is not None else -1):
         print(f"[WARN] json.hidden_size 与 npz 维度不一致")
 
-    # 4. --write：写回 json meta（DS-051 字段 sha256/byte_size，根+内层双写）
+    # 4. --write：写回 json meta（D-65a export_sha256 唯一真值 + DS-051 sha256 别名，
+    #    二者恒等；根 meta 与内层 meta["meta"] 双写）。重新生成 npz 后同步调用它即可。
     if args.write:
-        meta["sha256"] = digest
+        meta["export_sha256"] = digest   # D-65a 唯一真值
+        meta["sha256"] = digest           # DS-051 别名
+        meta["export_byte_size"] = size
         meta["byte_size"] = size
         meta["validated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        meta["flag_provenance"] = ("DS-20261020-051 要求：导出脚本内/校验脚本写入 "
-                                   "sha256/byte_size 入 meta")
+        meta["flag_provenance"] = ("DS-20261020-051 要求写入 sha256/byte_size；"
+                                   "DS-20261020-052/D-65a 明确 export_sha256 为唯一真值"
+                                   "（WB2 validate_wb2_input.py 读取），故镜像双写、值恒等")
+        j["export_sha256"] = digest
         j["sha256"] = digest
+        j["export_byte_size"] = size
         j["byte_size"] = size
+        j["validated_at"] = meta["validated_at"]
         js.write_text(json.dumps(j, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"[write] 已写入 meta.sha256 / byte_size / validated_at "
+        print(f"[write] 已写入 meta.export_sha256(唯一真值) / sha256 / byte_size / validated_at "
               f"（根 meta 与内层 meta[\"meta\"] 双写）-> {js}")
 
     # 5. --check：比对

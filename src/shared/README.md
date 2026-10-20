@@ -216,6 +216,23 @@ python3 tools/validate_wb1_export.py --assemble real_features_3b.npz.parts.json 
 # （或：cat part1 part2 > real_features_3b.npz）
 ```
 
-> **版本冻结**：DS-048/051 均标记 `version_freeze=true`。本特征交付链路（导出 + 校验 + 分卷）已闭合；
+### 9.2 export_sha256 唯一真值（DS-20261020-052-WB1 / D-65a）
+
+**D-65a 裁定**：`real_features_3b.json` 中的 **`export_sha256` 是唯一真值**，WB2 的
+`validate_wb2_input.py` 信任并读取它。后续任何重新生成的 `.npz`，**必须同步更新该 json**，
+否则 WB2 的校验器会依法拦截。
+
+| 字段 | 角色 | 当前值 |
+|---|---|---|
+| `export_sha256` | **唯一真值**（WB2 `validate_wb2_input.py` 读取；根 + 内层 `meta` 双写） | `84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261` |
+| `sha256` | DS-051 别名，与 `export_sha256` **恒等**（同一 `hashlib.sha256()` 一次计算后镜像） | 同上 |
+| `export_byte_size` / `byte_size` | 精确字节，同源镜像 | `8215605` |
+
+> 设计意图：**只计算一次哈希、镜像到两个键**，杜绝「两份真值不一致」——这正是 D-65a 要防的根因。
+> 导出脚本 `export_real_features.py` 每次生成 npz 后自动写这两个键；如需对既有文件补写/重写，跑
+> `python3 tools/validate_wb1_export.py --npz real_features_3b.npz --json real_features_3b.json --write`。
+> `validate --check` 优先以 `export_sha256` 为比对基准。
+
+> **版本冻结**：DS-048/051/052 均标记 `version_freeze=true`。本特征交付链路（导出 + 校验 + 分卷 + 唯一真值）已闭合；
 > 在收到 WB2 最终权重并集成测试前，暂停其他代码改动（仅允许上述机制化修补）。
 ```

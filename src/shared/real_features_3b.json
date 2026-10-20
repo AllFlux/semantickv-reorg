@@ -86,12 +86,16 @@
     "dim_check": "PASS_DIM_CPU",
     "source": "real Qwen2.5-3B-Instruct prefill (CPU / bf16, no quantization)",
     "wb2_consumption_note": "Router 首层 Linear 的 hidden_size 必须等于本特征 hidden_size（2048）；严禁按单位向量消费，必须按原始幅值（L2 范数 78.8–228.2，非归一化）。",
-    "flag_provenance": "DS-20261019-046-WB1 验收要求 meta 显式标注保真标记；DS-20261020-051 要求导出脚本内 hashlib.sha256() 写入 sha256/byte_size",
+    "flag_provenance": "DS-20261020-051 要求写入 sha256/byte_size；DS-20261020-052/D-65a 明确 export_sha256 为唯一真值（WB2 validate_wb2_input.py 读取），故镜像双写、值恒等",
     "sha256": "84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261",
     "byte_size": 8215605,
-    "validated_at": "2026-10-19T17:16:58+00:00"
+    "validated_at": "2026-10-20T09:54:00Z",
+    "export_sha256": "84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261",
+    "export_byte_size": 8215605
   },
   "sha256": "84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261",
   "byte_size": 8215605,
-  "validated_at": "2026-10-19T17:16:58+00:00"
+  "validated_at": "2026-10-20T09:54:00Z",
+  "export_sha256": "84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261",
+  "export_byte_size": 8215605
 }

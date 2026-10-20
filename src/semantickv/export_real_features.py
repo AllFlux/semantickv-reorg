@@ -382,20 +382,29 @@ def main() -> int:
         assert chk[key].shape == hidden.shape, "npz 隐状态形状不符"
         assert chk["labels"].shape == labels.shape, "npz 标签形状不符"
 
-    # ── DS-20261020-051 要求②：导出脚本内直接用 hashlib.sha256() 计算并写入 meta ──
-    # 字段名按 DS-051 口径：sha256 / byte_size（顶层 meta 与内层 meta["meta"] 双写，
-    # 后者满足 DS-046 的「meta 内显式标注」惯例）。
+    # ── 哈希与体积：DS-20261020-051（sha256/byte_size）＋ DS-20261020-052/D-65a ──
+    # D-65a 明确：real_features_3b.json 的 export_sha256 是【唯一真值】，WB2 的
+    # validate_wb2_input.py 信任并读取它；后续任何重新生成的 npz 必须同步更新该 json。
+    # 实现：digest/size 只计算一次，镜像写入 export_sha256（唯一真值）与 sha256（DS-051
+    # 别名）两个键，二者恒等——避免出现「两份真值不一致」这一 D-65a 要防的根因。
     digest = sha256_of(npz_path)
     size = npz_path.stat().st_size
-    meta["sha256"] = digest
+    ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    meta["export_sha256"] = digest      # D-65a 唯一真值（WB2 validate_wb2_input.py 读取）
+    meta["sha256"] = digest             # DS-051 字段别名
+    meta["export_byte_size"] = size
     meta["byte_size"] = size
-    meta["validated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    meta["validated_at"] = ts
+    meta["meta"]["export_sha256"] = digest
     meta["meta"]["sha256"] = digest
+    meta["meta"]["export_byte_size"] = size
     meta["meta"]["byte_size"] = size
-    meta["meta"]["validated_at"] = meta["validated_at"]
+    meta["meta"]["validated_at"] = ts
     meta["meta"]["flag_provenance"] = (
         "DS-20261019-046-WB1 验收要求 meta 显式标注保真标记；"
-        "DS-20261020-051 要求导出脚本内 hashlib.sha256() 写入 sha256/byte_size")
+        "DS-20261020-051 要求导出脚本内 hashlib.sha256() 写入 sha256/byte_size；"
+        "DS-20261020-052/D-65a 明确 export_sha256 为唯一真值（WB2 validate_wb2_input.py "
+        "信任），故 export_sha256 与 sha256 镜像双写、值恒等；重新生成 npz 时必须同步更新本 json")
     json_path.write_text(
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -404,7 +413,7 @@ def main() -> int:
     print(f"       keys = {sorted(set(np.load(npz_path).files))}")
     print(f"       {key} {hidden.shape} = (tokens, {true_dim})   labels {labels.shape}   G={G}")
     print(f"       env={env}   dim_check={dim_check}")
-    print(f"       [sha256] {digest}")
+    print(f"       [export_sha256] {digest}   ← D-65a 唯一真值（= sha256 别名）")
     print(f"       [byte_size] {size} ({size_mb:.2f} MB)")
     if dim_check in ("PASS", "PASS_DIM_CPU"):
         print("       ✔ 可交付 WB2：真实模型前向的真实隐状态 + 真实 GSC 标签。")
