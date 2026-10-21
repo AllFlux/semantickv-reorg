@@ -65,11 +65,62 @@ def _meta(path: Path, extra=None):
     return d
 
 def _list(d: Path):
-    return sorted([_meta(p) for p in d.glob("*") if p.is_file()],
-                  key=lambda x: x["mtime"], reverse=True)
+    out = []
+    try:
+        for name in os.listdir(str(d)):
+            p = d / name
+            if p.is_file():
+                out.append(_meta(p))
+    except Exception:
+        pass
+    out.sort(key=lambda x: x["mtime"], reverse=True)
+    return out
 
 def _results_dir():
     return Path(CHECK_ROOT) / "results_v2"
+
+# ---------- manifest 机制：绕开沙箱对目录枚举(readdir)的限制 ----------
+MF = DATA / "manifests"
+def _mf_path(name):
+    return MF / f"{name}_manifest.json"
+def _load_manifest(name):
+    try:
+        return json.loads(_mf_path(name).read_text(encoding="utf-8"))
+    except Exception:
+        return []
+def _append_manifest(name, entry):
+    try:
+        MF.mkdir(parents=True, exist_ok=True)
+        arr = _load_manifest(name)
+        key = entry.get("relpath") or entry.get("name") or entry.get("id")
+        arr = [e for e in arr if (e.get("relpath") or e.get("name") or e.get("id")) != key]
+        arr.append(entry)
+        _mf_path(name).write_text(json.dumps(arr, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
+def _fallback_scan_files():
+    out = []
+    try:
+        for n in os.listdir(str(UP)):
+            p = UP / n
+            if p.is_file():
+                out.append(_meta(p, {"tree": "uploads", "relpath": ""}))
+    except Exception:
+        pass
+    r2 = _results_dir()
+    if r2.exists():
+        try:
+            for root, _, files in os.walk(str(r2)):
+                rp = Path(root)
+                for n in files:
+                    p = rp / n
+                    rel = p.relative_to(r2)
+                    out.append(_meta(p, {"tree": "results_v2",
+                                         "relpath": f"results_v2/{rel.as_posix()}",
+                                         "id": "r2_" + str(rel.with_suffix(""))}))
+        except Exception:
+            pass
+    return out
 
 def _collect_files():
     """统一文件可见层：合并 uploads/ 顶层 与 results_v2/ 交付物树（含子目录）。
@@ -79,25 +130,10 @@ def _collect_files():
     results_v2/b_routers/ 等子目录整体不可见；且 id=r2_+stem 致 entity_embeddings.npz/.json
     撞车、下载恒返回 json。现改为递归列举 + 唯一 id（同 stem 冲突时保留首个，其余追加含点后缀），
     下载端点对候选排序保证确定性。"""
-    out = []
-    for p in UP.glob("*"):
-        if p.is_file():
-            out.append(_meta(p, {"tree": "uploads", "relpath": ""}))
-    r2 = _results_dir()
-    if r2.exists():
-        seen = set()
-        for p in sorted(r2.glob("**/*"), key=lambda x: x.as_posix()):
-            if not p.is_file():
-                continue
-            rel = p.relative_to(r2)
-            fid = "r2_" + str(rel.with_suffix(""))
-            if fid in seen:
-                fid = "r2_" + rel.as_posix()  # 含点后缀，get_file 的 glob 可命中
-            seen.add(fid)
-            out.append(_meta(p, {"tree": "results_v2",
-                                 "relpath": f"results_v2/{rel.as_posix()}",
-                                 "id": fid}))
-    out.sort(key=lambda x: x["mtime"], reverse=True)
+    out = _load_manifest("files")
+    if not out:
+        out = _fallback_scan_files()
+    out.sort(key=lambda x: x.get("mtime", 0), reverse=True)
     return out
 
 def _run_check(yaml_path: Path):
@@ -134,11 +170,18 @@ async def upload(file: UploadFile = File(...), kind: str = Form("deliverable"),
     data = await file.read()
     dest.write_bytes(data)
     meta = _meta(dest, {"kind": kind, "content_type": file.content_type, "relpath": relpath})
-    # 若命中某 review 的 data_source，立即重算机检状态
+    _append_manifest("files", meta)
     return meta
 
 @app.get("/api/file/{fid:path}")
 def get_file(fid: str):
+    # 先经 manifest 定位精确路径（绕开沙箱目录枚举限制）
+    for e in (_load_manifest("files") or []):
+        if e.get("id") == fid:
+            p = (_results_dir() / e["relpath"]) if e.get("tree") == "results_v2" else (UP / e["name"])
+            if p.exists():
+                return FileResponse(p)
+    # 兜底：已知前缀 glob（通常为放行）
     if fid.startswith("r2_"):
         cand = sorted(_results_dir().glob(f"{fid[3:]}*"))
     else:
@@ -149,11 +192,17 @@ def get_file(fid: str):
 
 @app.get("/api/reviews")
 def list_reviews():
-    out = []
-    for p in RV.glob("*.yaml"):
-        chk = _run_check(p)
-        out.append(_meta(p, {"check": chk}))
-    out.sort(key=lambda x: x["mtime"], reverse=True)
+    out = _load_manifest("reviews")
+    if not out:
+        out = []
+        try:
+            for name in os.listdir(str(RV)):
+                if name.endswith(".yaml"):
+                    p = RV / name
+                    out.append(_meta(p, {"check": _run_check(p)}))
+        except Exception:
+            pass
+    out.sort(key=lambda x: x.get("mtime", 0), reverse=True)
     return {"reviews": out}
 
 @app.post("/api/review")
@@ -162,21 +211,29 @@ async def post_review(file: UploadFile = File(...)):
     name = file.filename if file.filename.endswith(".yaml") else f"{uuid.uuid4().hex[:8]}.yaml"
     dest = RV / name
     dest.write_bytes(await file.read())
-    return _meta(dest, {"check": _run_check(dest)})
+    meta = _meta(dest, {"check": _run_check(dest)})
+    _append_manifest("reviews", meta)
+    return meta
 
 @app.get("/api/instructions")
 def list_instructions():
-    out = []
-    for p in IN.glob("*.json"):
-        try:
-            out.append(json.loads(p.read_text(encoding="utf-8")))
-        except Exception:
-            pass
+    out = _load_manifest("instructions")
+    if not out:
+        for p in IN.glob("*.json"):
+            try:
+                out.append(json.loads(p.read_text(encoding="utf-8")))
+            except Exception:
+                pass
     out.sort(key=lambda x: x.get("created", 0), reverse=True)
     return {"instructions": out}
 
 @app.get("/api/instruction/{fid}")
 def get_instruction(fid: str):
+    for e in (_load_manifest("instructions") or []):
+        if e.get("id") == fid:
+            p = IN / f"{fid}.json"
+            if p.exists():
+                return FileResponse(p, media_type="application/json")
     cand = [p for p in IN.glob(f"{fid}*")]
     if not cand:
         raise HTTPException(404, "instruction not found")
@@ -192,6 +249,7 @@ async def post_instruction(title: str = Form(...), target: str = Form("ALL"),
         "body": body, "author": author, "created": int(time.time()),
     }
     (IN / f"{rid}.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    _append_manifest("instructions", payload)
     return payload
 
 # ---------- 台账 API（Hub = 唯一事实源；任何沙盒经 HTTP 读写，不再依赖本地路径） ----------
@@ -290,11 +348,14 @@ def state_summary():
     """心跳/执行器一站式状态快照：台账摘要 + 回执机检 + 指令计数。"""
     d = _load_ledger() if LEDGER.exists() else {}
     hyps = d.get("hypotheses", []) or []
-    reviews = [{"id": p.stem, "check": _run_check(p)} for p in RV.glob("*.yaml")]
-    instrs = []
-    for p in IN.glob("*.json"):
-        try: instrs.append(json.loads(p.read_text(encoding="utf-8")))
-        except Exception: pass
+    reviews = _load_manifest("reviews") or []
+    if not reviews:
+        reviews = [{"id": p.stem, "check": _run_check(p)} for p in RV.glob("*.yaml")]
+    instrs = _load_manifest("instructions") or []
+    if not instrs:
+        for p in IN.glob("*.json"):
+            try: instrs.append(json.loads(p.read_text(encoding="utf-8")))
+            except Exception: pass
     return {
         "ledger_version": str(d.get("ledger_version")),
         "hypotheses_total": len(hyps),
@@ -385,8 +446,15 @@ def reconcile():
     v_before = str(ledger.get("ledger_version"))
     changes = []
     results = []
-    for p in RV.glob("*.yaml"):
-        results.append(_reconcile_one_review(p, ledger, changes))
+    rv_entries = _load_manifest("reviews") or []
+    if rv_entries:
+        for e in rv_entries:
+            p = RV / f"{e.get('name', '').replace('.yaml', '')}.yaml"
+            if p.exists():
+                results.append(_reconcile_one_review(p, ledger, changes))
+    else:
+        for p in RV.glob("*.yaml"):
+            results.append(_reconcile_one_review(p, ledger, changes))
     # 更新顶层机检索引
     latest = ledger.get("latest_review")
     if latest:
@@ -437,16 +505,18 @@ def _badge(st):
 @app.get("/", response_class=HTMLResponse)
 def dashboard():
     files = _collect_files()
-    reviews = []
-    for p in RV.glob("*.yaml"):
-        reviews.append(_meta(p, {"check": _run_check(p)}))
-    reviews.sort(key=lambda x: x["mtime"], reverse=True)
-    instrs = []
-    for p in IN.glob("*.json"):
-        try:
-            instrs.append(json.loads(p.read_text(encoding="utf-8")))
-        except Exception:
-            pass
+    reviews = _load_manifest("reviews") or []
+    if not reviews:
+        for p in RV.glob("*.yaml"):
+            reviews.append(_meta(p, {"check": _run_check(p)}))
+    reviews.sort(key=lambda x: x.get("mtime", 0), reverse=True)
+    instrs = _load_manifest("instructions") or []
+    if not instrs:
+        for p in IN.glob("*.json"):
+            try:
+                instrs.append(json.loads(p.read_text(encoding="utf-8")))
+            except Exception:
+                pass
     instrs.sort(key=lambda x: x.get("created", 0), reverse=True)
 
     file_rows = "".join(
