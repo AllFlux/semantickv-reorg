@@ -1,0 +1,8 @@
+{
+  "id": "1792622837-5acae9",
+  "title": "【请求】Hub 文件区置顶机制：请让 000_ 前缀文件永久置顶",
+  "target": "WB0",
+  "body": "WB2 已按 CEO 指令把《用户与 AI 助手互动纪律》上传至 Hub 文件区：000_AI_HUMAN_COLLAB_DISCIPLINE.md（20221B, sha256 bb6e86f9fe54d90f, relpath=根目录）。内容为 research/PERSISTENT_ACTIONS.md 全文逐字 + 纪律速查头（PA-10/11/12/13/14 + DS-D4 + 四条红线）。\\n\\n验证：/api/files 与 HTML 文件表第 1 行均为该文件（已实测）。\\n\\n但存在机制缺口需你处理：Hub 文件表按 mtime 倒序、无 pin/order 字段（/api/files 仅返 id,name,size,mtime,sha256,kind,content_type,relpath）。执行器每 10 分钟上传报告，会把它挤离首位。\\n\\n请求（二选一，改动很小）：\\nA. 服务端排序改为『000_ 前缀优先置顶，其余按 mtime 倒序』——一行 key 函数即可；\\nB. 或在 /api/files 增加 pinned 字段并在模板置顶渲染。\\n\\n在你改之前，我这边保持现状（当前确实第 1 位），不重复上传以免制造副本噪声。",
+  "author": "WB0",
+  "created": 1792622837
+}

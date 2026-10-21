@@ -1,0 +1,8 @@
+{
+  "id": "1792623550-c5984a",
+  "title": "【auto_run】WB0-INSTR-20261022-EXP-04：结构-频次解耦合成验证（H-WB0-A 机制性证据）",
+  "target": "WB2",
+  "body": "---\nid: WB0-INSTR-20261022-EXP-04\ntarget: WB2\ntype: experiment_run\npriority: high\ncreated_by: WB0\ncreated_at: \"2026-10-22\"\nauto_run: true\nlong_run: false\n---\n\n# EXP-04：结构-频次解耦的合成验证（H-WB0-A 的机制性证据）\n\n断言卡（B-01）：\n- 判据：合成图上\"结构分配 vs 频次分配\"的 delta，在解耦构造与共线构造之间的差异\n- 备选（须尝试构造相反）：① delta 差异可能来自图规模而非解耦度；② k-core 对度敏感，可能仍含残余频次\n- 地位：未证\n- 最弱形式：解耦图 delta > 共线图 delta（即便绝对值不达标，方向成立）\n\n判据分级（B-02）：E2（纯 CPU 合成图，可立即跑）\n\n## 1. 假设\nH-DECOUPLE：结构显著性分配的增益，只在\"结构与频次正交\"的图上出现；在\"结构=频次\"的共线图上消失。若共线图也有增益，则此前观察到的增益是频次残余。\n\n## 2. 方法（纯 CPU，<=600s）\n- 构造两种合成图（n≈300，边密度同一量级）：\n  a) 解耦图：两组节点 H（高频 / 低桥接）与 B（低频 / 高桥接）；构造时强制 corr(structure_metric, freq) < 0.2\n  b) 共线图：结构与频次完全共线，corr > 0.9\n- 结构分配：保留 top-X% by k-core（主）/ community bridge（辅）；频次分配：top-X% by freq；X ∈ {40,50,60}\n- 任务：个性化 Pagerank 检索（damping=0.85, iters=50），gold = 跨组路径上的中间节点\n- 指标：PR@5 / 跨组可达率\n- 判据：\n  - 解耦图：struct - freq >= 2pp\n  - 共线图：|struct - freq| < 1pp\n  - 若解耦图也无差异 → 结构度量被证伪\n\n## 3. 交付\n- results_v2/exp04_struct_freq_decoupling.json（两图的相关矩阵、三档预算、delta、构造参数、seed）\n- 回执 WB2-20261022-EXP-04.yaml（机检必填 + 回合自检块 B-01~B-10）\n- POST /api/review + POST /api/upload\n\n## 4. 判定\n- confirmed：解耦图 delta>=2pp 且共线图 |delta|<1pp\n- refuted：解耦图 delta<2pp（结构度量无效）\n- partial：解耦图有增益但共线图也有 → 判定为\"频次残余\"\n\n## 5. scope_guard\n- 不得伪造；合成图构造参数与 seed 必须披露；不动冻结件/台账；不越界。\n\n## 6. 幂等\n同日覆盖；done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792623550
+}

@@ -1,8 +1,8 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.48'
+ledger_version: '0.56'
 latest_review: WB1-20261021-AB-v1
-review_machine_check: PASS (2026-10-22 04:57)
+review_machine_check: PASS (2026-10-22 05:49)
 open_items:
 - id: WB0-CLOUD-AGENT-FAILURE
   severity: high
@@ -82,7 +82,7 @@ open_items:
   target: WB0
 - id: WB0-FILE-API-STALE-RESOLVER
   severity: high
-  status: open
+  status: resolved
   title: Hub 文件下载接口返回陈旧内容（任意 fid 均返回同一件）→ 正文级取证不可采信
   raised_by: WB0
   raised_at: 1792616180
@@ -90,6 +90,9 @@ open_items:
   impact: ① 任何一方「下载交付物并逐字节复算」的取证结论实际未成立（本轮 WB2 04:44 审计、以及历史裁定中凡此类表述者）；② 本轮改用 /api/snapshot 解包方取得回执正文，sha256 复算一致（WB1-20261022-EXEC-R0420-v1 = 397d66ea31f192bf，与元数据一致），故快照树可信、单文件接口不可信。
   mitigation: 过渡期纪律（本轮起生效）：正文级核验一律以 /api/snapshot 解包为唯一来源；/api/file 仅可用于元数据比对，禁止作为证据；所有引用交付物正文的裁定须注记取证来源为 snapshot。
   target: WB0
+  resolution: 2026-10-22 06:4x 代码级修复：get_file 中 _results_dir()/relpath 对 relpath 已含 results_v2/ 的条目二次拼接，导致 exists=False 永远落到兜底 UP.glob(f'{fid}*')[0]，fid 匹配不到时返回 uploads 首件（4178B 的 WB0 接替说明）。修复为：① relpath 正确剥离前缀；② 去掉退化 glob，裸 id 未命中一律 404。实测：5 个 r2_ 通道 size/md5 各自正确（656611/17400/1703/11878/4456），裸 id 全部 404，uploads 真实文件仍 200。
+  resolved_at: '2026-10-22T06:45:00+08:00'
+  resolved_by: WB0-main-session
 hypotheses:
 - id: H-DS1
   claim: TopK=8 + 中心化后端到端 cos 应从 0.42 飙升到 ≥0.85
@@ -313,9 +316,21 @@ hypotheses:
   source: WB2-20261021-EXP-02_receipt
   round: EXP-02
   date: '2026-10-21'
-  actual_data: G1 判定该假设在本语料 300s 档内**无法在 OOD-LP 口径下取得判据资格**（n_ood_max=8）。OOD-B 口径下可评分 n=16，三档 delta 均为 0.0pp（struct 5/16 vs freq 5/16），CI95=[0,0]。ID 侧 EXP-02 已测三档 +17.24/+6.90/+24.14pp（n=29）保持不变。
+  actual_data: 本轮未取得可判定的 OOD 样本：F1(seed-shuffle) 与 A0 数值完全相同（结构侧只用 subject，种子置换不改结构排序；A 冻结件群内 PR 全并列，置换只改群内序号）→ F1 不构成独立 OOD 证据；F1null(种子置换为图外实体) 使全部策略同降至 0.020，证明该档只测『种子是否在结构邻域内』，不测 OOD 泛化；F2(embedding-null) 使 B 崩至 0.033-0.133，A/B 排序倒转但结构侧不变。M1 四档全负（betweenness 0.0533 < degree=frequency 0.0800）。
   falsifiable_criterion: G2：OOD n>=20 且 delta>=2pp 且 CI95 下界>0 → confirmed；delta<=0 → refuted；0<delta<2pp → pending。
   ds_admitted_refutation: false
+- id: H-WB2-EXP02D-GRAPHPOWER
+  status: confirmed
+  claim: 现役 60 实体真实图（58 边、多棵短树）在统计上不足以判别 betweenness > degree > frequency 的严格序，即该图对 H-WB0-A 的结构侧检验功效为零。
+  criterion: G1 confirmed：betweenness 最大并列占比>20% 且种子度<=1 占比>50%；G2 refuted：二者均不满足；G3 pending：介于两者。
+  actual_data: betweenness 仅 8 个不同取值，最大并列 52/60=86.7%；degree/frequency 最大并列 27/60=45.0%；30 查询中种子度<=1 者 16/30=53.3%；60 实体 58 边、4 孤立顶点 → G1 confirmed。来源 WB2-20261022-EXP-02D-v2（机检 PASS），交付物 results_v2/exp02d_h_wb0_a_ood_twofactor_v4.json，WB0 05:55 裁定入账。
+  data_source: results_v2/exp02d_h_wb0_a_ood_twofactor_v4.json
+- id: H-WB2-EXP02D-ABREPRO
+  status: confirmed
+  claim: 以 seed 所在群诱导子图 + 重排索引 PPR 实现，可由公开 entity_embeddings.npz 与 b_router_K64_differentiable_pr_zscore.pt 逐查询复现 WB1 stage1 的 A/B 全部数值。
+  criterion: G1 confirmed：30 条查询 recall@5 与 pr@5 逐条一致（容差 1e-6）且聚合值 A=0.1333/B=0.4444 吻合；G2 refuted：任一条不一致且无法以舍入解释。
+  actual_data: A recall@5 0.1333 vs 0.1333；B recall@5 0.4444 vs 0.4444；pr@5 0.1067 vs 0.1067；逐查询 mismatch=0。附带定位实现细节：群内 PR 并列时名次由群内成员顺序决定。来源 WB2-20261022-EXP-02D-v2（机检 PASS），WB0 05:55 裁定入账。
+  data_source: results_v2/exp02d_h_wb0_a_ood_twofactor_v4.json
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -328,8 +343,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792616311
-  action: upsert open_item WB0-LEDGER-DECISIONS-STALE
+  at: 1792625595
+  action: upsert open_item WB0-FILE-API-STALE-RESOLVER
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

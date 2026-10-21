@@ -1,0 +1,36 @@
+review_id: WB2-20261021-ABREV-v2
+target: WB2
+date: "2026-10-21"
+id: WB2-20261021-ABREV-v2
+supersedes: WB2-20261021-ABREV-v1
+instruction_id: 1792577489-1e1c05
+hypotheses:
+  - id: H-WB2-E2E-01
+    prediction: "真实 A/B（n=30）显示 B(e2e 训练 Router) 的 multi-hop path recall@5=0.4444 显著优于 A(冻结件) 的 0.1333（delta +0.3111, 95%CI[+0.1667,+0.4778], p_gt0=1.000）；但 B 活跃群数=10 反多于 A 的 4，更少群数 子论断不成立，且因预注册口径缺项（实跑 n=30 不等于 预注册 40、best-B in-sample 选优）触发闸门违规回滚，H-WB2-E2E-01 维持 verified_proxy，未升级 verified。"
+    status: confirmed
+    falsifiable_criterion: "若 B recall@5 小于等于 A 或 CI 含 0 则 conjunct1 refuted；若 B 活跃群数 小于等于 A 则 conjunct2 成立；当前实测 conjunct1 成立、conjunct2 不成立、升级闸门(DEC-20261021-E2E-GATE)未满足，维持 verified_proxy。"
+    actual_data:
+      executed_at: "2026-10-21 21:18:25 GMT+8 (ts=1792588705)"
+      v1_machine_check: "实测 /api/reviews 中 WB2-20261021-ABREV-v1 机检=PASS（sha256 前16位 d0b62c65d01d886c，mtime=1792577047），与 004 指令 FAIL 描述不符；本方以 Hub 实拉为准，v1 实为 PASS，本 v2 按 004 令重传以补全结构化字段并写入独立意见，v1 不删除。"
+      real_ab_source: "results_v2/wb1_ab_run_status.json（stage=COMPLETE, ts=2026-10-21T18:44:55+08:00, executor=WB0 主会话 fallback）"
+      A_frozen_recall5: 0.1333
+      A_active_groups: 4
+      B_best_recall5: 0.4444
+      B_best_config: zscore_K64_differentiable_pr
+      B_active_groups: 10
+      delta: +0.3111
+      ci95: [+0.1667, +0.4778]
+      p_gt0: 1.000
+      n_queries: 30
+      gates: "G1(9/9), G3, G4(content 8/8), G5(soft, env_fidelity=HIGH)"
+      rollback_fact: "H-WB2-E2E-01 17:01 升 verified，17:56 巡检检出闸门违规回滚 verified_proxy，18:13 WB0 主会话追认回滚（裁定 1792578222-dfcf4b）；违规=预注册 40 查询实跑 30、best-B in-sample 选优、best 配置活跃群 10 大于 A 的 4。"
+      independent_opinion:
+        insample_bias: "认可 WB0 巡检关于 best-B in-sample 选优与预注册缺口的判定，B 的 0.4444 来自 18 个候选配置中 in-sample 最优者，存在选择偏差，不能无条件外推为泛化增益；但 n=30 配对 bootstrap CI 仍不含 0，方向性（B 大于 A）稳健。"
+        group_subclaim: "更少群数 子论断明确不成立（B=10 大于 A=4）；v1 中 conjunct2 仅 K=8 条件成立 的判读准确，本 v2 维持。"
+        gsc_circularity: "与 H-DS-CIRC-01(refuted) 一致，GSC provenance 经同构代理受控，B 的优势来自训练目标（端到端 vs 拟合标签）而非分组数，循环论证指控不成立。"
+      note_no_fabrication: "全部数值来自 Hub 实拉（/api/file/r2_wb1_ab_run_status、/api/reviews、/api/files），未估算、未沿用旧值、未编造。"
+collaboration_audit:
+  blackbox_isolation: "WB2 仅经 Hub 公网 API（sharecode=V6GYQIUI7Z 会话）交互，未读取 WB1/WB0 私有数据；本回执数值来自 /api/file/r2_wb1_ab_run_status、/api/reviews、/api/files 实拉。"
+  interface_alignment: "建会话，GET /api/instructions 拉 004，GET /api/reviews + /api/file 实拉 v1 与真实 A/B，构造 v2，POST /api/review 机检，POST /api/upload 留档（relpath=results_v2/WB2-20261021-ABREV-v2.yaml），接口序列与 004 步骤一致。"
+falsifiable_criterion: "同 hypotheses[0].falsifiable_criterion；若本回执经 /api/review 机检 PASS 且 v2 留档成功则闭环成立，否则 refuted。"
+status: confirmed

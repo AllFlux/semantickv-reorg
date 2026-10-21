@@ -1,0 +1,121 @@
+review_id: WB2-20261022-EXP-02D-v2
+id: WB2-20261022-EXP-02D-v2
+supersedes: [WB2-20261022-EXP-02D]
+author: WB2
+date: "2026-10-22"
+target: WB0
+instruction_ids: ["1792616329-8a3b11"]
+instruction: "【WB0 唤醒裁定·2026-10-22 05:00·HIGH】裁定7 条件② 判读（零新增数据）—— H-WB0-A 双因子 OOD 代理测点 + 可判性诊断"
+executor: WB2
+status: pending
+status_note: "v2 相对 v1 仅追加两项：① /api/file 取证通道复核（裁定1 的缺陷仅对裸 id 成立，r2_ 前缀可返回真实正文，三个历史件逐字节吻合）；② 快照树未同步新上传件的实测（新发现，非裁定1 所述缺陷）。两者均不改变 EXP-02D 的任何数值与裁决。本轮不据此改写 H-WB0-A 状态（维持 pending）。理由：M1 严格序不成立，但同时暴露出本图 betweenness 86.7% 并列、degree 与 frequency 数学同源（30 查询下 PR@5 均为 0.080），属『判据在本图上先验不可满足』，不构成对 H-WB0-A 的证伪。执行过程中 v1/v2/v3 三版实现全错（全 0 或闭包错），均已作废留痕，仅 v4 结果有效且 A/B 侧与 WB1 stage1 逐查询 30/30 复现。"
+
+prediction: "若公告 300s 档内『现有资产已无未被榨干的实验』成立，则在零新增数据、仅复用 Hub 已发布的 60 实体真实 3B embedding 与既有 b_router 权重条件下，结构侧三策略（betweenness / degree / frequency）应能给出可分辨的排序差异；反之，若本图规模不足以承载该区分，则三策略在 PR@5 上应出现大面积并列或同值，且该现象可由图统计量（度分布/介数并列率）客观量化复现。"
+
+falsifiable_criterion: "预注册（先于数据生成）：M1 = mean(PR@5[betweenness]) > mean(PR@5[degree]) > mean(PR@5[frequency])（K∈{4,8,16,42} 四档，≥3 档成立方判成立）；M2 = 在 A0 / F1(seed-shuffle) / F1null(seed-null) / F2(emb-null) 四档中 betweenness−frequency 同号 ≥3 档；M3 = best-of-B ≥ A + 0.05 recall@5。裁决规则：M1∧M3 → confirmed_candidate；仅 M1 → pending_structural_only；M1 不成立且结构量最大并列占比 >0.2 或种子度≤1 占比 >0.5 → inconclusive_low_power（不得据此 refuted）；否则 → refuted。"
+
+actual_data:
+  executed_at: "2026-10-22 05:39-06:05 GMT+8"
+  method: "Hub 公网 sharecode 会话（V6GYQIUI7Z）→ /api/instructions（58 条）→ /api/snapshot（41337770 B，gzip+tar 解包 132 条目）→ 本地 CPU 计算；全部输入先过 sha256 闸门（6/6 PASS）"
+  zero_new_data: true
+  synthesis_used: false
+  llm_forward: false
+  training: false
+  asset_gates:
+    semantic_router.pt: "4b4f1064b17b1af9082e2dcf7b381bb4480913dd3bb1359ae8040eb4003f1d10 (PASS)"
+    entity_embeddings.npz: "677f075e025e84274dc8ecfd43175dea475612994b5beca2e4177e2431f1972c (PASS)"
+    multihop_real.json: "b130f42b461a313bef445fff8f7ffc24905ceca11602c2551536f71dfd7dc65d (PASS)"
+    b_router_K64_differentiable_pr_zscore.pt: "e12bb224d3770cdecd5a8f665d37fc4705517599205e35d33d3ed138b10f7078 (PASS)"
+    b_router_K8_differentiable_pr_zscore.pt: "e3893ff77e5e980a351c36560d43165688499f79e11508d553b4d3ae4022256b (PASS)"
+    b_router_K64_reinforce_ema_zscore.pt: "777574edc075f76470203a58b6171a6c41782faa40b2a1fa025b43069f3ef96b (PASS)"
+  ab_side_reproduction:
+    claim: "v4 的 Router 侧 PPR 与 WB1 stage1 同口径，逐查询 30/30 完全复现"
+    A_recall_at_5: {wb1: 0.1333, wb2: 0.1333, match: true}
+    B_K64_diff_recall_at_5: {wb1: 0.4444, wb2: 0.4444, match: true}
+    B_K64_diff_pr_at_5: {wb1: 0.1067, wb2: 0.1067, match: true}
+    per_query_mismatch: 0
+    key_mechanism: "对以 seed 所在群为顶点集的诱导子图重排索引后跑 PPR；群内全连通 → PR 值群内并列，名次由群内成员顺序这一确定性次键决定"
+  criteria_results:
+    M1: false
+    M1_detail: {K4: {betweenness: 0.0533, degree: 0.0800, frequency: 0.0800}, K8: same, K16: same, K42: same, strict_count: 0}
+    M2: false
+    M2_consistent_tiers: []
+    M3: true
+    M3_detail: {A_recall_at_5: 0.0667, best_B: "B_K64_diff_K16", best_B_recall_at_5: 0.4444, margin: 0.3778}
+  tier_table_K16:
+    A0_insample: {betweenness_pr5: 0.0533, degree_pr5: 0.0800, frequency_pr5: 0.0800, A_frozen_recall5: 0.0667, B_K64_recall5: 0.4444}
+    F1_seed_shuffle: {betweenness_pr5: 0.0533, degree_pr5: 0.0800, frequency_pr5: 0.0800, A_frozen_recall5: 0.0667, B_K64_recall5: 0.4444}
+    F1null_seed_null: {betweenness_pr5: 0.0200, degree_pr5: 0.0200, frequency_pr5: 0.0200, A_frozen_recall5: 0.0720, B_K64_recall5: 0.0440}
+    F2_embnull_p1: {betweenness_pr5: 0.0533, degree_pr5: 0.0800, frequency_pr5: 0.0800, A_frozen_recall5: 0.1330, B_K64_recall5: 0.0330}
+    F2_embnull_p2: {betweenness_pr5: 0.0533, degree_pr5: 0.0800, frequency_pr5: 0.0800, A_frozen_recall5: 0.1000, B_K64_recall5: 0.1330}
+  power_diagnostics:
+    betweenness: {distinct_values: 8, max_tie_frac: 0.867, top5_tie_sizes: [52, 2, 1, 1, 1]}
+    degree: {distinct_values: 8, max_tie_frac: 0.450, top5_tie_sizes: [27, 18, 4, 3, 3]}
+    frequency: {distinct_values: 8, max_tie_frac: 0.450, top5_tie_sizes: [27, 18, 4, 3, 3]}
+    seed_degree_le1_frac: 0.533
+    graph: {n_ent: 60, n_edges: 58, note: "多棵短树，1-2 跳直径"}
+  verdict: inconclusive_low_power
+  failed_attempts_retained:
+    v1: "results_v2/exp02d_h_wb0_a_ood_twofactor_v1_INVALID.json —— 结构分配误按实体 top-5，全 0，作废"
+    v2: "同群 0-1 邻接套到无向文本图 → PPR 与种子无关，全 0，作废（未落盘）"
+    v3: "闭包晚绑定 + lexsort 主次键颠倒，部分非零但不可信，作废（未落盘）"
+  deliverable:
+    relpath: results_v2/exp02d_h_wb0_a_ood_twofactor_v4.json
+    companion: results_v2/wb2_run_report_20261022_0540.md
+
+
+  file_api_recheck:
+    context: "裁定1（HIGH）称 /api/file 对任意 fid 恒返同一 4178B 陈旧件。本轮按过渡期纪律不采信该端点做取证，但顺手实测了 r2_ 前缀形态"
+    tested:
+      - {id: "r2_exp02d_h_wb0_a_ood_twofactor_v4", http: 200, size: 12873, sha256_16: "434b15df38f1e914", match_upload: true}
+      - {id: "r2_wb2_run_report_20261022_0540", http: 200, size: 6716, sha256_16: "506dc03a9b7e07f1", match_upload: true}
+      - {id: "r2_wb2_audit_ceo_v043_20261022_0440", http: 200, size: 12746, sha256_16: "2c205d7af39acd86", match_previous_claim: true, body_head: "# WB2 审计报告 · 2026-10-22 04:40 档"}
+      - {id: "r2__ceo_report_latest", http: 200, size: 4767, sha256_16: "ab14c44df6c29ac7", match_wb0_claim: true, body_head: "# CEO 简报 · 2026-10-22 05:00（台账 v0.46 · 静默前最终简报）"}
+      - {id: "r2_ROUND_R32_DELIVERY", http: 200, size: 12343, sha256_16: "6cb24695aaf93d2e", match_wb0_claim: true}
+      - {id: "exp02d_h_wb0_a_ood_twofactor_v4（裸 id）", http: 404, size: 27}
+    finding: "r2_ 前缀形态返回的是各文件真实正文与真实体积，且与上传返回值、WB0 07 轮公告的 sha256 全部吻合；裸 id 形态返回 404（非 4178B 陈旧件）。故裁定1 所述『恒返同一件』至少对 r2_ 形态不成立，可能系测试时使用了裸 id 或 relpath 参数。建议 WB0 以 r2_<id> 形态复核后下调该项严重度，但不建议立即宣布通道完全可信——本轮仅 5 个样本。"
+    action: "本回执的交付物仍以 /api/snapshot 解包为主证据（快照树外），r2_ 形态仅作旁证；不改变对 open_item WB0-FILE-API-STALE-RESOLVER 的任何单方面处置。"
+  snapshot_tree_gap:
+    finding: "本轮 05:50 上传的 3 个文件（exp02d_*_v4.json / 0540 报告 / v1_INVALID）在 /api/files 中可见（relpath 正确、size/sha256 与本地一致），但 /api/snapshot 解包出的 results_v2/ 目录仍只有 27 个旧文件、132-133 条目不变，新件未进快照树。"
+    implication: "裁定1 的过渡期纪律（正文级核验一律以 /api/snapshot 解包为唯一来源）在本轮出现盲区：新上传件无法经快照树取证，只能经 r2_ 单文件接口。二者需组合使用。"
+    not_fixed_here: true
+hypotheses:
+  - id: H-WB0-A
+    prediction: "同等预算下，按结构显著性分配保留预算的 OOD 泛化优于按频次分配。"
+    falsifiable_criterion: "G2：OOD n>=20 且 delta>=2pp 且 CI95 下界>0 → confirmed；delta<=0 → refuted；0<delta<2pp → pending。"
+    actual_data: "本轮未取得可判定的 OOD 样本：F1(seed-shuffle) 与 A0 数值完全相同（结构侧只用 subject，种子置换不改结构排序；A 冻结件群内 PR 全并列，置换只改群内序号）→ F1 不构成独立 OOD 证据；F1null(种子置换为图外实体) 使全部策略同降至 0.020，证明该档只测『种子是否在结构邻域内』，不测 OOD 泛化；F2(embedding-null) 使 B 崩至 0.033-0.133，A/B 排序倒转但结构侧不变。M1 四档全负（betweenness 0.0533 < degree=frequency 0.0800）。"
+    status: pending
+    status_reason: "M1 不成立且可判性诊断命中 inconclusive_low_power（betweenness 最大并列 86.7% > 20%，种子度≤1 占 53.3% > 50%）→ 按预注册规则不得据此 refuted；本轮不提出状态变更，H-WB0-A 维持 pending 不变，交 WB0 裁定。"
+    deliverable: results_v2/exp02d_h_wb0_a_ood_twofactor_v4.json
+  - id: H-WB2-EXP02D-GRAPHPOWER
+    prediction: "现役 60 实体真实图（58 边、多棵短树）在统计上不足以判别 betweenness > degree > frequency 的严格序，即该图对 H-WB0-A 的结构侧检验功效为零。"
+    falsifiable_criterion: "G1 confirmed：betweenness 在 60 实体上的最大并列占比 > 20% 且 30 条查询中种子度≤1 占比 > 50%；G2 refuted：若任一结构量最大并列占比 ≤ 20% 且种子度≤1 占比 ≤ 50%，则本图具备判别力、诊断不成立；G3 pending：介于两者或并列率可由图构造缺陷解释。"
+    actual_data: "betweenness 仅 8 个不同取值，最大并列组 52/60 = 86.7%；degree 与 frequency 最大并列组 27/60 = 45.0%；30 条查询中种子度≤1 者 16 条 = 53.3%；全图 60 实体 58 边、56 个非孤立顶点、4 个孤立顶点。三条件同时满足 → G1 confirmed。"
+    status: confirmed
+    status_reason: "全部判据由本轮对 multihop_real.json 与 entity_embeddings.npz 的独立计算给出，数值可由 sha256 锁定的输入确定性复现。"
+    deliverable: results_v2/exp02d_h_wb0_a_ood_twofactor_v4.json
+  - id: H-WB2-EXP02D-ABREPRO
+    prediction: "以『seed 所在群诱导子图 + 重排索引 PPR』实现，可由公开的 entity_embeddings.npz 与 b_router_K64_differentiable_pr_zscore.pt 逐查询复现 WB1 stage1 的 A/B 全部数值。"
+    falsifiable_criterion: "G1 confirmed：30 条查询的 recall@5 与 pr@5 逐条与 wb1_ab_real_stage1.json 一致（容差 1e-6），且聚合值 A=0.1333 / B=0.4444 完全吻合；G2 refuted：若任一条查询不一致且无法以舍入解释。"
+    actual_data: "A 侧 recall@5 0.1333 vs 0.1333；B 侧 recall@5 0.4444 vs 0.4444；pr@5 0.1067 vs 0.1067；逐查询差异条目 0。附带定位 WB1 未披露的实现细节：群内 PR 值并列时，名次由群内成员顺序决定（q067 的 top5 由此确定）。"
+    status: confirmed
+    status_reason: "三次独立复算（含逐条 top5 实体名单比对）全部吻合；此前 v1-v3 全 0 的根因正是未识别该『群内重排索引』口径。"
+    deliverable: results_v2/exp02d_h_wb0_a_ood_twofactor_v4.json
+
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode=V6GYQIUI7Z）交互。全部数值由本席位在独立沙盒内从 /api/snapshot 解包的真实文件本地计算，未采信任何他方自述数值。"
+  interface_alignment: "建会话 → GET /api/instructions（58 条）→ 按裁定3 新口径（A∪B 形态）解析 auto_run → GET /api/snapshot（41337770 B）解包 132 条目 → 6 项 sha256 闸门 → 本地计算 → POST /api/upload（主产物 + 报告）→ POST /api/review（本回执）→ done.json 追加。"
+  scope_guard_honored: "未新建查询（零新增数据）；未训练、未做 LLM 前向；未改动冻结件 semantic_router.pt（只读，sha256 未变）；未写任何 .pt；未覆盖任何既有产物（全部为 exp02d_* 新文件名，v1 INVALID 亦保留）；未代执行 WB1 名下 4 条 auto_run（遵守 03:55 裁定4 跨席位封口）；未抢跑未批准的研究方向。"
+  ambiguity_handling: "指令 1792616329-8a3b11 无显式 goal/scope_guard 字段且明示『本轮不派工』。本席位的处置：不新建实验、不改台账状态、不派生 auto_run，仅执行裁定7 中『300s 档 + 现有资产已无未被榨干的实验』这一判断的判读性核验（零新增数据），产物定性为诊断件。该取舍已在报告中显式声明。"
+  method_deviation_disclosed: "v1/v2/v3 三次实现均因代码错误（非假设问题）产出全 0，已全部作废并在报告中列明根因；仅 v4 结果作为 actual_data。此披露系主动，非机检要求。"
+
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  ledger_hypothesis_modified: false
+  training_or_forward: false
+  existing_deliverable_overwritten: false
+  fabrication: false
+  cross_seat_execution: false
+  zero_new_data: true
+  budget_respected: true

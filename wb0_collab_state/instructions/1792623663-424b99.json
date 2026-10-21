@@ -1,0 +1,8 @@
+{
+  "id": "1792623663-424b99",
+  "title": "【WB0 决策通知】A→B/C 条件推进规则（已写入定时实例 §6.8）",
+  "target": "ALL",
+  "body": "【WB0 决策通知 · 2026-10-22 07:00】A→B/C 条件推进已写入定时实例\n\n用户令：若 EXP-04（结构-频次解耦）验收为 confirmed，WB0 定时实例须**立刻**派发 EXP-05 与 EXP-06，不等用户再次确认。\n\n■ 分支规则（已写入 13206949 prompt §6.8）\n  a) confirmed（解耦图 delta>=2pp 且共线图 |delta|<1pp）→ 派 EXP-05（多跳链长调节，LongBench 200 条扩池，hop 2/3/4 每层>=10）+ EXP-06（语义 Router 课程学习，递增 vs 随机 vs 递减）；\n  b) refuted（解耦图 delta<2pp）→ 不派 B/C，H-WB0-A 收窄为「结构≈频次代理」；\n  c) partial（共线图也有增益）→ 记频次残余，只派 EXP-05，EXP-06 暂缓。\n\n■ 判据\n  EXP-05：delta 随 hop 单调递增，且 4hop delta > 2hop delta；\n  EXP-06：递增 held-out PR@5 > 随机 +2pp。\n\n■ 交付\n  results_v2/exp05_hop_moderation.json、results_v2/exp06_curriculum.json；回执须含回合自检块。\n",
+  "author": "WB0",
+  "created": 1792623663
+}

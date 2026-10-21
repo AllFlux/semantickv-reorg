@@ -35,6 +35,40 @@ import time as _t
 from starlette.middleware.base import BaseHTTPMiddleware
 
 
+# 静默窗口（cron 层已在这些时段禁止触发；此处只做“是否真的静默”的可观测审计）
+SILENCE_WINDOWS = [(6 * 60 + 10, 11 * 60 + 10), (15 * 60 + 10, 17 * 60 + 10), (19 * 60 + 10, 21 * 60 + 10)]
+SILENCE_LOG = DATA / "manifests" / "silence_writes.json"
+
+
+def _in_silence(ts=None):
+    lt = _t.localtime(ts if ts else _t.time())
+    m = lt.tm_hour * 60 + lt.tm_min
+    return any(a <= m < b for a, b in SILENCE_WINDOWS)
+
+
+def _log_silence_write(request):
+    """把静默期内的写操作落账，使“静默是否生效”可查而非靠推断。不拦截，只记录。"""
+    try:
+        SILENCE_LOG.parent.mkdir(parents=True, exist_ok=True)
+        arr = []
+        if SILENCE_LOG.exists():
+            try:
+                arr = json.loads(SILENCE_LOG.read_text(encoding="utf-8"))
+            except Exception:
+                arr = []
+        now = _t.time()
+        arr.append({
+            "ts": int(now),
+            "time": _t.strftime("%Y-%m-%d %H:%M:%S", _t.localtime(now)),
+            "client": request.client.host if request.client else "?",
+            "method": request.method,
+            "path": request.url.path,
+        })
+        SILENCE_LOG.write_text(json.dumps(arr[-300:], ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
+
+
 class _AccessLog(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         t0 = _t.time()
@@ -46,6 +80,8 @@ class _AccessLog(BaseHTTPMiddleware):
                         f"{(_t.time()-t0)*1000:.0f}ms\n")
         except Exception:
             pass
+        if request.method in ("POST", "PUT", "PATCH", "DELETE") and _in_silence():
+            _log_silence_write(request)
         return resp
 
 
@@ -175,20 +211,53 @@ async def upload(file: UploadFile = File(...), kind: str = Form("deliverable"),
 
 @app.get("/api/file/{fid:path}")
 def get_file(fid: str):
-    # 先经 manifest 定位精确路径（绕开沙箱目录枚举限制）
+    """单文件下载。修复 2026-10-22：① manifest relpath 曾二次拼接 results_v2 导致恒走兜底；
+    ② 裸 id 兜底 UP.glob(fid*)[0] 在无匹配时返回 uploads 首件（静默错值）→ 改为精确匹配，
+    无匹配一律 404，绝不返回与请求无关的文件。"""
+    fid = (fid or "").strip()
+    if not fid:
+        raise HTTPException(404, "file id required")
+
+    # 1) manifest 精确匹配（id 或 name），results_v2 用 CHECK_ROOT/rel 正确定位
     for e in (_load_manifest("files") or []):
-        if e.get("id") == fid:
-            p = (_results_dir() / e["relpath"]) if e.get("tree") == "results_v2" else (UP / e["name"])
-            if p.exists():
+        if e.get("id") == fid or e.get("name") == fid:
+            rel = e.get("relpath") or ""
+            if e.get("tree") == "results_v2" and rel:
+                p = Path(CHECK_ROOT) / rel
+            elif e.get("name"):
+                p = UP / e["name"]
+            else:
+                continue
+            if p.is_file():
                 return FileResponse(p)
-    # 兜底：已知前缀 glob（通常为放行）
+
+    # 2) r2_ 前缀：按 stem 精确匹配（禁止 glob 退化）
     if fid.startswith("r2_"):
-        cand = sorted(_results_dir().glob(f"{fid[3:]}*"))
-    else:
-        cand = [p for p in UP.glob(f"{fid}*")]
-    if not cand:
-        raise HTTPException(404, "file not found")
-    return FileResponse(cand[0])
+        stem = fid[3:]
+        for e in (_load_manifest("files") or []):
+            if e.get("tree") != "results_v2":
+                continue
+            rel = e.get("relpath") or ""
+            if not rel:
+                continue
+            p = Path(CHECK_ROOT) / rel
+            if p.is_file() and p.stem == stem:
+                return FileResponse(p)
+        for p in sorted(_results_dir().glob(f"{stem}*")):
+            if p.is_file() and p.stem == stem:
+                return FileResponse(p)
+        raise HTTPException(404, f"file not found: {fid}")
+
+    # 3) 裸 id（uploads）：精确 name 匹配，命中不到即 404
+    p = UP / fid
+    if p.is_file():
+        return FileResponse(p)
+    for e in (_load_manifest("files") or []):
+        if e.get("tree") == "uploads" and e.get("name") == fid:
+            q = UP / e["name"]
+            if q.is_file():
+                return FileResponse(q)
+    raise HTTPException(404, f"file not found: {fid}")
 
 @app.get("/api/reviews")
 def list_reviews():
@@ -342,6 +411,110 @@ def upsert_open_item(item: dict = Body(...)):
                         "action": f"upsert open_item {item['id']}"}
     _bump_version(d); _save_ledger(d); _rebuild_agora()
     return {"ok": True, "ledger_version": str(d["ledger_version"]), "open_item": item["id"]}
+
+@app.get("/api/discipline")
+def discipline_check():
+    """AI 助手纪律机检（依据 000_AI_HUMAN_COLLAB_DISCIPLINE.md 可机检项）。
+    WB0 每轮巡检可调用；FAIL 项应列入裁定。"""
+    import re as _re
+    PH = _re.compile(r"[（(]\s*(待核|疑似|存疑|待定|TBD|TODO)\s*[）)]", _re.I)
+    MO = _re.compile(r"[ãåÃÅ¤¦]")
+    issues = []
+    for e in (_load_manifest("reviews") or []):
+        name = e.get("name") or ""
+        p = RV / name
+        if not p.is_file():
+            continue
+        txt = p.read_text(encoding="utf-8", errors="replace")
+        if PH.search(txt):
+            issues.append({"file": name, "rule": "PA-13 占位旗标"})
+        if MO.search(txt):
+            issues.append({"file": name, "rule": "编码乱码"})
+        if "falsifiable_criterion" not in txt:
+            issues.append({"file": name, "rule": "DS-D4 缺 falsifiable_criterion"})
+        if _re.search(r"^status:\s*refuted\s*$", txt, _re.M) and "ds_admitted_refutation" not in txt:
+            issues.append({"file": name, "rule": "DS-D4 refuted 未认错"})
+        m = _re.search(r"^data_source:\s*([^\s\n#][^\n]*)$", txt, _re.M)
+        if m:
+            rel = _re.sub(r"^[-*]\s*", "", m.group(1).strip().strip('"\''))
+            if rel and not rel.startswith("http") and rel != name:
+                if not (Path(CHECK_ROOT) / rel).exists():
+                    issues.append({"file": name, "rule": "D4 data_source 实物不存在", "rel": rel})
+            elif rel == name:
+                issues.append({"file": name, "rule": "D4 data_source 自引用", "rel": rel})
+    for e in (_load_manifest("instructions") or []):
+        t, b = e.get("title", ""), e.get("body", "")
+        if MO.search(t) or MO.search(b):
+            issues.append({"file": e.get("id"), "rule": "编码乱码"})
+        if PH.search(b):
+            issues.append({"file": e.get("id"), "rule": "PA-13 占位旗标"})
+    return {"total": len(issues), "status": "PASS" if not issues else "FAIL", "issues": issues}
+
+@app.get("/api/contract")
+def contract_check():
+    """BEHAVIOR_CONTRACT 形式机检（只查"有没有回合自检块"，不查内容）。
+    基线 2026-10-22 06:50 之前的历史产出豁免。"""
+    ITEMS = [f"B-{i:02d}" for i in range(1, 11)]
+    BASE = 1792623000
+
+    def _has(t):
+        return ("回合自检" in t) or all(x in t for x in ITEMS)
+
+    issues = []
+    for e in (_load_manifest("instructions") or []):
+        t, b = e.get("title", ""), e.get("body", "")
+        if "裁定" not in t:
+            continue
+        if int(e.get("created", 0) or 0) < BASE:
+            continue
+        if not _has(b):
+            issues.append({"file": e.get("id"), "rule": "缺回合自检块(B-05/B-06)"})
+    for e in (_load_manifest("files") or []):
+        if e.get("tree") != "results_v2":
+            continue
+        n = e.get("name", "")
+        if not n.endswith(".md") or not n.startswith(("wb1_exec_round_", "wb2_run_report_", "wb0_", "_silence_report_")):
+            continue
+        rel = e.get("relpath") or ""
+        if not rel:
+            continue
+        p = Path(CHECK_ROOT) / rel
+        if not p.is_file() or p.stat().st_mtime < BASE:
+            continue
+        try:
+            txt = p.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        if not _has(txt):
+            issues.append({"file": n, "rule": "缺回合自检块(B-05/B-06)"})
+    return {"total": len(issues), "status": "PASS" if not issues else "FAIL", "issues": issues, "baseline_ts": BASE}
+
+@app.get("/api/silence")
+def silence_status():
+    """静默期可观测性：当前是否在静默窗口 + 今日静默期内的写操作清单。
+    用途：判断“静默是否生效”不靠 lastRunAt 推断，直接看本端点。"""
+    now = _t.time()
+    arr = []
+    try:
+        if SILENCE_LOG.exists():
+            arr = json.loads(SILENCE_LOG.read_text(encoding="utf-8"))
+    except Exception:
+        arr = []
+    today = _t.strftime("%Y-%m-%d", _t.localtime(now))
+    todays = [x for x in arr if str(x.get("time", "")).startswith(today)]
+    by_path = {}
+    for x in todays:
+        by_path[x["path"]] = by_path.get(x["path"], 0) + 1
+    return {
+        "now": _t.strftime("%Y-%m-%d %H:%M:%S", _t.localtime(now)),
+        "in_silence_window": _in_silence(now),
+        "windows": [{"from": f"{a // 60:02d}:{a % 60:02d}", "to": f"{b // 60:02d}:{b % 60:02d}"} for a, b in SILENCE_WINDOWS],
+        "today_silence_writes": len(todays),
+        "by_path": by_path,
+        "recent": todays[-10:],
+        "note": "仅记录不拦截：cron 约束调度器触发，手动会话仍可写入；本端点用于事后审计。",
+    }
+
 
 @app.get("/api/state")
 def state_summary():

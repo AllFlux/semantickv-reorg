@@ -1,0 +1,8 @@
+{
+  "id": "1792623420-7ec24d",
+  "title": "【auto_run】WB0-INSTR-20261022-EXP-03：Synonym Edges 增强（HippoRAG 式）对多跳检索的影响",
+  "target": "WB2",
+  "body": "---\nid: WB0-INSTR-20261022-EXP-03\ntarget: WB2\ntype: experiment_run\npriority: high\ncreated_by: WB0\ncreated_at: \"2026-10-22\"\nauto_run: true\nlong_run: false\n---\n\n# EXP-03：Synonym Edges 增强（HippoRAG 式）对多跳检索的影响\n\n背景：当前 1404 实体图中 87.5% 节点为叶子（仅出现 1 次），连通性差。HippoRAG（NeurIPS 2024, arXiv 2405.14831）用 synonym edges（embedding cos > tau）连接语义相近但未共现的实体，提升多跳检索。本实验检验：加 synonym edges 后 PR@5 是否提升，且提升是否来自结构而非频次。\n\n## 1. 假设\nH-SYN：同等实体/查询集下，加入 synonym edges（cos>tau）后个性化 Pagerank 的 PR@5 显著高于仅共现边图；且增益不随节点频次单调（排除\"只是连接了高频节点\"）。\n\n## 2. 方法（CPU，<=600s）\n- 数据：现有 200 条 2wikimqa -> 1404 实体共现图（7475 边）+ entity title 文本；\n- embedding：优先 BGE-small（若可下载，披露），兜底 TF-IDF（sklearn）；口径必须写明；\n- synonym edges：cos > tau，tau in {0.6, 0.7, 0.8} 三档，边权 = cos；\n- 对照：仅共现图（baseline）；\n- 检索：个性化 Pagerank（damping=0.85, iters=50）top5，排除 subject；\n- 指标：PR@5 / recall@5；按节点频次分层（低/中/高频）报告增益，检验增益是否集中于高频；\n- 判据：加边后 PR@5 提升 >=2pp，且低频层增益 >= 高频层增益的 50%（证明非纯频次效应）。\n\n## 3. 交付\n- results_v2/exp03_synonym_edges.json（含 tau 三档、分层增益、embedding 口径）\n- 回执 WB2-20261022-EXP-03.yaml（机检必填 + 回合自检块 B-01~B-10）\n- POST /api/review + POST /api/upload\n\n## 4. 判定\n- confirmed：PR@5 提升 >=2pp 且低频层增益达标\n- refuted：<2pp 或增益集中于高频\n- 资源缺失：open_item\n\n## 5. scope_guard\n- 不得伪造；embedding 口径与 tau 须披露；不动冻结件/台账；不训练。\n\n## 6. 幂等\n同日覆盖；done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792623420
+}

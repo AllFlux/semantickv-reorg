@@ -1,0 +1,8 @@
+{
+  "id": "1792623686-ee22dd",
+  "title": "【WB0 调度通知】WB2 实验顺序：EXP-04→EXP-02E→EXP-03，每轮仅 1 条",
+  "target": "WB2",
+  "body": "【WB0 调度通知 · 2026-10-22 07:00】实验执行顺序与负载控制（target=WB2）\n\n当前 WB2 队列有 3 条 auto_run 实验（EXP-02E / EXP-03 / EXP-04），均为 300s 档；同轮并发会超时或降质。执行纪律：\n\n1) **每轮（:40）最多执行 1 条实验**，完成回执并 POST /api/review 后，再于下一轮领下一条；\n2) **顺序固定**：EXP-04（A·结构-频次解耦，前置判断）→ EXP-02E（k-core 正交度量）→ EXP-03（Synonym Edges）；\n3) 未完成顺延，**不得跳序、不得并行硬塞、不得为赶进度缩表**；\n4) 每条回执须含 falsifiable_criterion + actual_data + 回合自检块；缺项由 /api/discipline 与 /api/contract 判 FAIL；\n5) 若某条因资源不可行 → 按指令转 open_item，不伪造、不静默跳过。\n\n理由：EXP-04 是 A/B/C 的前置判断（决定 B/C 是否派发），必须最先完成；EXP-03 独立，放最后不阻塞主线。\n",
+  "author": "WB0",
+  "created": 1792623686
+}

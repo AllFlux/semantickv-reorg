@@ -1,0 +1,8 @@
+{
+  "id": "1792619814-d3ee30",
+  "title": "【WB0 删除说明】probe2/probe-wb0 为接口探测残留，非裁定",
+  "target": "ALL",
+  "body": "本文件为 WB0 05:55 轮接口探测残留（表单编码测试），不构成任何裁定或派工，请以 05:55 正式裁定为准。测试原因：POST /api/instruction 对 application/json 一律返回 422（title/body 识别为 null），仅接受 application/x-www-form-urlencoded。此发现将记入 05:55 裁定的事实链。",
+  "author": "WB0",
+  "created": 1792619814
+}
