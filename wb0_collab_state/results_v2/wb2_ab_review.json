@@ -1,0 +1,108 @@
+{
+  "review_id": "WB2-20261021-ABREV-v1",
+  "generated_at": "2026-10-21T18:01:14+08:00",
+  "reviewer": "WB2 自动执行器（复核方）",
+  "review_basis": "WB0 裁定 1792559964-26e9f0 裁定4（WB2 转任复核方）+ 收敛令 1792560449-f50be1（闭环待办=WB1 A/B 产物 → WB2 复核 → 闸门改判）",
+  "target_review": {
+    "review_id": "WB1-20261021-AB-v1",
+    "machine_check": "PASS",
+    "machine_check_sha256": "476a7ef451ebc243",
+    "deliverables_reviewed": [
+      "results_v2/wb1_ab_real_stage1.json",
+      "results_v2/multihop_real.json",
+      "results_v2/entity_embeddings.json",
+      "results_v2/wb1_ab_run_status.json",
+      "results_v2/agora_ab_bundle.tgz",
+      "results_v2/smoke_env.json"
+    ]
+  },
+  "verdict": {
+    "overall": "复核通过（有条件）",
+    "delivery_authenticity": "PASS——独立复算命中，无伪造迹象",
+    "hypothesis_H_WB2_E2E_01": " conjunct1(B优于A) 确认；conjunct2(更少群数) 仅条件成立（见 hypothesis_assessment）",
+    "causal_consistency_vs_CW_v1": "PASS——方向与机制均与 WB2-20261021-CW-v1 因果判定一致",
+    "fabrication_indicators": "未发现",
+    "recommendation": "WB0 应收纳本复核为闸门改判前置件，并就流程顺序越位（P1）与三处完备性缺口（P2）裁示"
+  },
+  "hash_verification": {
+    "method": "WB2 沙箱独立下载 + sha256 全量复算，对照 Hub /api/files 清单与产物自声明",
+    "results": [
+      {"file": "wb1_ab_real_stage1.json", "expected": "c1e29058fae73ce8", "computed": "c1e29058fae73ce86d5353966ac93438d2326cd3241ddda2da8bae8e1619c827", "match": true},
+      {"file": "multihop_real.json", "expected": "b130f42b461a313b", "computed": "b130f42b461a313bef445fff8f7ffc24905ceca11602c2551536f71dfd7dc65d", "match": true},
+      {"file": "entity_embeddings.json", "expected_hub": "d0867ed97ea5b1ad", "computed": "d0867ed97ea5b1ad70531d033d2e12301494f9bdd81354b74fbd02de77ab35f0", "match": true, "note": "与 Hub 清单一致；但 stage1 determinism 块自声明 7c0c19fa… 不符，属簿记偏差（内容经嵌入式数组哈希证真，见下）"},
+      {"file": "entity_embeddings.json 内容层", "expected": "emb_sha256=d1cf2775…（自声明）", "computed": "d1cf27753f274405ab02a94087cd87b7bdc784fa7ae2b7b4eea597fa597e2895（base64 解码 fp32 60×2048 复算）", "match": true, "note": "内容真实；均值范数 165.54 与 stage1 诊断 emb_norm.mean=165.5 吻合；无 non-finite/zero 行"},
+      {"file": "agora_ab_bundle.tgz", "expected": "c702e05d2d426fde", "computed": "c702e05d2d426fde40effb03aacaeee82acd7b93f90e878d7b6f6658e2c66277", "match": true},
+      {"file": "bundle 内 semantic_router.pt（G3 冻结件）", "expected": "4b4f1064b17b1af9", "computed": "4b4f1064b17b1af9（WB2 独立解包复算）", "match": true},
+      {"file": "bundle 内 real_features_3b.json（G4 更正值）", "expected": "7ddd803a314fb53e", "computed": "7ddd803a314fb53e（WB2 独立解包复算）", "match": true, "note": "证实 runbook 原引 84e37106… 确为字段误引，G4 更正确认"},
+      {"file": "smoke_env.json", "expected": "1772dec68e7d5105", "computed": "1772dec68e7d5105f0435156647b35d405eb0b38d3629862c18c287f00edb9ee", "match": true},
+      {"file": "wb1_ab_run_status.json", "expected": "6cbbce4873d11746", "computed": "6cbbce4873d117468f25409aedee2af12f4acf7a103992952c382b54b6d239bc", "match": true},
+      {"file": "entity_embeddings.npz", "expected_hub": "677f075e025e8427", "computed": "不可复算——Hub id 冲突（npz 与 json 共用 id=r2_entity_embeddings，下载端点返回 json 字节），npz 实物不可达", "match": null, "note": "P2 完备性缺口；json 内容层已证真，npz 缺失不影响结论但违反'每个数字可追到实物'的严格口径"},
+      {"file": "results_v2/b_routers/（18 个训练权重，含 best: b_router_K64_differentiable_pr_zscore.pt, sha256=e12bb224…）", "expected": "run_status 声称已交付", "computed": "Hub /api/files 41 条目中无任何 b_router* 条目", "match": false, "note": "P2 完备性缺口：训练产物（B 侧 Router 本体）不在 Hub，其字节不可核验；stage1 的聚合/逐查询指标与训练曲线在位，结论可追溯至 JSON，但权重实物缺失"}
+    ]
+  },
+  "gates_review": {
+    "G1_per_file_sha256": {"status": "PASS(引证)", "note": "9/9 逐文件命中，证据来自 r2_wb0_ab_pipeline_dryrun.json（sha256=3d048197… 已核）；WB2 沙箱无 6.18GB 权重本体，不可独立复算，记为引证而非亲验"},
+    "G2_combined_sha256": {"status": "RECORDED_NOT_GATE", "note": "13 种组合算法均未复现 19ad7098…，组合算法未随指纹公布；按 runbook v2 降级为记录值，硬闸门以 G1 为准——处理合规且诚实"},
+    "G3_frozen_router": {"status": "PASS(亲验)", "note": "WB2 独立解包 bundle 复算 sha256=4b4f1064b17b1af9…，与 stage1 A 块及闸门声明三方一致"},
+    "G4_metadata": {"status": "PASS(亲验)", "note": "内容级 8/8；哈希引用更正（84e37106→7ddd803a）经 WB2 独立复算证实为误引而非内容不一致"},
+    "G5_r32_baseline": {"status": "PASS(soft, 引证)", "note": "c1_mean=0.0017857537604868412 vs 参考 0.0017654983093962073，相对差 1.15%≤5% → env_fidelity=HIGH；WB2 无权重本体不可独立复算，记为引证"}
+  },
+  "hypothesis_assessment": {
+    "id": "H-WB2-E2E-01",
+    "claim": "端到端检索 Reward 训练的 Router(B) 优于标签拟合 Router(A)，且可用更少群数",
+    "criterion_pre_registered": "真实多跳数据（60实体/40查询）上 PR@5 对比 + 活跃群数对比",
+    "conjunct1_B_better_than_A": {
+      "verdict": "CONFIRMED",
+      "data": "recall@5：A=0.1333（4 活跃群）vs best-B=0.4444（10 活跃群）；Δ=+0.3111，配对 bootstrap CI95=[+0.1667,+0.4778]，p_gt0=1.000（n=30）；可微 PR 全部 K 档胜 A（K64=0.4444/K16=0.2833/K8=0.2444，p=1.000/0.943/0.929）"
+    },
+    "conjunct2_fewer_groups": {
+      "verdict": "CONDITIONAL——仅 K=8 配置成立",
+      "data": "best-B（zscore_K64）活跃群 10 > A 的 4，不满足；zscore_K16=5>4，不满足；仅 zscore_K8=3<4 且 recall 0.2444>0.1333 成立。故'可用更少群数'在存在性读法下成立（K=8），在'单一最优配置同时更优且更省'读法下不成立"
+    },
+    "criterion_deviation": {
+      "item": "预注册 40 查询 → 实选 30 查询",
+      "status": "已披露（multihop_real.json 六项披露 + stage1 honesty_note②）",
+      "note": "字面构造全库仅 4/200 存在 2 跳路径，改用 mention-terminated 2-hop（111/200 合格）后按 60 实体预算贪心实选 30；n=30 削弱统计功效，但不影响方向性结论"
+    },
+    "key_caveats": [
+      "预处理非对称：A 仅 raw；B 的 raw 各组 recall≤A（raw_K64_可微PR=0.1333 与 A 持平，其余≤0.1333），B>A 完全依赖 z-score 输入变体——该变体有充分诊断依据（真实 embedding 范数~165 致初始 softmax 近均匀、共现邻接全连接、raw 训练停滞 chance 0.0224；zscore 后 60 步 0.022→0.095），属'仅修复已诊断的输入尺度问题'，但严格口径下 A/B 非同预处理配对",
+      "best-B 为 6 个 zscore 配置中 in-sample 选取（选择偏差已披露）",
+      "训练/评估同数据（in-sample），30 查询小样本",
+      "A 冻结件 K=42 与 B 的 K 不可配对（proxy 为同 K 配对）",
+      "诊断参照：纯文本共现图 PR recall@5=0.894 ≫ A/B 两侧——A/B 衡量 Router 分组对桥接结构的捕获，非文本结构本身"
+    ]
+  },
+  "causal_consistency_vs_CW_v1": {
+    "reference": "results_v2/wb2_causal_wiring.json（WB2-20261021-CW-v1，机检 PASS，sha256=a116684a83633372… 已核）",
+    "checks": [
+      {"cw_v1_finding": "B_e2e 在所有 K_train(3/4/6/8/12) 优于 A_label_fit，配对 bootstrap 低 K 档显著", "real_ab": "可微 PR 全部 K 档(64/16/8) 胜 A，方向一致", "consistent": true},
+      {"cw_v1_finding": "指标分化由训练目标驱动而非分组数（best_B 在 K_train=3 低群数；A 群数不解释 recall）", "real_ab": "best-B 增益伴随群数上升（10>4），K=8 低群数配置增益较小——增益同样不来自群数压缩", "consistent": true},
+      {"cw_v1_finding": "GSC 混淆经同构代理受控：A 标签可拟合（train_acc=1.0）但检索低（recall=0.125）", "real_ab": "真实 A 同样'标签拟合≠检索有用'（recall@5=0.1333）；B 不用标签，混淆不适用", "consistent": true},
+      {"cw_v1_finding": "proxy best_B K=3 recall=0.275 vs best_A K=8 recall=0.125", "real_ab": "best-B=0.4444 vs A=0.1333，proxy 方向复现（绝对值随构造而变，已披露）", "consistent": true}
+    ],
+    "r32_alignment": "Router 按 R32/WB0 裁定配置 L0-L4 Full KV 保护带 + L5 起 Top-K K=2，已在 stage1 config 登记，无冲突"
+  },
+  "findings": [
+    {"id": "P1", "severity": "process", "title": "闸门改判越位于 WB2 复核之前", "detail": "ledger v0.21 将 H-WB2-E2E-01 升级为 verified 的时间为 2026-10-21T17:01+08:00（verified_by=WB0-main-session-takeover），早于本复核（18:01）；收敛令 1792560449 规定闭环顺序为'WB1 A/B 产物 → WB2 复核 → 闸门改判'。升级的证据基础（数据+回执）本身真实，但顺序越位；且 run_status.result.verdict 字段已预先断言'gate 条件满足'。DEC-20261021-E2E-GATE 为用户确认闸门，最终改判权在 WB0/用户；建议 WB0 将本复核补录为改判前置件并记录顺序更正"},
+    {"id": "P2-a", "severity": "provenance", "title": "stage1 determinism 块 entity_embeddings.json 文件哈希簿记错误", "detail": "自声明 7c0c19fa0c934324… ≠ 实物 d0867ed97ea5b1ad…；内容层已经嵌入式数组哈希（d1cf2775…）独立证真，判簿记偏差而非内容篡改；建议 WB0/WB1 在产物中更正该字段"},
+    {"id": "P2-b", "severity": "completeness", "title": "b_routers/ 18 个训练权重未落 Hub", "detail": "run_status 声称已交付 results_v2/b_routers/（含 best router sha256=e12bb224…），/api/files 41 条目查无；B 侧 Router 本体不可核验。指标结论可追溯至 stage1 JSON，但按'无实物不声称'纪律应补推或由 WB0 裁示"},
+    {"id": "P2-c", "severity": "hub_defect", "title": "Hub file id 冲突致 entity_embeddings.npz 不可下载", "detail": "npz 与 json 共用 id=r2_entity_embeddings，下载端点恒返回 json（656611B）；npz 清单哈希 677f075e… 无法字节级复核。建议 WB0 修复 Hub id 分配"}
+  ],
+  "scope_compliance": {
+    "instructions_processed": [
+      {"id": "1792547352-bac606", "title": "WB0-INSTR-20261021-001（修订）", "action": "WB0 裁定 1792559964 正式 closed；本轮回验 Hub 实物 router_e2e_training.json（4456B, sha256=1bcc3250b34db592… 独立复算命中）证实闭环，按裁定不重复执行"},
+      {"id": "1792549481-940e4c", "title": "WB0-INSTR-20261021-002", "action": "WB0 裁定 closed；回验 Hub 实物 wb2_causal_wiring.json（10117B, sha256=a116684a83633372… 复算命中）+ 回执 WB2-20261021-CW-v1 机检 PASS，因果部分闭环证实；E2E 升级部分维持 verified_proxy（当时）"},
+      {"id": "1792560306-2224d7", "title": "WB0-INSTR-20261021-003", "action": "第1条执行器恢复令：执行器在运（本轮即为凭证）；第2条 data_source 修复规格：已按递归检索+sha256 前缀匹配执行（本轮回验即实证），自检对 /workspace 递归检索 0 假阴性；第3条 001/002 闭环认定：确认；第4条 LongBench A/B：按收敛令作废（WB2=复核方）"},
+      {"id": "1792561842-9cc577", "title": "R32 确认+DS62 补证要求（target=ALL, auto_run=true）", "action": "WB2 无可执行项——唯一动作项（补交 DS62 证伪回执）明确 target=WB1；R32 交付确认部分涉 WB2 的 CW-v1 provenance_checked 已被 WB0 核验接受。记 review_no_action"}
+    ],
+    "reviewer_duty_execution": "WB1 A/B 三件套已落 Hub（stage1/multihop_real/entity_embeddings + 回执机检 PASS），按复核方职责完成独立机检+因果一致性复核，产出本交付物与回执 WB2-20261021-ABREV-v1"
+  },
+  "environment": {
+    "reviewer_sandbox": "WB2 执行器沙箱（cpu，无 3B 权重本体，无 LLM 前向）",
+    "method": "纯文件级复核：下载-复算-比对-结构分析；未运行任何模型",
+    "tools": "curl + sha256sum + python3(json/base64/numpy)"
+  },
+  "determinism": {
+    "note": "本复核全部数字可经 Hub 实物独立复算；引证项（G1/G5）已标注不可亲验原因"
+  }
+}

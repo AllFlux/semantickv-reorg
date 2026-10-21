@@ -1,7 +1,8 @@
 {
   "stage": "COMPLETE",
-  "ts": "2026-10-21T17:18:48+08:00",
+  "ts": "2026-10-21T18:44:55+08:00",
   "executor": "WB0-main-session-takeover（云端 agent 执行层实证故障下的 fallback，全披露）",
+  "note_1820": "18:20 E2E 执行器(#13166335)唤醒后按旧 prompt 先推 bootstrap 心跳；已改为幂等先行(先检回执PASS即退出不写)。本文件由 WB0 主会话恢复为 COMPLETE 态。",
   "gates_passed": [
     "G1(9/9)",
     "G2(recorded-not-gate)",
@@ -13,31 +14,40 @@
     "A_frozen": "recall@5=0.1333, active_groups=4",
     "B_best": "zscore_K64_differentiable_pr recall@5=0.4444, active_groups=10",
     "delta": "+0.3111, bootstrap CI95=[+0.1667,+0.4778], p_gt0=1.000 (n=30)",
-    "verdict": "H-WB2-E2E-01 verified_proxy -> verified（DEC-20261021-E2E-GATE 条件满足）"
+    "verdict": "H-WB2-E2E-01：17:01 升级 verified → 17:56 巡检检出闸门违规回滚 verified_proxy → 18:13 WB0 主会话追认回滚（裁定 1792578222-dfcf4b）。WB2 复核 WB2-20261021-ABREV-v1 收为再升级前置件。"
   },
   "delivered": [
     "results_v2/wb1_ab_real_stage1.json (sha256=c1e29058…)",
     "results_v2/multihop_real.json",
     "results_v2/entity_embeddings.json / .npz",
     "results_v2/smoke_env.json",
-    "results_v2/b_routers/ (18 个权重)",
+    "results_v2/b_routers/ (18 个权重，Hub 索引缺陷已于 18:12 修复，全部可下载，best sha=e12bb224…)",
     "回执 WB1-20261021-AB-v1.yaml 机检 PASS",
-    "ledger v0.21 + CEO 报告 + GitHub 备份 d23786d"
+    "WB2 复核 results_v2/wb2_ab_review.json (authenticity PASS)",
+    "WB1 回执 WB1-20261021-GATE-ROLLBACK-v1 (闸门回滚确认)",
+    "ledger v0.26 + CEO 报告 + GitHub 备份"
   ],
-  "scheduler_final_state": {
-    "verified_at": "2026-10-21T17:18:48+08:00",
-    "probe_13179921": {
-      "name": "WB0诊断探针-agent生成测试",
-      "status": 1,
-      "meaning": "armed（每5分钟一档，恢复探测器）",
-      "note": "核查发现调度器在每次运行后将其置 0 暂停（lastRunAt=2026-10-21T16:14:54+08:00），已由 WB0 主会话重新武装；此前心跳『保持武装』声明不准确，特此更正"
+  "scheduler_state": {
+    "reset_at": "2026-10-21T18:44:55+08:00",
+    "rule": "周期仅限 15min/30min/1h/4h 四档（用户令）",
+    "architecture": "十任务→四任务（应用户令整合外部唤醒）",
+    "running": {
+      "13206949 WB0统一唤醒": "1h（合并巡检+监督+核验+CEO四职责）",
+      "13116515 WB1执行器": "15min",
+      "13106031 WB2执行器": "15min",
+      "13118815 离平台备份": "1h（原2h）"
     },
-    "executor_13166335": {
-      "name": "WB1 E2E A/B 执行器（权重镜像自取）",
-      "status": 0,
-      "meaning": "paused（已退役保留）",
-      "note": "实验已由 WB0 主会话代跑完成且回执 PASS，无需每20分钟重复唤醒云端代理；任务记录保留，其幂等设计（回执 PASS 即退出）保证即使被重新唤醒也不会重复实验"
-    }
+    "retired_paused": [
+      "13104607 保活echo",
+      "13136205 监督",
+      "13136209 CEO汇报",
+      "13142503 决策核验",
+      "13152459 巡检",
+      "13166335 E2E执行器",
+      "13179921 诊断探针"
+    ],
+    "wake_density": "~23.5/h → ~10/h",
+    "trial_1840": "CEO 18:39:56 触发并上传报告 ✓；核验 18:39:47 触发（只读无产物属预期）✓"
   },
-  "next_action": "无（本任务闭环）。恢复探测器 #13179921 已核实武装(status=1)；E2E 执行器 #13166335 已退役暂停(status=0)，云端执行层恢复监控由探针承担。"
+  "next_action": "无（架构整合闭环）。下一个整点 19:00 WB0 统一唤醒首跑，WB1/WB2 执行器 15min 档待命。"
 }

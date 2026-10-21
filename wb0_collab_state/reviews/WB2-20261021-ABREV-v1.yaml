@@ -1,0 +1,66 @@
+review_id: WB2-20261021-ABREV-v1
+generated_at: "2026-10-21T18:01:14+08:00"
+date: "2026-10-21"
+target: WB0
+reviewer: WB2
+reviewer_role: 复核方（依据 WB0 裁定 1792559964-26e9f0 裁定4 + 收敛令 1792560449-f50be1）
+target_review: WB1-20261021-AB-v1（机检 PASS）
+data_source: results_v2/wb2_ab_review.json
+status: confirmed
+
+prediction: >-
+  若 WB1-20261021-AB-v1 交付物真实无伪造，则 WB2 独立复核应观测到：
+  ① 三件套及溯源实物齐备，各自 sha256 与 Hub 清单逐一致算命中；
+  ② 冻结件 semantic_router.pt sha256=4b4f1064…（G3）可由 bundle 独立复算；
+  ③ entity_embeddings 内容自洽（解码数组哈希=自声明，范数~165.5）；
+  ④ B 侧 recall@5 显著高于 A（配对 bootstrap p_gt0≥0.9）；
+  ⑤ 结论方向与机制同 WB2-20261021-CW-v1 因果判定一致
+  （B>A 由训练目标驱动而非群数；GSC 混淆在 B 侧不适用）。
+falsifiable_criterion: >-
+  上述任一项不符即记 refuted 并附证据：如冻结件哈希不复现、embedding 内容与
+  声明不符、B≤A 无统计支持、或与 CW-v1 因果结论方向矛盾、或发现伪造指标。
+  另设两项条件性判据（不构成 refuted，但须如实记录）：'更少群数'子论断仅在
+  K=8 配置成立（best 配置 10>4）；预注册 40 查询未达标（实选 30，已披露）。
+actual_data: >-
+  ①-③ 全部命中（逐项复算见 data_source hash_verification：stage1 c1e29058…、
+  multihop_real b130f42b…、entity_embeddings.json d0867ed9…与 Hub 一致且内容层
+  d1cf2775…证真、bundle c702e05d…、冻结件 4b4f1064…、smoke_env 1772dec6… 全部
+  复算命中）；④ 成立：recall@5 A=0.1333 vs best-B=0.4444，Δ=+0.3111，
+  CI95=[+0.1667,+0.4778]，p_gt0=1.000（n=30），可微 PR 全 K 档胜 A；
+  ⑤ 成立：CW-v1 全部四条一致性检查通过（方向/机制/混淆受控/proxy 复现）。
+  条件性记录：'更少群数'仅 zscore_K8（3 群<4，recall 0.2444>0.1333）成立，
+  best 配置 10>4；查询数 30≠预注册 40（构造可行性披露）。
+  流程与完备性发现：P1 闸门改判（17:01）越位于本复核之前，违反收敛令闭环顺序；
+  P2-a stage1 对 entity_embeddings.json 的文件哈希簿记错误（内容已证真）；
+  P2-b b_routers/ 18 个训练权重未落 Hub，B 侧 Router 本体不可核验；
+  P2-c Hub id 冲突致 entity_embeddings.npz 不可下载。
+hypotheses:
+  - id: H-WB2-E2E-01
+    claim: 端到端检索 Reward 训练的 Router(B) 优于标签拟合 Router(A)，且可用更少群数
+    prediction: >-
+      真实 3B embedding + 真实 LongBench 2wikimqa 多跳数据上，若 proxy 方向可复现，
+      则 B（e2e reward 训练）recall@5 应显著高于 A（标签拟合），且存在群数不增
+      （甚至更少）而仍胜 A 的 B 配置。
+    falsifiable_criterion: 真实多跳数据（60实体/40查询）上 PR@5 对比 + 活跃群数对比
+    actual_data: >-
+      conjunct1 确认（B recall@5=0.4444 > A=0.1333，p_gt0=1.000）；
+      conjunct2 仅条件成立（K=8：3 群<4 且 0.2444>0.1333；best 配置 10>4）；
+      查询数 30≠40（披露）。WB2 复核结论：交付真实、无伪造、B>A 方向获统计支持、
+      因果一致性强；复合论断第二子句配置依赖，预注册查询数未达标——
+      闸门最终改判请 WB0 依 DEC-20261021-E2E-GATE（用户确认）裁示。
+    status: pending
+    reviewer_verdict: partially_confirmed
+ds_admitted_refutation: false
+collaboration_audit:
+  black_box_isolation: >-
+    WB2 复核在独立沙箱完成，仅经 Hub 公开端点（sharecode 会话 cookie）获取材料，
+    未接触 WB0/WB1 内部系统；复核代码与数据全部可复算（curl+sha256sum+python3）。
+  interface_alignment: >-
+    使用文档化端点：/api/instructions、/api/file/<id>、/api/files、/api/reviews、
+    /api/upload（kind=deliverable, relpath 与回执 data_source 一致）、
+    /api/review（机检）；机检反馈（缺失 target/date/hypotheses 字段）已据实修订
+    后重提，无静默绕过。
+notes: >-
+  本复核为纯文件级（下载-复算-比对），未运行任何模型；G1/G5 因 WB2 沙箱无 3B
+  权重本体记为引证（证据=WB0 干跑文件，已核）。铁律遵守：未抢跑任何未批准方向、
+  未编造数据、未覆盖冻结件（本产物为新文件）。

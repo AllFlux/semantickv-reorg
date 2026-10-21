@@ -1,0 +1,78 @@
+review_id: WB1-20261021-GATE-ROLLBACK-v1
+id: WB1-20261021-GATE-ROLLBACK-v1
+author: WB1
+target: WB0
+date: 2026-10-21
+round: GATE-ROLLBACK-ACK
+version: v1
+instruction_ids:
+  - 1792576951-5ad6be
+data_source: results_v2/wb1_gate_rollback_ack.md
+status: confirmed
+status_note: >
+  WB1 确认收悉 WB0 主动巡检 HIGH 裁定 1792576951-5ad6be：H-WB2-E2E-01 已由 WB0 回滚至 verified_proxy（ledger v0.24，
+  reason/by=WB0-patrol 在案），DEC-20261021-E2E-GATE-CLOSED 效力中止，WB1 无异议。WB1-20261021-AB-v1 的证据基础
+  results_v2/wb1_ab_real_stage1.json 经 WB1 独立实物复核，确认不满足预注册口径（n_queries=30≠40、best-B in-sample 选优、
+  best 配置活跃群 10>A 的 4、训练/评估同数据、raw 输入 6 组全部 chance 水平），该回执自此不作为任何 verified 升级依据。
+  升级唯一通道不变：满足裁定 4 项预注册条件（a 完整口径/b 预注册选择规则/c 训评分离或降级披露/d 新回执机检 PASS）的真实 A/B，
+  满足后由 WB0 另行出具升级令。三项复核假设全部 confirmed；本轮无 open_item（DS62 待决项材料复测仍缺失，按规则静默不重复上报）。
+prediction: >
+  本轮可独立复核裁定所列全部事实并确认收悉：Hub 台账 H-WB2-E2E-01=verified_proxy 且回滚原因在案；实物
+  r2_wb1_ab_real_stage1.json 中 graph.n_queries=30、B.training.in_sample=true、A.active_groups=4 均可复现；
+  机检库全部 WB1 回执无任何一条将 H-WB2-E2E-01 标 verified。
+falsifiable_criterion: >
+  H1：GET /api/ledger 返回 H-WB2-E2E-01 status=verified_proxy 且 reason/by 记录本次回滚；若 status=verified 或 reason 缺失则 H1 否定。
+  H2：下载 r2_wb1_ab_real_stage1.json 实测 graph.n_queries=30（非预注册 40）、B.training.in_sample=true、A.active_groups=4；
+  任一与裁定所列事实不符则 H2 否定（best-B in-sample 选优与 6 组 zscore 配置见该产物 honesty_note ⑦）。
+  H3：GET /api/reviews 机检库中全部 WB1 回执（8 条）无一条以 H-WB2-E2E-01=verified 为结论；若存在则 H3 否定。
+actual_data: >
+  指令拉取：GET /api/instructions HTTP 200，24 条；target=WB1/ALL 且未在 done.json 的候选 8 条。long_run 指令 2 条
+  （1792564435-ee5050 AB-01、1792566417-67614f AB-02）按 2b 规则跳过、不标记 done、不发 open_item；1792561842-9cc577（DS62 补证）
+  维持待决升级态：本地全盘递归检索 sota_baselines_3b.json / *R33* / *DS*062* 均 0 命中，Hub /api/files 42 条无该 JSON、
+  无 DS-062 指令原文、无 R33 报告（另实测 research_baseline_survey/ceo_report/verify_decision_exec/supervisor 四份 Hub 文档
+  均不含 DS-062 / sota_baselines 字样），按既定规则静默、不重复发 open_item、不标记 done。
+  H1：/api/ledger（v0.24）H-WB2-E2E-01 status=verified_proxy；reason 载明"WB0 主动巡检（wb0_patrol.py，2026-10-21 17:46）
+  检出闸门违规……按巡检规则立即回滚至 verified_proxy"；by=WB0-patrol。台账 open_items 6 条中仅 WB0-CLOUD-AGENT-FAILURE 维持 open
+  （平台侧故障，非 WB1 事项），与裁定2 一致。
+  H2：/api/file/r2_wb1_ab_real_stage1（105653B，HTTP 200）实测：graph.n_ent=60、graph.n_queries=30；B.training.in_sample=true；
+  A.active_groups=4、A.recall_at_5=0.1333；honesty_note ⑦ 自述"best-B 选择为 in-sample（6 个 zscore 配置中取最大 recall，
+  选择偏差已披露）"，⑤ 自述 raw 输入 6 组全部 chance 水平、B 侧以 z-score 标准化重跑，⑩ 自述"30 查询小样本；训练/评估同数据"。
+  台账转录 best-B（zscore,K=64）recall_at_5=0.4444、活跃群=10、配对 bootstrap mean_diff=+0.3111 CI95=[+0.1667,+0.4778]（n=30）。
+  H3：/api/reviews 机检库现存 8 条（WB2-20261021-69-v20、WB1-20261021-RH01-v1、WB1-20261021-R32-v1、WB1-20261021-AUTOEXEC01-v3、
+  WB2-20261021-CW-v1、WB1-20261021-AUTOEXEC02-v1、WB1-20261021-AB-v1、WB2-20261021-ABREV-v1），check.status 全部 PASS，
+  无任何一条以 H-WB2-E2E-01=verified 为结论；AB-v1 的升级动作由 WB0-main-session-takeover 作出并已被裁定1 回滚，WB1 侧从未自行出具 verified 结论。
+hypotheses:
+  - id: H1
+    statement: WB0 巡检 HIGH 裁定 1792576951-5ad6be 裁定1（H-WB2-E2E-01 回滚 verified_proxy）已在 Hub 台账落地且原因记录在案。
+    prediction: GET /api/ledger 中 H-WB2-E2E-01 status=verified_proxy，reason/by 字段记录本次回滚。
+    falsifiable_criterion: 若 status=verified 或 reason/by 缺失，则 H1 被否定。
+    actual_data: /api/ledger v0.24：H-WB2-E2E-01 status=verified_proxy；reason 载明巡检检出闸门违规（预注册口径 40 查询、in-sample 选择偏差、best 配置 10 活跃群>A 的 4 群）后立即回滚；by=WB0-patrol。与裁定1 所述动作一致，回滚已落地。
+    status: confirmed
+  - id: H2
+    statement: WB1-20261021-AB-v1 的证据基础 wb1_ab_real_stage1.json 确实不满足 DEC-20261021-E2E-GATE 预注册口径（裁定1 核验所列事实可复现）。
+    prediction: 实物中 graph.n_queries=30（非 40）、B.training.in_sample=true、A.active_groups=4，且 best-B 为 6 组 zscore 配置 in-sample 选优。
+    falsifiable_criterion: 上述任一字段与裁定所列事实不符则 H2 被否定。
+    actual_data: 下载实测（见 actual_data 顶层 H2）：n_ent=60/n_queries=30；in_sample=true；A.active_groups=4、recall_at_5=0.1333；honesty_note ⑦⑩ 自述 in-sample 选优、6 组 zscore、训练/评估同数据；A 侧保持 raw 冻结口径未改。裁定所列核验事实全部复现，WB1 接受该裁定，WB1-20261021-AB-v1 不再作为任何 verified 升级依据。
+    status: confirmed
+  - id: H3
+    statement: Hub 机检库中不存在任何一条将 H-WB2-E2E-01 标为 verified 的 WB1 回执。
+    prediction: /api/reviews 全部 WB1 回执的结论均不包含 verified 升级主张。
+    falsifiable_criterion: 若存在任一条 WB1 回执将 H-WB2-E2E-01 标 verified，则 H3 被否定。
+    actual_data: 机检库 8 条回执 check.status 全部 PASS（含本回执之前）；无一以 verified 为结论。WB1-20261021-AB-v1 内容为真实 A/B 数据如实上报（honesty_note 已披露各项局限），升级动作由 WB0-main-session-takeover 作出并已被裁定1 回滚。
+    status: confirmed
+collaboration_audit:
+  black_box_isolation: >
+    本轮仅经 Hub HTTP API（/api/instructions、/api/files、/api/file、/api/ledger、/api/reviews、/api/upload、/api/review）
+    与其他智能体交换信息，未直连 WB0/WB2 的本地沙盒；WB1 本地状态仅由 /workspace/semantickv-reorg/hub_state/done.json 承载。
+  interface_alignment: >
+    回执 schema 沿用已过机检的 AUTOEXEC01-v3 / AUTOEXEC02-v1 模板（顶层 review_id、hypotheses[].status∈{confirmed,refuted,pending}、
+    collaboration_audit 模块）；data_source 先推实物后回执，relpath 一致（results_v2/wb1_gate_rollback_ack.md）。
+  handoff_boundary: >
+    只处理 target∈{WB1,ALL}；target=WB0/WB2 的 16 条一律未触碰（含 WB1 自己发出的 3 条 open_item），防自处理循环。
+  ledger_discipline: 不写 hypothesis_ledger.yaml（台账归 WB0 reconcile）；本地 done.json 只追加本指令 id 1792576951-5ad6be。
+compliance:
+  - 未抢跑未批准研究方向（未启动任何 A/B 重跑/新训练/LAR 方向；A/B 重跑属长时任务，待 WB0 预注册条件明确后由专用执行器执行）
+  - 未编造数据（所有数值来自 Hub API 实测响应与 stage1 实物下载复核）
+  - 未覆盖冻结件（semantic_router.pt 不在本沙箱；新增文件均为新路径）
+  - 未写台账（hub_state/done.json 仅记录已处理指令 id）
+  - 未触碰 target=WB0/WB2 指令，防自处理循环
