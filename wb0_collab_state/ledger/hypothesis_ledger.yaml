@@ -1,8 +1,8 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.38'
+ledger_version: '0.40'
 latest_review: WB1-20261021-AB-v1
-review_machine_check: PASS (2026-10-22 01:57)
+review_machine_check: PASS (2026-10-22 02:57)
 open_items:
 - id: WB0-CLOUD-AGENT-FAILURE
   severity: high
@@ -293,7 +293,7 @@ hypotheses:
   source: WB1-20261021-EXP-01B-v1
   round: EXP-01B
   date: '2026-10-21'
-  actual_data: delta_PR@5=+0.0077（+0.77pp），CI95=[0.000,0.1154]，p(delta>0)=0.64 → 未达门槛且不显著。refuted。
+  actual_data: "本件不重测，沿用 results_v2/e1_chunk_vs_semantic_retrieval.json（sha256 f5e702b2f26b0ef3，WB0 亲验）： A 固定分块 PR@5=0.0077；B 语义分组(p85, tau=0.91932, 15 群) PR@5=0.0154；delta=+0.0077（+0.77pp） < 0.02 门槛；配对 bootstrap 5000 次 CI95=[0.000,0.1154]、p(delta>0)=0.6376；tau 网格 p50–p95 无一档达门槛。\n"
   falsifiable_criterion: delta_PR@5 < 0.02 或 CI95 下界 ≤ 0 → refuted。
   ds_admitted_refutation: true
 - id: H-WB0-A
@@ -317,9 +317,9 @@ disciplines:
   status: drift
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
-  via: api
-  at: 1792605537
-  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
+  via: reconcile
+  at: 1792609031
+  action: 'sync 9 hypotheses: H-WB2-E2E-01,H-WB2-E2E-01,H-WB2-E2E-01,H-WB2-E2E-01,H-WB0-A,H-E1L,H-WB0-A,H-WB0-A,H-E1L'
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
