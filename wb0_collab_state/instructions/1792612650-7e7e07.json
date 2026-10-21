@@ -1,0 +1,8 @@
+{
+  "id": "1792612650-7e7e07",
+  "title": "【WB0 补记·2026-10-22 04:00】CEO 简报已刷新（v0.43 口径·DS62 结案）",
+  "target": "ALL",
+  "body": "本轮回写 results_v2/_ceo_report_latest.md（4137B，sha256 3412b6c452ccf6e9），四段式，数据全部为本轮 03:55 实拉。上版 02:58 至现仅 1h02m（未超 4h 阈值），但上版未包含本轮 DS62 结案与 auto_run 字段缺失两项实质变化，故提前刷新一次（覆盖同 relpath，幂等）。要点：台账 v0.43 / 25 假设（pending 11、refuted 10、confirmed 3、verified_proxy 1）/ 回执 25（24 PASS、1 FAIL 留痕）/ 指令 54 / 文件 91 / open_items 9（open 3）。风险核心：实验进度已触顶，下一可派窗口依赖用户批准 long_run 或新资产入 Hub。",
+  "author": "WB0",
+  "created": 1792612650
+}

@@ -1,0 +1,63 @@
+review_id: WB1-20261022-EXEC-R0320-v1
+id: WB1-20261022-EXEC-R0320-v1
+author: WB1
+target: WB0
+date: "2026-10-22"
+round: "03:20"
+version: v1
+instruction_ids:
+  - 1792609062-6d2406
+  - 1792606949-45ceec
+status: confirmed
+status_note: >-
+  AT_IDLE 巡检档：无可执行 auto_run（2 条 long_run 按规则跳过，2 条确认类标记 done）。
+  本回执只确认事实与处置，不含任何新实验结论，不改任何台账状态。
+data_source:
+  - results_v2/wb1_exec_round_20261022_0320.md
+prediction: >-
+  若按规范口径（正文 YAML auto_run 标注 + done.json 去重）筛选，本轮 WB1 可执行项应为 0 条：
+  2 条 WB1 auto_run 均为 long_run（AB-01/AB-02，已由 1792577801-70e614 正式关闭、严禁续跑），
+  其余 target=WB1/ALL 未 done 项为确认类裁定或本执行器自述指令，均无待办动作。
+falsifiable_criterion: >-
+  出现下列任一即可证伪本回执：(a) /api/instructions 中存在 target∈{WB1,ALL}、id 不在 done.json、
+  正文 YAML auto_run=true 且 long_run≠true 的指令被本档遗漏；(b) 本轮标记 done 的 2 条指令中存在
+  未被满足的实质交付要求；(c) 本档向 Hub 推送了任何新实验数值或无实物支撑的结论。
+actual_data: >-
+  /api/instructions 实拉 54 条；done.json 预先记录 28 条；未 done 26 条。
+  target 分布 ALL 26 / WB0 11 / WB2 10 / WB1 7。按正文解析：auto_run=true 共 14 条
+  （WB2 4 条 + WB1 2 条 long_run + WB0 8 条 open_item/指令标注），其中 target∈{WB1,ALL} 且未 done 的
+  auto_run=true 仅 2 条，均 long_run=true（1792564435-ee5050 AB-01、1792566417-67614f AB-02）→ 跳过 2 条。
+  另标记 done 2 条：1792606949-45ceec（02:20 档自述交付说明）、1792609062-6d2406（WB0 02:55 裁定）。
+  实物亲验：results_v2/WB1-20261021-EXP-01B-v1-utf8.yaml = 6195B、sha256 前缀 3f621d5e116651b7、
+  YAML 可解析（19 个顶层键含 status=refuted 对应项）、原件 WB1-20261021-EXP-01B-v1.yaml 5927B 在位未覆盖。
+  推送回执 1 条（本文件）+ 巡检记录 1 条；新增 open_item 0 条；执行实验 0 项；写入台账 0 处。
+hypotheses:
+  - id: H-EXEC-R0320
+    statement: >-
+      按规范口径（target∈{WB1,ALL} + done.json 去重 + 正文 auto_run 标注 + long_run 跳过），
+      本 03:20 档 WB1 可执行项为 0，执行器应判定 AT_IDLE；且筛选口径必须由对象字段改为正文 YAML 解析，
+      否则 auto_run 恒为空、全部待取项将被永久漏判。
+    prediction: >-
+      全量枚举后，可执行（auto_run=true 且 long_run≠true）的 WB1/ALL 未 done 指令数 = 0；
+      而按对象字段 auto_run=true 计数亦为 0（54/54 缺失该字段），二者恰好重合但机制不同，后者为缺陷。
+    falsifiable_criterion: >-
+      若存在 target∈{WB1,ALL}、id∉done.json、正文 auto_run=true、long_run≠true 的指令未被本档处理，
+      则本假设被否定。
+    actual_data: >-
+      54 条指令全量枚举：对象字段 auto_run 缺失 54/54（按字段筛出 0 条，若直接采信将漏判）；
+      正文 YAML 解析 auto_run=true 14 条，其中 WB1 2 条且均 long_run=true（AB-01/AB-02）；
+      target∈{WB1,ALL} 且未 done 共 26 条中，可执行项 0 条。结论：AT_IDLE 成立，缺陷口径已在巡检记录披露。
+    status: confirmed
+collaboration_audit:
+  target_wb0_untouched: true
+  target_wb2_untouched: true
+  long_run_skipped: 2
+  new_open_items: 0
+  freezing_files_overwritten: 0
+  ledger_written: false
+compliance:
+  scope_guard_respected: true
+  no_fabricated_data: true
+  no_preemptive_research: true
+  done_json_ids_only: true
+  filter_rule_correction: "/api/instructions 对象无 auto_run 字段（54/54 缺失），改按正文 YAML 解析；已写入巡检记录供 WB0 采纳"

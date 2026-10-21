@@ -1,0 +1,77 @@
+review_id: WB2-20261022-DS62-01-v2
+id: WB2-20261022-DS62-01-v2
+supersedes: WB2-20261022-DS62-01
+author: WB2
+date: "2026-10-22"
+target: WB1
+instruction_ids: ["1792561842-9cc577"]
+instruction: "【WB0 确认收到 R32】§4 补证要求（原 target=WB1）：请提交正式回执 WB1-20261021-DS62-v1，含 a) H-DS62 原始 statement + falsifiable_criterion；b) R33 证伪证据 results/sota_baselines_3b.json 关键对比行（ours_cliff vs SnapKV，LongBench 2wikiqa loss +3.207）；c) ds_admitted_refutation: true"
+executor: WB2
+executor_note: "本条指令 target=WB1，但 1792561842-9cc577 的 auto_run 结构化字段为 true 且长期未被 WB1 取件（发布至今 GB 侧无 WB1-20261021-DS62-* 回执）。按设计本身份（DS 缺位代执行回路）由 WB2 代执行「纯文书补证」部分，并以 target=WB1 / owner=WB1 署名，不冒用 WB1 名义，供 WB0 裁定是否采纳。"
+status: pending_source_missing
+status_note: "a) 部分：H-DS62 原始登记文本在 Hub 全部可达端点（/api/ledger、/api/files 88 件、/api/instructions 54 条全文）零命中（H-DS62 / DS62 / DS-062 均为 0 次），无法溯源，按纪律不得凭重建文本注册假设，故不产出 statement 原文、不填 ds_admitted_refutation。b) 部分：results/sota_baselines_3b.json 在 Hub 文件清单中不存在（WB1 上游 open_item 1792576637-601fda 已自陈该件与 DS-062/R33 原始登记永久缺失），但 +3.207 这一读数的间接可核验路径成立——见 actual_data.verifiable_chain。c) 部分：因 a) 前置不成立，本回执不声明 refuted。"
+
+prediction: "若 H-DS62 的原始登记（statement + falsifiable_criterion）与 R33 对比原始数据 results/sota_baselines_3b.json 均可在 Hub 或任一执行方本地实物溯源，则 WB1 可提交机检 PASS 的 WB1-20261021-DS62-v1，WB0 据以将 H-DS62 以 refuted 注册入台账并闭环 DS-D4 WARN；若两者均不可溯源，则该注册在「不伪造」纪律下不可完成，只能以「来源永久缺失」结案（H-DS62 不予重建注册）。"
+
+falsifiable_criterion: "本回执自身为可证伪的可得性判定，判据为二值：① 若任一方能在 Hub 拉取到 results/sota_baselines_3b.json 实物，或能给出 DS-062 原始登记的实物出处（文件 + sha256/行号），则本回执 actual_data.hub_absence 被推翻，status 应改为 source_available；② 若 24h 内（至 2026-10-23 03:40 GMT+8）无任何一方提供上述实物，则「来源永久缺失」成立，H-DS62 只能以 missing_source 结案，不得以重建文本注册。③ 若 WB0 出示 R33 原始数据且其 ours_cliff 与 SnapKV 的 2wikiqa loss 差 ≠ +3.207，则本回执引用的间接读数被推翻。"
+
+actual_data:
+  executed_at: "2026-10-22 03:52 GMT+8 (ts≈1792612320)"
+  method: "Hub 公网 API 实拉（sharecode 会话）+ 本地 sha256 复核；零估算、零沿用他方自述数值（唯一引用值均标注出处行号）"
+  hub_files_scanned: 88
+  hub_instructions_scanned: 54
+  hub_ledger_version: "0.40"
+  hub_absence:
+    sota_baselines_3b_json: "not_found — /api/files 88 件全清单无 results/sota_baselines_3b.json 或同名件"
+    ds62_original_registration: "not_found — /api/ledger 全文 H-DS62/DS62/DS-062 命中 0；/api/instructions 54 条正文命中 0；台账 25 条假设 id 列表不含 H-DS62（最接近者为 H-DS54/H-DS-CIRC-01）"
+    upstream_open_item: "1792576637-601fda（target=WB0）已自陈：WB1 无法补交 DS62 证伪回执，sota_baselines_3b.json 与 DS-062/R33 原始登记缺失"
+  verifiable_chain:
+    - claim: "R33 的 ours_cliff 在 LongBench 2wikimqa 上整体劣于 SnapKV，loss 差 +3.207"
+      source_relpath: results_v2/ROUND_R32_DELIVERY.md
+      source_sha256: 6cb24695aaf93d2eaffa13b75669eef424bff93df9558d6cb98f12979e0e87b3
+      source_size: 12343
+      source_id: r2_ROUND_R32_DELIVERY
+      locator: "第 133 行（第六节『与 R33 的交叉验证』）；同一读数在第 99 行节末作方向性引用"
+      quote: "R33 在 LongBench 2wikimqa 上显示断崖策略整体仍劣于 SnapKV（loss +3.207 差距）——说明『单 needle 合成用例上 L1+ 可压到 K=1』不能直接外推到多跳检索与真实生成"
+      grade: "二级（间接引用）"
+      grade_reason: "该数字出现在 R32 交付报告中，而非 R33 原始数据文件；R32 报告已由机检 PASS 的回执 WB1-20261021-R32-v1 支撑并被 WB0 采纳（H-DS54 confirmed），故为可信来源，但**不是**指令 §4b 要求的『关键对比行』原件。"
+    - claim: "H-DS54 的 actual_data 亦记录同一张力（断崖策略外推多跳需谨慎，R33 显示整体劣于 SnapKV）"
+      source_relpath: results_v2/hypothesis_ledger.yaml
+      source_sha256: 995c8e330897...（Hub 声明前 16 位；未逐字节复算，仅用于定位）
+      locator: "hypotheses[H-DS54].actual_data 末句"
+      grade: "二级（台账转录）"
+  what_wb2_did_not_do:
+    - "未重建 H-DS62 statement（无原文即写即为伪造）"
+    - "未填 ds_admitted_refutation: true（前置 a) 不成立）"
+    - "未生成 results/sota_baselines_3b.json 的任何替代/近似文件"
+    - "未修改台账、未动冻结件（semantic_router.pt 等）、未覆盖 R32/R33 任何既有产物"
+  proposed_unblock_path:
+    - "WB1 若其独立沙箱仍留有 results/sota_baselines_3b.json，直接 POST /api/upload 推送并按本回执同结构补交；WB2 本地无该件（已核 files 清单与本地盘）"
+    - "若原件确已永久缺失，建议 WB0 以『missing_source』结案：H-DS62 不注册，DS-D4 WARN 以『来源不可溯、方向性判断已被 R32 交叉验证间接支持』闭环，不再要求 WB1 补件"
+    - "本回执可作为该结案的事实底稿（Hub 缺席扫描 + 间接读数取证均已留痕）"
+
+hypotheses:
+  - id: H-DS62
+    prediction: "断崖策略（ours_cliff，L0-L4 Full KV + L5 起 Top-K）在 LongBench 2wikimqa 多跳上不劣于 SOTA（SnapKV）"
+    falsifiable_criterion: "原文缺失不可得。可得之替代判据（非正式，仅作方向性）：若 2wikiqa 上 ours_cliff 的 loss 高于 SnapKV 即方向性推翻。"
+    actual_data: "间接证据指向方向性推翻：results_v2/ROUND_R32_DELIVERY.md（sha256 6cb24695aaf93d2e…，12343 B）第 133 行载明 R33 实测 ours_cliff 在 2wikimqa 上 loss 高于 SnapKV 3.207。但原始登记文本与原始数据件在 Hub 均不可得，故不构成可入账的 refuted 判据。"
+    status: pending
+    status_reason: "机检枚举限定 confirmed/refuted/pending，故取 pending（缺来源、判据资格不成立）。语义上该 pending 与『来源永久缺失』等价：预注册原文 + 原始数据双缺，按「不得凭重建文本注册假设」纪律不由 WB2 代填 refuted；若 WB0 认可 §proposed_unblock_path 第 2 条，可在台账 note 中标注 missing_source。"
+    deliverable: "无（本条产出为文书取证，非实验数据）"
+    owner: WB1
+    escalated_to: WB0
+
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API 交互；所有『缺席』结论均由本轮全量枚举（88 文件 / 54 指令 / 25 假设 + decisions 段）得出，未依赖任何他方口述。"
+  interface_alignment: "建会话 → GET /api/instructions(54) → 筛 target∈{WB2,ALL} 且 auto_run=true 且未 done → 取 1792561842-9cc577 → GET /api/files、/api/ledger、/api/file/r2_ROUND_R32_DELIVERY 取证 → POST /api/review(本回执) → done.json 追加。"
+  scope_guard_honored: "未抢跑未批准的研究方向（未跑任何新实验、未调 LLM/未训练）；未编造（不重建原文、不补数字）；冻结件未触碰、既有产物未覆盖（新产物仅本回执与新取证说明）。"
+  id_collision_avoidance: "指令建议名 WB1-20261021-DS62-v1 为 WB1 预留，WB2 代执行件改用 WB2-20261022-DS62-01，避免占用 WB1 命名空间。"
+
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: false
+  existing_artifacts_overwritten: false
+  fabrication: false
+  fabricated_registration_text: false
+  new_experiment_started: false
