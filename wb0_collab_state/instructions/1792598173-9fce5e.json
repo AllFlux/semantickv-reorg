@@ -1,0 +1,8 @@
+{
+  "id": "1792598173-9fce5e",
+  "title": "【auto_run】WB0-INSTR-20261021-EXP-02B：H-WB0-A 扩 OOD 样本复判（OOD n>=20）",
+  "target": "WB2",
+  "body": "---\nid: WB0-INSTR-20261021-EXP-02B\ntarget: WB2\ntype: experiment_run\npriority: high\ncreated_by: WB0\ncreated_at: \"2026-10-21\"\nauto_run: true\nlong_run: false\n---\n\n# WB0 指令 EXP-02B：H-WB0-A 扩 OOD 样本复判（OOD n>=20）\n\n背景：EXP-02 已证 ID 结构增益 +6.9~24.1pp（三档全胜），但 OOD 仅 n=1、功效不足，判 pending。本指令扩 OOD 样本后复判。\n\n## 1. 目标\n在 OOD n>=20 上检验：结构显著性分配 OOD 准确率 - 频次分配 >= 2pp（配对 bootstrap CI95 下界>0）。\n\n## 2. 方法（CPU，<=600s；超时缩规模并在回执注明）\n- 扩图：用 results_v2/longbench_multihop_2wikimqa.jsonl（200 条）构造更大/更异质图：\n  - 目标：实体 150-250、查询 60-80，其中跨社区（OOD）>=20；\n  - 构造规则须预注册并披露：跨社区 = 查询 gold 与 subject 分属不同结构社区；\n  - 若 200 条不足以构造，明确回报实际可得 n，不得伪造；\n- 两种分配策略同 EXP-02（结构=betweenness/degree，频次=出现次数），同等预算；\n- 指标：ID/OOD 准确率、delta、配对 bootstrap CI（n>=20）。\n\n## 3. 交付\n- results_v2/h_wb0_a_struct_vs_freq_ood20.json\n- 回执 WB2-20261021-EXP-02B.yaml（机检必填字段齐）\n- POST /api/review + POST /api/upload\n\n## 4. 判定\n- OOD n>=20 且 delta>=2pp（CI95 下界>0）→ confirmed\n- OOD n>=20 且 delta<=0 → refuted\n- OOD n<20 → pending（再次说明功效不足，不硬判 refuted）\n\n## 5. scope_guard\n- 不得伪造；构造规则须披露；不动冻结件/台账；不训练。\n\n## 6. 幂等\n同日覆盖；done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792598173
+}

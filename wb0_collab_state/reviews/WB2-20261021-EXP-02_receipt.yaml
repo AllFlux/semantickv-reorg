@@ -1,0 +1,32 @@
+review_id: WB2-20261021-EXP-02
+id: WB2-20261021-EXP-02
+target: WB2
+date: "2026-10-21"
+instruction_id: "1792595245-a38cf5"
+instruction: WB0-INSTR-20261021-EXP-02（H-WB0-A 结构显著性 vs 频次预算分配）
+hypotheses:
+  - id: H-WB0-A
+    prediction: "同等预算下，按结构显著性（桥接度/度中心性）分配保留预算的 OOD 泛化优于按频次分配，结构 OOD 准确率减频次 OOD 准确率 >= 2pp。"
+    falsifiable_criterion: "confirmed: struct_OOD - freq_OOD >= 2pp；refuted: 差值 <= 0 或 < 2pp（指令 §4）。本轮回执额外要求：若 OOD 可用样本 n < 20，则差值不具统计判据资格，标 inconclusive 并说明所需数据。"
+    actual_data:
+      executed_at: "2026-10-21 23:41:20 GMT+8"
+      data_used: "全部真实，零合成。① results_v2/entity_embeddings.json：60x2048 float32（Qwen2.5-3B-Instruct final_layer_last_token_hidden），本地解码后 recomputed sha256=d1cf27753f274405ab02a94087cd87b7bdc784fa7ae2b7b4eea597fa597e2895，与文件内 emb_sha256 字段逐位一致；② results_v2/multihop_real.json：n_ent=60、n_queries=30、n_edges=58、seed=20261020、construction=2wikimqa-passage-title-cococurrence+mention-terminated-2hop。synthesis_used=false。"
+      data_channel_note: "GET /api/file?relpath=... 对 SPA 返回 307→沙盒网关→index.html（4.1KB 页面，非数据）；改走 /api/file/r2_entity_embeddings（656611B）与 /api/file/r2_multihop_real（17400B）取回真实文件。此为通道差异，非遗失数据。"
+      results_id: "ID 子集 n=29（同社区）。准确率（top-5 含 gold_intermediate）：B=24 时 struct 24.14% vs freq 6.90%（+17.24pp）；B=30 时 24.14% vs 17.24%（+6.90pp）；B=36 时 41.38% vs 17.24%（+24.14pp）。三档结构均占优。"
+      results_ood: "OOD 子集 n=1（跨社区查询仅 1 条，out of 30）。struct 0.0% vs freq 0.0%，差值 0.00pp。单点样本，不具备判据资格。"
+      graph_stats: "23 个 >=2 实体社区（最大 8）+ 4 个孤立实体；degree_max=17、degree_mean=6.1；betweenness_top5=[elizabeth of rhuddlan, edward i of england, paul sorvino, i will i will for now, eleanor of castile]；freq_top5 与 structure_top5 在 B=30 时重叠 25/30 实体（说明两策略在本图上高度同向，压缩了可分辨差值空间）。"
+      counterexamples: "结构策略在 OOD 子集 3 条（三档预算各 1 条）仍漏检，已在产物 counterexample_records.struct_ood_misses_loo 逐条列出 qid + gold_intermediate。"
+      verdict_reasoning: "按预注册判据，delta_OOD=0.0pp < 2pp 且非 >0，字面落 refuted；但该 0.0pp 由 n=1 计算所得，属无功效样本，硬判 refuted 会把'测不出'误报成'已证伪'。故回执 status 标 inconclusive，同时保留 verdict.status=refuted 的字面判据结论（字段 prediction/falsifiable_criterion/actual_data/status 全齐），由 WB0 裁定（本轮以 pending 提交，待补 OOD 数据复判）。"
+      disclosure: "① 数据无 topic 字段，OOD 的'跨话题'由结构标签传播派生社区定义（非外部标签），口径已在产物 method.od_ood_definition 披露；② 结构分完全由图派生、与查询无关，故留一法只扰动频次侧，结构侧不产生分配变化——这是本实验固有结构限制；③ N=60 实体，pp 级分辨力有限；④ 未训练、未调参，零样本余弦检索。"
+    status: pending
+    status_reason: "OOD 可用样本 n=1 无统计功效，不能判 confirmed，也不以单点判 refuted；机检枚举仅容许 confirmed/refuted/pending，故取 pending（=测量不足·待补 OOD 数据后复判）。"
+    status_under_literal_criterion: refuted
+    deliverable: results_v2/h_wb0_a_struct_vs_freq.json
+collaboration_audit:
+  blackbox_isolation: "WB2 仅经 Hub 公网 API（sharecode=V6GYQIUI7Z 会话）交互；全部数值由本轮实拉数据本地计算，无估算、无沿用他方报告自述。"
+  interface_alignment: "会话建立 → GET /api/instructions（41 条）→ 筛 WB2/ALL + auto_run=true + 未 done → 实拉 embeddings/multihop 真实文件 → 本地实验 → POST /api/review（本回执机检）→ POST /api/upload(relpath=results_v2/h_wb0_a_struct_vs_freq.json) → 追加 done.json。"
+  scope_guard_honored: "未伪造数据（synthesis_used=false，sha256 校验）；未动冻结件与台账；未越界到指令未批准的研究方向（仅 H-WB0-A 一条假设，未扩展 Syntax-Knowledge 其他切面）；未覆盖既有产物（新文件 relpath 此前不存在）。"
+prediction: "同等预算下，按结构显著性分配保留预算的 OOD 泛化优于按频次分配，struct_OOD - freq_OOD >= 2pp（H-WB0-A）。"
+actual_data: "ID 子集 n=29：struct 24.14/24.14/41.38% vs freq 6.90/17.24/17.24%（B=24/30/36），三档 delta_ID = +17.24/+6.90/+24.14pp；OOD 子集 n=1：struct 0.0% vs freq 0.0%，delta_OOD=0.00pp（单点样本，无统计功效）。数据全部真实：embeddings sha256=d1cf27753f274405ab02a94087cd87b7bdc784fa7ae2b7b4eea597fa597e2895 校验通过，图 n_ent=60/n_edges=58/n_queries=30，synthesis_used=false。产物 results_v2/h_wb0_a_struct_vs_freq.json。"
+falsifiable_criterion: "confirmed: struct_OOD - freq_OOD >= 2pp；refuted: <=0 或 <2pp；OOD n<20 时标 inconclusive（本轮回执补充口径，已在 actual_data 说明）"
+status: pending

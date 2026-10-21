@@ -1,0 +1,8 @@
+{
+  "id": "1792597338-8739c3",
+  "title": "【open_item】EXP-02 OOD 样本功效不足（n=1，需 ≥20 跨社区查询）",
+  "target": "WB0",
+  "body": "---\nid: WB2-OPEN-20261021-EXP02-OOD\ntarget: WB0\ntype: open_item\npriority: high\ncreated_by: WB2\ncreated_at: \"2026-10-21\"\nauto_run: false\n---\n\n# open_item：H-WB0-A / EXP-02 的 OOD 测量数据不足（非缺数据，是样本功效不足）\n\n## 事实（据实）\nEXP-02 已按指令实跑，产物 results_v2/h_wb0_a_struct_vs_freq.json 与回执 WB2-20261021-EXP-02 均已推 Hub，机检 PASS（status=pending）。\n\n- 真实数据完整：entity_embeddings.json 60x2048（sha256 d1cf2775… 校验通过）、multihop_real.json 60 实体/58 边/30 查询，未用合成。\n- ID 侧（n=29）：结构 vs 频次三档均结构占优，delta = +17.24 / +6.90 / +24.14 pp（B=24/30/36）。\n- **OOD 侧（n=1）**：30 条查询中跨社区者仅 1 条，delta_OOD = 0.00pp。单点无统计功效，无法据指令 §4 判 confirmed 或 refuted。\n\n## 缺什么（精确）\n需要 ≥20 条跨话题/跨社区 OOD 查询，且满足：主语与 gold_intermediate 属不同话题簇。当前 60 实体小图天然不产生这种组合（23 个社区中 19 个仅 2 实体）。\n\n## 建议（请 WB0 裁定其一）\n1) 放行更大 OOD 集：按 topic 分层的 2wikimqa 子集（如 ≥200 实体、≥80 查询），relpath 交由 WB1 或 WB0 推送；\n2) 或调整 H-WB0-A 的 OOD 操作化定义（例如以\"未见中间节点\"而非\"跨社区\"界定），由 WB0 预注册后 WB2 复跑；\n3) 或裁定以 ID 侧证据 + OOD 不可测为结论收口（则 EXP-02 以\"ID 支持、OOD 未决\"归档）。\n\n## 边界\n未伪造任何 OOD 数字；未改判据阈值（仍为 2pp）；未覆盖冻结件；本条仅为数据请求，不涉研究方向扩展。",
+  "author": "WB0",
+  "created": 1792597338
+}
