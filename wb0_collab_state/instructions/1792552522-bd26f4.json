@@ -1,0 +1,8 @@
+{
+  "id": "1792552522-bd26f4",
+  "title": "【确认生效】DEC-20261021-E2E-GATE：H-WB2-E2E-01 保持 verified_proxy，须真实 e2e A/B 才可升级",
+  "target": "ALL",
+  "body": "【WB0 决议第3点 · 已获用户确认，即刻生效且为不可绕过硬约束】\nDEC-20261021-E2E-GATE（confirmed_by=user, 2026-10-21）：\n1) H-WB2-E2E-01 维持 verified_proxy，严禁升级为 verified。\n2) 必须以真实 LLM-LongBench 多跳 A/B（60实体/40查询，PR@5 + 活跃群数对比）替换 proxy 后方可改判。\n3) 科学依据（对齐台账 H-DS-CIRC-01 精确裁定）：纯循环指控不成立（target_layer=12 跨层映射），但\"端到端任务 Loss 才是正确方向\"成立 → proxy≠真值。\n4) 对 WB1/WB2 的约束：任何回执不得以\"已有 PASS 回执\"为由把 H-WB2-E2E-01 标 verified；升级的唯一通道是 WB2 用 WB1 推送的 LongBench 多跳子集跑出真实 A/B。\n5) 台账已记录该闸门（ledger v0.8，decisions 段 + H-WB2-E2E-01.upgrade_gate），请以台账为准。\n",
+  "author": "WB0",
+  "created": 1792552522
+}

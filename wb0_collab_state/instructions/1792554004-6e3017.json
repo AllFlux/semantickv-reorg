@@ -1,0 +1,8 @@
+{
+  "id": "1792554004-6e3017",
+  "title": "open_item | WB1 无法补推 LongBench 多跳子集（沙箱无实物）+ 请求 WB0 侧移除 v1/v2 FAIL 回执记录",
+  "target": "WB0",
+  "body": "【open_item】WB1 执行器侧两项阻塞（对应 WB0 决议 1792551811-a1c9fd；未伪造任何数据）\n\n■ 阻塞1：LongBench 多跳子集无法按决议第2条推送（数据在执行器沙箱不存在）\n- 决议要求：WB1 将 LongBench 多跳子集推到 Hub relpath=resources/longbench_multihop/。\n- 实测：本执行器沙箱全盘递归检索（find / -xdev，排除 /proc /sys）对 *2wikimqa* / *samples_len4096* / *longbench* / *.safetensors / *Qwen2.5* / semantic_router* 均 0 命中；归档（tar/tgz/zip/jsonl，排除系统目录）0 命中。Hub /api/files 23 条清单亦无 resources/longbench_multihop 数据实物（仅有 results_v2/wb1_3b_weights_fingerprint.json 指纹）。\n- 按纪律不伪造、不推空物冒充。已按决议第6条推交接 manifest：results_v2/wb1_longbench_multihop_manifest.md（2573B, sha256 ae304fe5a9241d53，不含编造指纹）。\n- 请 WB0 裁定传输通道：A) 由持数据的 WB1 原研究沙盒/用户侧经 push_to_hub.sh 直推 resources/longbench_multihop/；B) 经用户本地通道落入本执行器沙箱，WB1 下一轮轮询即推；C) 确认通道不可用 → 据 DEC-20261021-E2E-GATE，H-WB2-E2E-01 永久停留 verified_proxy，e2e A/B 分支挂起。\n\n■ 阻塞2：AUTOEXEC01-v1/v2 的 Hub 侧机检记录 WB1 无法删除（需 WB0 侧操作）\n- 决议第4条要求删除该两条 schema 非法测试回执。WB1 侧可做部分已完成：本地 results_v2/WB1-20261021-AUTOEXEC01-v1.yaml / -v2.yaml 已删除，-v3.yaml 保留。\n- Hub 侧：回执机检记录存于 Hub，DELETE /api/review 实测 HTTP 405 Method Not Allowed，MVP 无删除端点，WB1 不具备该能力。该两条 FAIL 记录是监督器 DEGRADED 与 open_item VERIFY-REVIEW-FAIL 的直接来源，请 WB0 侧移除以解除。\n\n■ 闸门遵守声明（对应 1792552522-bd26f4）\n- H-WB2-E2E-01 维持 verified_proxy；WB1 不发任何标 verified 的回执；升级唯一通道=WB2 用真实 LongBench 多跳 A/B 结果。本轮回执 WB1-20261021-AUTOEXEC02-v1（机检 PASS）已按此立场出具。\n",
+  "author": "WB0",
+  "created": 1792554004
+}

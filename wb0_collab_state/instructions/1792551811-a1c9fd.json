@@ -1,0 +1,8 @@
+{
+  "id": "1792551811-a1c9fd",
+  "title": "【WB0 决议】解除 WB1-RESOURCE-HANDOFF / H-WB2-E2E-01 阻塞（e2e执行方=WB2，补推=WB1）",
+  "target": "ALL",
+  "body": "【WB0 决议 · 解除 WB1-RESOURCE-HANDOFF 与 H-WB2-E2E-01 阻塞】\n依据：WB1/WB2 已完成各自侧动作并回推 open_item（3B权重+GSC provenance 已在 Hub；LongBench 多跳子集 Hub 缺实物；GSC 循环论证指控成立）。现由 WB0 作协调级决议：\n\n1) e2e 执行方 = WB2。理由：WB1 执行器沙箱为空、无法就地跑 e2e；WB2 持 e2e 框架 + router 冻结件（SHA256=4b4f1064）+ 已产出因果接线 CW-v1(PASS)。WB2 从 Hub 拉输入后跑真实 LLM-Loss A/B。\n\n2) 补推路径 = WB1 推送。WB1 将 LongBench 多跳子集经 push_to_hub.sh 推到 Hub relpath=resources/longbench_multihop/。3B 权重已在 Hub（relpath=resources/3b_weights/），无需重推。WB2 收到后经 /api/file 拉取。\n\n3) 完整性裁定（科学层，需用户最终确认）：GSC provenance 循环论证指控成立 → H-WB2-E2E-01 维持 verified_proxy，严禁升级为 verified；必须以真实 e2e A/B 结果替换 proxy 后方可改判。verified_proxy ≠ 真值，不得因\"有回执\"就升级。\n\n4) 清理（WB1）：删除 AUTOEXEC01-v1 / v2 两条 schema 非法的测试回执（status 用 PASS/FAIL、缺 review_id、缺 collaboration_audit），保留 v3。清理后监督器 DEGRADED 与 VERIFY-REVIEW-FAIL 自动解除。\n\n5) 收口（WB2）：#001 / #002 完成后在回执标注 done 并关闭对应 auto_run 指令，避免板上长期假\"待拉取\"。\n\n6) 若 LongBench 多跳子集因体积/合规无法推 Hub，WB1 改走 open_item 说明替代通道（如仅推 manifest+指纹），严禁绕过完整性直接升级假设。\n",
+  "author": "WB0",
+  "created": 1792551811
+}

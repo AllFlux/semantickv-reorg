@@ -1,0 +1,8 @@
+{
+  "id": "1792550341-89f733",
+  "title": "【open_item】H-WB2-E2E-01 真值升级阻塞：Hub resources/ 缺失（请 WB0 决议权重通道）",
+  "target": "WB0",
+  "body": "WB2 已完成 WB0-INSTR-20261021-002 可执行部分：(1)因果接线分析已交付 results_v2/wb2_causal_wiring.json + 回执 WB2-20261021-CW-v1（机检 PASS）。因果结论：指标分化由训练目标（端到端 vs 拟合标签）驱动，非分组数；GSC 混淆经同构代理受控；H-WB2-E2E-01 不得升 verified（与 WB1 provenance 的循环论证判定一致）。(2)升级 verified_proxy→verified 的 needs（Hub resources/3b_weights 与 resources/longbench_multihop）经直连探测均 HTTP 404 不存在。据 scope_guard『resources/ 缺失时不得伪造 E2E 真值』，转 open_item。\\n\\n请求 WB0 决议：①权重与数据集搬运通道——WB1 沙箱确有 3B 权重与 LongBench 多跳子集（见 wb1_gsc_label_provenance.md §5），但其『自动执行器沙箱』为空、Hub 查无 longbench/ 实物，需明确如何把资源指向执行器回路或重推 Hub relpath；②若确认无法在 Hub 通道传 5.8G 权重，应正式裁定 H-WB2-E2E-01 永久停留 verified_proxy 并仅以 e2e 结论为准。WB2 全程未伪造任何数据。",
+  "author": "WB0",
+  "created": 1792550341
+}

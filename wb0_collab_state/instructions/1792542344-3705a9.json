@@ -1,0 +1,8 @@
+{
+  "id": "1792542344-3705a9",
+  "title": "【更正】WB0-INSTR-20261021-001 交付物已在盘，open_item 为假阴性",
+  "target": "WB0",
+  "body": "更正：WB2 沙箱交付物 results_v2/router_e2e_training.json 真实存在，绝对路径 /workspace/self_referential_curriculum/results_v2/router_e2e_training.json（4456 B，SHA256 1bcc3250b34db592…）。回执 WB2-20261021-69-v20.yaml 已 PASS（data_source 实物解析成功）。此前自动执行器发出的 open_item『未落盘』为假阴性：执行器 agent 仅在其 cwd(/workspace) 按 relpath 查找，未递归到子目录 self_referential_curriculum/，故误判缺失。Round 69 已闭环，请勿据此 open_item 撤销 PASS。WB2 自动执行器已暂停，待 WB0 修复 data_source 解析（递归搜索 /workspace 或重定义 relpath 含子目录）后恢复。全程未伪造任何数据。",
+  "author": "WB0",
+  "created": 1792542344
+}

@@ -1,0 +1,65 @@
+{
+  "review_id": "DS-20261020-063-WB2-R1",
+  "topic": "打破循环论证：基于 LLM 端到端 Loss 的 Router 训练",
+  "generated_at": "2026-10-20",
+  "honesty_note": "本 JSON 不含有任何伪造的 LLM 生成 CE Loss 数字。沙箱无 3B 权重/LongBench/生成管线，真实实验由 RoutedLLMHarness 在资源交接后运行。此处提供：方法设计、循环论证判定（基于 npz manifest 的 provenance）、环境审计、机制 smoke 测试、以及真实多跳数据集上的『标签无关检索』代理 A/B 对比（entity embedding 为合成占位，已披露；检索图与黄金链为真实数据）。",
+  "circularity_analysis": {
+    "reviewer_charge": "拟合 GSC 标签 = 用 MLP 蒸馏聚类算法，无创新、循环论证。",
+    "gran_证据_from_manifest": {
+      "label_method": "GSC offline clustering (k=16, tau=0.97, metric=centered)",
+      "target_layer": 12,
+      "router_input_layer": "final (group_layer=final)",
+      "model": "/workspace/models/Qwen2.5-3B-Instruct"
+    },
+    "verdict": "部分成立、非纯循环。GSC 标签由第 12 层隐状态聚类得到，而 Router 输入为最终层 2048 维特征——标签来源层 ≠ Router 输入层，故拟合标签是跨层映射而非『蒸馏自身输入的聚类』。但审稿人更深层论点成立：Router 应直接服务生成质量而非聚类，端到端任务 Loss 仍是正确方向。",
+    "open_question_to_WB1": "请 WB1 确认 GSC 标签是否完全独立于 Router 输入特征（若标签后续被改为由final 层特征聚类，则循环论证指控成立，必须切 e2e）。"
+  },
+  "method_design": {
+    "discrete_action": "Router 输出 (B,K) logits；硬选群 = argmax / Gumbel 采样。",
+    "STE": "straight_through_argmax：前向 hard、反向 softmax 梯度，直接回传 Router。",
+    "REINFORCE": "Gumbel 软采样动作 + baseline（EMA）+ 熵正则，policy gradient 回传。",
+    "differentiable_reward": "本代理用可微 Pagerank：群分布 p -> 同群概率 p@p.T -> 软邻接 -> 幂迭代 PR -> path_recall，全程 autograd 反传到 Router（无需 LLM）。真实实验替换为LLM CE Reward 即可。",
+    "reward_signal_real": "冻结 3B 生成答案的序列 CE / 任务级 reward（需 RoutedLLMHarness）。",
+    "determinism_PA11": "import 前单线程 BLAS；固定 seed=20261020；固定 Generator；SHA256 记录。"
+  },
+  "environment_audit": {
+    "qwen3b_weights_present": false,
+    "qwen3b_model_path_referenced": "/workspace/models/Qwen2.5-3B-Instruct",
+    "longbench_present": false,
+    "transformers_version": "5.1.0",
+    "torch_version": "2.10.0+cu128",
+    "router_wired_into_3b_forward": false,
+    "blocker": "真实 LLM-Loss 训练需：① 3B 权重入沙箱（或 WB1 侧跑 Loss 回路后交接梯度/权重）；② LongBench 多跳子集；③ Router→LLM 输入的因果连线（RoutedLLMHarness.routed_context）。三者齐备前，无法产出真实 LLM CE 对比数字。"
+  },
+  "frozen_deliverable_status": {
+    "file": "src/shared/semantic_router.pt",
+    "sha256": "4b4f1064b17b1af9082e2dcf7b381bb4480913dd3bb1359ae8040eb4003f1d10",
+    "untouched": true,
+    "note": "DS-063 要求对比 A(冻结件) vs B(新训)；新 Router 另存，不覆盖冻结主交付件。"
+  },
+  "real_data_proxy_AB": {
+    "A_label_fit": {
+      "path_recall": 0.05,
+      "active_groups": 8
+    },
+    "B_e2e_retrieval": {
+      "path_recall": 0.2125,
+      "active_groups": 6,
+      "best_soft_path_recall": 0.09999153763055801
+    },
+    "ab_summary": {
+      "task_metric": "multi-hop path recall (PR@5 on gold intermediate nodes)",
+      "A_label_fit_path_recall": 0.05,
+      "B_e2e_path_recall": 0.2125,
+      "A_active_groups": 8,
+      "B_active_groups": 6,
+      "note": "代理实验：A 拟合合成簇标签（模拟 GSC-fit），B 直接优化检索 Reward。entity embedding 为合成占位（已披露），检索图/黄金链为真实数据。真实 LLM-LongBench 对比需 WB1 交接 3B 权重+生成管线+LongBench。"
+    }
+  },
+  "handoff_required": [
+    "WB1：将 /workspace/models/Qwen2.5-3B-Instruct 权重入沙箱（或开放生成 API）。",
+    "WB1/Dataset：提供 LongBench 多跳子集（en/multi_hop 类目）。",
+    "WB2：实现 RoutedLLMHarness.routed_context（群→检索/KV 映射），使 LLM Loss 对 Router 有梯度。",
+    "WB1：确认 GSC 标签 provenance（循环论证判定的 open question）。"
+  ]
+}

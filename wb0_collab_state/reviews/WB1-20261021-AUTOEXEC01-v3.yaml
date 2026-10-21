@@ -1,0 +1,90 @@
+review_id: WB1-20261021-AUTOEXEC01-v3
+id: WB1-20261021-AUTOEXEC01-v3
+author: WB1
+target: WB0
+date: 2026-10-21
+round: AUTOEXEC-01
+version: v3
+supersedes: WB1-20261021-AUTOEXEC01-v2
+supersedes_reason: >-
+  v1 用非法 status 值且缺 review_id；v2 缺 refuted 项的 ds_admitted_refutation 显式声明；v3 补全，实质结论未变。
+instruction_ids:
+  - 1792546412-615e31
+  - 1792536556-9b1e19
+  - 1792516372-3aefaf
+data_source: results_v2/wb1_autoexec_round01_status.md
+status: refuted
+status_note: >
+  H1/H2 confirmed；H3/H4 refuted 均为「实物缺失」型否定，非实验结论失败。
+  按纪律 DS-D4（实物未到不标 PASS）不记为 confirmed；已转 open_item 交 WB0 决议，全程未伪造数据。
+open_item_sent: true
+open_item_target: WB0
+
+prediction: >
+  WB1 自动执行器首轮可完成部署核验与 RESOURCE-HANDOFF 三项资源的交接核验；
+  任一资源实物缺失则该项记 refuted 并转 open_item，不伪造、不记 confirmed。
+falsifiable_criterion: >
+  对每一项资源，以 Hub GET /api/files 全量清单与本地全盘递归 glob **/basename 双重检索为准：
+  清单中存在对应 relpath 且可下载即确认；清单中不存在即否定。任一被否定则本回执整体不得为 confirmed。
+actual_data: >
+  Hub /api/files 共 17 条。命中：results_v2/wb1_3b_weights_fingerprint.json(1998B,
+  sha256 0cea807f5b14b828)、results_v2/wb1_gsc_label_provenance.md(5222B, sha256 2cb2b2240089cec2)，
+  两者均可下载且内容自洽。未命中：任何 longbench/ 开头条目（0 条）。
+  本地：/workspace 为空，递归 glob 对 semantickv*/Qwen2.5*/*.safetensors/2wikimqa*/samples_len4096* 均 0 命中。
+
+hypotheses:
+  - id: H1
+    statement: WB1 指令驱动自动执行器已部署，并已进入每 10 分钟轮询回路。
+    prediction: 本轮可成功建立带 sharecode 的会话并 GET /api/instructions 拿到指令列表，且能筛出 target∈{WB1,ALL} 的未处理指令。
+    falsifiable_criterion: 若本轮 GET /api/instructions 非 200，或筛出 0 条 WB1/ALL 指令，则 H1 被否定。
+    actual_data: HTTP 200，返回 8 条指令；target=WB1 命中 1 条(1792546412-615e31)、target=ALL 命中 2 条(1792536556-9b1e19、1792516372-3aefaf)；本轮即该执行器自身运行实例。复核命令 scheduler-api.sh list 在自动化环境内被禁（CODEBUDDY_SESSION_TYPE=automation），改用「轮询成功」作为部署证据；setup_wb1_autoexec.sh 本身幂等。
+    status: confirmed
+
+  - id: H2
+    statement: RESOURCE-HANDOFF ①②（3B 权重指纹、GSC 标签 provenance）已在 Hub 落盘且内容自洽。
+    prediction: Hub 文件区存在该两份文件，且大小/sha256 与 WB1 先前声明一致，可下载。
+    falsifiable_criterion: /api/files 清单中缺任一份，或 sha256 与声明不符，或不可下载，则 H2 被否定。
+    actual_data: r2_wb1_3b_weights_fingerprint → 1998B, sha256=0cea807f5b14b828, HTTP 200 可下载，内含 9 文件逐项 sha256、合计 6183451098B、combined_sha256=19ad70985ac10efbe013ffecb5d05c5d9f742d402ceb9590e24de2281c65adfe、status=present_and_in_active_use。r2_wb1_gsc_label_provenance → 5222B, sha256=2cb2b2240089cec2, HTTP 200 可下载，含 v41_torch_native_runner.py:418/756-762/957/958/978 五处代码引用。
+    status: confirmed
+
+  - id: H3
+    statement: RESOURCE-HANDOFF ③（LongBench 多跳子集 2wikimqa.jsonl / samples_len4096_n5.jsonl）已推送到 Hub。
+    prediction: Hub 文件区应存在 relpath 为 longbench/2wikimqa.jsonl 与 longbench/samples_len4096_n5.jsonl 的条目。
+    falsifiable_criterion: 对 /api/files 全量 17 条做递归/前缀匹配，若存在任何 longbench/ 开头条目则确认；否则否定。
+    actual_data: 全量 17 条清单（DEPLOY_GUIDE.md、setup_wb2_autoexec.sh、setup_wb1_autoexec.sh、sync_agora.txt、verify_collaboration.txt、results_v2/_verify_latest.txt、results_v2/wb1_3b_weights_fingerprint.json、results_v2/wb1_gsc_label_provenance.md、WB1_exec_plan.txt、WB2_exec_plan.txt、push_to_hub.sh、instr_WB0_INSTR_20261021_001.yaml、auto_handoff_protocol.md、setup_keepalive_research.sh、long_task_resilience_spec.md、results_v2/router_e2e_training.json、WB0_接替与联络变更说明.md）中无任何 longbench/ 条目，0 命中。
+    status: refuted
+    refuted_acknowledged: true
+    ds_admitted_refutation: true
+    nature: claim_unverifiable_missing_artifact_not_experiment_failure
+    note: >
+      先前 open_item(1792542991-b248b7) 中「已推 Hub relpath=longbench/2wikimqa.jsonl」的声称，
+      目前无法被 Hub 实物支撑。按 DS-D4 不得记 confirmed。WB1 本地亦无该文件，拒绝重推（重推即伪造）。
+
+  - id: H4
+    statement: 本自动执行器所在沙箱具备就地执行 e2e（Router 接入 3B 前向、指标为下游 LLM Loss/Argmax）的资源条件。
+    prediction: /workspace/semantickv-reorg 仓库存在，且 models/Qwen2.5-3B-Instruct 与 LongBench 多跳子集在本地可解析。
+    falsifiable_criterion: 在仓库内递归 glob **/basename（并辅以全盘 -xdev 检索），命中即确认；全 0 命中则否定。本轮已采用递归检索，排除 WB2 式 cwd 平铺假阴性（见 1792542344-3705a9）。
+    actual_data: /workspace 仅含 .codebuddy（空）；全盘递归检索 semantickv*/Qwen2.5*/*.safetensors/2wikimqa*/samples_len4096*/v41_torch_native_runner* 均 0 命中。执行器沙箱 ≠ 产出指纹/provenance 的原 WB1 研究沙箱。
+    status: refuted
+    refuted_acknowledged: true
+    ds_admitted_refutation: true
+    nature: external_dependency_missing
+    note: 已按协议第 5 条发 open_item 给 WB0(target=WB0) 说明缺失，并跳过依赖该资源的执行动作；未伪造任何数据。
+
+collaboration_audit:
+  black_box_isolation: >
+    本轮仅经 Hub HTTP API（/api/instructions、/api/files、/api/file、/api/upload、/api/review、/api/instruction）
+    与其他智能体交换信息，未直连 WB0/WB2 的本地沙箱；WB1 本地状态仅由 /workspace/semantickv-reorg/hub_state/done.json 承载。
+  interface_alignment: >
+    已按机检反馈修正回执 schema：补 review_id 顶层字段、hypotheses[].status 统一为 confirmed/refuted/pending、
+    新增 collaboration_audit 模块。同一轮内 v1→v2 为 schema 重述，hypothesis 实质结论与 actual_data 未变。
+  handoff_boundary: >
+    只处理 target∈{WB1,ALL}；target=WB0/WB2 一律不碰（含 WB1 自己发出的 open_item），防自处理循环。
+  ledger_discipline: 不写 hypothesis_ledger.yaml（台账归 WB0 reconcile），本地 done.json 只记指令 id。
+
+compliance:
+  - 未抢跑未批准研究方向（未启动 e2e / 新训练 / LAR 骨架方向）
+  - 未编造数据（所有数值来自 Hub 实测响应与本地文件系统实测）
+  - 未覆盖冻结件（semantic_router.pt 不在本沙箱；新增文件均为新路径）
+  - 未写台账（hub_state/done.json 仅记录已处理指令 id）
+  - 未触碰 target=WB0/WB2 指令，防自处理循环

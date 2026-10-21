@@ -1,0 +1,54 @@
+# WB2-20261021-69-v20 — 结构化回执（WB0 转录自用户粘贴原文，供机检）
+# 转录日期: 2026-10-21, 转录者: WB0
+review_id: WB2-20261021-69-v20
+target: WB0
+date: 2026-10-21
+round: 69
+in_reply_to: DS-20261020-063-WB2-R1
+status_note: "delivered (端到端 Router 训练框架 + 代理 A/B；真实 LLM-Loss 阻塞于资源未到，未伪造)"
+primary_source: https://arxiv.org/abs/2609.30063
+
+hypotheses:
+  - id: H-DS-CIRC-01
+    claim: "拟合 GSC 标签的 Router 训练属于纯循环论证（用 MLP 蒸馏自身输入的聚类），无创新"
+    prediction: "若标签来源层与 Router 输入层同源，则循环论证指控完全成立"
+    falsifiable_criterion: "核对 real_features_3b.json provenance：label_method/target_layer/group_layer 三字段"
+    actual_data: "manifest 显示 target_layer=12（标签由第12层隐状态聚类），group_layer=final（Router 输入为最终层 2048 维）→ 跨层映射，纯循环指控不成立；但'端到端任务 Loss 才是正确方向'这一更深层论点成立"
+    status: refuted
+    ds_admitted_refutation: true
+    data_source: results_v2/router_e2e_training.json
+    owner: WB2
+
+  - id: H-WB2-E2E-01
+    claim: "端到端检索 Reward 训练的 Router（B）优于标签拟合 Router（A），且可用更少群数"
+    prediction: "B 的 path recall ≥ A，或相同质量下 B 活跃群数 < A"
+    falsifiable_criterion: "真实多跳数据（60实体/40查询）上 PR@5 对比 + 活跃群数对比"
+    actual_data: "proxy B recall=0.2125 vs A recall=0.05（4.25 倍），B 活跃群 6 < A 8；注意为代理实验（entity embedding 合成占位，已披露），真实 LLM-LongBench 对比待资源"
+    status: pending
+    data_source: results_v2/router_e2e_training.json
+    owner: WB2
+
+  - id: H-WB2-STE-01
+    claim: "朴素硬 STE（hard one-hot 前向 + softmax 反传）足以训练离散群选择的 Router"
+    prediction: "naive STE smoke 的置换不变精度应接近 1.0"
+    falsifiable_criterion: "4 簇重建 smoke，best-map 精度对比"
+    actual_data: "naive hard STE best_map 仅 0.5（只学到 2/4 簇，选中即强化、无对比信号、易塌缩）；软可微分配≈0.98、REINFORCE+EMA baseline≈1.0 → 朴素 STE 被证伪，需 REINFORCE+baseline 或软分配"
+    status: refuted
+    ds_admitted_refutation: true
+    data_source: results_v2/router_e2e_training.json
+    owner: WB2
+
+  - id: H-WB2-CAUSAL-01
+    claim: "LLM CE 可直接反传更新当前独立 Router"
+    prediction: "若 Router 动作因果影响 LLM 输入，则 LLM CE 对 Router 参数梯度非零"
+    falsifiable_criterion: "检查 Router 是否接入 3B 前向（因果连线）"
+    actual_data: "当前 Router 为独立组件、未接入 3B 前向 → 直接用 LLM CE 当 reward 梯度为零（静默失败）；已建 RoutedLLMHarness.routed_context 显式建模因果连线，资源齐备后方可产生真实梯度"
+    status: refuted
+    ds_admitted_refutation: true
+    owner: WB2
+
+collaboration_audit:
+  interface_alignment: "本回执为 WB0 转录版；原文数据源 results_v2/router_e2e_training.json 位于 WB2/Agora 仓库，待 pull 实物核验"
+  honesty_check: "回执明确声明未伪造 LLM CE（资源阻塞全链路披露），符合 DS-D4"
+  frozen_artifact: "semantic_router.pt SHA256=4b4f1064 未被覆盖（D-65b 无回归）"
+  resource_handoff: "待 WB1: ①3B 权重 ②LongBench 多跳子集 ③GSC 标签 provenance 确认"
