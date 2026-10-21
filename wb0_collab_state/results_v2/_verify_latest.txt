@@ -1,10 +1,10 @@
 {
-  "verdict": "ATTENTION",
+  "verdict": "DEGRADED",
   "checks": {
-    "ledger_version": "0.6",
+    "ledger_version": "0.8",
     "hypotheses_total": 19,
     "hypotheses_pending": 9,
-    "instructions_count": 7,
+    "instructions_count": 12,
     "reviews": [
       {
         "id": "WB2-20261021-69-v20",
@@ -12,6 +12,26 @@
       },
       {
         "id": "WB1-20261021-RH01-v1",
+        "status": "PASS"
+      },
+      {
+        "id": "WB1-20261021-R32-v1",
+        "status": "PASS"
+      },
+      {
+        "id": "WB1-20261021-AUTOEXEC01-v1",
+        "status": "FAIL"
+      },
+      {
+        "id": "WB1-20261021-AUTOEXEC01-v2",
+        "status": "FAIL"
+      },
+      {
+        "id": "WB1-20261021-AUTOEXEC01-v3",
+        "status": "PASS"
+      },
+      {
+        "id": "WB2-20261021-CW-v1",
         "status": "PASS"
       }
     ],
@@ -27,6 +47,10 @@
       [
         "WB2-CAUSAL-WIRE",
         "medium"
+      ],
+      [
+        "VERIFY-REVIEW-FAIL",
+        "medium"
       ]
     ],
     "hypothesis_status_dist": {
@@ -35,12 +59,19 @@
       "verified_proxy": 1
     },
     "auto_run_instructions": [
-      "WB0-INSTR-20261021-001"
+      "WB0-INSTR-20261021-002（顺带）WB2 因果接线 + E2E 真值升级尝试",
+      "WB0-INSTR-20261021-001（修订·适配独立沙盒）"
     ]
   },
   "findings": [
+    "回执机检 FAIL: WB1-20261021-AUTOEXEC01-v1 -> ['- 缺失顶层字段: review_id', \"- hypotheses[0](H1) status 非法: 'PASS'（应为 confirmed/refuted/pending）\", \"- hypotheses[1](H2) status 非法: 'PASS'（应为 confirmed/refuted/pending）\", \"- hypotheses[2](H3) status 非法: 'FAIL'（应为 confirmed/refuted/pending）\", \"- hypotheses[3](H4) status 非法: 'FAIL'（应为 confirmed/refuted/pending）\", '- 建议补 collaboration_audit 模块（黑盒隔离/接口对齐）']",
+    "回执机检 FAIL: WB1-20261021-AUTOEXEC01-v2 -> ['- hypotheses[2](H3) status=refuted 但未显式 ds_admitted_refutation: true', '- hypotheses[3](H4) status=refuted 但未显式 ds_admitted_refutation: true']",
     "high 级 open_item 未解: ['WB1-RESOURCE-HANDOFF']",
-    "存在 auto_run 指令待 WB2 自动执行器拉取: ['WB0-INSTR-20261021-001']"
+    "存在 auto_run 指令待 WB2 自动执行器拉取: ['WB0-INSTR-20261021-002（顺带）WB2 因果接线 + E2E 真值升级尝试', 'WB0-INSTR-20261021-001（修订·适配独立沙盒）']"
   ],
-  "summary": "台账v0.6 假设19条/待核验9 回执机检全PASS 指令7条"
+  "escalated": {
+    "open_item": "VERIFY-REVIEW-FAIL",
+    "ledger_version": "0.9"
+  },
+  "summary": "台账v0.8 假设19条/待核验9 回执机检有FAIL 指令12条"
 }

@@ -1,0 +1,36 @@
+review_id: WB2-20261021-CW-v1
+target: WB0-INSTR-20261021-002
+date: "2026-10-21"
+data_source: results_v2/wb2_causal_wiring.json
+collaboration_audit:
+  black_box_isolation: "WB2 仅读 Hub 已有数据并在本地图/向量级代理上做 do(K) 干预；未触碰 3B 权重或 LongBench（Hub 亦无 resources/），未在沙箱外执行任何越权写入。"
+  interface_alignment: "复用了 router_e2e_trainer.py 的同契约 Router 与 gen_multihop_data.py 的图构建；data_source 与指令 relpath 一致（results_v2/wb2_causal_wiring.json）。"
+  no_fabrication: "entity embedding 为 seed 固定的合成占位（已显式披露）；未占有真实 LLM 隐状态；H-WB2-E2E-01 因 resources/ 缺失转 open_item，未伪造真值。"
+  provenance_checked: "下载的 layer_sensitivity_3b.json / wb1_gsc_label_provenance.md / wb1_3b_weights_fingerprint.json 三方 sha256 与 Hub /api/files 注册值逐一吻合（db3fa5195160a6e2 / 2cb2b2240089cec2 / 0cea807f5b14b828）。"
+  frozen_artifact_untouched: "主交付冻结件 src/shared/semantic_router.pt 仍 SHA256=4b4f1064b17b1af9…，未改动。"
+
+hypotheses:
+  - id: H1
+    prediction: "若『分组数（A=8 / B=6）』是 e2e 指标分化的原因，则固定训练方法、仅变群数 K 时 recall 应随 K 单调变化，且 A 与 B 在等 K 下的差异应随 K 拉平而消失。"
+    falsifiable_criterion: "等 K 下 A 与 B 的配对 bootstrap 95% CI 应包含 0（即群数可解释差异）；且任一方法的 recall 应随 K 单调移动。"
+    actual_data: "A recall 随 K 上升(0.025→0.125)，B recall 随 K 下降(0.275→0.175)——方向恰相反；等 K 下 B 全 5 点优于 A（bootstrap mean_diff>0），K=3/4/6 时 CI 不含 0(p>0.97)，K=8/12 仅变弱不反转。B 在『更少群数』下更好。"
+    status: refuted
+    ds_admitted_refutation: true
+
+  - id: H2
+    prediction: "指标分化由训练目标（端到端检索 Reward vs 拟合标签）驱动，而非群数。"
+    falsifiable_criterion: "在同一 K 下，端到端(B)相对拟合(A)的优势应稳定为正且不完全由 K 决定；A 即便在最大 K 下（已最大化『分组数』）仍显著低于 B。"
+    actual_data: "B 在全部 5 个 K 下 recall 均 > A；A 在 K=12 时 recall=0.125 仍远低于 B 在 K=3 时 0.275；A 的最佳 K(8) 仅 0.125，B 的最佳 K(3) 达 0.275。配对差异 K=3/4/6 显著。"
+    status: confirmed
+
+  - id: H3
+    prediction: "GSC 混淆（标签与 Router 输入同源）已被同构代理受控；『标签一致度』不能作为检索质量证据。"
+    falsifiable_criterion: "拟合标签方法(A)在训练准确率接近 1 时，其检索 recall 应不随准确率提升（脱钩），且应不优于随机分组基线。"
+    actual_data: "A 全部 K 下 train_acc=1.000，但 recall 仅 0.025–0.125；K=3/4 时 A recall(0.025/0.0625) 低于随机基线(0.0875/0.1375)；与 WB1 provenance 的循环论证判定一致。"
+    status: confirmed
+
+  - id: H4
+    prediction: "路由分组相对『不分组（全图 PR）』存在真实增益（否则分组无意义）。"
+    falsifiable_criterion: "端到端(B)在少群数下相对全图 none 的配对 bootstrap 95% CI 应不含 0。"
+    actual_data: "B@K3 vs none mean_diff=0.175，CI[0.025,0.325]，p_gt0=0.987（显著）；K=4/6 边际(p=0.945/0.929)。A@K3 反而低于 none(差-0.075)，证明错误分组有害、正确分组有益。"
+    status: confirmed

@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+wb0_patrol.py — WB0 主动巡检与响应（挑战应答）
+==============================================
+定时唤醒 WB0 时运行：汇总所有"需要 WB0 拍板/应答"的挑战，产出结构化 JSON。
+唤醒 WB0 的代理据本摘要 + prompt 立即采取行动（裁定 open_item / 修复 DEGRADED /
+重启停滞执行器 / 回应决策核验结果），实现"及时响应"而非等用户中转。
+
+挑战来源（全部经公网 Hub 只读拉取，独立沙盒可跑）：
+  A) 回执机检 FAIL → DEGRADED 信号
+  B) H-WB2-E2E-01 被升级为 verified → VIOLATION（违反 DEC-20261021-E2E-GATE）
+  C) target=WB0 的 open_item 指令 → 待 WB0 裁定
+  D) 执行器停滞（按 Hub 痕迹判断，lastRunAt 不可信）+ 仍有其 auto_run 待拉取
+  E) 待拉取的 auto_run 指令（执行器未吃下）
+输出 action_priority：HIGH / MEDIUM / LOW，并给 recommended_actions。
+"""
+import json
+import time
+import urllib.request
+
+HUB = "https://aa27d73086593e6b6.app.workbuddy.host"
+CODE = "V6GYQIUI7Z"
+NOW = int(time.time())
+STALL_THRESHOLD = 40 * 60          # 执行器 40 分钟无 Hub 痕迹且有待拉取指令 → 判停滞
+
+
+def _get(path):
+    url = f"{HUB}{path}?sharecode={CODE}"
+    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=25) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def main():
+    rep = {"ts": NOW, "action_priority": "LOW", "challenges": [], "recommended_actions": []}
+    # ---- 拉取状态（含 reviews，弥补痕迹检测盲点）----
+    try:
+        state = _get("/api/state")
+        ledger = _get("/api/ledger")
+        instrs = _get("/api/instructions").get("instructions", [])
+        files = _get("/api/files").get("files", [])
+        reviews_api = _get("/api/reviews").get("reviews", [])
+        reviews = state.get("reviews", [])
+    except Exception as e:
+        rep["action_priority"] = "HIGH"
+        rep["challenges"].append(f"Hub 不可达: {e}")
+        rep["recommended_actions"].append("检查 Hub/uvicorn 进程；若死则重启并告警")
+        print(json.dumps(rep, ensure_ascii=False, indent=2))
+        return
+
+    # ---- 已执行/已裁定指令 id 集合（交叉核对，降误报）----
+    import re as _re
+    _id_pat = _re.compile(r"\b1\d{9}-[0-9a-f]{6}\b")
+    done_ids = set()
+    for r in reviews_api:
+        for iid in (r.get("instruction_ids") or []):
+            done_ids.add(str(iid))
+        tgt = str(r.get("target") or "")
+        done_ids.update(_id_pat.findall(tgt))
+        done_ids.update(_id_pat.findall(json.dumps(r, ensure_ascii=False)))
+    # WB0 署名的裁定/决议指令：其正文引用的指令 id 视为已裁定/已关闭
+    for i in instrs:
+        if str(i.get("author", "")).upper() == "WB0" or "裁定" in str(i.get("title", "")) or "决议" in str(i.get("title", "")):
+            done_ids.update(_id_pat.findall(str(i.get("body", ""))))
+    # 台账中的显式关闭记录：decisions + open_item resolution（WB0 裁定落点）
+    _ledger_text = json.dumps({
+        "decisions": ledger.get("decisions", []),
+        "resolutions": [o.get("resolution") for o in ledger.get("open_items", []) if o.get("resolution")],
+    }, ensure_ascii=False)
+    done_ids.update(_id_pat.findall(_ledger_text))
+
+    # A) 回执机检 FAIL → DEGRADED
+    fails = [r["id"] for r in reviews if r.get("check", {}).get("status") != "PASS"]
+    if fails:
+        rep["challenges"].append(f"DEGRADED: 回执机检 FAIL {fails}")
+        rep["recommended_actions"].append(f"通知责任方清理/修订 FAIL 回执: {fails}")
+
+    # B) 完整性闸门 VIOLATION
+    h = next((x for x in ledger.get("hypotheses", []) if x.get("id") == "H-WB2-E2E-01"), {})
+    if h.get("status") == "verified":
+        rep["action_priority"] = "HIGH"
+        rep["challenges"].append("VIOLATION: H-WB2-E2E-01 被升级为 verified，违反 DEC-20261021-E2E-GATE")
+        rep["recommended_actions"].append("立即回滚 H-WB2-E2E-01 至 verified_proxy 并核查是谁/据何数据升级")
+
+    # C) target=WB0 且未被裁定指令引用的 open_item → 待裁定
+    wb0_items = [i.get("title") for i in instrs
+                 if i.get("target") == "WB0"
+                 and ("open_item" in i.get("title", "").lower() or "open_item" in i.get("body", "")[:60].lower())
+                 and str(i.get("id")) not in done_ids]
+    if wb0_items:
+        rep["challenges"].append(f"待 WB0 裁定的 open_item {len(wb0_items)} 条: {wb0_items}")
+        rep["recommended_actions"].append("逐条裁定并回决策指令")
+
+    # C2) 台账未决 open_item（关键路径可见性：A/B 等待等长周期项须持续呈现，不因无新事件而静默）
+    _RESOLVED = {"resolved", "closed", "done"}
+    for o in ledger.get("open_items", []):
+        st = str(o.get("status") or "").lower()
+        if st in _RESOLVED:
+            continue
+        sev = o.get("severity")
+        if sev == "high":
+            rep["action_priority"] = "HIGH"
+            rep["challenges"].append(
+                f"台账 high open_item 未解: {o.get('id')}（status={o.get('status') or 'open'}）")
+            rep["recommended_actions"].append(
+                f"推动 {o.get('id')}: 若有自动化通道则触发，否则经用户中转提醒责任方（WB1 研究会话 A/B 无自动通道，须中转）")
+        elif sev == "medium":
+            rep["challenges"].append(
+                f"台账 medium open_item 未解: {o.get('id')}（status={o.get('status') or 'open'}）")
+            rep["recommended_actions"].append(f"跟进 {o.get('id')}")
+
+    # D) 执行器停滞（Hub 痕迹：files 文件名 + reviews 回执 mtime，lastRunAt 不可信）
+    #    盲点修复：回执在 reviews 树、不在 /api/files 索引，须一并计入痕迹
+    auto_pending = [i for i in instrs
+                    if ("auto_run: true" in i.get("body", "") or "auto_run:true" in i.get("body", ""))
+                    and str(i.get("id")) not in done_ids]
+    def latest_trace(tag):
+        ts = [int(f.get("mtime", 0)) for f in files if tag in f.get("name", "").lower()]
+        # reviews 树回执：id 形如 WB1-.../WB2-...，mtime 来自 /api/reviews
+        ts += [int(r.get("mtime", 0)) for r in reviews_api
+               if r.get("id", "").upper().startswith(tag.upper())]
+        return max(ts) if ts else 0
+    for tag, name in (("wb1", "WB1"), ("wb2", "WB2")):
+        pend = [i for i in auto_pending if i.get("target") in (name, "ALL")]
+        last = latest_trace(tag)
+        stalled = (NOW - last) > STALL_THRESHOLD if last else True
+        if pend and stalled:
+            rep["challenges"].append(
+                f"{name} 执行器疑停滞：{len(pend)} 条 auto_run 待拉取，最近 Hub 痕迹 {int((NOW-last)/60) if last else '∞'} 分钟前")
+            rep["recommended_actions"].append(
+                f"重启用/触发 {name} 执行器，或请 {name} 主会话接管；待拉取: {[i.get('title') for i in pend]}")
+
+    # E) 待拉取 auto_run 汇总
+    if auto_pending:
+        rep["challenges"].append(f"板上仍有 {len(auto_pending)} 条 auto_run 待执行器拉取")
+
+    # 汇总优先级（C2 已可能直接置 HIGH）
+    if rep["action_priority"] != "HIGH":
+        if fails or wb0_items or any("停滞" in c for c in rep["challenges"]):
+            rep["action_priority"] = "MEDIUM"
+        elif auto_pending or any("台账" in c for c in rep["challenges"]):
+            rep["action_priority"] = "MEDIUM"
+    rep["summary"] = (
+        f"优先级={rep['action_priority']} | 挑战{len(rep['challenges'])}项 | "
+        f"FAIL回执{len(fails)} | WB0待裁{len(wb0_items)} | 待拉取指令{len(auto_pending)} | "
+        f"台账未决{sum(1 for o in ledger.get('open_items',[]) if str(o.get('status') or '').lower() not in ('resolved','closed','done'))} | "
+        f"闸门={h.get('status')}"
+    )
+    if rep["action_priority"] == "LOW":
+        rep["summary"] += " | 一切正常，无需 WB0 行动"
+    print(json.dumps(rep, ensure_ascii=False, indent=2))
+    try:
+        with open("/tmp/wb0_patrol_out.json", "w", encoding="utf-8") as f:
+            json.dump(rep, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+
+if __name__ == "__main__":
+    main()

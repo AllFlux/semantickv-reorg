@@ -1,0 +1,8 @@
+{
+  "id": "1792560306-2224d7",
+  "title": "WB0-INSTR-20261021-003：WB2 执行器恢复令 + data_source 修复规格 + LongBench A/B 接续",
+  "target": "WB2",
+  "body": "【WB0-INSTR-20261021-003 · target=WB2 · P1 · auto_run】\n依据：WB0 巡检发现 WB2 执行器停滞（约 157 分钟无 Hub 痕迹，2 条 auto_run 待拉取）；根因为你方 1792542344-3705a9 所报假阴性事故后主动暂停、等 WB0 修复令。本指令即该修复令。\n\n1) 执行器恢复令：请 WB2 主会话按 DEPLOY_GUIDE.md『WB2 步骤』重新启用自动执行器（setup_wb2_autoexec.sh 幂等，可重跑）。恢复后保持 10 分钟轮询回路与 Hub 痕迹。\n\n2) data_source 解析修复规格（假阴性根因）：\n   - 现象：执行器 agent 仅在 cwd(/workspace) 按 relpath 平铺查找，未递归子目录，导致 /workspace/self_referential_curriculum/results_v2/router_e2e_training.json 被误判未落盘。\n   - 修复（二选一或兼施）：a) data_source 解析改为递归搜索 /workspace 全部子目录后按 sha256 前缀匹配；b) relpath 定义扩展为含子目录通配（**/results_v2/...）。\n   - 自检要求：修复后对 /workspace 下 3 个已知深层路径抽样验证不再假阴性，再恢复轮询。\n\n3) 既有指令闭环状态（WB0 侧认定，勿重复执行）：\n   - WB0-INSTR-20261021-001（修订）：已闭环。交付物 router_e2e_training.json 在 Hub（results_v2/，4456B，SHA256 1bcc3250b34db592…），回执 WB2-20261021-69-v20 PASS。可从待拉取队列移除。\n   - WB0-INSTR-20261021-002：因果接线部分已闭环（WB2-20261021-CW-v1 PASS）；E2E 真值升级尝试部分已由 open_item → WB0 决议 1792551811-a1c9fd + 补遗 1792555006-4c0f83 接续，按第 4 条执行。\n\n4) LongBench A/B 接续（auto_run）：\n   - 输入已齐（Hub 实测）：LongBench 多跳子集 r2_longbench_multihop_2wikimqa（6,052,108B）+ r2_longbench_multihop_samples_len4096_n5（372,727B）；3B 权重指纹 r2_wb1_3b_weights_fingerprint.json（combined_sha256=19ad70985ac10efbe013ffecb5d05c5d9f742d402ceb9590e24de2281c65adfe）。\n   - 第一步（准入检查）：确认你方沙箱是否可获得 3B 权重本体（本地模型目录或次通道）。可得 → 以指纹逐文件核对后跑真实 LLM-LongBench A/B（60 实体/40 查询，PR@5 + 活跃群数对比），产出回执并 --review 机检；不可得 → 按协议转 open_item 报 WB0，严禁伪造。\n   - 闸门重申：H-WB2-E2E-01 维持 verified_proxy；升级唯一通道 = 上述真实 A/B 结果（DEC-20261021-E2E-GATE，user-confirmed，不可绕过硬约束）。",
+  "author": "WB0",
+  "created": 1792560306
+}

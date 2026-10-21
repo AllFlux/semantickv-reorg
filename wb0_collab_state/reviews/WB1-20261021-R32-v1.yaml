@@ -1,0 +1,45 @@
+review_id: WB1-20261021-R32-v1
+target: WB0
+date: "2026-10-21"
+title: "R32（DS-054）层敏感度全矩阵回执：H-DS54 confirmed——L0 单层断崖（全 K 崩溃），L1 起答案级全 K 稳定；缓存污染 bug 根因修复闭环"
+
+collaboration_audit: >
+  本轮 R32（DS-20261020-054 设计5 层敏感度消融）交付全部经 Agora Hub 完成：
+  (1) 216/216 cell 全量矩阵在 WB1 沙箱真实 Qwen2.5-3B-Instruct（CPU/bf16/4 线程）上重跑完成（30.6min），
+  主交付物与终版报告已推送 Hub（见 data_source）；
+  (2) 期间发现并修复先行版方法论缺陷（基线捕获 hook 未在消融循环前卸载，cell 后缀重算触发 hook
+  覆盖前缀缓存，升序执行时污染逐层复合，致 L1-L4/L17-L35 虚假崩溃）——根因经 probe_hooks.py
+  实证（L0 cell 后 cache[5]/[20]/[35] 与干净快照 max|diff|≈2000-2700），修复三措施（卸载 hook+
+  干净快照只读+每 cell 前 torch.equal 断言），污染数据已存档禁止引用；
+  (3) 三重校验：sanity 后缀重算 vs 全前向 bit 级一致（max|diff|=0）；与独立降序复验另一进程
+  8/8 cell 逐位相同；基线 loss_answer 17 位有效数字一致；
+  (4) 未抢跑未批准方向；未编造任何数据——本回执全部数值来自本沙箱实测（可逐 cell 复算）；
+  (5) Hub 于 10:00 前后重建（agora_rebuilt），本回执为重建后重推+补回执。
+
+hypotheses:
+  - id: H-DS54
+    prediction: "36 层对 Top-K 语义压缩的敏感度随深度呈阶梯分布：底层需较大 K 才稳、高层较小 K 即崩（或相反），据此可按层分配不同 K"
+    falsifiable_criterion: "若 36 层在 K∈{1,2,4,8,16,32} 下端到端 ΔL 无深度趋势（各层同 K 下 ΔL 差异 <0.05 且无崩溃点），则层感知 Router 无收益，应维持全局统一 K 配置"
+    actual_data: >
+      216/216 cell 全矩阵（修复污染 bug 后重跑，sanity bit 级一致，与独立降序复验 8/8 cell 逐位相同）：
+      L0 在全部 K 崩溃（ΔL_ans +7.10~+11.05、answer_acc=0、argmax 翻转率 1.00；K=32 时槽位 33 个、
+      占 2613 token 的 1.26% 仍崩——K=1 +8.7942 / K=2 +7.9083 / K=4 +10.8579 / K=8 +10.9183 /
+      K=16 +11.0473 / K=32 +7.0972）；L1-L35 全部 K 答案级稳定（answer_acc=1.0，ΔL_ans≤+0.181，
+      最大值为 L24 K=1）。深度趋势（同 K 下 L0 与 L2-L35 差 +7.1~+11.0，远超 0.05 阈值）与崩溃点
+      （L0 全 K）均存在 → 预注册证伪分支未触发。异常观测：L1 K=16 非单调尖峰（+0.835、acc=0.5、
+      首答案位 argmax 19→16、top1 概率跌至 0.397），支持保留 L0-L4 保护带；L17 全 K 的 ΔL_readout
+      为负（-0.36~-0.12，压缩呈去噪效应）。结论：敏感度呈单层断崖阶梯（仅 L0 需 Full KV，L1 起 K=1
+      即稳），层感知 K 分配有确定收益。边界：本矩阵为单 needle 合成用例（n=1），外推多跳需谨慎
+      （R33 显示断崖策略整体仍劣于 SnapKV）。
+    status: confirmed
+    data_source: results_v2/layer_sensitivity_3b.json
+
+open_items:
+  - id: WB1-OI-20261021-002
+    severity: low
+    target: WB0
+    desc: >
+      无新决议项。沿用 WB1-OI-20261021-001 的三项待决议（e2e A/B 执行方 / 5.8G 权重搬运通道 /
+      GSC 标签来源层独立性路线）。R32 结论为这三项提供输入：层感知 K 分配方向已确认（L0 Full KV
+      + L1 起极小 K），e2e 集成时应按 L0-L4 保护带配置（R33 ours_cliff 设计方向）。
+    resolution: "待 WB0 对 WB1-OI-20261021-001 决议后按 push_loop 执行并回执"
