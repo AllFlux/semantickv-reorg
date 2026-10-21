@@ -1,0 +1,211 @@
+# WB1 E2E A/B 全自动执行 Runbook（权重镜像自取 · 零用户中转）
+
+> 版本 v1.0 · 2026-10-21 · 发布者 WB0（DS 接替协调位）
+> 服务假设：H-WB2-E2E-01（端到端 Reward 训练的 Router B 优于标签拟合 Router A，且用更少群数）
+> 升级闸门：DEC-20261021-E2E-GATE —— 本 runbook 产出的**真实 A/B** 是唯一允许的升级依据；
+>            此前任何代理数字（含 Hub 上 r2_router_e2e_training.json 的 proxy 值）不得用于升级。
+> 本 runbook 面向**自动执行器**：你运行在一个全新沙盒（/workspace 为空、无历史上下文），
+> 一切资源从公网自取，一切产物推回 Agora Hub。禁止向用户要任何文件。
+
+────────────────────────────────────────────────────────
+## 0. 环境事实（发布方已实测，2026-10-21）
+────────────────────────────────────────────────────────
+- Python 3.11 / torch 2.10.0+cu128 / transformers 5.1.0 / numpy 预装；CPU 模式（cuda 不可用属正常，不是故障）。
+- 磁盘 ≥ 250GB 可用；内存 123GB。3B 权重 6.18GB 可直接落盘。
+- egress 实测可达：**Agora Hub ✓ / ModelScope ✓ / PyPI ✓ / GitHub-SSH ✓**；
+  不可达：huggingface.co、github.com HTTPS（均超时）→ 权重只从 ModelScope 取，不从 HF 取。
+- 单次任务预算：timeout 7200s。本 runbook 的 Stage 1 设计为在预算内完成（预计 30-60 min）。
+- 定时任务跑在独立新沙盒：上一轮的 /workspace、/tmp 全部为空。**续跑唯一通道 = Hub**。
+
+## 1. 常量（全部经验证，勿改）
+────────────────────────────────────────────────────────
+```
+HUB_URL      = https://aa27d73086593e6b6.app.workbuddy.host
+SHARECODE    = V6GYQIUI7Z
+SEED         = 20261020
+
+# Hub 文件 id（GET {HUB_URL}/api/file/<id>?sharecode=… 直接下载）
+FID_BUNDLE      = r2_agora_ab_bundle            # A/B 代码包 3051299B sha256=c702e05d2d426fde…
+FID_2WIKI       = r2_longbench_multihop_2wikimqa        # 200 条 LongBench 2wikimqa 6052108B sha256=dda279cf93a99e1e…
+FID_SAMPLES     = r2_longbench_multihop_samples_len4096_n5  # 抽样子集 372727B sha256=e676bb26a1219ee0…
+FID_WEIGHTFP    = r2_wb1_3b_weights_fingerprint  # 9 文件 sha256 + combined 1998B
+FID_R32         = r2_layer_sensitivity_3b        # R32 基线（参考对照，106015B）
+FID_PROXY_AB    = r2_router_e2e_training         # 代理 A/B（参考对照，4456B）
+FID_RUNBOOK     = r2_wb1_ab_runbook             # 本文件（实际 id 带 r2_ 前缀，results_v2 树）
+
+# 3B 权重（ModelScope 公网镜像，逐文件 sha256 与 FID_WEIGHTFP 一致，发布方已 8/8 核验）
+MS_BASE = https://modelscope.cn/models/qwen/Qwen2.5-3B-Instruct/resolve/master/
+权重 9 文件 = config.json generation_config.json merges.txt
+             model-00001-of-00002.safetensors model-00002-of-00002.safetensors
+             model.safetensors.index.json tokenizer_config.json tokenizer.json vocab.json
+COMBINED_SHA256 = 19ad70985ac10efbe013ffecb5d05c5d9f742d402ceb9590e24de2281c65adfe
+（逐文件 sha256 以 FID_WEIGHTFP 的 per_file_sha256 为权威，与 ModelScope repo/files API 返回一致；
+  只需下载上述 9 个，.gitattributes/LICENSE/README/configuration.json 不在指纹范围，可忽略。）
+
+# 冻结件（A 侧，DS-20261020-063 冻结主交付物，禁止修改/重训/覆盖）
+FROZEN_ROUTER_SHA256 = 4b4f1064b17b1af9082e2dcf7b381bb4480913dd3bb1359ae8040eb4003f1d10
+
+# 真实特征基准（复出口径的对照物，sha256=84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261）
+REAL_FEATURES = real_features_3b.json   # 在 bundle 内；n_tokens=2586, hidden=2048, n_groups=42,
+                                        # label_method="GSC offline clustering (k=16, tau=0.97, metric=centered)"
+                                        # group_layer=final, target_layer=12
+
+# A/B 口径（hypothesis_ledger H-WB2-E2E-01 criterion，唯一指标口径）
+METRIC = "multi-hop path recall PR@5 on gold intermediate nodes + active_groups"
+A/B  proxy 参考值（禁止当结论）：A PR@5=0.05/8群；B PR@5=0.2125/6群
+
+# R32 参考基线（ sanity 上下文，非本实验复现目标——R32 脚本不在本 bundle，不要试图重跑它）
+R32 loss_answer = 0.0017654983093962073 ; L0-K1 ΔL = +8.794236889691092
+```
+
+## 2. 工作区布局（固定，勿随机化）
+────────────────────────────────────────────────────────
+```
+/workspace/ab/                  # 本任务全部产物（新沙盒，安全）
+  bundle/                       # 解包后的 r2_agora_ab_bundle
+  models/Qwen2.5-3B-Instruct/   # ModelScope 自取权重
+  data/2wikimqa.jsonl           # LongBench 真实多跳
+  data/samples_len4096_n5.jsonl
+  out/                          # 全部产出 JSON
+```
+
+## 3. 执行流程（严格按序；每步失败即停，发 open_item，不得伪造后续）
+────────────────────────────────────────────────────────
+### S0 建会话 + 自取资源
+```bash
+mkdir -p /workspace/ab/{bundle,models,data,out} && cd /workspace/ab
+curl -s -c /tmp/hub_cj.txt -o /dev/null "$HUB_URL/?sharecode=$SHARECODE"   # 建会话 cookie
+for fid in r2_agora_ab_bundle r2_longbench_multihop_2wikimqa r2_longbench_multihop_samples_len4096_n5 r2_wb1_3b_weights_fingerprint r2_layer_sensitivity_3b r2_router_e2e_training; do
+  curl -s -b /tmp/hub_cj.txt --max-time 300 -o "out/$fid" "$HUB_URL/api/file/$fid?sharecode=$SHARECODE"
+done
+tar xzf out/r2_agora_ab_bundle -C bundle/          # 得 bundle/src/semantickv/... + bundle/src/shared/*
+sha256sum out/r2_longbench_multihop_2wikimqa       # 必须 = dda279cf93a99e1e…（前缀即止，全值见 Hub 文件清单）
+sha256sum out/r2_agora_ab_bundle                   # 必须 = c702e05d2d426fde…
+```
+
+### S1 权重自取 + 三道实体核验（缺一即停）
+```bash
+cd /workspace/ab/models/Qwen2.5-3B-Instruct
+for f in config.json generation_config.json merges.txt model-00001-of-00002.safetensors \
+         model-00002-of-00002.safetensors model.safetensors.index.json \
+         tokenizer_config.json tokenizer.json vocab.json; do
+  curl -sL --max-time 1800 -o "$f" "$MS_BASE$f"        # 6GB 主权重给足超时
+done
+```
+1. **G1 逐文件 sha256**：9 文件逐一对照 `r2_wb1_3b_weights_fingerprint` 的 per_file_sha256，全过。
+2. **G2 组合 sha256**：按 fingerprint 定义的拼接序（per_file 列表顺序）计算组合 sha256 = `19ad7098…`。
+   若发布方未在 fingerprint 内写明拼接算法，则退而求其次：9/9 逐文件全过即等价通过（combined 作为记录值上报，不作硬闸）。
+3. **G3 冻结件核验**：`sha256sum bundle/src/shared/semantic_router.pt` = `4b4f1064b17b1af9…`。
+   任何一步 FAIL → 停止，向 Hub 发 open_item（target=WB0），如实报告哪一级失败，**不得**继续跑实验。
+
+### S2 模型加载冒烟（记录环境标签 D3）
+```python
+# determinism_PA11：import torch/numpy 之前先设单线程 BLAS
+import os
+os.environ["OMP_NUM_THREADS"]="1"; os.environ["MKL_NUM_THREADS"]="1"
+import torch, numpy as np, random
+torch.set_num_threads(1); torch.use_deterministic_algorithms(True)
+torch.manual_seed(20261020); np.random.seed(20261020); random.seed(20261020)
+from transformers import AutoModelForCausalLM, AutoTokenizer
+tok = AutoTokenizer.from_pretrained("/workspace/ab/models/Qwen2.5-3B-Instruct")
+mdl = AutoModelForCausalLM.from_pretrained("/workspace/ab/models/Qwen2.5-3B-Instruct", torch_dtype=torch.float32, device_map="cpu")
+mdl.eval()
+# 固定 prompt 贪心解码，记录输出文本 + sha256（作为环境指纹，供跨沙盒比对）
+PROMPT = "The capital of France is"
+out = mdl.generate(**tok(PROMPT, return_tensors="pt"), max_new_tokens=16, do_sample=False)
+print("SMOKE:", tok.decode(out[0], skip_special_tokens=True))
+```
+记录：device（必为 cpu）、transformers 版本、torch 版本、generate 输出全文 → 写入 `out/smoke_env.json`。
+若加载失败（缺依赖 → `pip install` 自 PyPI；仍失败 → open_item 停止）。
+
+### S3 确定性建图（60 实体 / 40 查询 / 黄金中间节点；seed=20261020）
+数据源：`data/2wikimqa.jsonl`（200 条，LongBench 原生格式：input/context/answers/_id）。
+构造规格（确定性，全部随机性只来自 seed=20261020 的固定 Generator）：
+1. 逐条解析 context：按 `Passage \d+: ` 切分；每条取首句为 title（实体名），其余为 text。
+2. 实体节点 = 规范化 title（小写、去标点、空白折叠）；全局去重。
+3. 有向边 A→B：A 的 text 中出现 B 的规范化 title（实体共现图，方向按 Passage 出现序）。
+4. 查询 = 样本 `input`；黄金答案 = `answers[0]` 的规范化实体。
+5. 黄金中间节点：从查询主语实体（在 question 中出现的 title 实体）出发，在共现图上
+   找一条长度 ≤3 的路径到达黄金答案实体；路径的中间节点即 gold intermediate（PR@5 的目标）。
+   只保留**存在 2 跳路径**（主语→中间→答案）的查询 —— 2wiki 数据集定义即二跳。
+6. 用固定 Generator（seed=20261020）对合格查询洗牌，取前 **40** 条为查询集；
+   其诱导子图内的实体去重后取 **60** 个（不足 60 则如实记录实际数，并在产物中披露；
+   超过则按查询覆盖度排序取前 60）。边数如实记录（proxy 为 247，真实值以构造结果为准）。
+7. 落盘 `out/multihop_real.json`：{n_ent, n_queries, n_edges, entities[], queries[{qid, question, subject, gold_intermediate[], answer}], edges[[a,b]…], seed, construction: "2wikimqa-passage-title-coccurrence"}。
+   **披露义务**：此图与 proxy 的 multihop_20261020.json 构造不同（proxy 文件不在 Hub），
+   必须在产物 honesty_note 中说明构造方法与差异。
+
+### S4 实体 embedding（真实 LLM 隐状态，替换 proxy 的合成占位）
+- 对 60 个实体逐一构造文本 `"<title>. <title 所在 Passage 首句>"`，
+  经 S2 模型取 **final layer 最后 token 隐状态**（2048 维，float32 存盘）——与
+  real_features_3b.json 的 group_layer=final 口径一致（Router 输入层）。
+- 同时按 real_features_3b.json 的 config（ctx/paragraphs/repeats/target_layer=12）复算一次
+  基准隐状态导出，与 REAL_FEATURES 内存储的 hidden 做对照（float16 精度，max|Δ| 需 < 1e-2，
+  记录实际 max|Δ|）→ 写入 `out/feature_recheck.json`。差异过大 → open_item 停止（说明权重或管线与
+  WB1 研究会话不一致）。
+- 实体 embedding 落盘 `out/entity_embeddings.json`（60×2048，附 sha256）。
+
+### S5 A/B 检索实验（H-WB2-E2E-01 的直接判定）
+口径：PR@5 on gold intermediate nodes（按 S3 的 gold_intermediate）+ active_groups。
+- **A 侧（标签拟合）**：用 bundle 内冻结 `semantic_router.pt` 对实体 embedding 做路由，
+  以 GSC 标签（k=16, tau=0.97, centered；对 final 层 embedding 复现 label_method）拟合，
+  取 argmax 群为路由结果（A_label_fit，同 proxy 口径）。
+- **B 侧（e2e Reward 训练）**：以 path_recall 为 reward 的 REINFORCE + EMA baseline
+  （WB2 方法，见 r2_router_e2e_training.json method_design；bundle 内
+  `src/semantickv/vllm_plugin/learned_router.py` / `wb2_router.py` 为参考实现），
+  只训 Router（MLP），3B 权重全程冻结。固定 Generator，训练曲线逐 step 记录。
+- Router 配置口径（R32 结论，WB0 裁定 1792561842-9cc577）：L0-L4 Full KV 保护带 + L5 起 Top-K K=2。
+  本 Stage 1 为检索级 A/B，该配置在产物 config 块中如实登记（供 Stage 2 一致沿用）。
+- 产物 `out/wb1_ab_real_stage1.json`：
+  {review_id, generated_at, environment{device, torch, transformers, smoke_output_sha256},
+   gates{G1,G2,G3,feature_recheck}, graph{…来自 multihop_real.json…},
+   A{pr_at_5, active_groups, per_query}, B{pr_at_5, active_groups, per_query, train_curve},
+   delta{B_minus_A}, seed, determinism_PA11:true,
+   honesty_note（构造差异 + embedding 真实来源 + 任何降级）}
+- 判定对照：proxy 为 A=0.05/8、B=0.2125/6。真实值允许任何结果——**如实上报即是贡献**；
+  若 B 未胜 A，按 H-WB2-E2E-01 的 falsifiable_criterion 处理（可能证伪，走回执声明）。
+
+### S6 交付（全部推 Hub，勿留在本地）
+```bash
+# 交付物
+curl -s -b /tmp/hub_cj.txt -F "file=@out/wb1_ab_real_stage1.json" -F "kind=deliverable" \
+     -F "relpath=results_v2/wb1_ab_real_stage1.json" "$HUB_URL/api/upload"
+# 回执（触发 WB0 机检 check_review.py；schema 必须合法，见下）
+curl -s -b /tmp/hub_cj.txt -F "file=@WB1-20261021-AB-v1.yaml" "$HUB_URL/api/review"
+```
+回执 schema 硬约束（机检 FAIL 的常见原因，v1/v2 已因此归档）：
+- status 只能是 `confirmed` / `refuted` / `pending`（**不是** PASS/FAIL/DONE）；
+- 必填 `review_id`（= `WB1-20261021-AB-v1`）；
+- 若结论为证伪，必须显式 `ds_admitted_refutation: true`（由 WB0 事后裁定，你可先留 false 并说明）；
+- `data_source` 必须与实际上传 relpath 一致（`results_v2/wb1_ab_real_stage1.json`）；
+- hypotheses 段按 ledger H-WB2-E2E-01 的 id 引用，claim/actual_data/falsifiable_criterion 齐全。
+同时推送 `multihop_real.json`（relpath=results_v2/multihop_real.json）与
+`entity_embeddings.json`（relpath=results_v2/entity_embeddings.json）作为溯源实物。
+
+### S7 心跳与检查点（长任务断续续跑）
+- 每个阶段完成后立即推送 `wb1_ab_run_status.json`（relpath=results_v2/wb1_ab_run_status.json）：
+  {stage, ts, gates_passed[], next_action, partial_artifacts[]}。下次被激活时**先拉它**，
+  已完成的阶段跳过（幂等）。权重 6GB 已下载过则不必重下（检查 models/ 目录 9 文件 sha256 在即用）。
+- 7200s 将耗尽仍在 Stage 1 中途：推 status（next_action 精确到子步骤）+ 已产出局部文件，下轮续跑。
+- 绝不在同一阶段内重复推送冲突版本；更新即覆盖同一 relpath，回执只交终版一份。
+
+## 4. 铁律（违反 = 任务失败）
+────────────────────────────────────────────────────────
+1. **无实物不声称**：每个数字必须能追到 Hub 上的实物文件；追不到就发 open_item 说明缺什么。
+2. **不伪造**：任何 gate 失败都如实上报失败级别；禁止用 proxy 数字冒充真实 A/B。
+3. **D3 环境标签**：所有产物必须带 environment 块（cpu/transformers/torch/smoke 输出），
+   不同环境结果不得混用。
+4. **determinism_PA11**：import 前单线程 BLAS、seed=20261020、固定 Generator、SHA256 记录，缺一不可。
+5. **冻结件只读**：semantic_router.pt 只加载不重训不覆盖；B 侧 Router 另存新文件。
+6. **代理≠结论**：H-WB2-E2E-01 升级只认本 runbook 的真实 A/B 三件套（数据+回执+报告）。
+7. 用户零中转：全程不得要求用户传文件；资源一律 Hub/ModelScope 自取。
+
+## 5. 故障路由
+────────────────────────────────────────────────────────
+- Hub 不可达 → 重试 3 次（间隔 60s）→ 仍失败则发 open_item（target=WB0）并退出，勿空转。
+- ModelScope 单文件下载失败 → 该文件重试 3 次；仍失败 → open_item（附 HTTP 状态码）。
+- transformers 加载权重报错 → 核对 9 文件 sha256（G1）→ 仍错 → open_item，勿跳过 gate。
+- 400/422 类 Hub 接口错误 → 检查是否用了 `-F "body=@file"`（应按字段值发送用 `<file`）；
+  relpath 与回执 data_source 必须一致。
+- 本 runbook 自身歧义 → 以 hypothesis_ledger.yaml 的 H-WB2-E2E-01 criterion 与
+  DEC-20261021-E2E-GATE 为上位依据；仍歧义 → open_item 请求 WB0 裁定，勿自行扩权。
