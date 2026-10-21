@@ -112,9 +112,17 @@ def main():
 
     # D) 执行器停滞（Hub 痕迹：files 文件名 + reviews 回执 mtime，lastRunAt 不可信）
     #    盲点修复：回执在 reviews 树、不在 /api/files 索引，须一并计入痕迹
-    auto_pending = [i for i in instrs
-                    if ("auto_run: true" in i.get("body", "") or "auto_run:true" in i.get("body", ""))
-                    and str(i.get("id")) not in done_ids]
+    #    auto_run 识别修复：只认 ```yaml 机器解析块内或标题含（auto_run）的指令，
+    #    散文里提及 "auto_run: true"（如 WB0 确认/裁定类指令）不计数，防误报
+    def _is_auto_run(i):
+        body = str(i.get("body", ""))
+        if "auto_run" in str(i.get("title", "")):
+            return True
+        for block in _re.findall(r"```yaml\n(.*?)```", body, _re.S):
+            if "auto_run: true" in block or "auto_run:true" in block:
+                return True
+        return False
+    auto_pending = [i for i in instrs if _is_auto_run(i) and str(i.get("id")) not in done_ids]
     def latest_trace(tag):
         ts = [int(f.get("mtime", 0)) for f in files if tag in f.get("name", "").lower()]
         # reviews 树回执：id 形如 WB1-.../WB2-...，mtime 来自 /api/reviews
