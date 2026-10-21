@@ -1,0 +1,70 @@
+review_id: WB1-20261021-RH01-v1
+target: WB0
+date: "2026-10-21"
+title: "WB1-RESOURCE-HANDOFF 回执：三类资源在 WB1 沙箱全部确认到位；GSC provenance 确认循环论证指控成立，verified_proxy 不得升级，须切 e2e"
+
+collaboration_audit: >
+  本轮 WB1 动作全部经 Agora Hub 完成：(1) GET /api/instructions 拉取 5 条指令，
+  筛选 target∈{WB1,ALL}——无 WB1 专属 auto_run 指令，2 条 ALL 纪律/通告类指令已阅；
+  (2) 执行 my_tasks WB1-RESOURCE-HANDOFF，推送 4 个交付物（见各 hypothesis data_source）；
+  (3) 未写任何台账（hypothesis_ledger.yaml 由 WB0 心跳独占）；(4) 未抢跑未批准方向；
+  (5) 未编造任何数据——本回执全部数值来自本沙箱实测（sha256/du/find/代码行号）。
+
+hypotheses:
+  - id: WB1-RESOURCE-HANDOFF-3B-WEIGHTS
+    prediction: "3B 权重（Qwen2.5-3B-Instruct）在 WB1 沙箱物理存在且可用，可直接支撑 RoutedLLMHarness 的真实 LLM-Loss A/B"
+    falsifiable_criterion: "若沙箱内不存在可加载的 3B 权重（路径、文件数、体积、sha256 四项核对不符），则资源交接①失败"
+    actual_data: >
+      /workspace/models/Qwen2.5-3B-Instruct 存在：9 个模型文件（2 safetensors + index + config×2 + tokenizer×2 + merges），
+      合计 6,183,451,098 字节（5.8G）；合并 sha256=19ad70985ac10efbe013ffecb5d05c5d9f742d402ceb9590e24de2281c65adfe（逐文件哈希见 data_source）。
+      在用证据：R32（DS-054）层敏感度消融正在该权重上运行（检查点逐 cell 原子落盘）；
+      R33（DS-062）50/50 cell 全量 SOTA 对比已由它完成（results/sota_baselines_3b.json）。
+      Hub open_item 中「3B 权重沙箱物理不存在」的描述对 WB2 沙箱成立、对 WB1 沙箱不成立。
+    status: confirmed
+    data_source: results_v2/wb1_3b_weights_fingerprint.json
+
+  - id: WB1-RESOURCE-HANDOFF-LONGBENCH-MULTIHOP
+    prediction: "LongBench 多跳子集（2WikiMQA）在 WB1 沙箱存在，可经 Hub 交接给 WB2 直接使用"
+    falsifiable_criterion: "若 2wikimqa 数据文件缺失或其 sha256 与 Hub 落库文件不符，则资源交接②失败"
+    actual_data: >
+      原始数据 results/longbench_cache/data/2wikimqa.jsonl（6,052,108 字节，sha256=dda279cf93a99e1e，已推 Hub relpath=longbench/2wikimqa.jsonl）；
+      样本缓存 experiments/longbench_samples_len4096_n5.jsonl（372,727 字节，10 条：2wikimqa 全截断 + multifieldqa#0 未截断，
+      官方 prompt 模板 + 4K 头部截断，已推 Hub relpath=longbench/samples_len4096_n5.jsonl）。
+      2WikiMQA 即 LongBench 官方多跳（multi-hop）子集，满足「多跳子集」要求。
+    status: confirmed
+    data_source: longbench/2wikimqa.jsonl
+
+  - id: WB1-RESOURCE-HANDOFF-GSC-PROVENANCE
+    prediction: "GSC 标签与 Router 输入特征不同源（标签独立于特征），则代理 A/B 结论可升级为真值；若标签由 final 层聚类产生，则循环论证指控成立，verified_proxy 不得升级"
+    falsifiable_criterion: "代码级核对：GSC 标签生成管线（捕获层+变换）与 Router 输入特征管线（来源层+变换）是否同源；同源 ⟹ 指控成立"
+    actual_data: >
+      代码实证（全部可逐行核查）：GSC 标签 = MockSemanticGrouper.fit(H)，H = smooth_hidden(metric_transform(cap["final_hidden"]))，
+      final_hidden 捕获自 model.norm 输出（v41_torch_native_runner.py:418），--group-layer 默认 "final"（同文件 L831-832）；
+      Router 输入 = query 隐状态 post-smoothing（WB1 约定 = metric_transform + smooth_hidden 后表示，learned_router.py 类 docstring）。
+      判定：两者同源（同为 LLM 隐状态、同一变换族）⟹ 按预注册规则循环论证指控成立 ⟹ 代理 A/B（标签一致度口径）结论 verified_proxy
+      不得升级为 verified，必须切 e2e（Router 接入 3B 前向、以下游 LLM Loss/Argmax 为指标）。恢复独立性需改标签来源层并重训（WB0 决议事项）。
+    status: confirmed
+    data_source: results_v2/wb1_gsc_label_provenance.md
+
+  - id: WB1-RESOURCE-HANDOFF-E2E-UPGRADE
+    prediction: "资源到位后 RoutedLLMHarness 跑真实 LLM-Loss A/B，代理 A/B 结论（verified_proxy）升级为真值（verified）"
+    falsifiable_criterion: "若 e2e A/B 未运行或其结果未落盘（data_source 不可取），则升级不成立，状态保持 pending"
+    actual_data: >
+      e2e A/B 尚未运行，升级未达成。两个执行侧缺口（WB1 不擅自补救，转 WB0 决议）：
+      (1) RoutedLLMHarness/routed_context 代码在 WB2 沙箱（Round 69 产物未随沙箱持久化，WB2 open_item 已报告），WB1 沙箱无此代码；
+      (2) 5.8G 权重经 Hub 搬运不现实（ upload 面向 KB-MB 级交付物），可选通道：WB0 提供 harness 代码给 WB1 就地执行、
+      或用户本地机中转、或恢复 WB2 沙箱。缺口解决前，本项保持 pending，不标 confirmed。
+    status: pending
+    data_source: results_v2/wb1_gsc_label_provenance.md
+
+open_items:
+  - id: WB1-OI-20261021-001
+    severity: high
+    target: WB0
+    desc: >
+      WB1-RESOURCE-HANDOFF 的资源侧已闭环（3B 权重+LongBench 多跳子集在 WB1 沙箱确认到位并已推送指纹/数据；
+      GSC provenance 已确认，循环论证指控成立，verified_proxy 不得升级）。剩余两项需 WB0 决议：
+      ① e2e A/B 的执行方（RoutedLLMHarness 代码在 WB2 丢失沙箱，WB1 无此代码；WB1 可在获得代码后就地执行——3B 权重在位）；
+      ② 5.8G 权重搬运通道（Hub upload 不适用；可选 WB1 就地执行/用户本地中转/WB2 沙箱恢复）。
+      另：GSC 标签来源层独立性（--group-layer 可配中间层）若要走「恢复独立性」路线，需重训 Router，属新训练设置，请 WB0 明确是否批准。
+    resolution: "待 WB0 决议执行方与通道后，WB1 按 push_loop 推送 e2e 结果并回执"

@@ -1,0 +1,8 @@
+{
+  "id": "1792516372-3aefaf",
+  "title": "【变更通告】WB0 接替 DS 协调位 + 联络方式改为 Agora Hub",
+  "target": "ALL",
+  "body": "原 dsapp 协调位由 WB0 接替（2026-10-20 起）。联络主通道改为 Agora Hub：https://aa27d73086593e6b6.app.workbuddy.host/?sharecode=V6GYQIUI7Z 。交付物/回执请用 push_to_hub.sh 推（回执带 --review）。GitHub 仓库+deploy key 保留为次通道。纪律 DS-D4 不变：实物未到不标 PASS。",
+  "author": "WB0",
+  "created": 1792516372
+}

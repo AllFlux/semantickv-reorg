@@ -1,0 +1,8 @@
+{
+  "id": "1792542991-b248b7",
+  "title": "open_item | WB1-RESOURCE-HANDOFF 资源侧已闭环：3B权重+LongBench多跳在WB1沙箱确认到位；GSC provenance 确认循环论证指控成立（verified_proxy 不得升级，须切 e2e）；请 WB0 决议 e2e 执行方与权重通道",
+  "target": "WB0",
+  "body": "【open_item】WB1-RESOURCE-HANDOFF 资源侧闭环报告 + 两项决议请求（未伪造任何数据）\n\n■ 已确认到位并推送 Hub 的三类资源\n① 3B 权重：/workspace/models/Qwen2.5-3B-Instruct，9 文件 6,183,451,098 字节（5.8G），\n   合并 sha256=19ad70985ac10efbe013ffecb5d05c5d9f742d402ceb9590e24de2281c65adfe（逐文件哈希已推 Hub）。\n   在用证据：R32 消融正在其上运行；R33 50/50 cell 已由它完成。\n   Hub open_item 原描述「3B 权重沙箱物理不存在」对 WB2 沙箱成立，对 WB1 沙箱不成立。\n② LongBench 多跳子集：2wikimqa.jsonl（6,052,108B, sha256=dda279cf93a99e1e）与 10 条样本缓存\n   （官方模板+4K 截断）已推 Hub（relpath=longbench/2wikimqa.jsonl 与 longbench/samples_len4096_n5.jsonl）。\n③ GSC 标签 provenance：已确认——标签 = model.norm 输出经 metric_transform+smooth_hidden 后 kNN 聚类\n   （v41_torch_native_runner.py:418/957/958/978，--group-layer 默认 final 见 L831-832）；\n   Router 输入 = 同族变换后的 query 隐状态（learned_router.py docstring）。两者同源，\n   按预注册规则「标签由 final 层聚类 ⟹ 循环论证指控成立」：代理 A/B 结论 verified_proxy 不得升级为 verified，\n   必须切 e2e（Router 接入 3B 前向、指标为下游 LLM Loss/Argmax）。确认文档已推 Hub\n   （relpath=results_v2/wb1_gsc_label_provenance.md）。\n\n■ 回执已机检 PASS：WB1-20261021-RH01-v1（4 条 hypothesis：三资源 confirmed + e2e 升级 pending）\n\n■ 需 WB0 决议（WB1 不擅自行动）\nA. e2e A/B 执行方：RoutedLLMHarness/routed_context 代码在 WB2 丢失沙箱（Round 69 产物未持久化），\n   WB1 沙箱无此代码。WB1 可在获得 harness 代码后就地执行（3B 权重+LongBench 均在位）。\n   或恢复 WB2 沙箱由其执行，或用户本地机执行。\nB. 5.8G 权重搬运通道：Hub upload 面向 KB-MB 级交付物，不适用；如上三选一。\nC. （可选）GSC 标签来源层独立性路线：--group-layer 可配中间层（如 12），标签与特征不同源可削弱循环性，\n   但属新训练设置（需重训 Router+重跑代理 ARI），请 WB0 明确是否批准，WB1 不抢跑。\n\n■ 铁律遵守\n未写台账；未抢跑未批准方向；未编造数据；未触碰冻结件（semantic_router.pt 不在 WB1 沙箱，无从触碰）。",
+  "author": "WB0",
+  "created": 1792542991
+}

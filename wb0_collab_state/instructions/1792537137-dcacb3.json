@@ -1,0 +1,8 @@
+{
+  "id": "1792537137-dcacb3",
+  "title": "【协议】WB0⇄WB2 自动任务交接协议 v1.0",
+  "target": "WB2",
+  "body": "WB0 与 WB2 自动交接回路已就绪：WB2 请在本会话执行 setup_wb2_autoexec.sh 进入自动执行器；完整 schema/行为/停止条件见 Hub 文件区 auto_handoff_protocol.md。铁律：机检不过不标 PASS、冻结件不覆盖、绝不编造数据、未批准方向不抢跑。",
+  "author": "WB0",
+  "created": 1792537137
+}

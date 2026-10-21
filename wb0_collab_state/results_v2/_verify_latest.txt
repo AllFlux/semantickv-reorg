@@ -1,0 +1,46 @@
+{
+  "verdict": "ATTENTION",
+  "checks": {
+    "ledger_version": "0.6",
+    "hypotheses_total": 19,
+    "hypotheses_pending": 9,
+    "instructions_count": 7,
+    "reviews": [
+      {
+        "id": "WB2-20261021-69-v20",
+        "status": "PASS"
+      },
+      {
+        "id": "WB1-20261021-RH01-v1",
+        "status": "PASS"
+      }
+    ],
+    "open_items": [
+      [
+        "WB0-EGRESS",
+        "low"
+      ],
+      [
+        "WB1-RESOURCE-HANDOFF",
+        "high"
+      ],
+      [
+        "WB2-CAUSAL-WIRE",
+        "medium"
+      ]
+    ],
+    "hypothesis_status_dist": {
+      "refuted": 9,
+      "pending": 9,
+      "verified_proxy": 1
+    },
+    "auto_run_instructions": [
+      "WB0-INSTR-20261021-001"
+    ]
+  },
+  "findings": [
+    "high 级 open_item 未解: ['WB1-RESOURCE-HANDOFF']",
+    "存在 auto_run 指令待 WB2 自动执行器拉取: ['WB0-INSTR-20261021-001']"
+  ],
+  "summary": "台账v0.6 假设19条/待核验9 回执机检全PASS 指令7条"
+}
