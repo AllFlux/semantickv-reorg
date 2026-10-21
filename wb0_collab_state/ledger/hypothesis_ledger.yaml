@@ -1,18 +1,20 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.24'
+ledger_version: '0.29'
 latest_review: WB1-20261021-AB-v1
-review_machine_check: PASS (2026-10-21 18:00)
+review_machine_check: PASS (2026-10-21 18:30)
 open_items:
 - id: WB0-CLOUD-AGENT-FAILURE
   severity: high
   raised_by: WB0
   raised_at: 1792568891
-  desc: '云端 scheduled-agent 执行层整体故障（三重实证）：① 15:44:52 巡检任务触发时 Hub 健康但访问日志零请求；② 20 分钟连接监控（15:32-15:52）零外部连接；③ 全新创建的诊断探针任务#13179921（cron 0 */5 * * * *）15:49:55/15:59:54 两次准时触发同样零执行——排除旧任务 runtime 绑定问题。调度器派发正常（lastRunAt 更新、触发即置 0 暂停），故障在执行层。影响：零中转全自动管线的激活后自行抓取机制在执行层不可用。【WB0 巡检更新 2026-10-21 17:46】执行层故障持续（探针 lastRunAt=16:14:54 仍零执行，无恢复证据）；A/B 长时任务已由 WB0 主会话 fallback 代跑完成（17:01，回执机检 PASS），长时任务 #13166335 已退役暂停（幂等设计保证不重复实验）；恢复探测器 #13179921 已重新武装（status=1）。本项保持 open：云端执行层恢复前，全自动零中转管线仍依赖主会话 fallback。'
+  desc: "云端 scheduled-agent 执行层整体故障（三重实证）：① 15:44:52 巡检任务触发时 Hub 健康但访问日志零请求；② 20 分钟连接监控（15:32-15:52）零外部连接；③ 全新创建的诊断探针任务#13179921（cron 0 */5 * * * *）15:49:55/15:59:54 两次准时触发同样零执行——排除旧任务 runtime 绑定问题。调度器派发正常（lastRunAt 更新、触发即置 0 暂停），故障在执行层。影响：零中转全自动管线的激活后自行抓取机制在执行层不可用。【WB0 巡检更新 2026-10-21 17:46】执行层故障持续（探针 lastRunAt=16:14:54 仍零执行，无恢复证据）；A/B 长时任务已由 WB0 主会话 fallback 代跑完成（17:01，回执机检 PASS），长时任务 #13166335 已退役暂停（幂等设计保证不重复实验）；恢复探测器 #13179921 已重新武装（status=1）。本项保持 open：云端执行层恢复前，全自动零中转管线仍依赖主会话 fallback。\n【WB0 巡检更新 2026-10-21 18:14 · 独立沙盒定时唤醒回路】复检确认：① A/B 长时任务心跳 stage=COMPLETE（17:18:48，gates 5/5，回执 WB1-20261021-AB-v1 机检 PASS），巡检所见'1 条 long_run 待执行 + 心跳停滞 56 分钟'为误报（AB-02 指令 1792566417-67614f 的 id 未被回执 instruction_ids 结构化引用致巡检器 done_ids 遗漏；其 yaml receipt=WB1-20261021-AB-v1 即完成佐证），已裁定严禁触发续跑（执行器 #13166335 已退役暂停，幂等设计保证不重复实验）；② 云端执行层无恢复新证据（恢复探针 #13179921 未产生 Hub 首跑痕迹，lastRunAt 停滞未解除），本项维持 open；③ WB2 独立复核报告（results_v2 外挂 wb2_ab_review.json，18:03 落 Hub）已由 WB0 18:14 裁定列为 H-WB2-E2E-01 再升级前置件；其 P2-b/P2-c 缺口经 WB0 实测关闭（b_routers 18 权重在位、best 命中 sha256=e12bb224…；entity_embeddings.npz 可下载、命中 677f075e…），P2-a 簿记偏差已记账（实物哈希以 d0867ed9… 为准）；004 修复令实质闭环（WB2-20261021-ABREV-v1 机检 PASS + 独立意见在案）。恢复判据不变：探针 #13179921 首跑产生 Hub 访问日志。详见巡检复核裁定 1792578201-ba43ad。\n【WB0 巡检补充注记 2026-10-21 18:16】依据 WB0 主会话追认令 1792578222-dfcf4b 更正两点：① 本项 18:14 注记中'探针未产生 Hub 首跑痕迹'一句系独立沙盒不可见 Hub 访问日志所致的推断，现以日志证据更正——恢复探针 #13179921 已于 17:50:03 产生 Hub 访问日志（GET /api/state 200），恢复判据首次触发；但执行层呈间歇性恢复（E2E 执行器 #13166335 于 17:59:54 触发无写入、17:49-18:03 部分会话拉取指令后无后续），本项维持 open（severity high）；恢复判据升级为'连续 2 小时多代理稳定执行且无静默触发'。② WB2 复核报告 P2-b/P2-c 缺口根因已由主会话查明并当日修复（Hub _collect_files 对 results_v2 非递归 glob + npz/json 共用 id，18:06-18:12 修复 main.py 后 /api/files 42→60，18 个 b_router 与 npz 均独立可达并经亲验哈希命中）；本回路 18:14 实测'缺口已关闭'与修复事实互为印证。另：AB-01/AB-02 两条 long_run 指令已由 1792577801-70e614 正式 closed，巡检误报从机制上消除。\n【WB0 唤醒注记 2026-10-21 23:02（裁定 1792594887-4cc85e）】本轮复检：① 回执机检 15/15 PASS、FAIL=0（基线 9 条在位）；② 闸门 H-WB2-E2E-01 实测仍为 verified_proxy，未违规；③ WB1/WB2 执行器本轮判为 ACTIVE（WB1 最后写入 19:33、WB2 21:27），**与 22:21 裁定 1792592518『429 期间执行器全部无法运行』的表述冲突**——Hub 实物显示 19:30-21:27 两方均在实跑并各自产出回执，该时段更可能是 429 频率限制/会话抖动而非执行层宕机。归因待 WB0 主会话复核调度器日志后定级；本项维持 open，不降级。④ 恢复判据不变（连续 2 小时多代理稳定执行且无静默触发）；⑤ 待澄清：15min 档执行器在 22:00-23:00 无指令时段无主动心跳痕迹（按设计无指令不写入，暂不判停滞）。"
   status: open
-  mitigation: '① 诊断探针 #13179921 保持武装作恢复探测器（恢复后首跑即产生 Hub 访问日志）；② 长时任务#13166335 的幂等检查保留（回执 PASS 即退出，不重复实验）；③ E2E A/B 由 WB0 主会话依同一 runbook 代跑并全程披露（WB1-20261021-AB-v1，已完成）。【更新】A/B 已完成，mitigation ③ 使命达成；后续重点转为监控执行层恢复（探针）+ 保留 fallback 通道。'
+  mitigation: "① 诊断探针 #13179921 保持武装作恢复探测器（恢复后首跑即产生 Hub 访问日志）；② 长时任务#13166335 的幂等检查保留（回执 PASS 即退出，不重复实验）；③ E2E A/B 由 WB0 主会话依同一 runbook 代跑并全程披露（WB1-20261021-AB-v1，已完成）。【更新】A/B 已完成，mitigation ③ 使命达成；后续重点转为监控执行层恢复（探针）+ 保留 fallback 通道。\n【23:02】新增：主会话核查 429 与执行层宕机的证据区分（Hub 访问日志 + 调度器 trigger 日志），避免把频率限制误判为故障。"
   resolution: ''
   title: 云端 scheduled-agent 执行层整体故障
+  updated_at: 2026-10-21T23:02+08:00
+  updated_by: WB0-scheduled-wake
 - id: WB0-EGRESS
   severity: low
   desc: GitHub 数据传出仍被阻断（deploy-key 认证 OK，packfile/raw GET 超时）。但回执闭环已不受影响：WB2 经 Hub relpath 推送交付物，机检双路 PASS。剩余仅为 GitHub 仓库同步这一次通道。
@@ -149,7 +151,7 @@ hypotheses:
 - id: H-WB2-E2E-01
   claim: 端到端检索 Reward 训练的 Router(B) 优于标签拟合 Router(A)，且可用更少群数
   status: verified_proxy
-  actual_data: 真实 LongBench 2wikimqa（60 实体/30 查询/58 边，构造修正已披露）+ 真实 3B 隐状态 embedding：A（冻结件 argmax）recall@5=0.1333（4 活跃群）；best B（zscore 输入，K=64，可微 Pagerank reward）recall@5=0.4444（10 活跃群）；配对 bootstrap mean_diff=+0.3111，CI95=[+0.1667,+0.4778]，p_gt0=1.000（n=30）。K=16/8 可微 PR 亦全胜 A（0.2833/0.2444，p=0.943/0.929）。'更少群数'子论断在 K=8 配置成立（3 活跃群 < A 的 4，且 recall 0.2444 > 0.1333）；best 配置（K=64）不满足（10 > 4），已如实记录。对照 proxy（A=0.05/8、B=0.2125/6）方向一致。
+  actual_data: conjunct1 确认（B recall@5=0.4444 > A=0.1333，p_gt0=1.000）； conjunct2 仅条件成立（K=8：3 群<4 且 0.2444>0.1333；best 配置 10>4）； 查询数 30≠40（披露）。WB2 复核结论：交付真实、无伪造、B>A 方向获统计支持、 因果一致性强；复合论断第二子句配置依赖，预注册查询数未达标—— 闸门最终改判请 WB0 依 DEC-20261021-E2E-GATE（用户确认）裁示。
   criterion: 真实多跳数据(60实体/40查询) PR@5 对比 + 活跃群数对比
   data_source: results_v2/wb1_ab_real_stage1.json
   owner: WB2
@@ -157,7 +159,7 @@ hypotheses:
   verified_at: 2026-10-21T17:01+08:00
   verified_by: WB0-main-session-takeover
   upgrade_gate: DEC-20261021-E2E-GATE（user-confirmed）：真实 A/B 三件套（数据+回执+报告）齐备且机检 PASS → 依该 gate 自身判据升级
-  falsifiable_criterion: 真实多跳数据上 PR@5 对比 + 活跃群数对比（DEC-20261021-E2E-GATE：唯一升级依据）。
+  falsifiable_criterion: 真实多跳数据（60实体/40查询）上 PR@5 对比 + 活跃群数对比
   ds_admitted_refutation: false
   data_source_verified: true
   data_source_verified_at: 1792540723
@@ -245,9 +247,9 @@ disciplines:
   status: drift
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
-  via: reconcile
-  at: 1792576801
-  action: 'sync 5 hypotheses: H-WB2-E2E-01,H-DS54,H-WB2-E2E-01,H-AB-SOFT-HARD-TRANSFER,H-AB-REINFORCE-SECONDARY'
+  via: api
+  at: 1792594927
+  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

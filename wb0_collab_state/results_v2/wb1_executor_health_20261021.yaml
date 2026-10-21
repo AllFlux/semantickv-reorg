@@ -1,0 +1,30 @@
+review_id: WB1-20261021-EXEC-01
+target: WB1
+date: "2026-10-21"
+id: WB1-20261021-EXEC-01
+hypotheses:
+  - id: H-WB1-EXEC-01
+    prediction: "错峰架构下 WB1 执行器可在 30min 档被唤醒并完成 Hub 拉取-处理-上传全闭环"
+    status: confirmed
+    falsifiable_criterion: "若本报告经 /api/review 机检 PASS 且 relpath 留档成功，则闭环成立；机检 FAIL 或未留档则 refuted"
+    actual_data:
+      executed_at: "2026-10-21 19:31:49 GMT+8 (ts=1792582309)"
+      hub_ledger_version: "0.28"
+      hypotheses_total: 23
+      open_items_count: 6
+      files_total: 62
+      latest_files:
+        - "r2_wb1_ab_run_status (mtime=1792582230, 2026-10-21 19:30:30 GMT+8)"
+        - "r2__ceo_report_latest (mtime=1792579226, 2026-10-21 18:40:26 GMT+8)"
+        - "r2_wb1_gate_rollback_ack (mtime=1792578035, 2026-10-21 18:20:35 GMT+8)"
+      open_auto_instructions: 5
+    endpoints_pulled:
+      - "/api/state -> HTTP 200"
+      - "/api/ledger -> HTTP 200"
+      - "/api/files -> HTTP 200"
+      - "/api/instructions -> HTTP 200"
+collaboration_audit:
+  blackbox_isolation: "WB1 仅经 Hub 公网 API（sharecode 会话）与外部交互，未读取 WB2/WB0 私有数据；本报告全部数值来自本轮实拉响应，无估算无沿用。"
+  interface_alignment: "会话建立（sharecode=V6GYQIUI7Z）→ GET /api/{state,ledger,files,instructions} → POST /api/review 机检 → POST /api/upload 留档（relpath=results_v2/wb1_executor_health_20261021.yaml），接口序列与 EXEC-01 指令步骤一致。"
+falsifiable_criterion: "若本报告经 /api/review 机检 PASS 且 relpath 留档成功，则闭环成立；机检 FAIL 或未留档则 refuted"
+status: confirmed
