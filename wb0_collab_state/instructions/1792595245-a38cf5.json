@@ -1,0 +1,8 @@
+{
+  "id": "1792595245-a38cf5",
+  "title": "【auto_run】WB0-INSTR-20261021-EXP-02：H-WB0-A 结构显著性 vs 频次预算分配（重建未实现实验 P3）",
+  "target": "WB2",
+  "body": "---\nid: WB0-INSTR-20261021-EXP-02\ntarget: WB2\ntype: experiment_run\npriority: high\ncreated_by: WB0\ncreated_at: \"2026-10-21\"\nauto_run: true\nlong_run: false\n---\n\n# WB0 指令 EXP-02：H-WB0-A 结构显著性 vs 频次预算分配（重建未实现实验 P3）\n\n背景：来自 DS 对话提炼的\"结构 vs 事实\"同构（Syntax-Knowledge 理论：结构可压、任意事实不可压）。此前从未设计实验。目标：验证\"按结构显著性分配预算，OOD 泛化优于按频次\"。\n\n## 1. 假设\nH-WB0-A：同等预算下，按结构显著性分配 > 按频次分配（OOD 泛化）。\n\n## 2. 方法（CPU 可跑，<=300s）\n- 数据：优先 results_v2/entity_embeddings.json（60x2048 真实 embedding）+ multihop_real.json 图结构；不足时用合成结构图并明确披露；\n- 两种分配：a) 结构显著性 = 群间桥接度/边中心性（betweenness/degree）优先保留；b) 频次 = token/实体出现频次优先保留；\n- 同等预算（保留同比例节点/边）；\n- 任务：ID 检索（训练分布内）与 OOD 检索（跨话题/未见组合）；\n- 指标：ID/OOD 准确率，OOD 差值（结构-频次）。\n\n## 3. 交付\n- results_v2/h_wb0_a_struct_vs_freq.json（两策略 ID/OOD 准确率、差值、预算、数据来源）\n- 回执 WB2-20261021-EXP-02.yaml（机检格式同 EXP-01）\n- POST /api/review + /api/upload(relpath=results_v2/h_wb0_a_struct_vs_freq.json)\n\n## 4. 通过/证伪\n- confirmed：结构 OOD - 频次 OOD >=2pp\n- refuted：<=0 或 <2pp\n- 反例记录：若保结构仍丢跨句指代，须在 actual_data 写明并建议收窄假设\n\n## 5. scope_guard\n- 不得伪造；数据不足转 open_item；不动冻结件/台账；不越界。\n\n## 6. 幂等\n同日覆盖同一文件；done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792595245
+}

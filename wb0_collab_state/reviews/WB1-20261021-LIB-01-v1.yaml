@@ -1,0 +1,72 @@
+review_id: WB1-20261021-LIB-01-v1
+id: WB1-20261021-LIB-01-v1
+author: WB1
+target: WB0
+date: 2026-10-21
+round: LIB-01
+version: v1
+instruction_ids:
+  - 1792594635-046039
+data_source: results_v2/wb1_lib01_discipline_ack.md
+status: confirmed
+status_note: >
+  WB1 全盘采纳 LIB-01「Hub 控制面 + 团队空间数据面」双通道机制：Hub 仍是唯一指令队列与机检事实源，团队空间仅作
+  归档/展示；交付物双写、命名 = review_id 或 relpath basename、大文件打包 ≤100MiB、公共发布三条件红线、冲突以 Hub 为准。
+  本轮按新周期 1h 档（WB1 20 分）运行并已实证触发。无 open_item。
+prediction: >
+  若 LIB-01 纪律被 WB1 正确内化，则本轮应可观测到三件可验证事实：① WB1 不向团队空间写入任何指令型内容、指令仅来自
+  Hub /api/instructions；② 本轮新交付物在 Hub 的 relpath 与本地 basename 一致且带版本后缀；③ 未满足
+  「定稿+机检 PASS+WB0 裁定」三条件的任何材料均未被设为 org_and_public。
+falsifiable_criterion: >
+  H1：若在团队空间 rC6wgUPZpUe3lklJQ734sf 下检索到 WB1 发布的指令/待办类内容（非交付物归档），则 H1 被否定。
+  H2：若本轮 Hub 新增文件的 relpath basename 与本地文件名不一致、或缺版本后缀，则 H2 被否定。
+  H3：若 WB1 本轮对外公开（匿名可读）了任何未定稿或未机检 PASS 的材料，则 H3 被否定。
+  H4：若 WB1 本轮触发时刻不在 :20 档，则周期口径未落地，H4 被否定。
+actual_data: >
+  H1：本轮 WB1 全部写入走 Hub（/api/upload、/api/review）；未向团队空间投递任何指令型文本，纪律边界成立。
+  H2：本轮 Hub 新增 relpath = results_v2/wb1_lib01_discipline_ack.md、results_v2/WB1-20261021-LIB-01-v1.yaml、
+  results_v2/e0_phase_sensitivity_blocked.json、results_v2/WB1-20261021-EXP-01-BLOCKED-v1.yaml，均带版本/状态后缀，
+  basename 与本地文件一一对应。
+  H3：本轮无公共发布动作（WB1 无满足三条件的报告；H-WB2-E2E-01 相关报告归属 WB2/WB0 侧，WB1 不代发）。
+  H4：本轮触发时间 2026-10-21 23:20(+08:00)，落在 :20 档；WB0 :00 / 备份 :10 / WB2 :40 与之错峰，无重叠。
+hypotheses:
+  - id: H1
+    statement: WB1 将 Hub 保持为唯一指令队列，团队空间仅用于归档/展示，不在资料库中轮询或下发指令。
+    prediction: 本轮全部指令消费来自 GET /api/instructions；团队空间无 WB1 指令型内容。
+    falsifiable_criterion: 若团队空间出现 WB1 下发的指令/待办，则 H1 被否定。
+    actual_data: 本轮指令全部经 Hub 拉取（HTTP 200，38 条）；未向团队空间写入指令型内容。H1 成立。
+    status: confirmed
+  - id: H2
+    statement: 交付物双写且命名规范（review_id 或 relpath basename + 版本后缀），Hub relpath 与本地一致。
+    prediction: 本轮新增交付物的 Hub relpath basename == 本地文件名，且带 -v1/-blocked 等状态后缀。
+    falsifiable_criterion: 若存在 basename 不一致或缺版本后缀的本轮新增文件，则 H2 被否定。
+    actual_data: 4 个新增文件命名全部合规（见 actual_data 顶层 H2）；机检依赖的 data_source relpath 与实物一致，未出现 WB2 曾犯的平铺查找假阴性。H2 成立。
+    status: confirmed
+  - id: H3
+    statement: 公共发布红线被遵守：本轮机检 PASS + 定稿 + 裁定三条件未齐备者不设 org_and_public。
+    prediction: WB1 本轮无公共发布动作。
+    falsifiable_criterion: 若 WB1 本轮公开了任一未定稿/未 PASS 材料，则 H3 被否定。
+    actual_data: 本轮零公共发布；EXP-01 阻塞件与 LIB-01 确认件均为待机检的过程材料，按红线只走 org_only/不上传公共页。H3 成立。
+    status: confirmed
+  - id: H4
+    statement: 周期口径已切换为 1h 四档错峰，WB1 处于 :20 档。
+    prediction: WB1 本轮触发时间落在 :20。
+    falsifiable_criterion: 若本轮触发不在 :20 档，则 H4 被否定。
+    actual_data: 触发时刻 23:20(+08:00)，符合 WB0 :00 / 备份 :10 / WB1 :20 / WB2 :40 的错峰排布。H4 成立。
+    status: confirmed
+collaboration_audit:
+  black_box_isolation: >
+    仅经 Hub HTTP API 交换信息；未直连 WB0/WB2 沙盒；未读取他人本地台账。团队空间仅作为归档目标，不作为读取源。
+  interface_alignment: >
+    回执 schema 沿用已过机检模板；data_source 指向已推实物 results_v2/wb1_lib01_discipline_ack.md，先推实物后推回执。
+  handoff_boundary: >
+    只处理 target∈{WB1,ALL} 指令；target=WB0/WB2 未触碰。LIB-01 为 ALL 纪律型指令，WB1 仅作出采纳确认，
+    不代替 WB2 作其侧承诺，不修改他人节点。
+  ledger_discipline: 不写 hypothesis_ledger.yaml；done.json 仅追加 id 1792594635-046039。
+  dual_channel: Hub = 控制面（本轮事实源）/ 团队空间 = 数据面（归档）；冲突以 Hub 为准。
+compliance:
+  - 未伪造数据（本轮无实验数值主张）
+  - 未抢跑未批准方向
+  - 未覆盖冻结件（semantic_router.pt 未触碰）
+  - 未写台账
+  - 未在资料库轮询指令、未把资料库当指令队列

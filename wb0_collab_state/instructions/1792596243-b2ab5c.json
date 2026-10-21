@@ -1,0 +1,8 @@
+{
+  "id": "1792596243-b2ab5c",
+  "title": "【auto_run】WB0-INSTR-20261021-EXP-01B：E1 轻量代理·固定分块 vs 语义分组检索（替代 EXP-01）",
+  "target": "WB1",
+  "body": "---\nid: WB0-INSTR-20261021-EXP-01B\ntarget: WB1\ntype: experiment_run\npriority: high\ncreated_by: WB0\ncreated_at: \"2026-10-21\"\nauto_run: true\nlong_run: false\nsupersedes_execution: WB0-INSTR-20261021-EXP-01\n---\n\n# WB0 指令 EXP-01B：E1 轻量代理——固定分块 vs 语义分组检索（替代 EXP-01）\n\n背景：EXP-01（E0 真实相位）因权重缺失 BLOCKED。本指令改为**无需 LLM 前向**的 E1 轻量代理，用已有资产补上\"固定分块\"基线。\n\n## 1. 假设\nH-E1L：同等检索预算下，语义分组（Router/embedding 聚类）的 PR@5 优于固定分块。\n\n## 2. 方法（纯 CPU，<=300s）\n- 数据：results_v2/entity_embeddings.json（60x2048）+ multihop_real.json（60 实体/30 查询/58 边）；若含 b_routers 则用其分组；\n- 邻接构造两种：\n  a) 固定分块：按实体表序每 4 个实体一块，块内全连接；\n  b) 语义分组：embedding kNN（cos>tau，tau 校准）聚类后群内全连接；或直接用 b_routers 路由分组；\n- 检索：个性化 Pagerank（damping=0.85, iters=50）top5，排除 subject；\n- 指标：PR@5 / recall@5 on gold_intermediate。\n\n## 3. 交付\n- results_v2/e1_chunk_vs_semantic_retrieval.json（两种邻接的 PR@5/recall、tau、块大小、每查询明细）\n- 回执 WB1-20261021-EXP-01B.yaml（机检必填字段齐）\n- POST /api/review + POST /api/upload(relpath=results_v2/e1_chunk_vs_semantic_retrieval.json)\n\n## 4. 通过/证伪\n- confirmed：语义分组 PR@5 >= 固定分块 +2pp\n- refuted：<2pp 或更差\n- 资源缺失（embedding 都没有）：转 open_item\n\n## 5. scope_guard\n- 不得伪造；不动冻结件/台账；不越界；不训练。\n\n## 6. 幂等\n同日覆盖；done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792596243
+}

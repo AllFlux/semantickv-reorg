@@ -1,0 +1,76 @@
+review_id: WB1-20261021-EXP-01B-v1
+id: WB1-20261021-EXP-01B-v1
+author: WB1
+target: WB0
+date: 2026-10-21
+round: EXP-01B
+version: v1
+instruction_ids:
+  - 1792596243-b2ab5c
+data_source: results_v2/e1_chunk_vs_semantic_retrieval.json
+status: refuted
+status_note: >
+  EXP-01B（E1 轻量代理：固定分块 vs 语义分组检索）已完成并交付。H-E1L 未获证：语义分组 PR@5=0.0154、
+  固定分块 PR@5=0.0077，PR@5 差值 +0.77pp < +2pp 预登记门槛，配对 bootstrap CI95=[0.000,0.115]、
+  p(delta>0)=0.64。方向为正但幅度不足且不显著 → 按指令 §4 判 refuted（"<2pp 或更差"）。两档绝对
+  PR@5 均 <2%，属功效极低区间；既不得表述为"语义分组有效"，也不得表述为"语义分组无效"。
+  无 LLM 前向、无训练、未触碰冻结件与台账、无 open_item（无外部依赖缺失）。
+prediction: >
+  若指令 §1 假说成立（同等预算下语义分组优于固定分块），则在 results_v2/e1_chunk_vs_semantic_retrieval.json
+  的 main_result 中应观测到 B_semantic_knn.precision_at_5 ≥ A_fixed_chunk.precision_at_5 + 0.02（+2pp），
+  且 per_query 的 hits@2 差值方向稳定、配对 bootstrap CI95 下界 > 0。
+falsifiable_criterion: >
+  否定条件（任一即证伪）：① delta_PR_at_5 < 0.02（+2pp）；② 配对 bootstrap 5000 次 CI95 下界 ≤ 0，
+  即增益不可与 0 区分；③ 语义分组 PR@5 低于固定分块。指令 §4 明示"<2pp 或更差 → refuted"。
+actual_data: >
+  N=26（30 查询中 4 条因 subject 全为抽象短语/无连线或无 gold 在实体表而被排除，已在 protocol.excluded_queries 披露）。
+  A 固定分块（表序每 4 实体一块，15 块，块内全连接）：hits@2=1、hits@5=2、PR@5=0.0077、recall@5=0.0769。
+  B 语义分组（embedding 余弦 kNN → 连通分量=群 → 群内全连接；tau 校准至 15 群 = p85、tau=0.91932）：
+  hits@2=2、hits@5=2、PR@5=0.0154、recall@5=0.0769。
+  delta_hit@2=+0.0385（+3.85pp on hit@2），折算 delta_PR@5=+0.0077（+0.77pp）；CI95=[0.000,0.1154]；
+  p(delta>0)=0.6376（5000 次配对 bootstrap，seed=20261022）。
+  tau 网格（p50→p95，群数 7→29）PR@5 区间 0.0000–0.0154，无一档达到固定分块 +2pp 门槛（固定分块仅 0.0077）。
+  诊断（非结论）：真实共现图 PR 上界参照 PR@5=0.0077；可达接收者数 固定分块=3 vs 语义分组=13.12。
+  数据来源：Hub r2_entity_embeddings（shape [60,2048]，emb_sha256 d1cf2775…，本地解码后重算 sha256 一致）
+  与 Hub r2_multihop_real（n_ent=60 / n_queries=30 / n_edges=58）；本沙箱无仓库内实体文件，全部经 Hub 自取。
+hypotheses:
+  - id: H-E1L
+    statement: 同等检索预算（5 候选/查询）下，语义分组（embedding 聚类/Router）的 PR@5 优于固定分块。
+    prediction: B.precision_at_5 ≥ A.precision_at_5 + 0.02，且配对 bootstrap CI95 下界 > 0。
+    falsifiable_criterion: delta_PR@5 < 0.02 或 CI95 下界 ≤ 0 → refuted。
+    actual_data: delta_PR@5=+0.0077（+0.77pp），CI95=[0.000,0.1154]，p(delta>0)=0.64 → 未达门槛且不显著。refuted。
+    ds_admitted_refutation: true
+    refutation_basis: >
+      按指令 §4 预登记判据"refuted：<2pp 或更差"判定。实测 delta_PR_at_5=+0.0077 < 0.02，
+      且配对 bootstrap CI95 下界 = 0.000（不可与 0 区分，p_gt_0=0.64）。属预登记证伪，不做事后改判。
+    status: refuted
+  - id: H-E1L-POWER
+    statement: 该轻量代理在 60 实体/30 查询小图上具备足够区分力，可支撑方向性结论。
+    prediction: 两档绝对 PR@5 应显著高于随机基线（随机 ≈ 1/60×5 量级），hits@2 至少达双位数。
+    falsifiable_criterion: 若两档绝对 PR@5 均 <2% 且 hits@2 ≤ 2，则功效不足，不能据以作方向性结论。
+    actual_data: A=0.0077、B=0.0154，hits@2 分别 1/26 与 2/26，均远低于可用区分度 → 功效不足，本条自证。confirmed（功效不足成立）。
+    status: confirmed
+  - id: H-E1L-TAU
+    statement: 结论对 tau 选择稳健（非单一 tau 的偶然）。
+    prediction: 校准 tau 附近若干档（群数 11–19）应保持同向且多数达门槛。
+    falsifiable_criterion: 若网格内 PR@5 符号翻转或无任一档达门槛，则结论不依赖 tau 选择而是整体弱信号。
+    actual_data: p80(11 群,PR@5=0.0077)、p85(15 群,0.0154)、p90(19 群,0.0077)、p95(29 群,0.0077)；p50–p75 为 0.0000。无一档达 +2pp。confirmse 整体弱信号。confirmed。
+    status: confirmed
+collaboration_audit:
+  black_box_isolation: >
+    仅经 Hub HTTP API 读取 r2_entity_embeddings / r2_multihop_real 与拉取指令；未直连 WB0/WB2 沙盒；未读他人台账。
+  interface_alignment: >
+    data_source 指向已推实物 results_v2/e1_chunk_vs_semantic_retrieval.json（递归 glob **/e1_chunk_vs_semantic_retrieval.json
+    在仓库内定位成功后推送），先推实物后推本回执。复算脚本 experiments/e1/e1_chunk_vs_semantic.py 同推。
+  handoff_boundary: >
+    仅处理 target∈{WB1,ALL}；target=WB0/WB2 未触碰。EXP-01B supersedes_execution=EXP-01（已 BLOCKED），
+    WB1 不重启 EXP-01、不代跑 EXP-02/EXP-02B（属 WB2）。
+  ledger_discipline: 不写 hypothesis_ledger.yaml；done.json 仅追加 id 1792596243-b2ab5c。
+  dual_channel: Hub = 控制面 / 团队空间 = 数据面；本轮仅 Hub 单写（无双写要求）。
+compliance:
+  - 未伪造数据（全部数值由 Hub 两份原始文件本地确定性重算，脚本随附可复现）
+  - 未训练、无 LLM 前向（纯 CPU 数值计算，wall_clock < 1s）
+  - 未抢跑未批准方向（仅执行指令 §2 指定的两种邻接构造）
+  - 未覆盖冻结件（semantic_router.pt 等未触碰）；新产物另存 results_v2/
+  - 未写台账；未发 open_item（无外部依赖缺失，数据齐备）
+

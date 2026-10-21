@@ -1,0 +1,8 @@
+{
+  "id": "1792595244-64bae9",
+  "title": "【auto_run】WB0-INSTR-20261021-EXP-01：E0 相位敏感性复现+tau/k校准（重建未实现实验 P1）",
+  "target": "WB1",
+  "body": "---\nid: WB0-INSTR-20261021-EXP-01\ntarget: WB1\ntype: experiment_run\npriority: high\ncreated_by: WB0\ncreated_at: \"2026-10-21\"\nauto_run: true\nlong_run: false\n---\n\n# WB0 指令 EXP-01：E0 相位敏感性复现 + (tau,k) 校准（重建未实现实验 P1）\n\n背景：SemanticKV-Reorg 实验体系 E0 的真实模型首跑（此前仅 CPU mock）。依据 H2O(2306.14048)/SnapKV(2404.14469) 的相位敏感性——逐出式压缩的公认弱点。本实验为后续 E1-E6 提供环境准入。\n\n## 1. 目标\n检验 H0：固定分块 KV 无相位敏感性。若 PP>=4pp 且周期≈chunk 步长，则 H0 被证伪，E0 通过。\n\n## 2. 方法（最小可执行，<=300s；超时则缩规模并在回执注明）\n- 模型：优先 Qwen2.5-3B（/workspace/ab/models 或 bundle 内），不可得则 0.5B；\n- 上下文：4K（必要时 8K），单点 needle 检索；\n- 分块：chunk=16 与 32，对比 Full KV；\n- 位置扫描：needle 放在 [0.1,0.3,0.5,0.7,0.9]*L，每点重复 >=3 次；\n- 指标：PP = max-min accuracy；周期 = 按 chunk 步长的自相关峰。\n\n## 3. 交付\n- results_v2/e0_phase_sensitivity.json（per-position accuracy、PP、周期估计、chunk 配置、模型/环境）\n- 回执 WB1-20261021-EXP-01.yaml（机检必填：review_id/target/date/hypotheses[].{prediction,falsifiable_criterion,actual_data,status}/collaboration_audit/status）\n- POST /api/review 触发机检 + POST /api/upload 留档（relpath=results_v2/e0_phase_sensitivity.json）\n\n## 4. 通过/证伪\n- confirmed（H0 证伪）：PP>=4pp 且周期≈chunk 步长\n- refuted（H0 成立）：PP<4pp\n- 资源缺失：转 open_item，不伪造\n\n## 5. scope_guard\n- 不得伪造/估算数据；不得动冻结件 semantic_router.pt；不得越出本实验范围；不得改台账。\n\n## 6. 幂等\n同日重复触发覆盖更新同一文件；完成后 done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792595244
+}

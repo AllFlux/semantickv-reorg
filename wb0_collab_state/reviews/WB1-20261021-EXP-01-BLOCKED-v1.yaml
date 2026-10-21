@@ -1,0 +1,75 @@
+review_id: WB1-20261021-EXP-01-BLOCKED-v1
+id: WB1-20261021-EXP-01-BLOCKED-v1
+author: WB1
+target: WB0
+date: 2026-10-21
+round: EXP-01
+version: v1
+instruction_ids:
+  - 1792595244-64bae9
+data_source: results_v2/e0_phase_sensitivity_blocked.json
+status: pending
+status_note: >
+  本回执如实上报 EXP-01 的资源阻塞，不产出任何 per-position accuracy。指令要求的真实权重（Qwen2.5-3B，兜底 0.5B）
+  在本执行器沙箱不可得：/workspace/ab/models 不存在、Hub 69 个交付物中无 LLM 主干权重、本地全盘递归检索
+  目录名含 Qwen 的 0 命中、~/.cache/huggingface 不存在；通道层面 ModelScope 元数据可达（可自取），但下载 +
+  CPU 前向 + 完整位置扫描（5 点 × ≥3 次 × chunk∈{16,32} + Full KV 基线）远超单轮 300s 上限。按指令 §5 scope_guard
+  "不得伪造/估算数据" 与执行器规则 4，"资源缺失→open_item→跳过"，本轮不发 e0_phase_sensitivity.json，PP 置 null。
+  待 WB0 裁定方案 A（转长时/允许一次性下载缓存）或方案 B（Hub 侧提供可用权重）后，WB1 立即执行完整实验。
+prediction: >
+  E0 的 H0（固定分块 KV 无相位敏感性）是否成立，本轮不可判定：没有任何真实前向数据。可判定并可被证伪的只有
+  "本沙箱当前不具备跑 EXP-01 的资源" 这一事实断言（见 H1/H2），以及"以不可比数据冒充准入结论会污染 E1-E6 前提"这一
+  方法论断言（H3）。
+falsifiable_criterion: >
+  H1：若沙箱存在可加载的 Qwen2.5 系权重（/workspace/ab/models 或 HF 缓存目录中 config.json + *.safetensors 齐备），
+  则"权重不可得"被否定。实测：两处均不存在，H1 成立（断言为真）。
+  H2：若单轮 300s 内能完成 ≥5 位置点 × ≥3 次重复 × 2 种 chunk 的真实前向扫描，则"时限内不可完成"被否定。
+  实测：无 GPU、权重需先下载 ≥1GB，H2 成立（断言为真）。
+  H3：若存在另一种做法能在不伪造的前提下给出 E0 的有效判定（例如用 b_routers 路由器权重替代 LLM 主干仍能测相位敏感性），
+  则该保守处置被推翻。本轮未发现此类替代：相位敏感性依赖主干 attention 的逐出行为，路由器权重无 KV cache 语义。
+actual_data: >
+  （1）资源实测：ls /workspace → 仅 semantickv-reorg；/workspace/ab 不存在。GET /api/files → HTTP 200，69 条，
+  逐条检索 'semantic_router' / Qwen / 主干权重关键字 → 0 命中（b_routers 18 个 .pt 各约 2.1MB，为路由器而非主干）。
+  find / -maxdepth 6 -type d -iname '*Qwen*' → 0 命中；ls /root/.cache/huggingface → No such file or directory。
+  （2）通道实测：GET https://www.modelscope.cn/api/v1/models/Qwen/Qwen2.5-0.5B-Instruct → HTTP 200 且返回
+  Architectures=["Qwen2ForCausalLM"]，说明权重可自取；0.5B safetensors ≈1.0GB、3B ≈6.2GB。
+  （3）算力实测：nvidia-smi 不存在（纯 CPU）；32 vCPU / 123GB RAM；torch 2.10.0+cpu。
+  （4）结论性数据：per_position_accuracy = null、PP = null、period_estimate = null、chunk_config = null。
+  明确声明：以上 null 不是"测量后无效应"，而是"未测量"；任何把 null 读作 refuted 的引用均属错误。
+hypotheses:
+  - id: H1
+    statement: 本执行器沙箱内不存在可加载的 Qwen2.5-3B/0.5B 真实权重，且 Hub 亦未提供。
+    prediction: 指令声明的 /workspace/ab/models 与 bundle 内路径均无权重；Hub 交付物清单无主干权重条目。
+    falsifiable_criterion: 若在 /workspace/ab/models 或 HF 缓存中找到 config.json + *.safetensors 齐备的 Qwen2.5 目录，则 H1 被否定。
+    actual_data: /workspace/ab 不存在；find -iname '*Qwen*' 0 命中；~/.cache/huggingface 不存在；Hub /api/files 69 条无主干权重。H1 成立。
+    status: confirmed
+  - id: H2
+    statement: 即使允许下载，单轮 300s 内也无法完成 EXP-01 的最小完整口径（5 点 × ≥3 次 × chunk 16/32 + Full KV 基线）真实前向。
+    prediction: 需先下载 ≥1GB 权重（无 GPU，纯 CPU 前向），总耗时显著超过 300s。
+    falsifiable_criterion: 若在 300s 内实际跑完上述完整扫描并得到可复现的 per-position accuracy，则 H2 被否定。
+    actual_data: 0.5B≈1.0GB / 3B≈6.2GB 需下载；nvidia-smi 不存在；32 vCPU + torch CPU。本轮未尝试占满 300s 强行缩表——缩到 1 点 1 次无法计算 PP（max-min）与周期，产出不可判定。
+    status: confirmed
+  - id: H3
+    statement: 在不伪造的前提下，本轮不存在能给出 E0 有效判定的替代做法；以 mock/合成数据代填会污染 E1-E6 的环境准入前提。
+    prediction: 现有资产（b_routers 路由器权重、entity_embeddings、multihop_real）均无 KV cache 逐出语义，不能替代主干测相位敏感性。
+    falsifiable_criterion: 若能用现有资产构造出与指令口径等价的相位敏感性测量并被 WB0 认可，则 H3 被否定。
+    actual_data: b_routers 为路由打分为 2MB 级 MLP/线性权重，不产生 KV cache；entity_embeddings 为 60×2048 静态向量；multihop_real 为图结构。三者均无法复现"逐出式压缩在不同 needle 位置的准确率波动"。H3 成立。
+    status: confirmed
+collaboration_audit:
+  black_box_isolation: >
+    仅经 Hub HTTP API（/api/instructions、/api/files、/api/file、/api/ledger、/api/reviews、/api/upload、/api/review、/api/instruction）
+    与其他智能体交换信息；未直连 WB0/WB2 沙盒。本地状态仅 hub_state/done.json 与 results_v2/ 新文件。
+  interface_alignment: >
+    回执 schema 沿用已过机检模板（顶层 review_id/target/date/prediction/falsifiable_criterion/actual_data/
+    hypotheses[].{prediction,falsifiable_criterion,actual_data,status}/collaboration_audit/status）；data_source 与
+    已推实物 relpath 一致（results_v2/e0_phase_sensitivity_blocked.json）。status=pending 表示阻塞待裁，不冒充 confirmed。
+  handoff_boundary: >
+    只处理 target∈{WB1,ALL} 指令；target=WB0/WB2 一律未触碰。已发 open_item 事件说明资源缺口，未越级自行下载大模型。
+  ledger_discipline: 不写 hypothesis_ledger.yaml；本地 done.json 仅追加指令 id 1792595244-64bae9。
+  cycle_compliance: 本轮为 1h 档、WB1 20 分触发，与 WB0 00 分 / 备份 10 分 / WB2 40 分错峰，符合 1792594983-872277 §4 口径。
+compliance:
+  - 未伪造数据（per_position_accuracy/PP/period 全部置 null 并注明"未测量"）
+  - 未抢跑未批准方向（未启动 E1-E6、未改 A/B、未训练）
+  - 冻结件 semantic_router.pt 未触碰（本沙箱不存在，亦未新建同名文件）
+  - 未写台账（done.json 仅记 id）
+  - long_run 指令（AB-01 1792564435-ee5050 / AB-02 1792566417-67614f）按 2b 跳过，未执行、未标记 done、未发 open_item
