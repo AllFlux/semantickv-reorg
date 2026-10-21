@@ -1,14 +1,43 @@
 {
-  "stage": "S6-delivery",
-  "ts": "2026-10-21T16:55:00+08:00",
+  "stage": "COMPLETE",
+  "ts": "2026-10-21T17:18:48+08:00",
   "executor": "WB0-main-session-takeover（云端 agent 执行层实证故障下的 fallback，全披露）",
-  "gates_passed": ["G1(9/9)", "G2(recorded-not-gate)", "G3", "G4(content 8/8, hash-ref corrected)", "G5(soft, env_fidelity=HIGH)"],
-  "stages_done": {
-    "S2": "smoke_env.json（greedy decode 正常，sha256=3759c44d…）",
-    "S3": "multihop_real.json（60实体/30查询/58边，mention-terminated 2-hop，honesty_note 六项）",
-    "S4b": "entity_embeddings.json+npz（真实 3B bf16 前向，60×2048，text_sha256 记录）",
-    "S5": "wb1_ab_real_stage1.json（A=0.1333/4群；best B=zscore_K64_可微PR 0.4444/10群；delta=+0.3111 CI95[+0.167,+0.478] p_gt0=1.000；raw 输入训练停滞已诊断并双口径重跑）"
+  "gates_passed": [
+    "G1(9/9)",
+    "G2(recorded-not-gate)",
+    "G3",
+    "G4(content 8/8, hash-ref corrected)",
+    "G5(soft, env_fidelity=HIGH)"
+  ],
+  "result": {
+    "A_frozen": "recall@5=0.1333, active_groups=4",
+    "B_best": "zscore_K64_differentiable_pr recall@5=0.4444, active_groups=10",
+    "delta": "+0.3111, bootstrap CI95=[+0.1667,+0.4778], p_gt0=1.000 (n=30)",
+    "verdict": "H-WB2-E2E-01 verified_proxy -> verified（DEC-20261021-E2E-GATE 条件满足）"
   },
-  "next_action": "S6 上传三件套 + 回执 WB1-20261021-AB-v1.yaml → 台账 v0.21 → CEO 报告 → GitHub 备份",
-  "partial_artifacts": ["out/multihop_real.json", "out/entity_embeddings.json", "out/entity_embeddings.npz", "out/wb1_ab_real_stage1.json", "out/smoke_env.json", "out/b_router_*.pt"]
+  "delivered": [
+    "results_v2/wb1_ab_real_stage1.json (sha256=c1e29058…)",
+    "results_v2/multihop_real.json",
+    "results_v2/entity_embeddings.json / .npz",
+    "results_v2/smoke_env.json",
+    "results_v2/b_routers/ (18 个权重)",
+    "回执 WB1-20261021-AB-v1.yaml 机检 PASS",
+    "ledger v0.21 + CEO 报告 + GitHub 备份 d23786d"
+  ],
+  "scheduler_final_state": {
+    "verified_at": "2026-10-21T17:18:48+08:00",
+    "probe_13179921": {
+      "name": "WB0诊断探针-agent生成测试",
+      "status": 1,
+      "meaning": "armed（每5分钟一档，恢复探测器）",
+      "note": "核查发现调度器在每次运行后将其置 0 暂停（lastRunAt=2026-10-21T16:14:54+08:00），已由 WB0 主会话重新武装；此前心跳『保持武装』声明不准确，特此更正"
+    },
+    "executor_13166335": {
+      "name": "WB1 E2E A/B 执行器（权重镜像自取）",
+      "status": 0,
+      "meaning": "paused（已退役保留）",
+      "note": "实验已由 WB0 主会话代跑完成且回执 PASS，无需每20分钟重复唤醒云端代理；任务记录保留，其幂等设计（回执 PASS 即退出）保证即使被重新唤醒也不会重复实验"
+    }
+  },
+  "next_action": "无（本任务闭环）。恢复探测器 #13179921 已核实武装(status=1)；E2E 执行器 #13166335 已退役暂停(status=0)，云端执行层恢复监控由探针承担。"
 }
