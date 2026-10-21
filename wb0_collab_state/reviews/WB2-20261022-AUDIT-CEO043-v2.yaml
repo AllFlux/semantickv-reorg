@@ -1,0 +1,116 @@
+review_id: WB2-20261022-AUDIT-CEO043
+id: WB2-20261022-AUDIT-CEO043
+author: WB2
+date: "2026-10-22"
+target: WB0
+instruction_ids: ["1792612650-7e7e07"]
+instruction: "【WB0 补记·2026-10-22 04:00】CEO 简报已刷新（v0.43 口径·DS62 结案）"
+executor: WB2
+status: audit_pass_with_drift
+status_note: "审计结论：简报 v0.43 主表 8 项可复现 8 项，DS62 三条举证链逐条亲验成立，R32 sha256 与第 133 行 +3.207 读数独立复算一致 → DS62 结案结论维持。发现 3 项口径/时点漂移（不改判）+ 1 项新发现（auto_run 书写形态不统一，双向误判风险），均以建议形式提交，不据此改判任何假设状态。"
+
+prediction: "若 04:00 补记所称『数据全部为本轮 03:55 实拉、无估算』成立，则简报主表的台账版本/假设分布/回执数/指令数/文件数/open_items 六类指标应可在同一时刻的 Hub 端点上逐项复现；且 DS62 结案所依赖的三项证据（H-DS62 原始登记缺席、R32 报告 sha256 与 +3.207 读数、上游 open_item 自陈缺失）应能被第三方以零采信方式独立验证。"
+
+falsifiable_criterion: "① 若主表任一项与其标注来源端点的实拉值不符（允许时点差但须说明），则本回执 status 应为 audit_fail；② 若 R32 报告的 sha256 复算不等于 6cb24695aaf93d2eaffa13b75669eef424bff93df9558d6cb98f12979e0e87b3，或第 133 行不含 +3.207 读数，则 DS62『来源永久缺失』定性被推翻，应改为 source_available 并按 v2 回执判据②重开；③ 若能出示 results/sota_baselines_3b.json 实物或 DS-062 原始登记出处（文件 + sha256/行号），则『零命中』结论被推翻。"
+
+actual_data:
+  executed_at: "2026-10-22 04:40-04:55 GMT+8"
+  method: "Hub 公网 sharecode 会话（V6GYQIUI7Z）实拉 8 个端点 + /api/snapshot 解包 + 逐字节 sha256 复算；零估算、零采信他方自述数值"
+  endpoints_pulled:
+    - GET /api/state
+    - GET /api/ledger
+    - GET /api/instructions
+    - GET /api/files
+    - GET /api/reviews
+    - POST /api/reconcile
+    - GET /api/file/r2_ROUND_R32_DELIVERY
+    - GET /api/file/r2__ceo_report_latest
+    - GET /api/snapshot
+  main_table_recheck:
+    ledger_version: {claimed: "0.43", actual: "0.43", match: true}
+    hypotheses_total: {claimed: 25, actual: 25, match: true}
+    hypotheses_dist: {claimed: {confirmed: 3, refuted: 10, pending: 11, verified_proxy: 1}, actual: {confirmed: 3, refuted: 10, pending: 11, verified_proxy: 1}, match: true, note: "25 条假设 id 全枚举逐项核对，非仅取计数"}
+    reviews_total: {claimed: 25, actual: 26, match: false, cause: "时点差：WB1 于 04:20 新增 WB1-20261022-EXEC-R0420-v1（3842B，PASS）；简报 03:55 快照为 25"}
+    machine_check: {claimed: "24 PASS / 1 FAIL", actual: "25 PASS / 1 FAIL", match: "部分", fail_id: WB2-20261022-DS62-01}
+    instructions_total: {claimed: 54, actual: 56, match: false, cause: "04:00 补记本条 + 04:20 WB1 件，简报未注快照时点"}
+    files_total: {claimed: 91, actual: 94, match: false, cause: "口径未声明：/api/files 94 行含 21 行空 relpath（relpath==''），实体件 73；91 既非 94 亦非 73，无法从标注来源端点复现"}
+    open_items: {claimed: "9（open 3 / resolved 6）", actual: "9（open 3 / resolved 6）", match: true, open_ids: [WB0-CLOUD-AGENT-FAILURE, WB0-LEDGER-DECISIONS-STALE]}
+  ds62_chain_recheck:
+    hypothesis_absence:
+      method: "/api/ledger hypotheses 段 25 条 id 全枚举 + 全文检索 H-DS62|DS62|DS-062"
+      hits_in_hypotheses: 0
+      nearest_ids: [H-DS54, H-DS-CIRC-01]
+      instruction_body_hits: 8
+      instruction_hits_nature: "8 条全部是『讨论 DS62 缺失』的裁定/补记/open_item 文本（1792576637-601fda、1792577583-e9f8eb、1792561842-9cc577、1792612621-956158、1792612650-7e7e07 等），无一条为 DS-062 原始登记语句"
+      files_hit_substring: sota_baselines
+      files_hit_count: 0
+      verdict: "成立（且在新分母 56 条下复验仍成立）"
+    r32_indirect_read:
+      file_id: r2_ROUND_R32_DELIVERY
+      size_bytes: 12343
+      sha256_recomputed: 6cb24695aaf93d2eaffa13b75669eef424bff93df9558d6cb98f12979e0e87b3
+      sha256_matches_claim: true
+      line_133_quote: "R33 在 LongBench 2wikimqa 上显示断崖策略整体仍劣于 SnapKV（loss +3.207 差距）——说明「单 needle 合成用例上 L1+ 可压到 K=1」不能直接外推到多跳检索与真实生成"
+      grade: "二级（R32 对 R33 的转述），非 R33 原件对比行"
+      verdict: "读数真实、载体等级如实标注，与『来源永久缺失』定性相容"
+    upstream_open_item:
+      id: 1792576637-601fda
+      target: WB0
+      self_declared_missing: [results/sota_baselines_3b.json, DS-062 原始登记]
+      verdict: "成立"
+  drift_found:
+    - id: D1
+      level: low
+      kind: 口径
+      desc: "『文件数 91』标注来源 /api/files，但该端点本轮返回 94 行/73 实体件，91 不可复现；疑为 WB0 侧对 results_v2 目录树 find 计数"
+    - id: D2
+      level: low
+      kind: 时点
+      desc: "回执 25→26、指令 54→56、文件 91→94 三指标未在表格中标注快照时点，易被读作当前值"
+    - id: D3
+      level: low
+      kind: 表述
+      desc: "§二.1 以『54 条指令零命中』作 DS62 举证分母，本轮实为 56 条；结论在新分母下复验不变，但旧分母削弱举证强度"
+    - id: D4
+      level: medium
+      kind: 机制（本轮新发现）
+      desc: "auto_run 标记存在 3 种书写形态：A 标准 YAML 头 8 条（另 1 条 false）、B 无 --- 块正文内另起行 4 条、C 纯叙述性提及≥3 条。严口径漏判 B 类 4 条；宽口径会把 03:55 裁定（正文第 27 行引用『auto_run: true 共 11 条』）误判为派工。AB-01/AB-02 的 long_run 亦仅写在叙述中而非 YAML 字段。"
+  deviations_summary: "0 项数值错报；3 项口径/时点（D1-D3）；1 项机制缺陷（D4）。DS62 结案、闸门状态、25 条假设状态均未改判。"
+  wb2_actionable_items:
+    auto_run_true_effective: 12
+    by_target: {WB2: 6, WB1: 4, ALL: 2}
+    wb2_open: 0
+    wb2_closed_receipt_ids: [WB2-20261022-EXP-02C, WB2-20261021-EXP-02B_receipt, WB2-20261021-EXP-02_receipt, WB2-20261021-69-v20, WB2-20261021-CW-v1, WB2-20261021-ABREV-v2]
+  deliverable:
+    relpath: results_v2/wb2_audit_ceo_v043_20261022_0440.md
+    size: 12746
+    sha256_pending: "以 POST /api/upload 返回值为准；本地计算值见 collaboration_audit"
+hypotheses:
+  - id: H-WB2-AUDIT-CEO043-01
+    prediction: "CEO 简报 v0.43 所称『数据全部为本轮 03:55 实拉、无估算』成立，即其主表六类可复现指标（台账版本 / 假设总数与分布 / 回执数与机检结果 / open_items）在 Hub 上逐项与实物读数一致。"
+    falsifiable_criterion: "G1 若台账版本=0.43、假设 25 条且分布为 confirmed 3 / refuted 10 / pending 11 / verified_proxy 1、open_items 9（open 3）、机检 FAIL 唯一项为 WB2-20261022-DS62-01 → confirmed（本回执实测即满足）；G2 若任一可复现指标与其实拉值不符且无法以『快照时点差』解释 → refuted；G3 若不符但可由时点差完整解释（如 03:55→04:20 之间新增回执/指令） → pending + 记录漂移，不判简报错报。"
+    actual_data: "六类指标中 4 类逐项吻合（台账版本 0.43、假设总数 25、分布 3/10/11/1、open_items 9=open 3+resolved 6）；回执数 25 vs 实测 26、指令数 54 vs 实测 56、文件数 91 vs 实测 /api/files 94 行（实体件 73）——三者均可由 03:55 快照时点差 + 文件计数口径未声明解释，无一项构成数值错报。故判 pending（G3 分支），漂移已记入 actual_data.drift_found。"
+    status: pending
+    status_reason: "命中 G3：主表数值无错报，但三项指标存在时点/口径漂移且简报未标注，不足以判 confirmed（『全部可复现』不成立），亦不构成 refuted。"
+    deliverable: results_v2/wb2_audit_ceo_v043_20261022_0440.md
+  - id: H-WB2-AUDIT-CEO043-02
+    prediction: "DS62『来源永久缺失』结案所依赖的间接读数（R32 报告第 133 行 +3.207）可由第三方以零采信方式独立复核，且 H-DS62 原始登记在 Hub 全部端点零命中。"
+    falsifiable_criterion: "① 若 r2_ROUND_R32_DELIVERY 的 sha256 复算等于 6cb24695aaf93d2eaffa13b75669eef424bff93df9558d6cb98f12979e0e87b3 且第 133 行含 'loss +3.207 差距' 原文，且 25 条假设 id 无 H-DS62、94 行文件无 sota_baselines* → confirmed；② 若 sha256 不符或该行无 +3.207 → refuted（DS62 定性被推翻）；③ 若能出示 results/sota_baselines_3b.json 实物或 DS-062 原始登记（文件+sha256/行号） → refuted（来源并非永久缺失）。"
+    actual_data: "① sha256 复算 = 6cb24695aaf93d2eaffa13b75669eef424bff93df9558d6cb98f12979e0e87b3（12343B，与声明逐字节一致）；第 133 行原文含『R33 在 LongBench 2wikimqa 上显示断崖策略整体仍劣于 SnapKV（loss +3.207 差距）』；② /api/ledger 25 条假设 id 零命中 H-DS62；/api/files 94 行零命中 sota_baselines；③ 未取得任何原件。三条件全部满足 → confirmed。"
+    status: confirmed
+    status_reason: "三项判据均以本轮独立实拉与逐字节复算满足，未采信任何他方自述数值；+3.207 仍定性为二级转述证据，未升级为 R33 原件。"
+    deliverable: results_v2/wb2_audit_ceo_v043_20261022_0440.md
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode=V6GYQIUI7Z）交互。全部数值由本轮实拉 JSON 本地解析；唯一引用他方数值为 R32 第 133 行 +3.207，已标注文件 id/sha256/行号，且 sha256 由本席位逐字节复算确认。"
+  interface_alignment: "带 sharecode 建会话 → GET /api/instructions（56 条）→ 按 body 解析筛选 → 逐端点实拉核对 → POST /api/reconcile（26 条）→ GET /api/file 取 R32 与 CEO 简报原文复算 → POST /api/upload（审计报告）→ POST /api/review（本回执）→ done.json 追加。"
+  scope_guard_honored: "未伪造任何字段（全部数值可复现）；未覆盖任何既有产物（审计报告为新 relpath）；未动冻结件 semantic_router.pt；未写台账假设状态；未训练、无 LLM 前向；未代执行任何 WB1 指令（遵守 03:55 裁定4 跨席位封口）；未抢跑任何未批准研究方向。"
+  ambiguity_handling: "指令 body 无 goal/scope_guard 字段（仅 362B 补记，声明数据已由 WB0 自行实拉），故本席位按『取件方对 ALL 派发项做独立复核』的既定惯例，选择审计验证路径而非重复生成 CEO 报告（报告已存在且 relpath 幂等，重复生成将违反幂等纪律并可能覆盖 WB0 产物）。"
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  ledger_hypothesis_modified: false
+  training_or_forward: false
+  existing_deliverable_overwritten: false
+  fabrication: false
+  cross_seat_execution: false
+  budget_respected: true

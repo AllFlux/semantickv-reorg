@@ -1,8 +1,8 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.43'
+ledger_version: '0.48'
 latest_review: WB1-20261021-AB-v1
-review_machine_check: PASS (2026-10-22 03:56)
+review_machine_check: PASS (2026-10-22 04:57)
 open_items:
 - id: WB0-CLOUD-AGENT-FAILURE
   severity: high
@@ -76,9 +76,19 @@ open_items:
   status: open
   title: 台账 decisions 段无法经受控通道作废（Hub 端缺陷，需主会话代码级处置）
   raised_by: WB0
-  desc: DEC-20261021-E2E-GATE-CLOSED 的 status 仍为 confirmed（其宣称的 H-WB2-E2E-01 升级已于 17:56 回滚并经 1792578222 追认），与 hypotheses 段 verified_proxy 矛盾。2026-10-22 01:55 轮两次以 relpath=ledger/hypothesis_ledger.yaml 上传补丁（sha256 d5ce9afdeea5a096 / 995c8e330897486e，HTTP 200），但服务端在任意写操作后被内存态整体重生成覆盖，磁盘实测仍 confirmed；/api/reconcile 还把 ledger_version 由 0.31 推进到 0.34。
+  desc: DEC-20261021-E2E-GATE-CLOSED 的 status 仍为 confirmed（其宣称的 H-WB2-E2E-01 升级已于 17:56 回滚并经 1792578222 追认），与 hypotheses 段 verified_proxy 矛盾。01:55 轮两次以 relpath=ledger/hypothesis_ledger.yaml 上传补丁（HTTP 200），但服务端在任意写操作后被内存态整体重生成覆盖。本轮 05:00 复核：decisions 段 4 条仍全为 confirmed，缺陷未修。
   mitigation: 已停止重试（避免版本噪声）。请主会话在 Hub 代码层处置：为 decisions 段增加作废字段/接口，或修正 decisions 渲染源使其随 hypotheses 状态派生。过渡期纪律：引用 DEC-20261021-E2E-GATE-CLOSED 一律视为作废；闸门升级依据仅认 DEC-20261021-E2E-GATE（user-confirmed）。
   resolution: ''
+  target: WB0
+- id: WB0-FILE-API-STALE-RESOLVER
+  severity: high
+  status: open
+  title: Hub 文件下载接口返回陈旧内容（任意 fid 均返回同一件）→ 正文级取证不可采信
+  raised_by: WB0
+  raised_at: 1792616180
+  desc: 2026-10-22 04:55-05:05 实测：/api/file/<任意 id> 与 /api/file/?id=<任意 id> 对 7 个不同 fid（WB1-20261022-EXEC-R0420-v1、wb1_exec_round_20261022_0420、wb2_run_report_20261022_0440、wb2_audit_ceo_v043_20261022_0440、wb1_exec_round_20261022_0320、hypothesis_ledger、_ceo_report_latest）一律返回同一份 4178B 文件（results 为「WB0 接替说明与联络方式变更」，sha256 a737fd8824bd1e1ed2d498efd8272c00ffccbcbfc4b25f8213fe357b9db27a8b）。另 /api/file?relpath=… 忽略参数返回同一件且 HTTP 200（无报错，静默错值）。/api/files 元数据（size/sha256/mtime/relpath）本身正确可信。
+  impact: ① 任何一方「下载交付物并逐字节复算」的取证结论实际未成立（本轮 WB2 04:44 审计、以及历史裁定中凡此类表述者）；② 本轮改用 /api/snapshot 解包方取得回执正文，sha256 复算一致（WB1-20261022-EXEC-R0420-v1 = 397d66ea31f192bf，与元数据一致），故快照树可信、单文件接口不可信。
+  mitigation: 过渡期纪律（本轮起生效）：正文级核验一律以 /api/snapshot 解包为唯一来源；/api/file 仅可用于元数据比对，禁止作为证据；所有引用交付物正文的裁定须注记取证来源为 snapshot。
   target: WB0
 hypotheses:
 - id: H-DS1
@@ -318,8 +328,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792612631
-  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
+  at: 1792616311
+  action: upsert open_item WB0-LEDGER-DECISIONS-STALE
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
