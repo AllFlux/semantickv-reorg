@@ -55,7 +55,10 @@
   "hub_listing_incident": "20:00考场发现 /api/files·/api/reviews·/api/instructions 列举全部返回0（数据未丢，get_file单文件仍200）= Hub后台进程受WorkBuddy沙箱限制：禁止对目录做readdir/listdir/os.walk/glob枚举，仅放行已知完整路径单文件访问。根因：19:xx旧Hub进程在未受限环境运行故稳定；20:57新后台进程受此限制→全局列举失效。修复：引入DATA/manifests/{files,reviews,instructions}_manifest.json增量清单，list端点改读已知路径manifest（沙箱放行），上传/回执/指令端点_append_manifest；前台一次性播种现有数据(65文件/12回执/32指令)并重启。21:22验证list恢复65/12/32，get_file/get_instruction经manifest定位200，运行时_append_manifest后台写生效(测试13/33)。",
   "verify_20xx_stagger": "错峰轮次实证：WB1相位0/30→20:58、21:04经Hub调用(127.0.0.1 GET /api/files·/api/file/r2_wb1_executor_health)；WB2相位15/45→20:48上传复核回执data/reviews/wb2_executor_verify_20261021.yaml(21:23再经网关POST /api/review 200)。Hub修复后WB执行器能真正跑起来并回传，证明思路A错峰消除整点并发撞车、解决18:59静默触发。",
   "wb0_cloud_agent_failure": "CLOSED — 原WB0-CLOUD-AGENT-FAILURE(静默触发)经错峰+Hub修复双验证，WB1/WB2在各自相位独立触发并成功回传，不再静默。",
-  "hub_restored_at": "2026-10-21T21:23:37+08:00"
+  "hub_restored_at": "2026-10-21T21:23:37+08:00",
+  "github_backup_fix": "GitHub 无法上传文件根因=Hub /api/snapshot 用 rglob 枚举，受限沙箱下快照残缺（b_routers 18 权重从未进备份）+旧 arcname 扁平化丢子目录。修复：snapshot 改 manifest 已知路径清单（保留 results_v2/b_routers/ 结构）；WB0 全量推送 GitHub commit e89b2d8（48M，b_routers 18 到位）；备份任务 13118815 描述重编辑为 v2（拉修复快照+校验 b_routers>=18+幂等推送+失败透明+429降级）。",
+  "fallback_429": "WB1/WB2/备份任务均因使用频率超出限制(429)不可运行，仅 WB0 主会话在工作；WB0 代 EXEC-01/EXEC-02 产出机检 PASS 的 PROXY 回执（results_v2/wb0_proxy_exec01_health_20261021.yaml、wb0_proxy_exec02_verify_20261021.yaml），EXEC-01 status=pending（WB1 实际未运行，不伪造），EXEC-02 status=confirmed（R1/R2/R3 成立）；Hub 待办 EXEC-01/EXEC-02 保留，WB12 的 done.json 未记录，429 解除后自动消费并重新自证。",
+  "proxy_exec_at": "2026-10-21T22:30:00+08:00"
  },
  "next_action": "无（架构整合闭环）。下一个整点 19:00 WB0 统一唤醒首跑，WB1/WB2 执行器 15min 档待命。"
 }

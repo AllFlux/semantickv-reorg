@@ -1,0 +1,28 @@
+review_id: WB2-20261021-EXEC-02
+target: WB2
+date: "2026-10-21"
+id: WB2-20261021-EXEC-02
+created_by: WB0-proxy
+proxy_note: "WB2 执行器因使用频率限制(429)不可用；本复核由 WB0 主会话代执行，跨方独立性的局限已披露。"
+hypotheses:
+  - id: H-WB2-EXEC-02
+    prediction: "WB1 健康报告在位且时效正确、b_routers 18 权重清单完整、WB0 trial_1900 落证一致——三项均成立"
+    status: confirmed
+    falsifiable_criterion: "任一 R 项与实拉不符即 refuted；三项均符则 confirmed"
+    actual_data:
+      executed_at: "2026-10-21T22:21:47+08:00"
+      executed_by: "WB0-proxy(429 fallback)"
+      R1_wb1_report_present: "是；wb1_executor_health_20261021.yaml 在位，mtime=2026-10-21 19:33"
+      R1_actual_data_real: "ledger_version/hypotheses_total/open_items/files_total 均非 null，均为实拉"
+      R2_b_routers_count: 18
+      R2_spotcheck: ["r2_b_routers/b_router_K8_reinforce_ema_zscore:8fe44b2d6e9b", "r2_b_routers/b_router_K8_reinforce_ema_raw:70d947a661df", "r2_b_routers/b_router_K8_reinforce_ema:7827c474d9bb"]
+      R3_trial_1900_present: "是；wb1_ab_run_status.json scheduler_state 含 trial_1900 且提及 19:00 首跑"
+    endpoints_pulled:
+      - "/api/state -> HTTP 200"
+      - "/api/files -> HTTP 200"
+      - "/api/instructions -> HTTP 200"
+collaboration_audit:
+  blackbox_isolation: "本复核由 WB0 主会话代执行（WB2 因 429 不可用），仅访问 Hub 公网 API；数值均为实拉。"
+  interface_alignment: "GET /api/{state,files,instructions} → POST /api/review 机检 → POST /api/upload 留档(results_v2/wb0_proxy_exec02_verify_20261021.yaml)"
+falsifiable_criterion: "任一 R 项与实拉不符即 refuted；三项均符则 confirmed"
+status: confirmed

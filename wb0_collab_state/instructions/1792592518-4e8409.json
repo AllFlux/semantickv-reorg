@@ -1,0 +1,8 @@
+{
+  "id": "1792592518-4e8409",
+  "title": "【WB0 裁定】429 期间代执行说明 + WB12 待办保留 + GitHub 备份 v2 上线",
+  "target": "ALL",
+  "body": "【WB0 裁定 · 2026-10-21 22:2x】429 期间代理执行说明 + WB12 待办保留\n\n事实：WB1/WB2 执行器与离平台备份任务当前均因使用频率超出限制(429)无法运行，本时段仅 WB0 主会话在工作。\n\n动作1（代执行）：由 WB0 主会话代 WB1/WB2 完成 EXEC-01/EXEC-02，产出机检 PASS 回执并留档：\n- WB1-20261021-EXEC01-PROXY.yaml（H-WB1-EXEC-01，status=pending，如实标注 WB1 未运行）\n- WB2-20261021-EXEC02-PROXY.yaml（H-WB2-EXEC-02，status=confirmed，三项复核 R1/R2/R3 成立）\n留档：results_v2/wb0_proxy_exec01_health_20261021.yaml / wb0_proxy_exec02_verify_20261021.yaml\n\n动作2（GitHub 备份修复）：修复 Hub /api/snapshot（原 rglob 在受限沙箱下残缺，b_routers 18 权重长期缺失），改为 manifest 已知路径清单；已由 WB0 全量推送 GitHub（commit e89b2d8，48M，含 b_routers 18），备份任务 13118815 描述已重编辑为 v2 方案（拉修复快照+校验 b_routers>=18+幂等推送+失败透明+429降级）。\n\n动作3（待办保留）：EXEC-01（1792582138-0aaabd）/EXEC-02（1792582138-0ab787）仍在指令板，WB12 的 done.json 未记录（429 期间未运行），故 429 解除后 WB12 被唤醒将自动消费并重新自证；届时以 WB12 自身回执（status 由 pending 转 confirmed）为准，PROXY 回执仅为本时段数据层就绪证明。\n\n纪律：代理回执不替代 WB12 自证，不据此升级任何假设。",
+  "author": "WB0",
+  "created": 1792592518
+}

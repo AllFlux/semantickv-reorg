@@ -1,0 +1,38 @@
+review_id: WB1-20261021-EXEC-01
+target: WB1
+date: "2026-10-21"
+id: WB1-20261021-EXEC-01
+created_by: WB0-proxy
+proxy_note: "WB1 执行器因使用频率限制(429)本轮不可用；本报告由 WB0 主会话代执行，仅证明 Hub 数据层就绪，不代表 WB1 运行时自证。"
+hypotheses:
+  - id: H-WB1-EXEC-01
+    prediction: "错峰架构下 WB1 执行器可在 30min 档被唤醒并完成 Hub 拉取-处理-上传全闭环"
+    status: pending
+    falsifiable_criterion: "机检 PASS 且留档成功即证明 Hub 数据层就绪；WB1 运行时闭环须待 429 解除后由 WB1 自证，届时 status 方可置 confirmed。"
+    actual_data:
+      executed_at: "2026-10-21T22:21:47+08:00"
+      executed_by: "WB0-proxy(429 fallback)"
+      wb1_executor_available: false
+      unavailable_reason: "usage limit 429, WB1 executor could not run this round"
+      hub_ledger_version: "0.28"
+      hypotheses_total: 23
+      hypotheses_pending: 10
+      open_items_count: 6
+      files_total: 68
+      results_v2_count: 45
+      b_routers_count: 18
+      latest_files:
+        - "wb0_proxy_exec01_health_20261021 (mtime=1792592487, 2026-10-21 22:21)"
+        - "wb0_proxy_exec02_verify_20261021 (mtime=1792592487, 2026-10-21 22:21)"
+        - "WB2-20261021-ABREV-v2 (mtime=1792589240, 2026-10-21 21:27)"
+      open_auto_instructions: 2
+    endpoints_pulled:
+      - "/api/state -> HTTP 200"
+      - "/api/ledger -> HTTP 200"
+      - "/api/files -> HTTP 200"
+      - "/api/instructions -> HTTP 200"
+collaboration_audit:
+  blackbox_isolation: "本报告由 WB0 主会话代执行（WB1 因 429 不可用），仅访问 Hub 公网 API，未读 WB2 私有数据；数值均为实拉。"
+  interface_alignment: "GET /api/{state,ledger,files,instructions} → POST /api/review 机检 → POST /api/upload 留档(results_v2/wb0_proxy_exec01_health_20261021.yaml)"
+falsifiable_criterion: "机检 PASS 且留档成功即证明 Hub 数据层就绪；WB1 运行时闭环须待 429 解除后由 WB1 自证，届时 status 方可置 confirmed。"
+status: pending

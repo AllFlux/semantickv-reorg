@@ -488,11 +488,32 @@ def snapshot():
     with tarfile.open(fileobj=buf, mode="w:gz") as tar:
         if LEDGER.exists():
             tar.add(str(LEDGER), arcname="ledger/hypothesis_ledger.yaml")
-        for d, arc in [(RV, "reviews"), (IN, "instructions"), (_results_dir(), "results_v2")]:
-            if d.exists():
-                for p in d.rglob("*"):
+        # 修复（2026-10-21 21:xx）：改用 manifest 已知路径清单，避免受限沙箱下
+        # rglob 目录枚举失败导致快照残缺（b_routers 18 权重与多数 results_v2 文件丢失）。
+        for e in (_load_manifest("reviews") or []):
+            p = RV / e.get("name", "")
+            if p.is_file():
+                tar.add(str(p), arcname=f"reviews/{p.name}")
+        for e in (_load_manifest("instructions") or []):
+            p = IN / f"{e.get('id', '')}.json"
+            if p.is_file():
+                tar.add(str(p), arcname=f"instructions/{p.name}")
+        _f = _load_manifest("files") or []
+        for e in _f:
+            if e.get("tree") != "results_v2":
+                continue
+            rel = e.get("relpath", "")
+            if not rel:
+                continue
+            p = Path(CHECK_ROOT) / rel          # rel 形如 results_v2/b_routers/xxx.pt，保留子目录结构
+            if p.is_file():
+                tar.add(str(p), arcname=rel)
+        if not _f:                               # 兜底：manifest 为空时退回 rglob
+            r2 = _results_dir()
+            if r2.exists():
+                for p in r2.rglob("*"):
                     if p.is_file():
-                        tar.add(str(p), arcname=f"{arc}/{p.name}")
+                        tar.add(str(p), arcname=f"results_v2/{p.relative_to(r2).as_posix()}")
     buf.seek(0)
     return Response(content=buf.getvalue(), media_type="application/gzip",
                    headers={"Content-Disposition": "attachment; filename=agora_snapshot.tgz"})
