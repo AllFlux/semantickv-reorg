@@ -1,0 +1,710 @@
+{
+ "n_ent": 60,
+ "n_queries": 30,
+ "n_edges": 58,
+ "entities": [
+  "a no hit no run summer",
+  "alan of galloway",
+  "albert pyun",
+  "atomised film",
+  "baraguru ramachandrappa",
+  "catherine of taranto countess of copertino",
+  "charles the fat",
+  "diego fernández de oviedo",
+  "duleep singh",
+  "edward i of england",
+  "eleanor de bohun",
+  "eleanor of castile",
+  "elizabeth of rhuddlan",
+  "ernest ii duke of saxe gotha altenburg",
+  "fernando flaínez",
+  "francis leclerc",
+  "george michael",
+  "gisela of hungary",
+  "hellcats of the navy",
+  "herbert maisch",
+  "humphrey de bohun 7th earl of hereford",
+  "i ll say it",
+  "i will i will for now",
+  "john de bohun 5th earl of hereford",
+  "john paulet 2nd marquess of winchester",
+  "josé maría sánchez silva",
+  "kanneshwara rama",
+  "kathy griffin",
+  "m s sathyu",
+  "madleen kane",
+  "maria theresa of naples and sicily",
+  "marie louise duchess of parma",
+  "mary of enghien",
+  "mary of woodstock",
+  "michael sorvino",
+  "miracle of marcelino",
+  "nallavan vazhvan",
+  "nanon 1938 film",
+  "nathan juran",
+  "nekfeu",
+  "norman panama",
+  "oskar roehler",
+  "p neelakantan",
+  "pablo sorozábal",
+  "paul sorvino",
+  "place of birth",
+  "postmortem 1998 film",
+  "princess charlotte of saxe meiningen",
+  "ranjit singh",
+  "sir hew dalrymple 3rd baronet",
+  "sir john hamilton dalrymple 5th baronet",
+  "stephen i of hungary",
+  "the trouble with cali",
+  "this time waylon jennings song",
+  "thomas of galloway bastard",
+  "waylon jennings",
+  "william de bohun 1st earl of northampton",
+  "william paulet 3rd marquess of winchester",
+  "you can",
+  "égérie song"
+ ],
+ "queries": [
+  {
+   "qid": "q040",
+   "question": "What is the place of birth of Bernard (Son Of Charles The Fat)'s father?",
+   "subject": "place of birth",
+   "subject_candidates": [
+    "place of birth",
+    "bernard son of charles the fat",
+    "charles the fat"
+   ],
+   "gold_intermediate": [
+    "charles the fat"
+   ],
+   "answer": "east francia",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q060",
+   "question": "Who is the spouse of the performer of song This Time (Waylon Jennings Song)?",
+   "subject": "this time waylon jennings song",
+   "subject_candidates": [
+    "this time waylon jennings song",
+    "waylon jennings"
+   ],
+   "gold_intermediate": [
+    "waylon jennings"
+   ],
+   "answer": "jessi colter",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q093",
+   "question": "What is the date of death of Duleep Singh's father?",
+   "subject": "duleep singh",
+   "subject_candidates": [
+    "duleep singh"
+   ],
+   "gold_intermediate": [
+    "ranjit singh"
+   ],
+   "answer": "27 june 1839",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q196",
+   "question": "Who is the maternal grandfather of Marie Louise, Duchess Of Parma?",
+   "subject": "marie louise duchess of parma",
+   "subject_candidates": [
+    "marie louise duchess of parma"
+   ],
+   "gold_intermediate": [
+    "maria theresa of naples and sicily"
+   ],
+   "answer": "ferdinand i of the two sicilies",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q094",
+   "question": "What is the place of birth of the director of film Gunsmoke (Film)?",
+   "subject": "place of birth",
+   "subject_candidates": [
+    "place of birth",
+    "gunsmoke film"
+   ],
+   "gold_intermediate": [
+    "nathan juran"
+   ],
+   "answer": "gura humorului",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q193",
+   "question": "What is the cause of death of director of film I Will, I Will... For Now?",
+   "subject": "i will i will for now",
+   "subject_candidates": [
+    "i will i will for now"
+   ],
+   "gold_intermediate": [
+    "norman panama"
+   ],
+   "answer": "parkinson",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q004",
+   "question": "What is the date of birth of William Paulet, 3Rd Marquess Of Winchester's father?",
+   "subject": "william paulet 3rd marquess of winchester",
+   "subject_candidates": [
+    "william paulet 3rd marquess of winchester"
+   ],
+   "gold_intermediate": [
+    "john paulet 2nd marquess of winchester"
+   ],
+   "answer": "1510",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q157",
+   "question": "Who is Gisela Of Hungary's father-in-law?",
+   "subject": "gisela of hungary",
+   "subject_candidates": [
+    "gisela of hungary"
+   ],
+   "gold_intermediate": [
+    "stephen i of hungary"
+   ],
+   "answer": "géza",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q032",
+   "question": "Where did the performer of song Fantasy (George Michael Song) die?",
+   "subject": "george michael",
+   "subject_candidates": [
+    "george michael",
+    "fantasy george michael song"
+   ],
+   "gold_intermediate": [
+    "george michael"
+   ],
+   "answer": "goring on thames oxfordshire",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q199",
+   "question": "Where did the director of film Nanon (1938 Film) die?",
+   "subject": "nanon 1938 film",
+   "subject_candidates": [
+    "nanon 1938 film"
+   ],
+   "gold_intermediate": [
+    "herbert maisch"
+   ],
+   "answer": "köln",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q067",
+   "question": "Who is the mother of the director of film Atomised (Film)?",
+   "subject": "atomised film",
+   "subject_candidates": [
+    "atomised film"
+   ],
+   "gold_intermediate": [
+    "oskar roehler"
+   ],
+   "answer": "gisela elsner",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q192",
+   "question": "What nationality is Elizabeth Of Rhuddlan's father?",
+   "subject": "elizabeth of rhuddlan",
+   "subject_candidates": [
+    "elizabeth of rhuddlan"
+   ],
+   "gold_intermediate": [
+    "edward i of england",
+    "eleanor de bohun",
+    "eleanor of castile",
+    "humphrey de bohun 7th earl of hereford",
+    "john de bohun 5th earl of hereford",
+    "william de bohun 1st earl of northampton"
+   ],
+   "answer": "england",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q099",
+   "question": "Who is the paternal grandfather of Diego Fernández De Oviedo?",
+   "subject": "diego fernández de oviedo",
+   "subject_candidates": [
+    "diego fernández de oviedo",
+    "diego fernández"
+   ],
+   "gold_intermediate": [
+    "fernando flaínez"
+   ],
+   "answer": "flaín muñoz",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q104",
+   "question": "Where did Mary Of Woodstock's mother die?",
+   "subject": "mary of woodstock",
+   "subject_candidates": [
+    "mary of woodstock"
+   ],
+   "gold_intermediate": [
+    "eleanor of castile"
+   ],
+   "answer": "harby",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q080",
+   "question": "What is the place of birth of the director of film Bhagirathi (Film)?",
+   "subject": "place of birth",
+   "subject_candidates": [
+    "place of birth",
+    "bhagirathi film"
+   ],
+   "gold_intermediate": [
+    "baraguru ramachandrappa"
+   ],
+   "answer": "tumkur",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q071",
+   "question": "Where was the performer of song Égérie (Song) born?",
+   "subject": "égérie song",
+   "subject_candidates": [
+    "égérie song"
+   ],
+   "gold_intermediate": [
+    "nekfeu"
+   ],
+   "answer": "la trinité",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q106",
+   "question": "What is the date of death of the director of film Nallavan Vazhvan?",
+   "subject": "nallavan vazhvan",
+   "subject_candidates": [
+    "nallavan vazhvan"
+   ],
+   "gold_intermediate": [
+    "p neelakantan"
+   ],
+   "answer": "3 september 1992",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q169",
+   "question": "Where did Catherine Of Taranto, Countess Of Copertino's mother die?",
+   "subject": "catherine of taranto countess of copertino",
+   "subject_candidates": [
+    "catherine of taranto countess of copertino"
+   ],
+   "gold_intermediate": [
+    "mary of enghien"
+   ],
+   "answer": "lecce",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q021",
+   "question": "Where did the performer of song I'Ll Say It graduate from?",
+   "subject": "i ll say it",
+   "subject_candidates": [
+    "i ll say it"
+   ],
+   "gold_intermediate": [
+    "kathy griffin"
+   ],
+   "answer": "lee strasberg theatre and film institute",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q066",
+   "question": "Where was the place of death of the composer of film Miracle Of Marcelino?",
+   "subject": "miracle of marcelino",
+   "subject_candidates": [
+    "miracle of marcelino"
+   ],
+   "gold_intermediate": [
+    "josé maría sánchez silva",
+    "pablo sorozábal"
+   ],
+   "answer": "madrid",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q155",
+   "question": "Who is the father of the director of film A No-Hit No-Run Summer?",
+   "subject": "a no hit no run summer",
+   "subject_candidates": [
+    "a no hit no run summer"
+   ],
+   "gold_intermediate": [
+    "francis leclerc"
+   ],
+   "answer": "félix leclerc",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q174",
+   "question": "When did Thomas Of Galloway (Bastard)'s father die?",
+   "subject": "thomas of galloway bastard",
+   "subject_candidates": [
+    "thomas of galloway bastard"
+   ],
+   "gold_intermediate": [
+    "alan of galloway"
+   ],
+   "answer": "1234",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q019",
+   "question": "Where was the director of film Kanneshwara Rama born?",
+   "subject": "kanneshwara rama",
+   "subject_candidates": [
+    "kanneshwara rama"
+   ],
+   "gold_intermediate": [
+    "m s sathyu"
+   ],
+   "answer": "mysore",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q166",
+   "question": "Who is the paternal grandfather of Sir John Hamilton-Dalrymple, 5Th Baronet?",
+   "subject": "sir john hamilton dalrymple 5th baronet",
+   "subject_candidates": [
+    "sir john hamilton dalrymple 5th baronet"
+   ],
+   "gold_intermediate": [
+    "sir hew dalrymple 3rd baronet"
+   ],
+   "answer": "sir hew dalrymple 2nd baronet",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q063",
+   "question": "What nationality is the performer of song You Can?",
+   "subject": "you can",
+   "subject_candidates": [
+    "you can"
+   ],
+   "gold_intermediate": [
+    "madleen kane"
+   ],
+   "answer": "sweden",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q141",
+   "question": "Where was the director of film Hellcats Of The Navy born?",
+   "subject": "hellcats of the navy",
+   "subject_candidates": [
+    "hellcats of the navy"
+   ],
+   "gold_intermediate": [
+    "nathan juran"
+   ],
+   "answer": "gura humorului",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q171",
+   "question": "What nationality is Princess Charlotte Of Saxe-Meiningen's husband?",
+   "subject": "princess charlotte of saxe meiningen",
+   "subject_candidates": [
+    "princess charlotte of saxe meiningen"
+   ],
+   "gold_intermediate": [
+    "ernest ii duke of saxe gotha altenburg"
+   ],
+   "answer": "duchy of saxe gotha altenburg",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q100",
+   "question": "Who is the child of the director of film The Trouble With Cali?",
+   "subject": "the trouble with cali",
+   "subject_candidates": [
+    "the trouble with cali"
+   ],
+   "gold_intermediate": [
+    "michael sorvino",
+    "paul sorvino"
+   ],
+   "answer": "mira sorvino",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q087",
+   "question": "What nationality is the director of film Postmortem (1998 Film)?",
+   "subject": "postmortem 1998 film",
+   "subject_candidates": [
+    "postmortem 1998 film"
+   ],
+   "gold_intermediate": [
+    "albert pyun"
+   ],
+   "answer": "america",
+   "answer_is_entity": false
+  },
+  {
+   "qid": "q006",
+   "question": "What is the date of death of Humphrey De Bohun, 7Th Earl Of Hereford's father?",
+   "subject": "humphrey de bohun 7th earl of hereford",
+   "subject_candidates": [
+    "humphrey de bohun 7th earl of hereford"
+   ],
+   "gold_intermediate": [
+    "william de bohun 1st earl of northampton"
+   ],
+   "answer": "16 september 1360",
+   "answer_is_entity": false
+  }
+ ],
+ "edges": [
+  [
+   "a no hit no run summer",
+   "francis leclerc"
+  ],
+  [
+   "atomised film",
+   "oskar roehler"
+  ],
+  [
+   "catherine of taranto countess of copertino",
+   "mary of enghien"
+  ],
+  [
+   "diego fernández de oviedo",
+   "fernando flaínez"
+  ],
+  [
+   "duleep singh",
+   "ranjit singh"
+  ],
+  [
+   "edward i of england",
+   "eleanor of castile"
+  ],
+  [
+   "eleanor de bohun",
+   "humphrey de bohun 7th earl of hereford"
+  ],
+  [
+   "eleanor of castile",
+   "edward i of england"
+  ],
+  [
+   "elizabeth of rhuddlan",
+   "edward i of england"
+  ],
+  [
+   "elizabeth of rhuddlan",
+   "eleanor de bohun"
+  ],
+  [
+   "elizabeth of rhuddlan",
+   "eleanor of castile"
+  ],
+  [
+   "elizabeth of rhuddlan",
+   "john de bohun 5th earl of hereford"
+  ],
+  [
+   "elizabeth of rhuddlan",
+   "william de bohun 1st earl of northampton"
+  ],
+  [
+   "ernest ii duke of saxe gotha altenburg",
+   "princess charlotte of saxe meiningen"
+  ],
+  [
+   "francis leclerc",
+   "a no hit no run summer"
+  ],
+  [
+   "gisela of hungary",
+   "stephen i of hungary"
+  ],
+  [
+   "hellcats of the navy",
+   "nathan juran"
+  ],
+  [
+   "humphrey de bohun 7th earl of hereford",
+   "eleanor de bohun"
+  ],
+  [
+   "humphrey de bohun 7th earl of hereford",
+   "elizabeth of rhuddlan"
+  ],
+  [
+   "humphrey de bohun 7th earl of hereford",
+   "william de bohun 1st earl of northampton"
+  ],
+  [
+   "i ll say it",
+   "kathy griffin"
+  ],
+  [
+   "i will i will for now",
+   "norman panama"
+  ],
+  [
+   "i will i will for now",
+   "paul sorvino"
+  ],
+  [
+   "john de bohun 5th earl of hereford",
+   "edward i of england"
+  ],
+  [
+   "john de bohun 5th earl of hereford",
+   "elizabeth of rhuddlan"
+  ],
+  [
+   "john paulet 2nd marquess of winchester",
+   "william paulet 3rd marquess of winchester"
+  ],
+  [
+   "josé maría sánchez silva",
+   "miracle of marcelino"
+  ],
+  [
+   "kanneshwara rama",
+   "m s sathyu"
+  ],
+  [
+   "kathy griffin",
+   "i ll say it"
+  ],
+  [
+   "m s sathyu",
+   "kanneshwara rama"
+  ],
+  [
+   "madleen kane",
+   "you can"
+  ],
+  [
+   "marie louise duchess of parma",
+   "maria theresa of naples and sicily"
+  ],
+  [
+   "mary of woodstock",
+   "edward i of england"
+  ],
+  [
+   "mary of woodstock",
+   "eleanor of castile"
+  ],
+  [
+   "michael sorvino",
+   "paul sorvino"
+  ],
+  [
+   "michael sorvino",
+   "the trouble with cali"
+  ],
+  [
+   "miracle of marcelino",
+   "pablo sorozábal"
+  ],
+  [
+   "nallavan vazhvan",
+   "p neelakantan"
+  ],
+  [
+   "nanon 1938 film",
+   "herbert maisch"
+  ],
+  [
+   "nathan juran",
+   "hellcats of the navy"
+  ],
+  [
+   "paul sorvino",
+   "i will i will for now"
+  ],
+  [
+   "paul sorvino",
+   "michael sorvino"
+  ],
+  [
+   "paul sorvino",
+   "the trouble with cali"
+  ],
+  [
+   "postmortem 1998 film",
+   "albert pyun"
+  ],
+  [
+   "princess charlotte of saxe meiningen",
+   "ernest ii duke of saxe gotha altenburg"
+  ],
+  [
+   "ranjit singh",
+   "duleep singh"
+  ],
+  [
+   "sir john hamilton dalrymple 5th baronet",
+   "sir hew dalrymple 3rd baronet"
+  ],
+  [
+   "the trouble with cali",
+   "michael sorvino"
+  ],
+  [
+   "the trouble with cali",
+   "paul sorvino"
+  ],
+  [
+   "this time waylon jennings song",
+   "waylon jennings"
+  ],
+  [
+   "thomas of galloway bastard",
+   "alan of galloway"
+  ],
+  [
+   "william de bohun 1st earl of northampton",
+   "edward i of england"
+  ],
+  [
+   "william de bohun 1st earl of northampton",
+   "eleanor of castile"
+  ],
+  [
+   "william de bohun 1st earl of northampton",
+   "elizabeth of rhuddlan"
+  ],
+  [
+   "william de bohun 1st earl of northampton",
+   "humphrey de bohun 7th earl of hereford"
+  ],
+  [
+   "william paulet 3rd marquess of winchester",
+   "john paulet 2nd marquess of winchester"
+  ],
+  [
+   "you can",
+   "madleen kane"
+  ],
+  [
+   "égérie song",
+   "nekfeu"
+  ]
+ ],
+ "seed": 20261020,
+ "construction": "2wikimqa-passage-title-coccurrence + mention-terminated-2hop",
+ "honesty_note": "构造规格与 runbook S3 字面规则的差异（必要修正，实证驱动）：① runbook 原要求路径终点为'黄金答案实体'（answers[0] 须是段落标题），但 2wikimqa 答案类型异构（日期/地点/是否/人名），仅 66/200 的 answers[0] 命中段落标题，字面构造全库仅 4/200 存在 2 跳路径，远不足预注册的 40 查询。故终点放宽为'中间节点文章文本词边界提及答案字符串'（2wiki 桥接结构：桥接实体的文章包含答案），中间节点即 gold intermediate；答案实体自身从 mid 候选中排除。② 实体=段落首行标题（Wikipedia 式实体名行），规范化=小写+去标点+空白折叠，同名实体全局去重文本合并。③ 有向边 A→B=A 的词边界文本提及 B 的标题（含前导冠词 the/a/an 容忍）；路径搜索在无向化图上进行（共现关系本为对称，方向仅作记录）；子串匹配会产生 'dr'/'tom' 类伪桥（两段文本同含子串即连通），故提及检测一律词边界。④ 查询筛选：问题中词边界提及的标题实体为候选主语（排除答案实体），任一候选主语的邻居中，其文本提及答案字符串者为 gold intermediate（并集）。⑤ 111/200 合格；seed=20261020 洗牌后按 60 实体预算贪心选取（确定性），实选 30 条查询/60 实体/58 边；gold_intermediate 为构造定义的桥接候选集（同一样本可含多个桥），A/B 两侧同一标尺，绝对值随构造而变。⑥ 与 proxy 的 multihop_20261020.json 构造不同（proxy 文件不在 Hub），proxy 参考值 A=0.05/8、B=0.2125/6 仅作口径参照。"
+}

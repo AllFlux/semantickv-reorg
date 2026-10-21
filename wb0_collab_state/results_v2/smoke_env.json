@@ -1,0 +1,17 @@
+{
+ "stage": "S2 smoke (ENV-DIAG)",
+ "ts": "2026-10-21 16:38:42",
+ "prompt": "The capital of France is",
+ "max_new_tokens": 16,
+ "do_sample": false,
+ "output": "The capital of France is Paris. The capital of Germany is Berlin. The capital of Italy is Rome.",
+ "output_sha256": "3759c44dc9c82bc36bdc8e8ecf0847f32351dab12ed3d08b0246749d89772ddb",
+ "env": {
+  "device": "cpu",
+  "dtype": "bfloat16",
+  "threads": 4,
+  "torch": "2.10.0+cu128",
+  "transformers": "5.1.0"
+ },
+ "generate_time_s": 5.86
+}
