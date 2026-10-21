@@ -1,0 +1,25 @@
+review_id: WB2-20261021-EXEC-02
+target: WB2
+date: "2026-10-21"
+id: WB2-20261021-EXEC-02
+hypotheses:
+  - id: H-WB2-EXEC-02
+    prediction: "WB1 健康报告在位且时效正确、b_routers 18 权重清单完整、WB0 trial_1900 落证一致——三项均成立"
+    status: confirmed
+    falsifiable_criterion: "任一 R 项与实拉不符即 refuted 并在正文注明不符点；三项均符则 confirmed"
+    actual_data:
+      executed_at: "2026-10-21 21:18:25 GMT+8 (ts=1792588705)"
+      R1_wb1_report_present: "是。results_v2/wb1_executor_health_20261021.yaml 在 /api/files 全量清单在位，id=r2_wb1_executor_health_20261021，mtime=1792582380（2026-10-21 19:33:00 GMT+8），落在 19:30-19:45 窗口；本次实拉确认其存在且 mtime 处于 WB1 EXEC-01（19:30 触发）之后，证明 WB1 本轮确已执行而非历史遗留。机检结论：/api/reviews 中 WB1-20261021-EXEC-01 = PASS（sha256 前16位 b39f55c88989ba98，mtime=1792582372=19:32:52）。"
+      R1_actual_data_real: "逐字段核验，无 null 堆积：executed_at=2026-10-21 19:31:49 GMT+8(ts=1792582309) 实值；hub_ledger_version=0.28 与本方实拉 ledger 一致；hypotheses_total=23、open_items_count=6 为实数；files_total=62 与 WB1 拉取时点自洽；latest_files 3 条均带 id+mtime 实数（r2_wb1_ab_run_status mtime=1792582230 等，与清单一致）；open_auto_instructions=5；endpoints_pulled 列 /api/state、/api/ledger、/api/files、/api/instructions 四端点均标 HTTP 200。结论：全部字段有实拉痕迹。"
+      R2_b_routers_count: "18。/api/files 中 id 前缀 r2_b_routers/ 计数=18，等于基线 18；18 个权重 sha256 均非空。"
+      R2_spotcheck:
+        - "r2_b_routers/b_router_K64_differentiable_pr_zscore sha256=e12bb224d3770cde（与清单一致）"
+        - "r2_b_routers/b_router_K8_reinforce_ema_raw sha256=70d947a661df04d3（与清单一致）"
+        - "r2_b_routers/b_router_K16_differentiable_pr sha256=2e222842dc50731f（与清单一致）"
+      R3_trial_1900_present: "是。results_v2/wb1_ab_run_status.json（mtime=1792582230=2026-10-21 19:30:30 GMT+8）scheduler_state.trial_1900 字段存在，内容原文：「WB0统一唤醒 19:00 首跑成功：Hub访问日志19:00:48-19:02:11完整巡检序列……」，明确提及「19:00 首跑」，与 WB0 落证一致。"
+      notes: "复核方法：全部结论来自 Hub 公网 API 实拉（GET /api/files、/api/file/<id>、/api/reviews、/api/instructions），未沿用 WB1 报告自述作为证据（其报告本身即被复核对象）；未修改、覆盖 WB1 任何产物；未执行本指令之外的任何动作。三项均与实拉相符，hypothesis 判 confirmed。"
+collaboration_audit:
+  blackbox_isolation: "WB2 仅经 Hub 公网 API（sharecode=V6GYQIUI7Z 会话）与外部交互，未读取 WB1/WB0 私有数据；本回执全部数值来自本轮实拉响应，无估算、无沿用 WB1 报告自述。"
+  interface_alignment: "会话建立（sharecode=V6GYQIUI7Z）→ GET /api/files 全量清单 + GET /api/file/r2_wb1_executor_health_20261021、/api/file/r2_wb1_ab_run_status、/api/files(b_routers) 实拉（R1/R2/R3）→ POST /api/review 机检 → POST /api/upload 留档（relpath=results_v2/wb2_executor_verify_20261021.yaml），接口序列与 EXEC-02 指令步骤 1-4 一致。"
+falsifiable_criterion: "任一 R 项与实拉不符即 refuted 并在正文注明不符点；三项均符则 confirmed"
+status: confirmed
