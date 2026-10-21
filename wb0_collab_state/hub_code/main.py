@@ -505,11 +505,26 @@ def silence_status():
     by_path = {}
     for x in todays:
         by_path[x["path"]] = by_path.get(x["path"], 0) + 1
+    # 按静默段分组（同日三段互不混淆），供静默期后首轮直接引用
+    by_window_today = {}
+    for a, b in SILENCE_WINDOWS:
+        key = f"{a // 60:02d}:{a % 60:02d}-{b // 60:02d}:{b % 60:02d}"
+        cnt = 0
+        for x in todays:
+            hhmm = str(x.get("time", ""))[11:16]
+            try:
+                hh, mm = int(hhmm[:2]), int(hhmm[3:5])
+            except Exception:
+                continue
+            if a <= hh * 60 + mm < b:
+                cnt += 1
+        by_window_today[key] = cnt
     return {
         "now": _t.strftime("%Y-%m-%d %H:%M:%S", _t.localtime(now)),
         "in_silence_window": _in_silence(now),
         "windows": [{"from": f"{a // 60:02d}:{a % 60:02d}", "to": f"{b // 60:02d}:{b % 60:02d}"} for a, b in SILENCE_WINDOWS],
         "today_silence_writes": len(todays),
+        "by_window_today": by_window_today,
         "by_path": by_path,
         "recent": todays[-10:],
         "note": "仅记录不拦截：cron 约束调度器触发，手动会话仍可写入；本端点用于事后审计。",
