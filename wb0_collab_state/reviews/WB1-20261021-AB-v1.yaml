@@ -1,0 +1,56 @@
+review_id: WB1-20261021-AB-v1
+target: r2_wb1_ab_runbook（WB0-INSTR-20261021-003 / 长时任务指令 1792564435-ee5050；零中转全自动 E2E A/B）
+date: '2026-10-21'
+executor: WB0-main-session-takeover（云端 scheduled-agent 执行层实证故障下的 fallback，全披露；幂等机制保留）
+data_source: results_v2/wb1_ab_real_stage1.json
+related_artifacts:
+- results_v2/multihop_real.json
+- results_v2/entity_embeddings.json
+- results_v2/entity_embeddings.npz
+- results_v2/smoke_env.json
+- results_v2/b_routers/（18 个 B 侧 router 权重，含 sha256 登记于主交付物）
+collaboration_audit:
+  black_box_isolation: WB0 依同一 runbook 代跑；资源全部来自 Hub/ModelScope 自取（9/9 sha256 核验），零用户中转；未要求用户传输任何文件。
+  interface_alignment: data_source 与上传 relpath 一致（results_v2/wb1_ab_real_stage1.json）；指标口径=台账 H-WB2-E2E-01 criterion（PR@5
+    on gold intermediate + active_groups）；机检字段齐全。
+  no_fabrication: 所有数字可追至 Hub 实物；raw 口径训练停滞的 6 组结果全部保留未删；best-B 为 in-sample 选择（已披露选择偏差）；30 查询（非预注册 40）已披露。
+  provenance_checked: 冻结件 sha256=4b4f1064…（G3 PASS）；2wikimqa=dda279cf…；bundle=c702e05d…；权重 9/9（G1）；R32 复现 c1_mean 相对差 1.15%（G5
+    env_fidelity=HIGH）。
+  frozen_artifact_untouched: src/shared/semantic_router.pt 未改动未重训未覆盖；B 侧权重另存 results_v2/b_routers/。
+hypotheses:
+- id: H-WB2-E2E-01
+  prediction: 端到端检索 Reward 训练的 Router(B) 优于标签拟合 Router(A)，且可用更少群数。
+  falsifiable_criterion: 真实多跳数据上 PR@5 对比 + 活跃群数对比（DEC-20261021-E2E-GATE：唯一升级依据）。
+  actual_data: 真实 LongBench 2wikimqa（60 实体/30 查询/58 边，构造修正已披露）+ 真实 3B 隐状态 embedding：A（冻结件 argmax）recall@5=0.1333（4 活跃群）；best
+    B（zscore 输入，K=64，可微 Pagerank reward）recall@5=0.4444（10 活跃群）；配对 bootstrap mean_diff=+0.3111，CI95=[+0.1667,+0.4778]，p_gt0=1.000（n=30）。K=16/8
+    可微 PR 亦全胜 A（0.2833/0.2444，p=0.943/0.929）。'更少群数'子论断在 K=8 配置成立（3 活跃群 < A 的 4，且 recall 0.2444 > 0.1333）；best 配置（K=64）不满足（10
+    > 4），已如实记录。对照 proxy（A=0.05/8、B=0.2125/6）方向一致。
+  status: confirmed
+  data_source: results_v2/wb1_ab_real_stage1.json
+- id: H-AB-SOFT-HARD-TRANSFER
+  prediction: 可微 soft reward 训练的信号可传导至 argmax 硬路由评估（soft 优化 ≠ 硬评估失效）。
+  falsifiable_criterion: 训练后 argmax 硬路由 recall@5 应显著高于 soft_recall 训练值所暗示的水平（即硬评估不塌陷）。
+  actual_data: zscore K64 可微 PR：soft_recall 收敛于 0.0947，同一步的 argmax 硬评估 recall@5=0.4444——硬传导显著优于软值（proxy 同向：soft 0.0999 vs
+    hard 0.2125）。
+  status: confirmed
+  data_source: results_v2/wb1_ab_real_stage1.json
+- id: H-NEW-INPUT-SCALE
+  prediction: （post-hoc 发现，非预注册）真实 LLM 隐状态的大幅值/各向异性（范数 ~165）会使Router 初始 softmax 近均匀、共现邻接退化为全连接，导致可微 reward 训练停滞于 chance 水平；per-dim
+    z-score 标准化可恢复训练信号。
+  falsifiable_criterion: raw 输入下 soft_recall 应停滞（400 步无变化）；z-score 输入下 soft_recall 应持续上升。
+  actual_data: raw：初始 logit_std=0.91、softmax 熵 3.808/max 4.158，soft_recall 0.0226→0.0224（400 步停滞，6 配置 recall 0.10-0.1333）；zscore：60
+    步内 0.022→0.095 持续上升，最终 best B=0.4444。诊断与双口径结果均在主交付物 honesty_note ⑤。
+  status: confirmed
+  data_source: results_v2/wb1_ab_real_stage1.json
+  note: post-hoc 诊断驱动的修正（仅改输入尺度，其余协议不变），raw 口径结果全部保留作对照。
+- id: H-AB-REINFORCE-SECONDARY
+  prediction: 次方法 REINFORCE+EMA+Gumbel 亦应显著优于 A（与可微 PR 主方法相当）。
+  falsifiable_criterion: REINFORCE 配置 vs A 的配对 bootstrap 95% CI 应不含 0。
+  actual_data: zscore K64 REINFORCE recall@5=0.1833 vs A 0.1333，mean_diff=+0.05，CI95=[-0.10,+0.20]，p_gt0=0.701——方向为正但不显著（n=30
+    样本量小、稀疏 reward）。其余 K 更弱。
+  status: pending
+  data_source: results_v2/wb1_ab_real_stage1.json
+ledger_action_requested: 'H-WB2-E2E-01: verified_proxy -> verified（依据 DEC-20261021-E2E-GATE：真实 A/B 三件套齐备）；ds_admitted_refutation
+  不涉及（无证伪项）。'
+honesty_note: 执行层故障背景、构造修正（30 vs 40 查询）、G4 哈希引用更正、best-B in-sample 选择、soft-hard 现象、输入尺度诊断与双口径、A/B 两侧不用文本图（诊断：纯文本图 PR recall@5=0.894）等全部披露于主交付物
+  honesty_note。

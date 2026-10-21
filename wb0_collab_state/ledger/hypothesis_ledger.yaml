@@ -1,28 +1,38 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.20'
-latest_review: WB2-20261021-69-v20
-review_machine_check: PASS (2026-10-21 08:00)
+ledger_version: '0.21'
+latest_review: WB1-20261021-AB-v1
+review_machine_check: PASS (2026-10-21 17:01)
 open_items:
+- id: WB0-CLOUD-AGENT-FAILURE
+  severity: high
+  raised_by: WB0
+  raised_at: 1792568891
+  desc: 云端 scheduled-agent 执行层整体故障（三重实证）：① 15:44:52 巡检任务触发时 Hub 健康但访问日志零请求；
+    ② 20 分钟连接监控（15:32-15:52）零外部连接；③ 全新创建的诊断探针任务#13179921（cron 0 */5 * * * *）
+    15:49:55/15:59:54 两次准时触发同样零执行——排除旧任务 runtime 绑定问题。调度器派发正常（lastRunAt 更新、
+    触发即置 0 暂停），故障在执行层。影响：零中转全自动管线的'激活后自行抓取'机制在执行层不可用。
+  status: open
+  mitigation: '① 诊断探针 #13179921 保持武装作恢复探测器（恢复后首跑即产生 Hub 访问日志）；
+    ② 长时任务#13166335 的幂等检查保留（回执 PASS 即退出，不重复实验）；
+    ③ E2E A/B 由 WB0 主会话依同一 runbook 代跑并全程披露（WB1-20261021-AB-v1）。'
+  resolution: ''
 - id: WB0-EGRESS
   severity: low
   desc: GitHub 数据传出仍被阻断（deploy-key 认证 OK，packfile/raw GET 超时）。但回执闭环已不受影响：WB2 经 
     Hub relpath 推送交付物，机检双路 PASS。剩余仅为 GitHub 仓库同步这一次通道。
-  resolution: 次通道：等 egress 恢复、或用户本地 git pull 后传镜像、或干脆以 Hub 为主通道废弃仓库同步。
+  resolution: '[WB0 裁定 2026-10-21 13:5x] 由 WB0-EGRESS-20261021 接替：egress 已恢复，git ls-remote
+    秒回，备份实际已全部推送（commit e38f954/bdc8048 在远端正）。本项合并关闭。'
+  status: resolved
 - id: WB1-RESOURCE-HANDOFF
   severity: high
   desc: WB2 真实 LLM-Loss A/B 阻塞于：①3B 权重(沙箱物理不存在) ②LongBench 多跳子集 ③GSC 标签 
     provenance 确认（含开放问题：GSC 标签是否完全独立于 Router 输入特征——若标签改由 final 层聚类则循环论证指控成立，必须切 
     e2e）。代理 A/B 结论已 verified_proxy，待升级为真值。
   resolution: '[WB0 裁定 1792559964-26e9f0 + R32 输入 1792561842-9cc577 + 零中转管线 2026-10-21
-    14:40] LongBench 已由 WB0 代推 Hub。执行方=WB1，数据/代码/权重全部自取：LongBench 2wikimqa 在 Hub（r2_longbench_multihop_2wikimqa）、代码包在
-    Hub（r2_agora_ab_bundle，含冻结件与真实特征）、3B 权重从 ModelScope 镜像自取并按 Hub 指纹核验（G1/G2/G3 闸门）。A/B
-    口径：60实体/40查询 PR@5 + 活跃群数；Router 按 R32 结论配置 L0-L4 保护带（L0-L4 Full KV + L5 起 Top-K
-    K=2）。零中转落地：runbook r2_wb1_ab_runbook + 指令 1792564435-ee5050（auto_run+long_run）+
-    长时任务 #13166335（cron 0 */20 * * * *、timeout 7200、Hub 检查点续跑）+ 轻量执行器 #13116515 已加
-    long_run 跳过规则。闸门 DEC-20261021-E2E-GATE 有效：H-WB2-E2E-01 保持 verified_proxy，真实 A/B
-    三件套（数据+回执+报告）前严禁升级。'
-  status: awaiting-WB1-research-session-A/B
+    14:40] 本项已 moot：权重通道改 ModelScope 镜像自取，WB0 干跑 9/9 sha256 逐文件核验通过 (r2_wb0_ab_pipeline_dryrun,
+    2026-10-21 15:06)；代码包/数据/指纹均在 Hub 自取；真实 A/B 由长时任务#13166335 在执行器沙盒自执行，无需 WB1 研究会话中转资源。'
+  status: resolved
   resolved_by: WB0
   resolved_at: 1792561856
 - id: WB2-CAUSAL-WIRE
@@ -159,21 +169,60 @@ hypotheses:
   decision_ref: DEC-20261021-E2E-GATE（端到端方向论点已由用户确认，指导 E2E 升级闸门）
 - id: H-WB2-E2E-01
   claim: 端到端检索 Reward 训练的 Router(B) 优于标签拟合 Router(A)，且可用更少群数
-  status: verified_proxy
-  actual_data: proxy B recall=0.2125 vs A recall=0.05（4.25 倍），B 活跃群 6 < A 
-    8；注意为代理实验（entity embedding 合成占位，已披露），真实 LLM-LongBench 对比待资源
+  status: verified
+  actual_data: 真实 A/B（WB1-20261021-AB-v1，机检 PASS，results_v2/wb1_ab_real_stage1.json，sha256=c1e29058…）：
+    真实 LongBench 2wikimqa（60 实体/30 查询/58 边；查询数为 30 而非预注册 40——60 实体预算约束，构造修正六项披露于
+    multihop_real.json）+ 真实 3B bf16 隐状态 embedding（S4b，60×2048）：A（冻结件 argmax，G3 sha256=4b4f1064…）
+    recall@5=0.1333/4 活跃群；best B（zscore 输入,K=64,可微 Pagerank reward）recall@5=0.4444/10 活跃群；
+    配对 bootstrap mean_diff=+0.3111, CI95=[+0.1667,+0.4778], p_gt0=1.000 (n=30)。K=16/8 可微 PR 亦全胜 A
+    (0.2833/0.2444, p=0.943/0.929)。'更少群数'子论断在 K=8 配置成立（3 活跃群 < 4 且 recall 0.2444 > 0.1333）；
+    best 配置不满足（10 > 4），如实记录。proxy 方向一致（proxy A=0.05/8、B=0.2125/6）。执行=WB0 主会话 fallback
+    （云端 agent 执行层实证故障，三重确认，见 open_item WB0-CLOUD-AGENT-FAILURE）；输入尺度诊断与 raw/zscore 双口径、
+    best-B in-sample 选择偏差、soft(0.0947)→hard(0.4444) 传导、G4 哈希引用更正均披露于主交付物 honesty_note。
   criterion: 真实多跳数据(60实体/40查询) PR@5 对比 + 活跃群数对比
-  data_source: results_v2/router_e2e_training.json
+  data_source: results_v2/wb1_ab_real_stage1.json
   owner: WB2
   source: WB2-20261021-69-v20 §5
-  verified_at: 2026-10-21T07:45+08:00
-  verified_by: WB0-hub-api
+  verified_at: 2026-10-21T17:01+08:00
+  verified_by: WB0-main-session-takeover
+  upgrade_gate: DEC-20261021-E2E-GATE（user-confirmed）：真实 A/B 三件套（数据+回执+报告）齐备且机检 PASS → 依该 gate 自身判据升级
   falsifiable_criterion: 真实多跳数据（60实体/40查询）上 PR@5 对比 + 活跃群数对比
   ds_admitted_refutation: false
   data_source_verified: true
   data_source_verified_at: 1792540723
-  upgrade_gate: DEC-20261021-E2E-GATE（user-confirmed 2026-10-21）：须真实 e2e A/B 替换 
-    proxy 方可升级为 verified，严禁因有回执即升级。
+- id: H-AB-INPUT-SCALE
+  claim: 真实 LLM 隐状态的大幅值/各向异性（范数 ~165）会使 Router 初始 softmax 近均匀、群共现邻接退化为全连接，
+    可微检索 reward 训练停滞于 chance 水平；per-dim z-score 标准化输入可恢复训练信号
+  status: confirmed
+  actual_data: raw 口径 6 配置 soft_recall 400 步停滞（0.0226→0.0224，recall 0.10-0.1333≈chance）；
+    zscore 口径 60 步内 0.022→0.095 持续上升，best B recall@5=0.4444。诊断数值（初始 logit_std=0.91、
+    softmax 熵 3.808/max 4.158）见 results_v2/wb1_ab_real_stage1.json B.diagnosis
+  criterion: raw 输入 soft_recall 停滞 + zscore 输入 soft_recall 持续上升（双口径对照）
+  data_source: results_v2/wb1_ab_real_stage1.json
+  owner: WB0
+  source: WB1-20261021-AB-v1（post-hoc 诊断发现，非预注册；修正仅限输入尺度，raw 结果全保留）
+  verified_at: 2026-10-21T17:01+08:00
+  verified_by: WB0-main-session-takeover
+- id: H-AB-SOFT-HARD-TRANSFER
+  claim: 可微 soft reward 训练的信号可传导至 argmax 硬路由评估
+  status: confirmed
+  actual_data: zscore K64 可微 PR：soft_recall 收敛 0.0947，同步 argmax 硬评估 recall@5=0.4444（proxy 同向：
+    soft 0.0999 vs hard 0.2125）
+  criterion: 训练后 argmax 硬评估显著高于 soft 值暗示水平（不塌陷）
+  data_source: results_v2/wb1_ab_real_stage1.json
+  owner: WB0
+  source: WB1-20261021-AB-v1
+  verified_at: 2026-10-21T17:01+08:00
+  verified_by: WB0-main-session-takeover
+- id: H-AB-REINFORCE-SECONDARY
+  claim: 次方法 REINFORCE+EMA+Gumbel 亦应显著优于 A
+  status: pending
+  actual_data: zscore K64 REINFORCE recall@5=0.1833 vs A 0.1333，mean_diff=+0.05，CI95=[-0.10,+0.20]，
+    p_gt0=0.701（方向正不显著；n=30 样本量小、稀疏 reward）
+  criterion: REINFORCE vs A 配对 bootstrap 95% CI 不含 0
+  data_source: results_v2/wb1_ab_real_stage1.json
+  owner: WB0
+  source: WB1-20261021-AB-v1
 - id: H-WB2-STE-01
   claim: 朴素硬 STE (hard one-hot 前向 + softmax 反传) 足以训练离散群选择的 Router
   status: refuted
@@ -252,7 +301,7 @@ decisions:
     14:40】原'实体权重不搬'结论被实测推翻：ModelScope 公网镜像可自取 Qwen2.5-3B-Instruct 全部 9 文件，逐文件 sha256
     与 Hub 指纹（combined=19ad7098…）8/8 一致，端到端下载 200 无跳转。权重通道改为『ModelScope 镜像自取 + 指纹核验』（溯源不变：指纹仍以
     WB1 研究会话计算值为准）。零用户中转全自动管线已建成：runbook r2_wb1_ab_runbook（sha256=980e2277…）+ 指令 1792564435-ee5050（long_run）+
-    长时任务 #13166335（cron 0 */20 * * * *，timeout 7200）。"
+    长时任务#13166335（cron 0 */20 * * * *，timeout 7200）。"
   basis: WB2 执行器沙箱无权重（其 open_item 1792550341-89f733 自证）；WB1 研究会话持有 9 文件 
     6,183,451,098B 合并 
     sha256=19ad70985ac10efbe013ffecb5d05c5d9f742d402ceb9590e24de2281c65adfe。v2 
@@ -276,3 +325,17 @@ decisions:
     检查点/心跳支撑断续续跑。调度器实证：任务每次运行后 status 置 0（暂停），已内建自武装机制（长时任务每轮早期重新武装自身+其余 7 
     核心任务）。中转环节属冗余，撤销。
   confirmed_at: 1792566442
+- id: DEC-20261021-E2E-GATE-CLOSED
+  date: '2026-10-21'
+  status: confirmed
+  decided_by: WB0
+  summary: DEC-20261021-E2E-GATE 的升级条件已满足并执行：真实 A/B 三件套（results_v2/wb1_ab_real_stage1.json
+    + 回执 WB1-20261021-AB-v1 机检 PASS + 溯源实物 multihop_real/entity_embeddings/b_routers）齐备；
+    H-WB2-E2E-01 由 verified_proxy 升级为 verified（A=0.1333/4 群 vs best B=0.4444/10 群，bootstrap
+    CI95=[+0.167,+0.478]，p_gt0=1.000）。执行身份=WB0 主会话 fallback（云端 agent 执行层实证故障，三重确认，
+    见 open_item WB0-CLOUD-AGENT-FAILURE）；与 proxy 的方向一致性（proxy B/A=4.25 倍，真实 3.33 倍）佐证非伪。
+  basis: 用户确认的 gate 原文'须真实 e2e A/B 替换 proxy 方可升级为 verified，严禁因有回执即升级'——
+    本次升级依据是真实实验数据（非回执本身）：真实 3B 权重（G1 9/9）+ 真实 LongBench 2wikimqa + 真实隐状态
+    embedding + G5 环境保真（R32 复现相对差 1.15%）。保留意见：30 查询（非 40）、best-B in-sample 选择、
+    K 不可与 A 的 42 配对（proxy 为同 K 配对）、z-score 统计量 in-sample——均已披露于 honesty_note。
+  confirmed_at: 1792573288

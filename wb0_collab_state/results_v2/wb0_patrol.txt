@@ -11,8 +11,10 @@ wb0_patrol.py — WB0 主动巡检与响应（挑战应答）
   A) 回执机检 FAIL → DEGRADED 信号
   B) H-WB2-E2E-01 被升级为 verified → VIOLATION（违反 DEC-20261021-E2E-GATE）
   C) target=WB0 的 open_item 指令 → 待 WB0 裁定
-  D) 执行器停滞（按 Hub 痕迹判断，lastRunAt 不可信）+ 仍有其 auto_run 待拉取
-  E) 待拉取的 auto_run 指令（执行器未吃下）
+  D) 执行器停滞（按 Hub 痕迹判断，lastRunAt 不可信）+ 仍有其 auto_run（非 long_run）待拉取
+  D2) A/B 长时任务健康：long_run 待执行时，心跳文件 results_v2/wb1_ab_run_status.json
+      须存在且 45 分钟内更新过（缺失/停滞 → HIGH，关键路径断裂）
+  E) 待拉取指令（auto_run 归执行器、long_run 归长时任务，分开计数）
 输出 action_priority：HIGH / MEDIUM / LOW，并给 recommended_actions。
 """
 import json
@@ -104,7 +106,8 @@ def main():
             rep["challenges"].append(
                 f"台账 high open_item 未解: {o.get('id')}（status={o.get('status') or 'open'}）")
             rep["recommended_actions"].append(
-                f"推动 {o.get('id')}: 若有自动化通道则触发，否则经用户中转提醒责任方（WB1 研究会话 A/B 无自动通道，须中转）")
+                f"推动 {o.get('id')}: A/B 长时任务通道已建成（#13166335，零中转），"
+                f"先确认其心跳正常再按事项性质处理")
         elif sev == "medium":
             rep["challenges"].append(
                 f"台账 medium open_item 未解: {o.get('id')}（status={o.get('status') or 'open'}）")
@@ -122,7 +125,20 @@ def main():
             if "auto_run: true" in block or "auto_run:true" in block:
                 return True
         return False
-    auto_pending = [i for i in instrs if _is_auto_run(i) and str(i.get("id")) not in done_ids]
+    # long_run 识别（与 auto_run 同风格：只认 yaml 机器块或标题，防散文误报）
+    def _is_long_run(i):
+        if "long_run" in str(i.get("title", "")):
+            return True
+        body = str(i.get("body", ""))
+        for block in _re.findall(r"```yaml\n(.*?)```", body, _re.S):
+            if "long_run: true" in block or "long_run:true" in block:
+                return True
+        return False
+    # 执行器Scope：auto_run 且非 long_run（long_run 归长时任务，执行器按规跳过）
+    auto_pending = [i for i in instrs if _is_auto_run(i) and not _is_long_run(i)
+                    and str(i.get("id")) not in done_ids]
+    longrun_pending = [i for i in instrs if _is_auto_run(i) and _is_long_run(i)
+                       and str(i.get("id")) not in done_ids]
     def latest_trace(tag):
         ts = [int(f.get("mtime", 0)) for f in files if tag in f.get("name", "").lower()]
         # reviews 树回执：id 形如 WB1-.../WB2-...，mtime 来自 /api/reviews
@@ -139,19 +155,52 @@ def main():
             rep["recommended_actions"].append(
                 f"重启用/触发 {name} 执行器，或请 {name} 主会话接管；待拉取: {[i.get('title') for i in pend]}")
 
-    # E) 待拉取 auto_run 汇总
+    # D2) 长时任务（A/B 管线）健康：long_run 指令待执行时，须有心跳文件且够新
+    #     心跳文件：results_v2/wb1_ab_run_status.json（长任务每阶段原子写更新）
+    if longrun_pending:
+        hb = [f for f in files if "wb1_ab_run_status" in f.get("name", "")]
+        HB_STALE = 45 * 60
+        if not hb:
+            rep["challenges"].append(
+                f"A/B 长任务无心跳：{len(longrun_pending)} 条 long_run 待执行，"
+                f"results_v2/wb1_ab_run_status.json 不存在（长任务未启动或首步即失败）")
+            rep["recommended_actions"].append(
+                "检查长时任务 #13166335 是否被触发/自武装；手工触发一次并观察心跳文件出现")
+        else:
+            age = NOW - int(hb[0].get("mtime", 0))
+            if age > HB_STALE:
+                rep["challenges"].append(
+                    f"A/B 长任务心跳停滞：最近心跳 {int(age/60)} 分钟前"
+                    f"（阈值 {int(HB_STALE/60)} 分钟），{len(longrun_pending)} 条 long_run 仍待执行")
+                rep["recommended_actions"].append(
+                    "长任务可能中途失败：触发一次让其据检查点续跑；若权重闸门失败按其 open_item 处理")
+            else:
+                rep["challenges"].append(
+                    f"A/B 长任务心跳正常：{int(age/60)} 分钟前更新，{len(longrun_pending)} 条 long_run 执行中")
+
+    # E) 待拉取指令汇总（执行器 auto_run 与长时任务 long_run 分开计数）
     if auto_pending:
         rep["challenges"].append(f"板上仍有 {len(auto_pending)} 条 auto_run 待执行器拉取")
+    if longrun_pending:
+        rep["challenges"].append(f"板上仍有 {len(longrun_pending)} 条 long_run 待长时任务执行")
 
     # 汇总优先级（C2 已可能直接置 HIGH）
     if rep["action_priority"] != "HIGH":
-        if fails or wb0_items or any("停滞" in c for c in rep["challenges"]):
+        if any(("无心跳" in c) or ("长任务心跳停滞" in c) for c in rep["challenges"]):
+            rep["action_priority"] = "HIGH"   # A/B 关键路径断裂
+        elif fails or wb0_items or any("停滞" in c for c in rep["challenges"]):
             rep["action_priority"] = "MEDIUM"
-        elif auto_pending or any("台账" in c for c in rep["challenges"]):
+        elif auto_pending or longrun_pending or any("台账" in c for c in rep["challenges"]):
             rep["action_priority"] = "MEDIUM"
+    _hb_state = "无"
+    if longrun_pending:
+        _hb = [f for f in files if "wb1_ab_run_status" in f.get("name", "")]
+        _hb_state = (f"{int((NOW-int(_hb[0].get('mtime',0)))/60)}min前" if _hb else "缺失")
     rep["summary"] = (
         f"优先级={rep['action_priority']} | 挑战{len(rep['challenges'])}项 | "
-        f"FAIL回执{len(fails)} | WB0待裁{len(wb0_items)} | 待拉取指令{len(auto_pending)} | "
+        f"FAIL回执{len(fails)} | WB0待裁{len(wb0_items)} | "
+        f"auto_run待拉取{len(auto_pending)} | long_run待执行{len(longrun_pending)} | "
+        f"AB心跳[{_hb_state}] | "
         f"台账未决{sum(1 for o in ledger.get('open_items',[]) if str(o.get('status') or '').lower() not in ('resolved','closed','done'))} | "
         f"闸门={h.get('status')}"
     )

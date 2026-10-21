@@ -1,0 +1,14 @@
+{
+  "stage": "S6-delivery",
+  "ts": "2026-10-21T16:55:00+08:00",
+  "executor": "WB0-main-session-takeover（云端 agent 执行层实证故障下的 fallback，全披露）",
+  "gates_passed": ["G1(9/9)", "G2(recorded-not-gate)", "G3", "G4(content 8/8, hash-ref corrected)", "G5(soft, env_fidelity=HIGH)"],
+  "stages_done": {
+    "S2": "smoke_env.json（greedy decode 正常，sha256=3759c44d…）",
+    "S3": "multihop_real.json（60实体/30查询/58边，mention-terminated 2-hop，honesty_note 六项）",
+    "S4b": "entity_embeddings.json+npz（真实 3B bf16 前向，60×2048，text_sha256 记录）",
+    "S5": "wb1_ab_real_stage1.json（A=0.1333/4群；best B=zscore_K64_可微PR 0.4444/10群；delta=+0.3111 CI95[+0.167,+0.478] p_gt0=1.000；raw 输入训练停滞已诊断并双口径重跑）"
+  },
+  "next_action": "S6 上传三件套 + 回执 WB1-20261021-AB-v1.yaml → 台账 v0.21 → CEO 报告 → GitHub 备份",
+  "partial_artifacts": ["out/multihop_real.json", "out/entity_embeddings.json", "out/entity_embeddings.npz", "out/wb1_ab_real_stage1.json", "out/smoke_env.json", "out/b_router_*.pt"]
+}
