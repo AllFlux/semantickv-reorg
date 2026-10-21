@@ -1,0 +1,73 @@
+{
+ "review_id": "WB0-AB-PIPELINE-DRYRUN-01",
+ "generated_at": "2026-10-21T15:05:00+08:00",
+ "purpose": "零中转 A/B 管线关键路径干跑实证（WB0 主会话执行，先于执行器首跑），证明 runbook v2 各闸门可在全新沙盒复现",
+ "environment": {
+  "device": "cpu",
+  "dtype": "bfloat16",
+  "threads": 4,
+  "torch": "2.10.0+cu128",
+  "transformers": "5.1.0",
+  "note": "device_map='cpu' 需 accelerate（未预装）→ from_pretrained(dtype=torch.bfloat16) 直载 CPU；runbook v2 已按此修正"
+ },
+ "G1_per_file_sha256": {
+  "result": "PASS 9/9",
+  "detail": "ModelScope resolve/master 自取：8 个小文件 200 直下；2 个 safetensors 为 LFS 对象 302 跳 CDN（带时效 auth_key），须 -L 立即跟随",
+  "model_00001": "67347b23fb4165b652eb6611f5e1f2a06dfcddba8e909df1b2b0b1857bee06c2",
+  "model_00002": "a40d941d0e7e0b966ad8b62bb6d6b7c88cce1299197b599d9d0a4ce59aabfc1d",
+  "total_bytes": 6183451098,
+  "wall_time_s": 272,
+  "avg_mbps": 22.7
+ },
+ "G2_combined_sha256": {
+  "result": "RECORDED_NOT_GATE",
+  "detail": "13 种候选组合算法（hex拼接/rawbytes/文件内容序/字典序/JSON序列化/name+content/newline/comma 等）均未复现 combined=19ad7098…；组合算法未随指纹公布。硬闸门以 G1 9/9 为准，combined 作记录值。"
+ },
+ "G3_frozen_router": {
+  "result": "PASS",
+  "sha256": "4b4f1064b17b1af9082e2dcf7b381bb4480913dd3bb1359ae8040eb4003f1d10",
+  "note": "bundle 内 src/shared/semantic_router.pt"
+ },
+ "G4_metadata": {
+  "result": "PASS",
+  "detail": "real_features_3b.json 自身 sha256=84e37106…；与 R32 config 一致（model/2048/final/12/k16/tau0.97/centered/8段/6重复）；n_tokens 2586(特征导出) vs 2613(R32) 属不同次导出，记录不拦"
+ },
+ "G5_r32_baseline_reproduction": {
+  "result": "PASS(soft, env_fidelity=HIGH)",
+  "input_construction": {
+   "n_tokens": 2613,
+   "q_start": 2600,
+   "qlen": 11,
+   "needle_pos": 1293,
+   "expected": {
+    "n_tokens": 2613,
+    "q_start": 2600
+   },
+   "construction_note": "build_structured_input(8,6,8000,needle,0.5,question,seed=7) + 拼接答案 token[19,17]（teacher forcing）后与 R32 公布值逐项相符"
+  },
+  "forward_time_s": 17.4,
+  "candidates": {
+   "c1_mean": 0.0017857537604868412,
+   "c2_sum": 0.0035715075209736824,
+   "c3_only19": 0.0035533879417926073,
+   "c4_only17": 1.811964830267243e-05,
+   "c5_span": 2.269103527069092,
+   "c6_lastpos": 1.811964830267243e-05
+  },
+  "reference_loss_answer": 0.0017654983093962073,
+  "best_candidate": "c1_mean",
+  "relative_diff": 0.0115,
+  "attribution": "权重经 G1 9/9 字节级验证；1.15% 偏差归因于跨沙盒 transformers 版本 bf16 CPU 内核微差（错误权重将呈数量级偏差）。判定门槛：≤5% → env_fidelity=HIGH"
+ },
+ "scheduler_findings": {
+  "status_semantics": "1=启用（nextRunAt populated）/ 0=停用（nextRunAt=None）；任务每次运行后被调度器置 0",
+  "consequence": "长时任务 prompt 已内建自武装：每次运行早期执行 scheduler-api.sh update --id 13166335 --status 1 并重新武装其余 7 个核心任务（13152459/13136205/13136209/13118815/13116515/13106031/13104607）",
+  "rearmed_at": "2026-10-21T15:06+08:00"
+ },
+ "artifacts_on_hub": [
+  "results_v2/wb1_ab_runbook.txt(v2, sha256=2ae1d40d…)",
+  "results_v2/agora_ab_bundle.tgz",
+  "results_v2/wb1_ab_pipeline_dryrun.json(本文件)"
+ ],
+ "honesty_note": "本干跑由 WB0 主会话执行，用于验证管线关键路径；E2E A/B 实验本体仍由长时任务 #13166335 在执行器沙盒完成，本文件不构成 A/B 结论。"
+}

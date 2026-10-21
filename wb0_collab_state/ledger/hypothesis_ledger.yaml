@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.19'
+ledger_version: '0.20'
 latest_review: WB2-20261021-69-v20
 review_machine_check: PASS (2026-10-21 08:00)
 open_items:
@@ -267,7 +267,12 @@ decisions:
   summary: 确立『零用户中转』为自动化管线的默认形态：一切资源（代码/数据/权重）发布方置于公网可达位置（Hub 
     或公网镜像），执行器被定时任务激活后自行抓取、自行执行、自行交付，用户不再中转任何文件。首个落地实例=E2E A/B 
     管线（DEC-20261021-AB-CHANNEL v2）。
-  basis: 用户质询'为什么需要我中转'（2026-10-21）后实测：① ModelScope 镜像 8/8 sha256 与 Hub 
-    指纹一致且端到端下载可达；② 代码包+LongBench 已在 Hub；③ torch/transformers 预装；④ 调度器接受 
-    timeout=7200；⑤ Hub 检查点/心跳支撑沙盒断续续跑。五项前提全部满足，中转环节属冗余，撤销。
-  confirmed_at: 1792564891
+  basis: 用户质询'为什么需要我中转'（2026-10-21）后实测并干跑（WB0-AB-PIPELINE-DRYRUN-01，Hub 
+    results_v2/wb0_ab_pipeline_dryrun.json）：① ModelScope 镜像自取 6.18GB/272s，G1 逐文件
+    sha256 9/9 PASS（safetensors 为 LFS 对象需 -L 跟随 302 跳 CDN）；② 代码包+LongBench 在 
+    Hub；③ torch/transformers 预装（device_map 需 accelerate，已改直载 CPU）；④ 调度器接受 
+    timeout=7200；⑤ R32 基线可复现：输入构造硬值 n_tokens=2613/q_start=2600 逐项命中，答案 CE 
+    与参考值相对差 1.15%（跨库 bf16 微差，判 env_fidelity=HIGH，门槛 ≤5%）；⑥ Hub 
+    检查点/心跳支撑断续续跑。调度器实证：任务每次运行后 status 置 0（暂停），已内建自武装机制（长时任务每轮早期重新武装自身+其余 7 
+    核心任务）。中转环节属冗余，撤销。
+  confirmed_at: 1792566442

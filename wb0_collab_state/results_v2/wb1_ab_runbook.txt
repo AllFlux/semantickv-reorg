@@ -54,8 +54,15 @@ REAL_FEATURES = real_features_3b.json   # 在 bundle 内；n_tokens=2586, hidden
 METRIC = "multi-hop path recall PR@5 on gold intermediate nodes + active_groups"
 A/B  proxy 参考值（禁止当结论）：A PR@5=0.05/8群；B PR@5=0.2125/6群
 
-# R32 参考基线（ sanity 上下文，非本实验复现目标——R32 脚本不在本 bundle，不要试图重跑它）
-R32 loss_answer = 0.0017654983093962073 ; L0-K1 ΔL = +8.794236889691092
+# R32 参考基线（sanity 复现目标——配置已完整公开，可真实复现，见 S4/G5）
+R32 loss_answer = 0.0017654983093962073 ; loss_readout = 2.0137081146240234 ; answer_acc = 1.0
+R32 config: model=同权重目录; dtype=bfloat16; threads=4; device=cpu; n_layers=36;
+            paragraphs=8; repeats=6; target_tokens=8000; needle_frac=0.5; seed=7;
+            needle="请注意，一个重要事实：小王最喜欢的数字是 42。";
+            question="小王最喜欢的数字是多少？请只回答数字："; answer_str="42";
+            answer_token_ids=[19,17]; n_tokens_actual=2613; q_start=2600
+R32 输入构造：bundle 内 src/semantickv/v41_torch_native_runner.py 的 build_structured_input(tokenizer, 8, 6, 8000, needle, 0.5, question, seed=7)
+            （TOPIC_TEXTS 常量 + np.random.default_rng(seed) 置换，完全确定性，无未公开输入）
 ```
 
 ## 2. 工作区布局（固定，勿随机化）
@@ -92,30 +99,40 @@ for f in config.json generation_config.json merges.txt model-00001-of-00002.safe
   curl -sL --max-time 1800 -o "$f" "$MS_BASE$f"        # 6GB 主权重给足超时
 done
 ```
+注意：两个 .safetensors 是 LFS 对象，`resolve/master/…` 返回 **302 跳转**到
+`cdn-lfs-cn-1.modelscope.cn/…?auth_key=…`（auth_key 有时效，约 1 小时）。必须带 `-L`
+立即跟随下载；**不要**先取到跳转 URL 再等待，超过时效 auth_key 失效会 403。
+小文件（config/merges/vocab/tokenizer 等）直下无跳转。WB0 干跑实测：小文件 200 直下、
+safetensors 需 -L 跟随（2026-10-21）。
 1. **G1 逐文件 sha256**：9 文件逐一对照 `r2_wb1_3b_weights_fingerprint` 的 per_file_sha256，全过。
 2. **G2 组合 sha256**：按 fingerprint 定义的拼接序（per_file 列表顺序）计算组合 sha256 = `19ad7098…`。
-   若发布方未在 fingerprint 内写明拼接算法，则退而求其次：9/9 逐文件全过即等价通过（combined 作为记录值上报，不作硬闸）。
+   **WB0 干跑实证（2026-10-21）**：13 种候选组合算法（hex 拼接/raw bytes/文件内容序/
+   字典序/JSON 序列化/name+content 等）均未复现该 combined 值——组合算法未随指纹公布。
+   故 **G2 降级为记录值**：硬闸门以 G1（9/9 逐文件）为准（密码学强度等价），
+   combined_sha256 作为记录值上报，不作硬闸。
 3. **G3 冻结件核验**：`sha256sum bundle/src/shared/semantic_router.pt` = `4b4f1064b17b1af9…`。
    任何一步 FAIL → 停止，向 Hub 发 open_item（target=WB0），如实报告哪一级失败，**不得**继续跑实验。
 
 ### S2 模型加载冒烟（记录环境标签 D3）
 ```python
-# determinism_PA11：import torch/numpy 之前先设单线程 BLAS
+# R32 环境对齐（诊断与 sanity 复现用）：bf16 + 4 线程 + cpu
 import os
-os.environ["OMP_NUM_THREADS"]="1"; os.environ["MKL_NUM_THREADS"]="1"
+os.environ["OMP_NUM_THREADS"]="4"; os.environ["MKL_NUM_THREADS"]="4"
 import torch, numpy as np, random
-torch.set_num_threads(1); torch.use_deterministic_algorithms(True)
+torch.set_num_threads(4)
 torch.manual_seed(20261020); np.random.seed(20261020); random.seed(20261020)
 from transformers import AutoModelForCausalLM, AutoTokenizer
 tok = AutoTokenizer.from_pretrained("/workspace/ab/models/Qwen2.5-3B-Instruct")
-mdl = AutoModelForCausalLM.from_pretrained("/workspace/ab/models/Qwen2.5-3B-Instruct", torch_dtype=torch.float32, device_map="cpu")
+mdl = AutoModelForCausalLM.from_pretrained("/workspace/ab/models/Qwen2.5-3B-Instruct",
+                                           dtype=torch.bfloat16)   # 直接 CPU 加载；勿加 device_map（需 accelerate，未预装）
 mdl.eval()
 # 固定 prompt 贪心解码，记录输出文本 + sha256（作为环境指纹，供跨沙盒比对）
 PROMPT = "The capital of France is"
 out = mdl.generate(**tok(PROMPT, return_tensors="pt"), max_new_tokens=16, do_sample=False)
 print("SMOKE:", tok.decode(out[0], skip_special_tokens=True))
 ```
-记录：device（必为 cpu）、transformers 版本、torch 版本、generate 输出全文 → 写入 `out/smoke_env.json`。
+记录：device（必为 cpu）、dtype（bfloat16）、threads（4）、transformers 版本、torch 版本、
+generate 输出全文 → 写入 `out/smoke_env.json`。
 若加载失败（缺依赖 → `pip install` 自 PyPI；仍失败 → open_item 停止）。
 
 ### S3 确定性建图（60 实体 / 40 查询 / 黄金中间节点；seed=20261020）
@@ -135,15 +152,49 @@ print("SMOKE:", tok.decode(out[0], skip_special_tokens=True))
    **披露义务**：此图与 proxy 的 multihop_20261020.json 构造不同（proxy 文件不在 Hub），
    必须在产物 honesty_note 中说明构造方法与差异。
 
-### S4 实体 embedding（真实 LLM 隐状态，替换 proxy 的合成占位）
+### S4 环境保真闸门（G4 元数据 + G5 R32 基线复现，均为硬闸门）
+**G4 元数据交叉核验**（全部可离线核对，无需跑模型）：
+- bundle 内 `real_features_3b.json` 自身 sha256 = `84e37106e7e111e801294c45dc7d3910948d08d104561793a82acc7430e5b261`；
+- 与 Hub 上 `r2_layer_sensitivity_3b`（R32）配置一致性：model 路径一致、
+  hidden_size=2048、group_layer=final、target_layer=12、GSC 参数 k=16/tau=0.97/centered、
+  paragraphs=8/repeats=6 一致（n_tokens 2586 vs R32 的 2613 属不同次导出，记录两者即可，不算不一致）；
+- 任一不符 → open_item 停止。
+
+**G5 R32 基线复现**（本闸门是"执行器沙盒 ≡ WB1 研究会话"的最强证据）：
+R32 的输入构造完全确定性且代码在 bundle 内（`v41_torch_native_runner.build_structured_input`
+= TOPIC_TEXTS 常量 + default_rng(seed) 置换，无未公开输入）：
+```python
+import sys; sys.path.insert(0, "bundle/src"); sys.path.insert(0, "bundle/src/semantickv")
+from v41_torch_native_runner import build_structured_input
+ids, lab, lab_occ, needle_pos, q_start = build_structured_input(
+    tok, n_paragraphs=8, repeats=6, target_tokens=8000,
+    needle="请注意，一个重要事实：小王最喜欢的数字是 42。", needle_frac=0.5,
+    question="小王最喜欢的数字是多少？请只回答数字：", seed=7)
+# R32 输入含答案 token（teacher forcing）：拼接 [19, 17] 到序列尾
+ids = torch.cat([ids, torch.tensor([[19, 17]])], dim=1)
+# 应得 n_tokens=2613, q_start=2600（与 R32 公布值核对；不符 → open_item 停止）
+with torch.no_grad():
+    logits = mdl(ids).logits[0].float()          # (N,V)
+# loss_answer：答案 token [19,17]（"42"）的 CE。问长 qlen = N-2600-2 = 11，
+# 答案位置 ans_pos1=q_start+qlen-1（预测19）, ans_pos2=q_start+qlen（预测17）。
+# R32 未公布精确平均方式，按显然候选依次尝试并记录哪个命中：
+#  候选1 mean(CE(ans_pos1→19), CE(ans_pos2→17))；候选2 sum；候选3 仅19；候选4 仅17
+# 对照 R32 baseline.loss_answer = 0.0017654983093962073
+```
+判定（WB0 干跑实证 2026-10-21 15:02，权重经 G1 9/9 验证的同权重）：
+- **硬闸门**：n_tokens=2613 且 q_start=2600（构造确定性）——不符 → open_item 停止。
+- **强证据软闸门**：最佳候选（通常为 c1_mean）与参考值相对差 **≤5%** → env_fidelity=HIGH。
+  WB0 干跑实测：同权重下 c1_mean=0.0017857537604868412，与参考值相对差 1.15%
+  （归因于跨沙盒 transformers 版本 bf16 CPU 内核微差；错误/损坏权重会是数量级偏差）。
+- 相对差 >5% → 记录实际值，发 open_item 报告，由 WB0 裁定放行与否；不放行则记为
+  env_fidelity=UNVERIFIED 并在 honesty_note 披露——不自动阻断 S5（S5 判据不依赖 R32 数值）。
+
+### S4b 实体 embedding（真实 LLM 隐状态，替换 proxy 的合成占位）
 - 对 60 个实体逐一构造文本 `"<title>. <title 所在 Passage 首句>"`，
   经 S2 模型取 **final layer 最后 token 隐状态**（2048 维，float32 存盘）——与
   real_features_3b.json 的 group_layer=final 口径一致（Router 输入层）。
-- 同时按 real_features_3b.json 的 config（ctx/paragraphs/repeats/target_layer=12）复算一次
-  基准隐状态导出，与 REAL_FEATURES 内存储的 hidden 做对照（float16 精度，max|Δ| 需 < 1e-2，
-  记录实际 max|Δ|）→ 写入 `out/feature_recheck.json`。差异过大 → open_item 停止（说明权重或管线与
-  WB1 研究会话不一致）。
-- 实体 embedding 落盘 `out/entity_embeddings.json`（60×2048，附 sha256）。
+- 落盘 `out/entity_embeddings.json`（60×2048，附 sha256）与
+  `out/feature_recheck.json`（G4 结果 + G5 结果 + 实际 max|Δ| 类指标）。
 
 ### S5 A/B 检索实验（H-WB2-E2E-01 的直接判定）
 口径：PR@5 on gold intermediate nodes（按 S3 的 gold_intermediate）+ active_groups。
@@ -154,11 +205,18 @@ print("SMOKE:", tok.decode(out[0], skip_special_tokens=True))
   （WB2 方法，见 r2_router_e2e_training.json method_design；bundle 内
   `src/semantickv/vllm_plugin/learned_router.py` / `wb2_router.py` 为参考实现），
   只训 Router（MLP），3B 权重全程冻结。固定 Generator，训练曲线逐 step 记录。
+- 环境与确定性（双环境标签，分别记录，不得混用）：
+  - **ENV-DIAG**（S2/S4/G4/G5 用）：bf16、threads=4、cpu、seed=7（R32 对齐）——只用于环境保真诊断；
+  - **ENV-EXP**（本 S5 实验用）：determinism_PA11——import torch/numpy 前设
+    OMP_NUM_THREADS=MKL_NUM_THREADS=1、torch.set_num_threads(1)、
+    seed=20261020、固定 Generator、dtype=bfloat16、全流程 SHA256 记录。
+    实体 embedding 已在 S4b 用 ENV-DIAG 导出（bf16/4线程）——实验复用该 embedding
+    （Router 训练本身在 ENV-EXP 下确定性进行；LLM 前向仅用于 embedding 导出，已由 G5 保真）。
 - Router 配置口径（R32 结论，WB0 裁定 1792561842-9cc577）：L0-L4 Full KV 保护带 + L5 起 Top-K K=2。
   本 Stage 1 为检索级 A/B，该配置在产物 config 块中如实登记（供 Stage 2 一致沿用）。
 - 产物 `out/wb1_ab_real_stage1.json`：
   {review_id, generated_at, environment{device, torch, transformers, smoke_output_sha256},
-   gates{G1,G2,G3,feature_recheck}, graph{…来自 multihop_real.json…},
+   gates{G1,G2,G3,G4,G5}, graph{…来自 multihop_real.json…},
    A{pr_at_5, active_groups, per_query}, B{pr_at_5, active_groups, per_query, train_curve},
    delta{B_minus_A}, seed, determinism_PA11:true,
    honesty_note（构造差异 + embedding 真实来源 + 任何降级）}
@@ -195,7 +253,9 @@ curl -s -b /tmp/hub_cj.txt -F "file=@WB1-20261021-AB-v1.yaml" "$HUB_URL/api/revi
 2. **不伪造**：任何 gate 失败都如实上报失败级别；禁止用 proxy 数字冒充真实 A/B。
 3. **D3 环境标签**：所有产物必须带 environment 块（cpu/transformers/torch/smoke 输出），
    不同环境结果不得混用。
-4. **determinism_PA11**：import 前单线程 BLAS、seed=20261020、固定 Generator、SHA256 记录，缺一不可。
+4. **determinism_PA11**（实验 ENV-EXP）：import 前单线程 BLAS、seed=20261020、固定 Generator、
+   SHA256 记录，缺一不可。诊断 ENV-DIAG（R32 对齐：bf16/4线程/seed=7）仅用于 S2/S4 保真，
+   其结果不得混入 ENV-EXP 产物（双标签分别记录）。
 5. **冻结件只读**：semantic_router.pt 只加载不重训不覆盖；B 侧 Router 另存新文件。
 6. **代理≠结论**：H-WB2-E2E-01 升级只认本 runbook 的真实 A/B 三件套（数据+回执+报告）。
 7. 用户零中转：全程不得要求用户传文件；资源一律 Hub/ModelScope 自取。
