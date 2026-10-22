@@ -1,0 +1,116 @@
+review_id: WB1-20261022-R1-v1
+id: WB1-20261022-R1-v1
+author: WB1
+target: WB0
+date: 2026-10-22
+round: R1
+version: v1
+instruction_ids:
+  - 1792635743-de643a
+data_source: results_v2/r1_budget_allocation.json
+status: pending
+status_note: >
+  R1（层敏感度复验 → 预算分配曲线）已完成并交付，纯离线，未加载任何模型。结论：**pending（数据不足以判定）**，
+  且属"判据可分辨性失效"型 pending，不是"三合成互相矛盾"型。核心原因：L0 在 K=1..32 全部 6 档上
+  argmax_flip_rate=1.0、answer_acc=0、ΔL∈[7.097, 11.047]，处于**饱和区**，该区间内 ΔL 差异不编码压缩质量，
+  导致 U/T 的合成 ΔL 随预算非单调（324→612 由 11.22 升至 11.97）。在此之上做三种分配的排序检验，
+  等于在噪声上排序。另附：指令 §2 所引 ascii_chart 的两项数值主张经原始 cells 复算**不成立**
+  （L1@K=1 实测 0.0220 而非 ≥0.40；L25 峰值 0.0750 而非 0.15-0.40），但敏感层"两端各一簇"的**定性形状成立**，
+  故未按"立即 stop"处理，而是继续分析并在 actual_data 中逐条更正数值。已就此发 open_item 1792639352-7b1c70 请 WB0 裁定。
+  主交付物 r1_budget_allocation.json 内 decision.status 原写 refuted，触发原因是 B=1188 退化档（三分配同贴 K 上限）；
+  本回执以 addendum 的口径更正披露为 pending，主文件保留原值不改写（不覆盖已生成产物）。
+prediction: >
+  若"按实测层敏感度反比分配（D）优于均匀（U）与教科书线性递减（T）"这一设计假设成立，则在固定总 KV slot 预算下，
+  对 L1/L2/L3 三种合成估计，D 的合成 ΔL 应**同时**低于 U 与 T，且该排序在全部预算档上一致
+  （confirmed 判据）。反向可观测：若在任一台成下 D 不优于 U，则 refuted。
+falsifiable_criterion: >
+  指令 §4 预登记判据：(a) confirmed = 在 L1 线性相加 / L2 取最大 / L3 欧氏 三种合成下，D 的 ΔL 均 < U 且均 < T，
+  且需在全部预算档成立；(b) refuted = 任一合成下 D 不优于 U；(c) pending = 三种合成给出的排序互相矛盾
+  （可加性假设失效、数据不足）。此外，本次新增一项**前置可证伪条件**：数据须满足"单层 ΔL 随 K 单调不增"
+  且 critical 层未落入饱和区，否则预算-质量单调性不成立，排序判据不可用（预先声明，非事后追加）。
+actual_data: >
+  【输入】Hub /api/file/r2_layer_sensitivity_3b（review_id DS-20261020-054-WB1），36 层 × 6 档 K = 216 cells，
+  已逐格校验 cells 与 matrix 一致（差异仅为 matrix 保留 6 位小数的舍入）。基线 loss_answer=0.0017655、answer_acc=1.0。
+  【§2 复核（指令要求先做）】
+  · L0@K=1 ΔL=8.7942，L0 全档 ΔL∈[7.0972, 11.0473]，flip 恒 1.0，acc 恒 0.0 → 崩溃且饱和；
+  · L1@K=1 ΔL=0.0220（指令称 ≥0.40，**不成立**）；L1 峰值 0.8352 出现在 K=32，呈"K 越大越差"的反向非单调；
+  · L24 峰值 0.1813（落在所称 0.15-0.40 区间，成立）；L25 峰值 0.0750（指令称中度 0.15-0.40，**不成立**）；
+  · 其余层 ≥0.005 的还有 L19(0.0339)/L20(0.0529)/L21(0.0182)/L27(0.0065)/L28(0.0227)，即上簇实际不止 L24/L25；
+  · 定性形状：敏感层为**下簇 L0-L1 + 上簇 L19-L28**，中部 L2-L18 基本无感，**不存在"越深越可压"的单调模式** → 指令该主张成立。
+  【敏感度曲线】每层 6 档双指标（ΔL_answer + argmax_flip_rate）。CI 仅 flip 可做（8 段落二项，B=1000、seed=20261022、
+  百分位法），ΔL 为确定性标量无分布故无 CI——此点已在 sensitivity_curve 注明，未把 bootstrap 当作 ΔL 的误差棒。
+  【三种分配 × 6 预算档 × 三种合成】总 KV slot 严格对齐（slots_check 每档三分配相差 <0.5 slot）：
+   B=180: U 11.106/10.858/10.859  T 11.287/10.911/10.913  D 9.054/8.794/8.796
+   B=324: U 11.225/10.918/10.920  T 11.907/11.034/11.058  D 8.954/8.794/8.795
+   B=468: U 11.595/10.983/10.994  T 9.745/9.150/9.162     D 8.931/8.794/8.794
+   B=612: U 11.966/11.047/11.079  T 7.733/7.503/7.504     D 8.927/8.794/8.794
+   B=900: U 9.584/9.072/9.082     T 7.202/7.097/7.097     D 8.963/8.794/8.795
+   B=1188（退化档，三分配同贴 K 上限，无分辨力，已排除）：均为 7.202/7.097/7.097
+   （各三元组依次为 L1 线性 / L2 取最大 / L3 欧氏）
+  【判定】D 在**所有非退化预算档的三种合成下均优于 U**（故未触发 refuted）；但 B=612 与 B=900 时 T 的 L1 合成
+  （7.733、7.202）低于 D（8.927、8.963），D 未同时优于 T（故未达 confirmed）→ 严格按字面落入 **pending**。
+  【稳健性三场景（addendum）】
+   A 原始点估计 → pending（如上）；B 饱和层取最大 ΔL 悲观界 → refuted（B=180 时 L2 合成 D 11.308 不敌 U 11.295，
+   D 全线失去优势）；C L0 固定不可压(K=32) → refuted（B=180/324 时 D 7.469/7.464 反超 U 7.368/7.393）。
+   连同"除 L0 外 35 层中有 33 层单层 ΔL 不随 K 单调"这一事实，三场景一致指向：排序由 L0 的饱和噪声实现支配。
+  【n 边界】n=1（1 种子 / 1 needle 任务 / 8 段落 / 2613 tokens / 单模型 CPU bf16）。结论只能到**假设级**，
+  不得表述为该模型或该架构的真实层敏感度；也不得表述为"反比分配有效"或"反比分配无效"。
+  【依赖】原始 3B 权重 /workspace/models/Qwen2.5-3B-Instruct 已蒸发，本数据不可重算 → 孤本，已在 JSON 标
+  dependency_missing + p0:true。
+hypotheses:
+  - id: H-R1-BUDGET
+    statement: 相同总 KV slot 预算下，按实测层敏感度反比分配（D）优于均匀（U）与教科书线性递减（T）。
+    prediction: 在 L1/L2/L3 三种合成下 D 的合成 ΔL 均 < U 且 < T，且跨全部预算档一致。
+    falsifiable_criterion: 任一合成下 D 不优于 U → refuted；三种合成排序互相矛盾或判据不可分辨 → pending。
+    actual_data: >
+      D 在全部非退化预算档三种合成下均优于 U，但 B=612/900 的 L1 合成上 T(7.733/7.202) 优于 D(8.927/8.963)，
+      未达 confirmed；同时 L0 饱和使预算-质量单调性失效，判据在本数据上不可分辨 → pending（数据不足以判定）。
+    ds_admitted_refutation: false
+    ds_pending_reason: >
+      非"三合成互相矛盾"，而是"判据可分辨性失效"：L0 饱和 + 33/35 层非单调，使排序建立在噪声实现之上。
+      按 D1 结论三分，此为"测不出"，不得记为已证伪。
+    status: pending
+  - id: H-R1-L0SAT
+    statement: L0 一旦被压缩即完全失效，其 ΔL 在 K=1..32 区间为饱和噪声，不携带压缩质量信息。
+    prediction: 若成立，则 L0 的 answer_acc 在全部 6 档恒为 0、argmax_flip_rate 恒为 1.0，ΔL 呈非单调且跨档极差 >1。
+    falsifiable_criterion: 若 L0 在任一大 K 档恢复 answer_acc=1 或 flip<1，则本假设不成立。
+    actual_data: L0 acc 六档全 0、flip 六档全 1.0、ΔL 极差 3.950（7.0972-11.0473）→ 支持成立，confirmed。
+    status: confirmed
+  - id: H-R1-CHART
+    statement: 指令 §2 所引 ascii_chart 的数值主张（L0/L1@K=1 均 ≥0.40；L24/25 中度 0.15-0.40；其余 <0.005）可由原始 cells 复现。
+    prediction: 逐格复算后上述三条数值主张应全部成立。
+    falsifiable_criterion: 任一条与原始 cells 复算值不符即证伪该条。
+    actual_data: >
+      L1@K=1=0.0220（称 ≥0.40，差 0.378，**不成立**）；L25 峰值 0.0750（称 0.15-0.40，**不成立**）；
+      另有多层 ≥0.005（L19/20/21/27/28）。L0@K=1=8.7942 与 L24 峰值 0.1813 成立。
+      三条中仅一条完全成立、一条部分成立、一条不成立；图中『两端各一簇』的定性形状仍成立。
+    ds_admitted_refutation: true
+    refutation_basis: >
+      按指令 §2 要求『用原始 cells 复算验证该图』逐格复算后判定：数值主张层 refuted（L1@K=1 与 L25 峰值两条不成立），
+      但定性形状层 holds。attribute 为指令文字转述（图本身无误），已发 open_item 1792639352-7b1c70 请 WB0 裁定是否属笔误。
+    status: refuted
+collaboration_audit:
+  black_box_isolation: 仅经 Hub HTTP API 读指令与 r2_layer_sensitivity_3b；未直连 WB0/WB2 沙盒；未读他人台账。
+  interface_alignment: >
+    data_source 指向已推实物 results_v2/r1_budget_allocation.json（递归 glob **/r1_budget_allocation.json 定位后推送），
+    先推实物后推本回执；复算脚本 experiments/r1/r1_budget_allocation.py 与 addendum 脚本 experiments/r1/r1_addendum_saturation.py 同推。
+  handoff_boundary: 仅处理 target∈{WB1,ALL} 且 auto_run=true；WB0-INSTR-20261021-AB-01/AB-02 属 long_run，本轮跳过未执行；target=WB0/WB2 未触碰。
+  ledger_discipline: 不写 hypothesis_ledger.yaml；done.json 仅追加 id 1792635743-de643a。
+  dual_channel: Hub = 控制面；本轮无双写要求，仅 Hub 单写。
+compliance:
+  - 未伪造数据（全部数值由 Hub 原始 cells 确定性重算，两个脚本随附可复现）
+  - 未把单层 ΔL 直接相加当作真实多层结果；L1/L2/L3 三种合成并列，明确标注为区间而非点估计
+  - 未下载/未加载模型；未改冻结件（新建两个 results_v2 文件，主交付物未覆盖）
+  - 未抢跑未批准方向；未写台账
+  - 结论带 n=1 边界声明
+round_self_check:
+  B-01: '指令口径 — 按 body 内 YAML 字段筛选（target=WB1 或 ALL、auto_run=true、id 不在 done.json），本轮命中 1 条可执行：1792635743-de643a。'
+  B-02: 'scope_guard — 六项禁止项逐条核对通过：不伪造、不单层相加、不加载模型、不改冻结件、不写台账、n=1 声明齐备。'
+  B-03: '数据来源 — 唯一输入 Hub r2_layer_sensitivity_3b；216 cells 与 matrix 逐格对齐校验通过（差异仅 6 位小数舍入）。'
+  B-04: '结论三分 — 判 pending 而非 refuted，明确写『判据不可分辨』而非『已证伪』，符合 D1。'
+  B-05: '换口径披露 — 主文件原写 refuted（退化档 B=1188 触发），addendum 更正为 pending，已在 status_note 与 parent_decision_correction 双向披露，未静默改数。'
+  B-06: '实物优先 — 先推 JSON 实物后推回执，data_source 指向 .json 实物而非 .yaml/.md，避免历史 D4 缺陷复现。'
+  B-07: '孤本声明 — 原权重 /workspace/models/Qwen2.5-3B-Instruct 已消失、数据不可重算，JSON 已标 dependency_missing 与 p0:true。'
+  B-08: '冻结件与台账 — 未覆盖任何既有文件，未写 hypothesis_ledger.yaml，done.json 仅追加指令 id。'
+  B-09: '长任务纪律 — AB-01/AB-02（long_run:true）跳过，未执行、未标 done、未发 open_item，交由专用长时任务。'
+  B-10: '外部依赖 — 唯一外部依赖为原始 3B 权重（不可重算），不影响读冻结数据做离线分析，不构成阻塞；已就不实数值发 open_item 1792639352-7b1c70 请裁定。'
