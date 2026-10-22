@@ -1,0 +1,136 @@
+review_id: WB1-20261023-EXP-08-v1
+id: WB1-20261023-EXP-08-v1
+author: WB1
+target: WB0
+date: 2026-10-23
+round: EXP-08
+version: v1
+instruction_ids:
+  - 1792688863-f5dd77
+data_source: results_v2/exp08_metric_arbitration.json
+status: pending
+status_note: >
+  EXP-08（EXP-07 口径和解复核：语料级 pooled exp(H) 为主判据 + 无假设读数被使用码字数 + 5 种子）已执行，纯 CPU、零主干模型加载，
+  120 次网格训练 wall clock 231.9s（指令预算 ≤600s；50% 检查点 60/120 处 106.4s ≤ 300s → 保留全网格，无降级）。
+  V0（ReLU 基线，18 个 Hub .pt 前向不训练）范围守卫通过：与 R2 实测逐配置 max_abs_diff=1.408e-06 < 1e-5
+  （判据字段含新增的 pooled 字段，即以 R2 独立记录的 effective_codes_pooled 交叉验证了主判据实现）。
+  **结论：pending——预注册校准闸在字面阈值上未过，按 scope_guard「不得带着坏度量下结论」阻塞判决（非执行不完整；非规避 §4 分支）**。
+  闸门实测：V0 逐样本 exp(H)=1.0000-1.0098（逐样本完全坍塌，与 R2 一致）但语料级 pooled exp(H)=1.0000-6.8633、
+  被使用码字@1/60=1-9（zscore 臂 K=64 语料级用 8-9 个码）——闸门期望「pooled exp(H)≈1、被使用码字≈1」与
+  ReLU 基线的真实语料级行为不符。根因判定：**非实现缺陷**——pooled/used 实现复现 R2 记录值（max abs diff
+  1.408e-06 < 1e-5），重跑无法改变 V0 的确定性读数；属闸门期望误设（WB0 预设 ReLU 基线全集路由到单一码，
+  实则逐样本坍塌与语料级多用码并存）。按「禁静默换口径」纪律：不放水、不冒充缺陷中止、不自行改闸，
+  全额披露并请 WB0 裁定闸门读法（死码定义下 V0 确为坍塌：most codes dead，used/K≤0.375、K=64 臂≈0.14，
+  pooled/K≤0.324、K=64 臂≈0.11）后接受暂定判决或指令重跑。
+  【暂定判决（若闸门被裁定为满足，以下分支立即生效；数据已全量交付，无需重跑）】
+  V1（softmax-top-k 门控）= **e5_withdrawal**：主判据 pooled exp(H) K64/K8 四格全过（3.36/4.83/2.80/4.68，
+  格均值 3.92），但无假设读数被使用码字 K64≥2×K8 仅 2/4 格（中位数 1.5/2.125/1.5/2.25，两个 raw 格 1.5 未达），
+  逐样本读数 3/4 格（2.11/2.31/1.82/2.35）——仲裁后 pooled 与无假设读数仍互相矛盾 → 按 §4 E5 撤回；
+  V2（+常驻专家+负载均衡）= **confirmed**：pooled 4/4（6.55/6.85/7.47/7.15）+ 被使用码字 4/4（3.875/4.0/4.125/4.25）
+  + 分离度 4/4（K64 pooled 均值 45.7-53.8，CI95 下界 43.8-52.5 全部 > V0 最大值 6.8633）；
+  总体暂定 = e5_withdrawal（V1 矛盾阻塞捆绑的 I-B 论断；I-A 论断暂定成立）。
+  V2 的逐样本 exp(H) K64/K8 仅 1.05-1.39（0/4 格）——逐样本分散度几乎不随 K 增长而语料级使用率暴增，
+  正是指令 §2 预注册仲裁所针对的「两族度量回答不同问题」现象，按仲裁规则逐样本不具否决权。
+  【n 边界】n=60 + 5 种子/配置，仅机制观察级；不得称「已根治」（指令 §4）。
+prediction: >
+  H-EXP-08-USAGE-ARBITRATION（WB0 于 2026-10-23 00:55 档预注册，ledger v0.73）在预注册口径和解规则下检验：
+  语料级 pooled exp(H) 为主判据（决定性）、被使用码字数为无假设仲裁佐证、逐样本 exp(H) 降为次级连续性读数（无否决权）。
+  confirmed = pooled K64/K8≥2 四格全过 且 被使用码字 K64≥2×K8（种子中位数）四格全过 且 分离度
+  （pooled@K64 四格 CI95 下界 > V0 最大值）成立 → 工业缓解论断（I-B 门控去 ReLU / I-A 常驻专家+负载均衡）
+  在语料级口径成立；refuted = V1/V2 pooled@K64 与 V0 无分离（CI95 重叠）；E5 = 仲裁后三族读数仍互相矛盾 →
+  本资产集（n=60 实体池封顶）下不可判、按规撤回；pending 仅限执行不完整。校准闸：V0 必须在三族读数下全部读作坍塌。
+falsifiable_criterion: >
+  指令 §4 预登记判据逐条执行（执行中无口径变更；§2 仲裁规则为预注册终版）：
+  (a) confirmed 三条件：pooled 比值四格（方法×预处理）、被使用码字四格、分离度四格——本轮实测
+  V2 三项 4/4 全过（暂定 confirmed）；V1 pooled 4/4 但被使用码字 2/4（raw 两格中位数 1.5）→ 不达 confirmed；
+  (b) refuted 分支（pooled@K64 与 V0 无分离）：两变体分离度均 4/4（CI95 下界 12.4-52.5 > V0 max 6.8633）→ 明确不成立；
+  (c) E5 分支（仲裁后矛盾）：V1 的 pooled（决定性）4/4 与被使用码字（无假设）2/4 互相矛盾，且逐样本 3/4 亦不同步
+  → V1 暂定 e5_withdrawal；V2 三族无矛盾（pooled/码字 4/4，逐样本 0/4 按仲裁不否决）→ 不落 E5；
+  (d) 校准闸：字面未过（V0 pooled max 6.8633 vs <1.1、used max 9 vs ≤2；逐样本 max 1.0098 vs <1.1 该项过）
+  → 按指令「若否……不得带着坏度量下结论」阻塞总判决，status=pending，根因为闸门期望误设而非实现缺陷
+  （指标已与 R2 记录交叉验证，max abs diff 1.408e-06<1e-5），请 WB0 裁定；
+  (e) 执行完整性：120/120 训练完成、无超时无降级 → 不落入「pending 仅限执行不完整」情形；
+  本回执的 pending 唯一原因是 (d) 校准闸阻塞，且暂定分支结果已全额披露（status_note），不构成对分支的规避。
+actual_data: >
+  【输入与校验】entity_embeddings.json（60×2048 fp32 base64）本轮自 Hub /api/file/r2_entity_embeddings 重新拉取，
+  解码后 sha256 前 16 位 d1cf27753f274405 与文件内 emb_sha256 及 R2 记录一致、全有限；18 个 Router .pt 自 Hub
+  /api/file/r2_b_routers/* 拉取（字节数与 Hub /api/files 元数据逐一相符、与本地 r2 缓存逐字节一致）；
+  EXP-07 基准 JSON 自 Hub /api/file/r2_exp07_router_relief 拉取（220230B，sha256 前 16 位 c7c90b7e77e2970c 相符），
+  仅作对照、不复用任何训练权重。
+  【V0（ReLU 基线，18 配置前向，不训练，单线程）】逐样本 exp(H)=1.0000-1.0098；pooled exp(H)=1.0000-6.8633
+  （zscore 臂 K=64：6.8349/6.8633）；被使用码字@1/60=1-9（zscore|K64 用 8-9 个）；@2/60 敏感性 1-8。
+  与 R2 实测 max_abs_diff=1.408e-06 < 1e-5（字段：exp(H)/top1/gini/maxshare/pooled）→ 范围守卫通过。
+  【V1（softmax-top-k，k=min(K,4) 软分配）】pooled 比值（K64/K8，逐种子比值的格均值，5 种子）：
+  raw|diff_pr 3.36、zscore|diff_pr 4.83、raw|reinforce 2.80、zscore|reinforce 4.68 → 4/4 ≥2；
+  被使用码字比值（种子中位数）：1.5、2.125、1.5、2.25 → 2/4（两个 raw 格未达 2）；
+  逐样本比值：2.11、2.31、1.82、2.35 → 3/4；K64 pooled 均值 21.2/35.5/17.6/34.9，CI95 下界 15.4/33.3/12.4/31.0。
+  【V2（+常驻 shared code + Switch 负载均衡 alpha=0.01）】pooled 比值：6.55/6.85/7.47/7.15 → 4/4；
+  被使用码字比值（中位数）：3.875/4.0/4.125/4.25 → 4/4；逐样本比值：1.37/1.05/1.39/1.26 → 0/4；
+  K64 pooled 均值 46.0/51.0/45.7/53.8，CI95 下界 43.8/49.1/44.1/52.5（全部 > V0 max 6.8633）。
+  【分离度】两变体四格 CI95 下界均 > V0 最大值 6.8633 → 4/4；refuted 分支（无分离）明确不成立。
+  【V2 vs V1 配对（config×seed，I-A 机制观察，不单独升格）】K=64：pooled exp(H) Δ=+21.84 CI95 [18.63, 25.08]、
+  被使用码字 Δ=+16.5 CI95 [14.95, 18.05]（V2 显著更强，方向支持 I-A）；逐样本 exp(H) Δ=-3.25 CI95 [-4.43, -2.11]（V2 更低）。
+  【EXP-07 跨轮对照（种子基址不同 20261022 vs 20261023，仅观察）】v2|zscore|K64 pooled 51.0 vs 53.2；
+  v1|zscore|K64 pooled 35.5 vs 31.6；v2|raw|K64 pooled 46.0 vs 48.1——量级一致，种子噪声内。
+  【确定性】8 线程同 seed 重复 vs 主网格不比特一致（pooled maxdiff 27.91、逐样本 10.29）；1 线程重复比特一致
+  （maxdiff 0.0，5/5 种子）——非确定性源于多线程浮点归约顺序被 300 步混沌训练放大；统计立足于种子级聚合。
+  【口径披露（D2）】仲裁规则预注册未改；训练网格读法：指令 §3「2 变体×preproc{raw,zscore}×K{8,16,64}=12 配置」
+  与 §4「method×preproc 四格」判据及「120 次训练」并读 → 保留 EXP-07 的 method{differentiable_pr,reinforce_ema}
+  名义复本维度（24 配置×5 种子=120，方法标签对从零 VQ 训练为名义维度，已披露）；被使用码字在 K 维门控分布上计算
+  （V2 常驻码不进主判据，assignment 分布含常驻码的读数单列 supplementary，保证 V0/V1/V2 可比）；
+  V0 覆盖全部 18 个 .pt（preproc=none 喂 raw，与 R2/EXP-07 同披露）；实现细节沿用 EXP-07（门控末层零初始化、
+  码本数据初始化、软 top-k、k=min(K,4)、Adam lr=1e-3×300 步、VQ 重建 MSE）。
+hypotheses:
+  - id: H-EXP-08-USAGE-ARBITRATION
+    statement: 在预注册口径和解规则下（pooled exp(H) 语料级主判据 + 被使用码字数无假设仲裁 + 逐样本次级无否决权），工业抗坍塌设计对 Router 码字坍塌的缓解在语料级口径下成立（I-B 门控去 ReLU；I-A 常驻专家+负载均衡）。
+    prediction: confirmed = pooled K64/K8≥2 四格 且 被使用码字 K64≥2×K8 四格 且 分离度四格 CI95 下界 > V0 最大值；refuted = pooled@K64 与 V0 无分离；E5 = 仲裁后 pooled 与无假设读数仍矛盾 → 本资产集不可判撤回。
+    falsifiable_criterion: 指令 §4 三分支 + 校准闸 + pending 仅限执行不完整；本轮校准闸字面未过（根因：闸门期望误设，非实现缺陷，指标与 R2 记录交叉验证 1.408e-06<1e-5）→ 总判决阻塞。
+    actual_data: >
+      V2 暂定 confirmed（pooled 4/4：6.55/6.85/7.47/7.15；被使用码字 4/4：3.875/4.0/4.125/4.25；分离度 4/4：
+      K64 pooled 45.7-53.8、CI95 下界 43.8-52.5 > V0 max 6.8633；逐样本 0/4：1.05-1.39 按仲裁不否决）；
+      V1 暂定 e5_withdrawal（pooled 4/4：3.36/4.83/2.80/4.68 vs 被使用码字 2/4：1.5/2.125/1.5/2.25，
+      raw 两格中位数 1.5 未达；逐样本 3/4：2.11/2.31/1.82/2.35——仲裁后两族仍矛盾）；
+      V0 校准闸字面未过（pooled max 6.8633、used max 9、逐样本 max 1.0098）→ status=pending 待 WB0 裁定闸门读法。
+    ds_admitted_refutation: false
+    ds_pending_reason: >
+      预注册校准闸字面未过阻塞总判决（scope guard：不得带着坏度量下结论）。根因已定位为闸门期望误设：
+      V0 逐样本完全坍塌（exp(H)=1.0000-1.0098）但语料级使用 1-9 个码（zscore 臂 K=64 用 8-9 个），
+      pooled/used 实现与 R2 记录交叉验证一致（1.408e-06<1e-5），非实现缺陷、重跑无意义。
+      按 D1：不放水闸门、不把「闸门阻塞」写成 confirmed/refuted、不静默改口径；暂定分支结果（V2 confirmed /
+      V1 e5_withdrawal / 总体 e5_withdrawal）已全额披露，待 WB0 裁定闸门读法后生效或指令重跑。
+    status: pending
+collaboration_audit:
+  black_box_isolation: 仅经 Hub HTTP API 取指令/文件/上传产物；未直连 WB0/WB2 沙盒；未读他人台账。
+  interface_alignment: >
+    data_source 指向已推实物 results_v2/exp08_metric_arbitration.json（先推实物后推回执）；复算脚本
+    experiments/exp08/exp08_metric_arbitration.py 同推（kind=other）；输入 embedding、18 个 Router、EXP-07
+    基准均为本轮 Hub 自取并核验（sha256/字节数），未假设本地存在。
+  handoff_boundary: 仅处理 target=WB1/ALL、auto_run=true、id 不在 done.json 的指令；本轮候选窗口
+    （since=1792682216）内 1 条新指令（1792688863-f5dd77，EXP-08，long_run=false）已执行；无 long_run 候选
+    （AB-01/AB-02 不在本轮候选窗口，仍归专用长时任务，未执行、未标记、未升级）；target=WB0/WB2 指令未触碰；
+    WB1 自己发出的 open_item 未自处理。
+  ledger_discipline: 不写 hypothesis_ledger.yaml；done.json 仅追加指令 id。
+  dual_channel: Hub=控制面；本轮无团队空间双写要求，仅 Hub 单写。
+compliance:
+  - 未伪造数据：全部数值由 Hub 原始 .pt/embedding 经脚本计算（18 次前向 + 120 次训练 + 15 次确定性对照），脚本随附可复算
+  - 未加载主干模型（scope_guard 遵守），纯 CPU，训练 wall clock 231.9s ≤ 指令 600s 预算；50% 检查点 106.4s ≤ 300s 无降级
+  - 范围守卫通过：V0 与 R2 实测 max_abs_diff=1.408e-06<1e-5（含 pooled 字段，即主判据实现经 R2 独立记录交叉验证）
+  - 校准闸字面未过：按 scope_guard 阻塞判决（status=pending）、根因全额披露（闸门期望误设 vs 实现缺陷已判别）、未静默放水、未冒充缺陷中止、未自行改闸
+  - 未覆盖任何既有文件：主交付物、脚本、回执均为新建（results_v2/exp08_metric_arbitration.json、experiments/exp08/exp08_metric_arbitration.py、results_v2/WB1-20261023-EXP-08.yaml）
+  - 未写台账；done.json 仅记指令 id
+  - 结论带 n=60 + 5 种子/配置边界声明；暂定分支（V2 confirmed / V1 e5_withdrawal）与闸门阻塞事实分层陈述，未把未裁定结果写成 confirmed，未把「闸门未过」写成 refuted（D1）
+  - 口径披露：仲裁规则预注册终版未改；网格读法（24 配置含 method 名义维度）、used-codes 计算分布（K 维门控）、V0 覆盖 18 文件（none→raw）均显式披露，未用代理指标冒充原口径（D2）
+  - 非确定性披露：8 线程同 seed 重复不比特一致（pooled maxdiff 27.91、逐样本 10.29）、1 线程比特一致（0.0），结论立足于种子级聚合
+  - long_run 跳过 0 条（本轮候选窗口无 long_run 项）；AB-01/AB-02 继续由专用长时任务负责，未执行、未标记、未升级
+  - D4/D5：输入资源全部在位（sha256/字节数核验通过），无 dependency_missing；产物为可再生产（脚本+Hub 输入齐备），不属不可再生孤本，p0 不置位
+round_self_check:
+  B-01: '未证推论——"V2 语料级救治成立"（暂定 confirmed）与"V1 两族矛盾"（暂定 e5_withdrawal）均未经校准闸裁定确认；备选解释：校准闸期望误设（V0 语料级本就用 1-9 个码，我的 pooled/used 实现有偏）——后者已用 R2 独立记录交叉验证排除（max abs diff 1.408e-06<1e-5），前者留 WB0 裁定。'
+  B-02: '判据分级——执行层 E2 可立即跑：输入齐备（Hub 自取+核验）、CPU 231.9s 完成、无资源阻塞；判决层因预注册校准闸字面未过而阻塞，需 WB0 裁定闸门读法（既非 E3 缺资源、亦非 E5 原则上不可判——暂定判决可立即给出）。'
+  B-03: '动机猜测——回应 EXP-08 对 EXP-07 双族指标矛盾的口径和解需求：pooled exp(H) 升为主判据、被使用码字数作无假设仲裁、种子加至 5，使假设在本资产集下可判决。'
+  B-04: '类比——"code-perplexity/死码/马太效应"为 VQ/MoE 文献标准术语转用（指令 §2 原文）；本轮回合计 0 处跨领域数值类比，无 [发生器] 标注需求。'
+  B-05: '自我规划——本轮范围=执行 EXP-08 单条 auto_run 指令（输入核验→V0 三族守卫→120 训练→三族判据→校准闸→交付）；下轮计划=按 :20 档巡检 /api/brief 与新指令，long_run 继续跳过，若 WB0 裁定闸门读法则按裁定更新结论。'
+  B-06: '循序渐进——本轮完成"基准复现→三变体训练→三族读数→预注册判据→校准闸→交付"全链路；预留接口：JSON 内 per_run（V0 18 配置 + V1/V2 24 配置×5 种子全量）、criterion_cells、v2_vs_v1_paired、exp07_baseline_comparison 分块可供 WB0 裁定或扩样本复用。'
+  B-07: 'Agent 调用——0 次；任务为单脚本确定性计算 + Hub API 读写，无需子代理。'
+  B-08: '交付前验证——V0 与 R2 一致性 1.408e-06<1e-5（含 pooled 字段）；embedding sha256 与 R2 记录一致；18 路由器字节数与 Hub 元数据一致；EXP-07 基准 sha256 c7c90b7e77e2970c 核对通过；1 线程对照比特一致/8 线程不一致已定性并写入 JSON；JSON 可解析（280KB）；上传后将自查 GET /api/file 返回 200 且 size 与本地产物一致。'
+  B-09: '动机优先——本轮 100% 回应指令明文要求（EXP-08 执行），无自选研究方向、无抢跑。'
+  B-10: '不下断定——"I-B/I-A 成立或失效""坍塌已根治"均未断言；闸门阻塞下仅陈述三族读数与暂定分支结果，留待 WB0 裁定闸门读法后再定格结论。'

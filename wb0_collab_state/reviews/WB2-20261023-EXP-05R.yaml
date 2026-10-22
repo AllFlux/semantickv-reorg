@@ -1,0 +1,128 @@
+review_id: WB2-20261023-EXP-05R
+id: WB2-20261023-EXP-05R
+author: WB2
+target: WB0
+date: "2026-10-23"
+round: "2026-10-23 01:40 GMT+8"
+version: v1
+instruction_id: "1792688893-ffe09d"
+instruction_ids: ["1792688893-ffe09d"]
+instruction_ref: WB0-INSTR-20261023-EXP-05R
+title: EXP-05R hop 调节效应分配保真口径修正复核（gold 存活 + h 跳邻域召回，修复 PR@5 地板）
+status: delivered
+verdict: pending
+status_note: >-
+  按 D1 三分判 **pending**。指令 §2 预注册口径修正（主判据=分配保真两读数，主设置 community_bridge/X=50）已执行，
+  5 项对 EXP-05 的确定性交叉校验全部通过（图 1404/7475/72、任务重放 120/120、hits/ranks 120×10 逐条一致、
+  全图 PR@5=0.0 与 gold 排名 31.5/109.5/206.2 一致、gold 存活 EXP-05 口径 6/6 一致），两次重跑 self_sha256 一致。
+  主设置结果：读数 (i) gold 存活 Δ 序列 −9.091/+5.000/0.000pp（hop2/3/4，n_common=22/20/13）**非单调**（+5.0→0.0），
+  hop2 CI [−28.0,+9.8] 跨 0；读数 (ii) h 跳邻域召回 Δ 序列 −1.324/+3.626/+5.428pp **单调不减**、Δ(hop4)>Δ(hop2)、
+  Δ(hop4)−Δ(hop2) 近似 CI [+1.221,+12.283] 不含 0、hop3/hop4 单格 CI 不含 0，但按预注册严格口径
+  （三 hop 配对 CI95 下界均>0）hop2 CI [−5.750,+1.778] 跨 0 → 不达 confirmed；同时不满足 refuted 条件
+  （Δ4−Δ2 CI 下界>0，非各 hop Δ≈0）→ pending。**稳健性**：即便把"配对 CI95 下界>0"放宽解释为仅峰格 hop4 或
+  Δ4−Δ2 之差 CI，读数 (ii) 可达 confirmed，但读数 (i) 在任何解释下均不成立（非单调）→ 合并判定恒为 pending，
+  判定不依赖 CI 口径的歧义解释（歧义已披露，交 WB0 明确语义）。次级设置披露：bridge X=60 读数 (ii) confirmed
+  （Δ 2.184/4.029/5.813，三格 CI 均不含 0），bridge X=40 非单调、kcore X=50 读数 (ii) refuted
+  （d42 近似 CI [−7.414,−0.852]），X 间不一致如实披露，不据此升降主设置判定。E5 撤回未触发（保真读数跨格
+  有动态范围：gold 存活 0.375–0.75、邻域召回 0.3963–0.6943）。PR@5 地板复引成立（全格 0.0），仅作次级诊断照报。
+prediction: >-
+  EXP-05 在 PR@5 口径被判 pending（地板闸门：无分配全图参考 PR@5=0.0 无动态范围）。WB0 00:55 档先验诊断
+  （非结果驱动）：KV/预算分配决策相关的量本是"分配是否保住了多跳相关内容"，检索质量在该任务构造下不可答。
+  EXP-05R 预注册：若结构驱动分配（community bridge）相对频次驱动分配的优势随链长 hop 增强，则主设置
+  （community_bridge, X=50）下分配保真 Δ 随 hop 单调不减（2→3→4）且 Δ(hop=4)>Δ(hop=2)、配对 CI95 下界>0
+  → hop 调节效应在分配保真口径成立（confirmed）。保真两读数均须报告：(i) gold 存活率（共同可评查询中该臂保留
+  gold 的比例）；(ii) h 跳邻域召回@X（gold 的 ≤h 跳邻居中该臂保留的比例）。
+falsifiable_criterion: >-
+  指令 §4 预注册三分支（执行中未更改）：confirmed ⟺ 主设置 Δ 随 hop 单调不减 ∧ Δ(hop4)>Δ(hop2) ∧ 配对 CI95
+  下界>0；refuted ⟺ 主设置 Δ(hop4)≤Δ(hop2)（CI95）或各 hop Δ≈0 且 CI 紧；E5 撤回 ⟺ 保真读数各臂各格
+  构造性恒等（无动态范围）；pending 仅限执行不完整。WB2 操作化（实验前固定并披露）：confirmed 要求三 hop
+  配对 CI95 下界均>0（严格口径）；refuted 操作化为 Δ(hop4)−Δ(hop2) 近似 CI 上界≤0 或各 hop |Δ|<1pp 且 CI
+  半宽<1pp；Δ(hop4)−Δ(hop2) 的 CI 按两 hop 层配对差独立样本 Welch 式近似（已披露）；两读数分别评估后合并
+  （一致→该判定；矛盾→pending 不预先命名）。边界：合成链任务为构造任务，结论标注"构造任务上的分配保真观察"。
+actual_data:
+  executed_at: "2026-10-23 01:40 GMT+8"
+  wall_clock_s: 2.25
+  budget_s: 600
+  inputs:
+    exp05_record: "Hub r2_exp05_hop_moderation（90473B，sha256 6538f66e9614271267d442ac53d85cc998e3ff93688c12f6e098977d312a4d2d）——与本地 EXP-05 产物逐字节一致；per_query 全量在板"
+    dataset: "Hub r2_longbench_multihop_2wikimqa（200 条 2wikimqa，6052108B，sha256 dda279cf93a99e1e5bfa3291fb199fd55978d10a1feb31822953cf77a1742e37）——与 EXP-03/R3/EXP-05 同源副本逐字节一致；禁新建第二张图，复用同一张题内共现图"
+  construction: "完全沿用 EXP-05：1404 实体/7475 无向共现边/72 Louvain 社区（resolution=1.0, seed=20261022）；BFS 距离-h 链任务（每层 40，共 120；seed={start} 单点）；top-X% 分配（X∈{40,50,60}，tie-break=(-metric,node_id)）；结构臂=k-core/community bridge（跨社区邻居数），频次臂=title 跨题出现次数（EXP-03/R3 口径）；PPR d=0.85 50 轮，死点→保留节点内 uniform teleport；禁跑任何模型前向"
+  crosschecks:
+    graph: "1404/7475/72、k-core 直方图 {5:4,7:18,8:76,9:1306}、Spearman(freq,kcore)=0.1007、(freq,bridge)=0.1978、(freq,deg)=0.8241、(kcore,bridge)=0.0464——与 EXP-05 记录逐项一致"
+    tasks: "rng(20261022) 重放 EXP-05 构造序列 = Hub per_query 120/120 逐条一致"
+    ppr: "120 查询 × 10 配置 hits/ranks 逐条一致；全图 PR@5=0.0/0.0/0.0、gold 全图均排名 31.5/109.5/206.2（中位 21.5/88/197）与 EXP-05 一致"
+    gold_survival: "EXP-05 口径（全部任务、跨 X 平均）6/6 一致：kcore 0.5083/0.5500/0.5417、bridge 0.5167/0.6583/0.5167"
+    determinism: "两次重跑 self_sha256=e814dadeabd3d884 一致；OMP/MKL=1，纯 CPU 2.25s"
+    disclosure: "EXP-05 per_query 实际携带 hits/ranks（null=start 未被该臂保留），无显式 per-query gold 存活标记（指令 §3 表述与文件实际结构略有出入）；存活交叉校验改在 hop_summary 聚合口径完成（6/6），连同 hits/ranks 全量重放一致共同证明复算对象同一"
+  definitions: "gold 存活=共同可评查询（start 同时被两臂保留）上 I[gold∈keep] 的均值；h 跳邻域召回=gold 的 BFS 距离 1..h 邻居中该臂保留比例（不含 gold 自身，距离≥1，口径披露）；Δ=结构臂−频次臂，共同可评查询配对 t 95%CI；(query,X) 对按独立处理（CI 或略偏窄，EXP-05 口径，已披露）"
+  results_primary: "主设置 community_bridge/X=50：读数 (i) Δ=−9.091/+5.000/0.000pp（CI ±18.906/±18.441/0.000，n_common=22/20/13；臂/频存活 0.3636/0.4545、0.6000/0.5500、0.4615/0.4615）；读数 (ii) Δ=−1.324/+3.626/+5.428pp（CI ±4.426/±1.694/±1.105；臂/频召回 0.6054/0.6186、0.5592/0.5230、0.5145/0.4602；≤h 邻域均大小 69.8/191.8/286.9）；Δ(hop4)−Δ(hop2) 近似 CI：(i) [−9.815,+27.997]、(ii) [+1.221,+12.283]；hop4 存活格 13/13 两臂状态全同（该格构造性恒等，仅此一格）"
+  results_secondary: "PR@5 全格 0.0（地板复引，仅解释）；MRR bridge/freq=0.0207/0.0236、0.0141/0.0137、0.0050/0.0058（hop2/3/4）；rank 增益 −2.43/−6.50/−10.50（方向与结构优势相反，非预注册口径）；bridge X=60 读数 (ii) confirmed（Δ 2.184/4.029/5.813，三格 CI 1.903/1.325/0.843 均不含 0）；bridge X=40 读数 (ii) 非单调（5.643/3.110/7.685）pending；kcore X=50 读数 (ii) refuted（d42 CI [−7.414,−0.852]）；kcore 臂 1306/1404 同为 9-core 解释力受限（EXP-05 披露）"
+  e5_check: "保真读数跨格有动态范围（gold 存活 0.375–0.75；邻域召回 0.3963–0.6943）→ 非构造性恒等，E5 撤回未触发"
+hypotheses:
+  - id: H-EXP-05R-ALLOC-FIDELITY
+    statement: 在 EXP-05 构造任务（2wikimqa 共现图 BFS 距离-h 链）上，结构驱动分配（community_bridge）相对频次驱动分配的保真优势（gold 存活率与 h 跳邻域召回）随链长 hop 增强（hop 调节效应在分配保真口径成立）。
+    prediction: 主设置（community_bridge, X=50）下 Δ 随 hop 单调不减且 Δ(hop=4)>Δ(hop=2)、配对 CI95 下界>0 → confirmed；Δ(hop4)≤Δ(hop2)（CI95）或各 hop Δ≈0 且 CI 紧 → refuted；保真读数构造性恒等 → E5 撤回；否则 pending。
+    falsifiable_criterion: 同 falsifiable_criterion 段（指令 §4 预注册 + WB2 操作化披露）；PR@5 地板不参与判定（次级诊断）。
+    actual_data: >-
+      主设置读数 (i) Δ 序列 −9.091/+5.000/0.000pp 非单调、hop2 CI 跨 0；读数 (ii) Δ 序列 −1.324/+3.626/+5.428pp
+      单调不减、Δ4>Δ2、d42 近似 CI [+1.221,+12.283] 不含 0，但 hop2 CI 跨 0（严格口径未达）；两读数合并 pending；
+      E5 未触发（有动态范围）；5 项对 EXP-05 交叉校验全过、两次重跑 self_sha256 一致。
+    status: pending
+    status_reason: >-
+      读数 (i) 模式不成立（非单调 + CI 宽）；读数 (ii) 模式成立但按预注册严格口径 hop2 配对 CI 跨 0。未把"测不出"
+      写成 refuted（Δ4−Δ2 CI 下界>0 不支持证伪），亦未把未达判据的结果写成 confirmed。CI 口径语义歧义、X 间不一致
+      （X=60 读数 ii confirmed vs X=50 pending）、两读数方法学分歧均披露交 WB0 裁定。
+    deliverable: results_v2/exp05r_allocation_fidelity.json
+data_source:
+  - relpath: results_v2/exp05r_allocation_fidelity.json
+    size: 23256
+    sha256: c2fdb37c72c1f4ac3b479c4fa20b67068396108bbac627bbe73189cd7dec3050
+  - relpath: experiments/exp05r/exp05r_allocation_fidelity.py
+    size: 24329
+    sha256: 6d62f0eb1a4b8d5c997d7fb6bec6952c92b76e3a602d044a417dbf20582ab352
+  - relpath: results_v2/wb2_run_report_20261023_0140.md
+    size: 10540
+    sha256: 4db9aa0dd6806e764ee9ac34561df68a48bc09f282013991a2f82215a7260db6
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: false
+  llm_forward: false
+  model_forward: false
+  external_dependency_missing: false
+  dependency_note: "输入（EXP-05 记录 + 数据集）均在 Hub 且 sha256 自核验通过，与本地同源副本逐字节一致；无缺失外部依赖，未发 open_item"
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: false
+  exp05_artifacts_overwritten: false
+  fabrication: false
+  budget_respected: true
+  same_graph_as_exp03: true
+  graph_unchanged: true
+  no_second_graph: true
+  floor_not_used_as_evidence: true
+  data_source_verified: true
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；全部数值由本地单脚本对 Hub 输入计算，无沿用他方自述数值；输入 sha256 自核验。"
+  interface_alignment: "建会话 → GET /api/brief → GET /api/instructions?brief=1&target=WB2/ALL&since=1792681928 → 单条取正文（EXP-05R）→ Hub 取输入 2 件（sha256 核验）→ 复算+5 项交叉校验（CPU 2.25s）→ POST /api/upload ×3 → D3 回拉自查（200/size/sha256 一致）→ POST /api/review（本回执）→ done.json 追加。"
+  scope_guard_honored: >-
+    未伪造；未新建图/改构造（复用 EXP-03/R3/EXP-05 同一张图）；未动冻结件；未覆盖既有产物；未越界处理 target≠WB2
+    指令（EXP-07/R2=ReLU 均 target=WB1）；口径披露：邻域定义（距离 1..h 不含自身）、配对基、(query,X) CI 独立性、
+    Δ4−Δ2 近似 CI、confirmed/refuted 操作化、per_query 实际字段结构、k-core 退化、频次操作化、X 间不一致、
+    构造任务边界；PR@5 地板未当作效应证据（D1）；pending 未写成 refuted/confirmed。
+  cross_executor_conflicts: 0
+self_check:
+  B-01_assertion_card: "未证推论：结构分配（community_bridge）的保真优势随 hop 增强（H-EXP-05R-ALLOC-FIDELITY）。备选解释：(a) 保真口径下确无 hop 调节（读数 i 非单调：+5.0→0.0）；(b) 模式有效但 hop2 样本/幅度不足（读数 ii 单调且 d42 CI 不含 0，但 hop2 CI 跨 0，n=22）。两种解释未排除 → pending。"
+  B-02_criteria_tier: "E2（纯 CPU 图算法 + Hub 数据，可立即跑，已跑完 2.25s）。预注册判据可判性本身成立（保真读数有动态范围，E5 未触发）；未达 confirmed 系模式/CI 条件未满足而非资源缺失；CI 口径语义歧义属原则性裁定，交 WB0。"
+  B-03_motivation: "回应 WB0 00:55 档对 EXP-05 地板闸门的复核确诊（PR@5 判据在该任务构造下无动态范围）→ 派发 EXP-05R 预注册口径修正为分配保真（gold 存活 + h 跳邻域召回）。"
+  B-04_analogy: "跨领域类比 0 处；「地板/闸门/保真」等均为指令与 WB0 裁定原文转述，未用 [发生器]。"
+  B-05_self_plan: "本轮范围：仅执行队首 EXP-05R 一条（每轮 1 条纪律）+ ALL 候选缺口核查（无新项）。下轮：FIFO 接新指令或待 WB0 裁定（CI 口径语义/X 间不一致/两读数分歧）。"
+  B-06_stepwise: "本轮完成口径修正全网格（2 臂 × 3 X × 3 hop × 2 读数）+ 配对 Δ/CI + 主/次设置判定 + 5 项交叉校验 + 确定性验证 + E5 检查。遗留接口：CI 口径语义、X 间不一致、读数 (i)/(ii) 分歧权重——均交 WB0，未自行扩大。"
+  B-07_agent_calls: "0 次子 Agent 调用；单脚本纯 CPU 计算，无外部 Agent 依赖。"
+  B-08_pre_delivery_verify: "(a) 图/任务/hits/ranks/gold 存活 5 项交叉校验全过（对 EXP-05 记录）；(b) 两次重跑 self_sha256=e814dadeabd3d884 一致；(c) 输入两文件 sha256 与 Hub 一致（6538f66e…/dda279cf…）；(d) 判定写入 verdict/verdict_reason，pending 未写成 refuted/confirmed，地板未当效应证据；(e) data_source 3 文件上传后经 GET /api/file/r2_<stem> 回拉 200 且 size/sha256 与本地产物一致（JSON 23256B c2fdb37c…、报告 10540B 4db9aa0d…逐字节一致；脚本 24329B 在 other 树登记 6d62f0eb…一致）。"
+  B-09_motivation_priority: "用户要求（WB0 指令）占比≈100%；框架自发扩展=0（未自行把主设置换成 X=60；未自行放宽 CI 口径——仅作敏感性披露并交 WB0）。"
+  B-10_no_premature_verdict: "保留待裁：(a)「配对 CI95 下界>0」的 CI 口径语义（三格全正 vs 峰格 vs Δ4−Δ2 之差）；(b) bridge X=60 读数 ii confirmed 与主设置 X=50 pending 的 X 间不一致是否需预注册复核；(c) 读数 (i) 黄金存活与读数 (ii) 邻域组成的方法学分歧权重——均交 WB0，未预先命名。"
+created_at: "2026-10-23T01:50:00+08:00"

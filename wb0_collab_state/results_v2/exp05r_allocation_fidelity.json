@@ -1,0 +1,1040 @@
+{
+ "schema": "exp05r_allocation_fidelity/v1",
+ "created_at": "2026-10-23T01:50:26+0800",
+ "instruction_id": "1792688893-ffe09d",
+ "inputs": {
+  "exp05_record": {
+   "relpath": "results_v2/exp05_hop_moderation.json",
+   "size": 90473,
+   "sha256": "6538f66e9614271267d442ac53d85cc998e3ff93688c12f6e098977d312a4d2d",
+   "sha_verified": true
+  },
+  "dataset": {
+   "relpath": "r2_longbench_multihop_2wikimqa",
+   "size": 6052108,
+   "sha256": "dda279cf93a99e1e5bfa3291fb199fd55978d10a1feb31822953cf77a1742e37",
+   "sha_verified": true,
+   "note": "Hub 下载与本地 EXP-03/R3/EXP-05 同源副本逐字节一致（dda279cf…）"
+  }
+ },
+ "params": {
+  "hops": [
+   2,
+   3,
+   4
+  ],
+  "X_levels": [
+   40,
+   50,
+   60
+  ],
+  "seed": 20261022,
+  "damping": 0.85,
+  "ppr_iters": 50,
+  "primary_setting": {
+   "arm": "community_bridge",
+   "X": 50
+  },
+  "reading_i_def": "gold 存活率：共同可评查询（start 同时被两臂保留）中该臂保留 gold 的比例",
+  "reading_ii_def": "h 跳邻域召回@X：gold 的 BFS 距离 1..h 邻居中该臂保留的比例（不含 gold 自身，口径披露）",
+  "delta_def": "Δ=结构臂保真−频次臂保真，共同可评查询配对，配对 t 分布 95%CI（EXP-05 口径；(query,X) 对按独立处理，CI 或略偏窄，已披露）",
+  "d42_ci_def": "Δ(hop4)−Δ(hop2) 近似 CI：两 hop 层配对差按独立样本 Welch 式相加（近似，已披露）",
+  "confirmed_ops": "单调不减 ∧ Δ(hop4)>Δ(hop2) ∧ 三 hop 配对 CI95 下界>0（对每个读数）",
+  "refuted_ops": "Δ(hop4)−Δ(hop2) 近似 CI 上界≤0，或各 hop |Δ|<1pp 且 CI 半宽<1pp",
+  "e5_ops": "两读数在所有 (臂,X,hop) 格构造性恒等（无动态范围）→ 撤回"
+ },
+ "graph_verify": {
+  "n_entities": {
+   "exp05": 1404,
+   "recomputed": 1404,
+   "match": true
+  },
+  "cooccur_edges": {
+   "exp05": 7475,
+   "recomputed": 7475,
+   "match": true
+  },
+  "n_communities": {
+   "exp05": 72,
+   "recomputed": 72,
+   "match": true
+  },
+  "community_sizes_top5": {
+   "exp05": [
+    125,
+    94,
+    61,
+    52,
+    52
+   ],
+   "recomputed": [
+    125,
+    94,
+    61,
+    52,
+    52
+   ],
+   "match": true
+  },
+  "kcore_hist": {
+   "exp05": {
+    "5": 4,
+    "7": 18,
+    "8": 76,
+    "9": 1306
+   },
+   "recomputed": {
+    "5": 4,
+    "7": 18,
+    "8": 76,
+    "9": 1306
+   },
+   "match": true
+  },
+  "spearman": {
+   "exp05": {
+    "freq_vs_kcore": 0.1007,
+    "freq_vs_bridge": 0.1978,
+    "freq_vs_degree": 0.8241,
+    "kcore_vs_bridge": 0.0464
+   },
+   "recomputed": {
+    "freq_vs_kcore": 0.1007,
+    "freq_vs_bridge": 0.1978,
+    "freq_vs_degree": 0.8241,
+    "kcore_vs_bridge": 0.0464
+   },
+   "match": true
+  }
+ },
+ "task_verify": {
+  "n_tasks": 120,
+  "replay_identical": true,
+  "note": "rng(seed=20261022) 重放 EXP-05 任务构造序列，与 Hub per_query 逐条比对"
+ },
+ "pr5_crosscheck": {
+  "per_query_hits_ranks": "120 queries × 10 configs 逐条一致（EXP-05 per_query）",
+  "identical": true
+ },
+ "gold_survival_crosscheck": {
+  "exp05_口径（全部任务、跨X平均）": {
+   "kcore|hop=2": 0.5083,
+   "kcore|hop=3": 0.55,
+   "kcore|hop=4": 0.5417,
+   "community_bridge|hop=2": 0.5167,
+   "community_bridge|hop=3": 0.6583,
+   "community_bridge|hop=4": 0.5167
+  },
+  "exp05_record": {
+   "kcore|hop=2": 0.5083,
+   "kcore|hop=3": 0.55,
+   "kcore|hop=4": 0.5417,
+   "community_bridge|hop=2": 0.5167,
+   "community_bridge|hop=3": 0.6583,
+   "community_bridge|hop=4": 0.5167
+  },
+  "match": true
+ },
+ "floor_gate_recap": {
+  "from": "EXP-05（指令 §2 次级诊断复引，不重算）",
+  "full_graph_pr5_by_hop": {
+   "2": 0.0,
+   "3": 0.0,
+   "4": 0.0
+  },
+  "triggered": true,
+  "full_graph_gold_rank_by_hop": {
+   "2": {
+    "mean": 31.5,
+    "median": 21.5,
+    "p90": 57.3,
+    "n": 40
+   },
+   "3": {
+    "mean": 109.5,
+    "median": 88.0,
+    "p90": 201.0,
+    "n": 40
+   },
+   "4": {
+    "mean": 206.2,
+    "median": 197.0,
+    "p90": 304.1,
+    "n": 40
+   }
+  },
+  "random_baseline_pr5_by_hop": {
+   "2": 0.0031,
+   "3": 0.0036,
+   "4": 0.0029
+  },
+  "note": "PR@5 判据在 EXP-05 任务构造下无动态范围（地板），本轮仅作次级诊断照报，不参与判定"
+ },
+ "fidelity_cells": {
+  "kcore|X=40|hop=2": {
+   "n_common": 14,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.4286,
+    "freq": 0.4286,
+    "delta_pp": 0.0,
+    "ci95_pp": 22.647,
+    "n_paired": 14,
+    "arm_all_tasks": 0.375,
+    "freq_all_tasks": 0.375
+   },
+   "nb_recall_h": {
+    "arm": 0.5413,
+    "freq": 0.5405,
+    "delta_pp": 0.081,
+    "ci95_pp": 1.761,
+    "n_paired": 14,
+    "nb_size_mean": 69.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0177,
+    "mrr_freq": 0.0279,
+    "rank_diag": {
+     "n": 5,
+     "mean_rank_gain": -1.2
+    }
+   }
+  },
+  "kcore|X=40|hop=3": {
+   "n_common": 18,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.3889,
+    "freq": 0.4444,
+    "delta_pp": -5.556,
+    "ci95_pp": 20.696,
+    "n_paired": 18,
+    "arm_all_tasks": 0.45,
+    "freq_all_tasks": 0.525
+   },
+   "nb_recall_h": {
+    "arm": 0.442,
+    "freq": 0.466,
+    "delta_pp": -2.396,
+    "ci95_pp": 3.251,
+    "n_paired": 18,
+    "nb_size_mean": 191.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.008,
+    "mrr_freq": 0.0138,
+    "rank_diag": {
+     "n": 6,
+     "mean_rank_gain": -32.0
+    }
+   }
+  },
+  "kcore|X=40|hop=4": {
+   "n_common": 11,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.5455,
+    "freq": 0.4545,
+    "delta_pp": 9.091,
+    "ci95_pp": 20.256,
+    "n_paired": 11,
+    "arm_all_tasks": 0.4,
+    "freq_all_tasks": 0.375
+   },
+   "nb_recall_h": {
+    "arm": 0.3963,
+    "freq": 0.4044,
+    "delta_pp": -0.806,
+    "ci95_pp": 1.192,
+    "n_paired": 11,
+    "nb_size_mean": 286.9
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0066,
+    "mrr_freq": 0.0064,
+    "rank_diag": {
+     "n": 5,
+     "mean_rank_gain": 8.2
+    }
+   }
+  },
+  "kcore|X=50|hop=2": {
+   "n_common": 22,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.5,
+    "freq": 0.4545,
+    "delta_pp": 4.545,
+    "ci95_pp": 9.453,
+    "n_paired": 22,
+    "arm_all_tasks": 0.525,
+    "freq_all_tasks": 0.475
+   },
+   "nb_recall_h": {
+    "arm": 0.6484,
+    "freq": 0.6186,
+    "delta_pp": 2.977,
+    "ci95_pp": 3.162,
+    "n_paired": 22,
+    "nb_size_mean": 69.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0286,
+    "mrr_freq": 0.0236,
+    "rank_diag": {
+     "n": 10,
+     "mean_rank_gain": 0.0
+    }
+   }
+  },
+  "kcore|X=50|hop=3": {
+   "n_common": 20,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.55,
+    "freq": 0.55,
+    "delta_pp": 0.0,
+    "ci95_pp": 15.184,
+    "n_paired": 20,
+    "arm_all_tasks": 0.575,
+    "freq_all_tasks": 0.6
+   },
+   "nb_recall_h": {
+    "arm": 0.5492,
+    "freq": 0.523,
+    "delta_pp": 2.623,
+    "ci95_pp": 3.169,
+    "n_paired": 20,
+    "nb_size_mean": 191.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0148,
+    "mrr_freq": 0.0137,
+    "rank_diag": {
+     "n": 10,
+     "mean_rank_gain": 0.6
+    }
+   }
+  },
+  "kcore|X=50|hop=4": {
+   "n_common": 13,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.4615,
+    "freq": 0.4615,
+    "delta_pp": 0.0,
+    "ci95_pp": 0.0,
+    "n_paired": 13,
+    "arm_all_tasks": 0.475,
+    "freq_all_tasks": 0.475
+   },
+   "nb_recall_h": {
+    "arm": 0.4487,
+    "freq": 0.4602,
+    "delta_pp": -1.156,
+    "ci95_pp": 0.119,
+    "n_paired": 13,
+    "nb_size_mean": 286.9
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0058,
+    "mrr_freq": 0.0058,
+    "rank_diag": {
+     "n": 6,
+     "mean_rank_gain": 0.67
+    }
+   }
+  },
+  "kcore|X=60|hop=2": {
+   "n_common": 29,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.6207,
+    "freq": 0.5172,
+    "delta_pp": 10.345,
+    "ci95_pp": 11.789,
+    "n_paired": 29,
+    "arm_all_tasks": 0.625,
+    "freq_all_tasks": 0.55
+   },
+   "nb_recall_h": {
+    "arm": 0.6836,
+    "freq": 0.6724,
+    "delta_pp": 1.119,
+    "ci95_pp": 1.491,
+    "n_paired": 29,
+    "nb_size_mean": 69.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0351,
+    "mrr_freq": 0.0272,
+    "rank_diag": {
+     "n": 15,
+     "mean_rank_gain": -1.0
+    }
+   }
+  },
+  "kcore|X=60|hop=3": {
+   "n_common": 26,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.6923,
+    "freq": 0.6923,
+    "delta_pp": 0.0,
+    "ci95_pp": 11.424,
+    "n_paired": 26,
+    "arm_all_tasks": 0.625,
+    "freq_all_tasks": 0.625
+   },
+   "nb_recall_h": {
+    "arm": 0.6512,
+    "freq": 0.6206,
+    "delta_pp": 3.068,
+    "ci95_pp": 2.194,
+    "n_paired": 26,
+    "nb_size_mean": 191.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0139,
+    "mrr_freq": 0.0136,
+    "rank_diag": {
+     "n": 17,
+     "mean_rank_gain": -2.59
+    }
+   }
+  },
+  "kcore|X=60|hop=4": {
+   "n_common": 14,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.7143,
+    "freq": 0.5714,
+    "delta_pp": 14.286,
+    "ci95_pp": 20.967,
+    "n_paired": 14,
+    "arm_all_tasks": 0.75,
+    "freq_all_tasks": 0.6
+   },
+   "nb_recall_h": {
+    "arm": 0.5736,
+    "freq": 0.5171,
+    "delta_pp": 5.65,
+    "ci95_pp": 0.928,
+    "n_paired": 14,
+    "nb_size_mean": 286.9
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0091,
+    "mrr_freq": 0.0074,
+    "rank_diag": {
+     "n": 8,
+     "mean_rank_gain": -14.38
+    }
+   }
+  },
+  "community_bridge|X=40|hop=2": {
+   "n_common": 14,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.5,
+    "freq": 0.4286,
+    "delta_pp": 7.143,
+    "ci95_pp": 27.404,
+    "n_paired": 14,
+    "arm_all_tasks": 0.45,
+    "freq_all_tasks": 0.375
+   },
+   "nb_recall_h": {
+    "arm": 0.5969,
+    "freq": 0.5405,
+    "delta_pp": 5.643,
+    "ci95_pp": 6.259,
+    "n_paired": 14,
+    "nb_size_mean": 69.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.026,
+    "mrr_freq": 0.0279,
+    "rank_diag": {
+     "n": 5,
+     "mean_rank_gain": -5.4
+    }
+   }
+  },
+  "community_bridge|X=40|hop=3": {
+   "n_common": 20,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.55,
+    "freq": 0.5,
+    "delta_pp": 5.0,
+    "ci95_pp": 23.888,
+    "n_paired": 20,
+    "arm_all_tasks": 0.575,
+    "freq_all_tasks": 0.525
+   },
+   "nb_recall_h": {
+    "arm": 0.4909,
+    "freq": 0.4598,
+    "delta_pp": 3.11,
+    "ci95_pp": 4.0,
+    "n_paired": 20,
+    "nb_size_mean": 191.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0115,
+    "mrr_freq": 0.0138,
+    "rank_diag": {
+     "n": 8,
+     "mean_rank_gain": -6.25
+    }
+   }
+  },
+  "community_bridge|X=40|hop=4": {
+   "n_common": 11,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.5455,
+    "freq": 0.4545,
+    "delta_pp": 9.091,
+    "ci95_pp": 20.256,
+    "n_paired": 11,
+    "arm_all_tasks": 0.425,
+    "freq_all_tasks": 0.375
+   },
+   "nb_recall_h": {
+    "arm": 0.4812,
+    "freq": 0.4044,
+    "delta_pp": 7.685,
+    "ci95_pp": 2.282,
+    "n_paired": 11,
+    "nb_size_mean": 286.9
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0053,
+    "mrr_freq": 0.0064,
+    "rank_diag": {
+     "n": 5,
+     "mean_rank_gain": -18.0
+    }
+   }
+  },
+  "community_bridge|X=50|hop=2": {
+   "n_common": 22,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.3636,
+    "freq": 0.4545,
+    "delta_pp": -9.091,
+    "ci95_pp": 18.906,
+    "n_paired": 22,
+    "arm_all_tasks": 0.475,
+    "freq_all_tasks": 0.475
+   },
+   "nb_recall_h": {
+    "arm": 0.6054,
+    "freq": 0.6186,
+    "delta_pp": -1.324,
+    "ci95_pp": 4.426,
+    "n_paired": 22,
+    "nb_size_mean": 69.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0207,
+    "mrr_freq": 0.0236,
+    "rank_diag": {
+     "n": 7,
+     "mean_rank_gain": -2.43
+    }
+   }
+  },
+  "community_bridge|X=50|hop=3": {
+   "n_common": 20,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.6,
+    "freq": 0.55,
+    "delta_pp": 5.0,
+    "ci95_pp": 18.441,
+    "n_paired": 20,
+    "arm_all_tasks": 0.675,
+    "freq_all_tasks": 0.6
+   },
+   "nb_recall_h": {
+    "arm": 0.5592,
+    "freq": 0.523,
+    "delta_pp": 3.626,
+    "ci95_pp": 1.694,
+    "n_paired": 20,
+    "nb_size_mean": 191.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0141,
+    "mrr_freq": 0.0137,
+    "rank_diag": {
+     "n": 10,
+     "mean_rank_gain": -6.5
+    }
+   }
+  },
+  "community_bridge|X=50|hop=4": {
+   "n_common": 13,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.4615,
+    "freq": 0.4615,
+    "delta_pp": 0.0,
+    "ci95_pp": 0.0,
+    "n_paired": 13,
+    "arm_all_tasks": 0.5,
+    "freq_all_tasks": 0.475
+   },
+   "nb_recall_h": {
+    "arm": 0.5145,
+    "freq": 0.4602,
+    "delta_pp": 5.428,
+    "ci95_pp": 1.105,
+    "n_paired": 13,
+    "nb_size_mean": 286.9
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.005,
+    "mrr_freq": 0.0058,
+    "rank_diag": {
+     "n": 6,
+     "mean_rank_gain": -10.5
+    }
+   }
+  },
+  "community_bridge|X=60|hop=2": {
+   "n_common": 29,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.5517,
+    "freq": 0.5172,
+    "delta_pp": 3.448,
+    "ci95_pp": 7.063,
+    "n_paired": 29,
+    "arm_all_tasks": 0.625,
+    "freq_all_tasks": 0.55
+   },
+   "nb_recall_h": {
+    "arm": 0.6943,
+    "freq": 0.6724,
+    "delta_pp": 2.184,
+    "ci95_pp": 1.903,
+    "n_paired": 29,
+    "nb_size_mean": 69.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0298,
+    "mrr_freq": 0.0272,
+    "rank_diag": {
+     "n": 15,
+     "mean_rank_gain": -1.27
+    }
+   }
+  },
+  "community_bridge|X=60|hop=3": {
+   "n_common": 26,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.7692,
+    "freq": 0.6923,
+    "delta_pp": 7.692,
+    "ci95_pp": 10.976,
+    "n_paired": 26,
+    "arm_all_tasks": 0.725,
+    "freq_all_tasks": 0.625
+   },
+   "nb_recall_h": {
+    "arm": 0.6608,
+    "freq": 0.6206,
+    "delta_pp": 4.029,
+    "ci95_pp": 1.325,
+    "n_paired": 26,
+    "nb_size_mean": 191.8
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0143,
+    "mrr_freq": 0.0136,
+    "rank_diag": {
+     "n": 18,
+     "mean_rank_gain": -4.33
+    }
+   }
+  },
+  "community_bridge|X=60|hop=4": {
+   "n_common": 15,
+   "n_hop_tasks": 40,
+   "gold_survival": {
+    "arm": 0.6,
+    "freq": 0.6,
+    "delta_pp": 0.0,
+    "ci95_pp": 0.0,
+    "n_paired": 15,
+    "arm_all_tasks": 0.625,
+    "freq_all_tasks": 0.6
+   },
+   "nb_recall_h": {
+    "arm": 0.5751,
+    "freq": 0.517,
+    "delta_pp": 5.813,
+    "ci95_pp": 0.843,
+    "n_paired": 15,
+    "nb_size_mean": 286.9
+   },
+   "secondary": {
+    "pr5_arm": 0.0,
+    "pr5_freq": 0.0,
+    "mrr_arm": 0.0069,
+    "mrr_freq": 0.0074,
+    "rank_diag": {
+     "n": 9,
+     "mean_rank_gain": -10.56
+    }
+   }
+  }
+ },
+ "primary_setting": {
+  "arm": "community_bridge",
+  "X": 50,
+  "reading_i_gold_survival": {
+   "verdict": "pending",
+   "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (-9.091, 18.906), 3: (5.0, 18.441), 4: (0.0, 0.0)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-9.815, 27.997)；按 D1 不把'测不出'写成 refuted。",
+   "deltas_by_hop": {
+    "2": {
+     "delta_pp": -9.091,
+     "ci95_pp": 18.906
+    },
+    "3": {
+     "delta_pp": 5.0,
+     "ci95_pp": 18.441
+    },
+    "4": {
+     "delta_pp": 0.0,
+     "ci95_pp": 0.0
+    }
+   },
+   "monotone_non decreasing": false,
+   "d42_ci95_approx": [
+    -9.815,
+    27.997
+   ]
+  },
+  "reading_ii_nb_recall": {
+   "verdict": "pending",
+   "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (-1.324, 4.426), 3: (3.626, 1.694), 4: (5.428, 1.105)}，单调=True，Δ(hop4)−Δ(hop2) 近似 CI (1.221, 12.283)；按 D1 不把'测不出'写成 refuted。",
+   "deltas_by_hop": {
+    "2": {
+     "delta_pp": -1.324,
+     "ci95_pp": 4.426
+    },
+    "3": {
+     "delta_pp": 3.626,
+     "ci95_pp": 1.694
+    },
+    "4": {
+     "delta_pp": 5.428,
+     "ci95_pp": 1.105
+    }
+   },
+   "monotone_non decreasing": true,
+   "d42_ci95_approx": [
+    1.221,
+    12.283
+   ]
+  }
+ },
+ "secondary_settings": {
+  "kcore|X=40": {
+   "reading_i": {
+    "verdict": "pending",
+    "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (0.0, 22.647), 3: (-5.556, 20.696), 4: (9.091, 20.256)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-33.812, 51.994)；按 D1 不把'测不出'写成 refuted。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 0.0,
+      "ci95_pp": 22.647
+     },
+     "3": {
+      "delta_pp": -5.556,
+      "ci95_pp": 20.696
+     },
+     "4": {
+      "delta_pp": 9.091,
+      "ci95_pp": 20.256
+     }
+    },
+    "monotone_non decreasing": false,
+    "d42_ci95_approx": [
+     -33.812,
+     51.994
+    ]
+   },
+   "reading_ii": {
+    "verdict": "pending",
+    "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (0.081, 1.761), 3: (-2.396, 3.251), 4: (-0.806, 1.192)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-3.84, 2.066)；按 D1 不把'测不出'写成 refuted。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 0.081,
+      "ci95_pp": 1.761
+     },
+     "3": {
+      "delta_pp": -2.396,
+      "ci95_pp": 3.251
+     },
+     "4": {
+      "delta_pp": -0.806,
+      "ci95_pp": 1.192
+     }
+    },
+    "monotone_non decreasing": false,
+    "d42_ci95_approx": [
+     -3.84,
+     2.066
+    ]
+   }
+  },
+  "kcore|X=50": {
+   "reading_i": {
+    "verdict": "pending",
+    "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (4.545, 9.453), 3: (0.0, 15.184), 4: (0.0, 0.0)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-13.998, 4.908)；按 D1 不把'测不出'写成 refuted。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 4.545,
+      "ci95_pp": 9.453
+     },
+     "3": {
+      "delta_pp": 0.0,
+      "ci95_pp": 15.184
+     },
+     "4": {
+      "delta_pp": 0.0,
+      "ci95_pp": 0.0
+     }
+    },
+    "monotone_non decreasing": false,
+    "d42_ci95_approx": [
+     -13.998,
+     4.908
+    ]
+   },
+   "reading_ii": {
+    "verdict": "refuted",
+    "reason": "Δ(hop4)−Δ(hop2) 的近似 95%CI (-7.414, -0.852) 上界 ≤0 → 主设置无 hop 增强；Δ 序列 {2: (2.977, 3.162), 3: (2.623, 3.169), 4: (-1.156, 0.119)}。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 2.977,
+      "ci95_pp": 3.162
+     },
+     "3": {
+      "delta_pp": 2.623,
+      "ci95_pp": 3.169
+     },
+     "4": {
+      "delta_pp": -1.156,
+      "ci95_pp": 0.119
+     }
+    },
+    "monotone_non decreasing": false,
+    "d42_ci95_approx": [
+     -7.414,
+     -0.852
+    ]
+   }
+  },
+  "kcore|X=60": {
+   "reading_i": {
+    "verdict": "pending",
+    "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (10.345, 11.789), 3: (0.0, 11.424), 4: (14.286, 20.967)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-28.815, 36.697)；按 D1 不把'测不出'写成 refuted。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 10.345,
+      "ci95_pp": 11.789
+     },
+     "3": {
+      "delta_pp": 0.0,
+      "ci95_pp": 11.424
+     },
+     "4": {
+      "delta_pp": 14.286,
+      "ci95_pp": 20.967
+     }
+    },
+    "monotone_non decreasing": false,
+    "d42_ci95_approx": [
+     -28.815,
+     36.697
+    ]
+   },
+   "reading_ii": {
+    "verdict": "pending",
+    "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (1.119, 1.491), 3: (3.068, 2.194), 4: (5.65, 0.928)}，单调=True，Δ(hop4)−Δ(hop2) 近似 CI (2.112, 6.95)；按 D1 不把'测不出'写成 refuted。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 1.119,
+      "ci95_pp": 1.491
+     },
+     "3": {
+      "delta_pp": 3.068,
+      "ci95_pp": 2.194
+     },
+     "4": {
+      "delta_pp": 5.65,
+      "ci95_pp": 0.928
+     }
+    },
+    "monotone_non decreasing": true,
+    "d42_ci95_approx": [
+     2.112,
+     6.95
+    ]
+   }
+  },
+  "community_bridge|X=40": {
+   "reading_i": {
+    "verdict": "pending",
+    "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (7.143, 27.404), 3: (5.0, 23.888), 4: (9.091, 20.256)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-45.712, 49.608)；按 D1 不把'测不出'写成 refuted。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 7.143,
+      "ci95_pp": 27.404
+     },
+     "3": {
+      "delta_pp": 5.0,
+      "ci95_pp": 23.888
+     },
+     "4": {
+      "delta_pp": 9.091,
+      "ci95_pp": 20.256
+     }
+    },
+    "monotone_non decreasing": false,
+    "d42_ci95_approx": [
+     -45.712,
+     49.608
+    ]
+   },
+   "reading_ii": {
+    "verdict": "pending",
+    "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (5.643, 6.259), 3: (3.11, 4.0), 4: (7.685, 2.282)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-6.499, 10.583)；按 D1 不把'测不出'写成 refuted。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 5.643,
+      "ci95_pp": 6.259
+     },
+     "3": {
+      "delta_pp": 3.11,
+      "ci95_pp": 4.0
+     },
+     "4": {
+      "delta_pp": 7.685,
+      "ci95_pp": 2.282
+     }
+    },
+    "monotone_non decreasing": false,
+    "d42_ci95_approx": [
+     -6.499,
+     10.583
+    ]
+   }
+  },
+  "community_bridge|X=60": {
+   "reading_i": {
+    "verdict": "pending",
+    "reason": "未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (3.448, 7.063), 3: (7.692, 10.976), 4: (0.0, 0.0)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-10.511, 3.615)；按 D1 不把'测不出'写成 refuted。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 3.448,
+      "ci95_pp": 7.063
+     },
+     "3": {
+      "delta_pp": 7.692,
+      "ci95_pp": 10.976
+     },
+     "4": {
+      "delta_pp": 0.0,
+      "ci95_pp": 0.0
+     }
+    },
+    "monotone_non decreasing": false,
+    "d42_ci95_approx": [
+     -10.511,
+     3.615
+    ]
+   },
+   "reading_ii": {
+    "verdict": "confirmed",
+    "reason": "主设置 Δ 序列 {2: (2.184, 1.903), 3: (4.029, 1.325), 4: (5.813, 0.843)} 单调不减且 Δ(hop4)=5.813pp > Δ(hop2)=2.184pp，三 hop 配对 CI95 下界均 >0 → hop 调节效应在分配保真口径成立。",
+    "deltas_by_hop": {
+     "2": {
+      "delta_pp": 2.184,
+      "ci95_pp": 1.903
+     },
+     "3": {
+      "delta_pp": 4.029,
+      "ci95_pp": 1.325
+     },
+     "4": {
+      "delta_pp": 5.813,
+      "ci95_pp": 0.843
+     }
+    },
+    "monotone_non decreasing": true,
+    "d42_ci95_approx": [
+     0.883,
+     6.375
+    ]
+   }
+  }
+ },
+ "e5_check": {
+  "gold_survival_range": [
+   0.375,
+   0.75
+  ],
+  "nb_recall_range": [
+   0.3963,
+   0.6943
+  ],
+  "no_dynamic_range": false
+ },
+ "verdict": "pending",
+ "verdict_reason": "两读数判定一致（pending）。gold 存活：未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (-9.091, 18.906), 3: (5.0, 18.441), 4: (0.0, 0.0)}，单调=False，Δ(hop4)−Δ(hop2) 近似 CI (-9.815, 27.997)；按 D1 不把'测不出'写成 refuted。 邻域召回：未达 confirmed 判据亦不满足 refuted 条件：Δ 序列 {2: (-1.324, 4.426), 3: (3.626, 1.694), 4: (5.428, 1.105)}，单调=True，Δ(hop4)−Δ(hop2) 近似 CI (1.221, 12.283)；按 D1 不把'测不出'写成 refuted。",
+ "elapsed_s": 2.25,
+ "self_sha256": "e814dadeabd3d884"
+}
