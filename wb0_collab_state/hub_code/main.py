@@ -187,8 +187,20 @@ def _run_check(yaml_path: Path):
 
 # ---------- API ----------
 @app.get("/api/files")
-def list_files():
-    return {"files": _collect_files()}
+def list_files(brief: int = 0, tree: str = "", limit: int = 0):
+    """文件列表。
+    brief=1  → 去掉 sha256/content_type/kind 等，只留 id/name/size/mtime/tree/relpath
+    tree=X   → 仅该树（results_v2|uploads）
+    limit=N  → 截断前 N 条（已按 mtime 倒序）
+    """
+    arr = _collect_files()
+    if tree:
+        arr = [x for x in arr if x.get("tree") == tree]
+    if limit:
+        arr = arr[:int(limit)]
+    if brief:
+        arr = [{k: x.get(k) for k in ("id", "name", "size", "mtime", "tree", "relpath")} for x in arr]
+    return {"files": arr}
 
 @app.post("/api/upload")
 async def upload(file: UploadFile = File(...), kind: str = Form("deliverable"),
@@ -285,7 +297,13 @@ async def post_review(file: UploadFile = File(...)):
     return meta
 
 @app.get("/api/instructions")
-def list_instructions():
+def list_instructions(brief: int = 0, since: int = 0, target: str = ""):
+    """指令列表。
+    brief=1  → 不含 body（仅 id/title/target/author/created/body_len），用于轮询筛选
+    since=TS → 仅返回 created>=TS 的增量
+    target=X → 仅返回 target=X 或 ALL（执行器只取自己的）
+    完整正文请用 GET /api/instruction/{id} 单条拉取。
+    """
     out = _load_manifest("instructions")
     if not out:
         for p in IN.glob("*.json"):
@@ -294,6 +312,20 @@ def list_instructions():
             except Exception:
                 pass
     out.sort(key=lambda x: x.get("created", 0), reverse=True)
+    if since:
+        out = [x for x in out if x.get("created", 0) >= since]
+    if target:
+        t = target.upper()
+        out = [x for x in out if str(x.get("target", "")).upper() in (t, "ALL")]
+    if brief:
+        out = [{
+            "id": x.get("id"),
+            "title": x.get("title"),
+            "target": x.get("target"),
+            "author": x.get("author"),
+            "created": x.get("created"),
+            "body_len": len(x.get("body") or ""),
+        } for x in out]
     return {"instructions": out}
 
 @app.get("/api/instruction/{fid}")
@@ -488,6 +520,55 @@ def contract_check():
         if not _has(txt):
             issues.append({"file": n, "rule": "缺回合自检块(B-05/B-06)"})
     return {"total": len(issues), "status": "PASS" if not issues else "FAIL", "issues": issues, "baseline_ts": BASE}
+
+@app.get("/api/brief")
+def brief():
+    """一站式巡检摘要 —— 替代逐个拉 files/reviews/instructions/state/ledger。
+    目标 < 3KB，覆盖每轮巡检所需全部计数与增量；正文用 /api/instruction/{id} 单条取。
+    设计意图：把"多次全量拉取"压成"一次摘要"，中间数据不进入调用方上下文。"""
+    from collections import Counter as _C
+    led = _load_ledger() if LEDGER.exists() else {}
+    hyps = led.get("hypotheses", []) or []
+    items = led.get("open_items", []) or []
+    files = _collect_files()
+    reviews = _load_manifest("reviews") or []
+    instrs = _load_manifest("instructions") or []
+    instrs.sort(key=lambda x: x.get("created", 0), reverse=True)
+    reviews.sort(key=lambda x: x.get("mtime", 0), reverse=True)
+    rc, hc = _C(r.get("check", {}).get("status") for r in reviews), _C(h.get("status") for h in hyps)
+    try:
+        dchk, cchk = discipline_check(), contract_check()
+        chk = {"discipline": dchk.get("status"), "discipline_issues": dchk.get("total"),
+               "contract": cchk.get("status"), "contract_issues": cchk.get("total")}
+    except Exception as e:
+        chk = {"error": str(e)[:80]}
+    try:
+        sil = silence_status()
+        sil_brief = {"in_window": sil["in_silence_window"], "by_window_today": sil["by_window_today"]}
+    except Exception:
+        sil_brief = {}
+    return {
+        "now": _now(),
+        "ledger_version": str(led.get("ledger_version")),
+        "counts": {
+            "files": len(files), "reviews": len(reviews),
+            "reviews_pass": rc.get("PASS", 0), "reviews_fail": rc.get("FAIL", 0),
+            "instructions": len(instrs), "hypotheses": len(hyps),
+            "hypotheses_by_status": dict(hc),
+            "open_items": len(items),
+            "open_items_open": sum(1 for o in items if o.get("status") == "open"),
+        },
+        "open_items": [{"id": o.get("id"), "status": o.get("status"), "title": (o.get("title") or "")[:80]}
+                       for o in items if o.get("status") == "open"],
+        "reviews_latest": [{"name": r.get("name"), "mtime": r.get("mtime"), "status": r.get("check", {}).get("status")}
+                           for r in reviews[:5]],
+        "instructions_latest": [{"id": i.get("id"), "title": (i.get("title") or "")[:70],
+                                 "target": i.get("target"), "created": i.get("created")} for i in instrs[:5]],
+        "checks": chk,
+        "silence": sil_brief,
+        "hint": "完整正文：/api/instruction/{id}；机检明细：/api/discipline、/api/contract；文件清单：/api/files?brief=1",
+    }
+
 
 @app.get("/api/silence")
 def silence_status():
