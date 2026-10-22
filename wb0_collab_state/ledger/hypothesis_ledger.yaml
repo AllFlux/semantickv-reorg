@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.69'
+ledger_version: '0.72'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -15,7 +15,7 @@ open_items:
   title: 云端 scheduled-agent 执行层整体故障
   updated_at: 2026-10-21T23:02+08:00
   updated_by: WB0-scheduled-wake
-  note: 【22:55】WB2 已恢复：22:27:10 EXP-06 回执落板（机检 PASS）+ exp06_curriculum.json/py 上传，22:40:05 22:40 档运行报告上传；WB1 21:37:48 持续健康（R2-ERRATUM 回执+2 上传）。双执行器均已恢复 Hub 写入，21:55 轮设定的升级条件（22:55 轮 WB2 仍无 Hub 写入且 EXP-06 未完成）不触发，不判停滞。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁），维持 open 不擅自关闭。
+  note: 【23:55】双执行器持续恢复中：WB1 23:54:50 落板 EXP-07 回执 + exp07_router_relief.json（机检 PASS）；WB2 23:45 落板 23:40 档运行报告（队列空、无漏执行）。连续稳定窗口：WB1≈2h18m（21:37 起）、WB2≈1h28m+（22:27 起）。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁）→ 维持 open，不擅自关闭。
 - id: WB0-EGRESS
   severity: low
   desc: GitHub 数据传出仍被阻断（deploy-key 认证 OK，packfile/raw GET 超时）。但回执闭环已不受影响：WB2 经 Hub relpath 推送交付物，机检双路 PASS。剩余仅为 GitHub 仓库同步这一次通道。
@@ -350,8 +350,10 @@ hypotheses:
   status: pending
   statement: K 增大时 Router 有效码字数不按比例增长（扩容不增容）；zscore 预处理能缓解坍塌。
   review_id: WB1-20261022-R2-v1
-  reason: WB0 17:55 轮验收：机检 PASS；判据落 pending——坍塌判据 4/4 成立且属彻底坍塌（exp(H) 全档 1.0000-1.0098，K=8 起有效码字≈1），预处理判据 0/6（提升比 1.00-1.01），两族指标矛盾（逐样本熵饱和 vs 码字使用分布 1-2 码→8-10 码分散）→ 按指令 §4(e) 与 D1 落 pending，未升格未证伪。边界：n=60 仅机制观察；"逐样本 one-hot"以标准 Linear-ReLU-Linear 读法为条件（Tanh 反事实 exp(H)=4.63-8.84 不饱和；训练脚本缺失，Tanh 附录补交前不得外引为无条件结论）。 [2026-10-22 补录：激活函数经 src/semantickv/vllm_plugin/learned_router.py SemanticRouter 源码确认=ReLU（nn.Sequential(Linear,ReLU,Linear)），故“标准读法”非假设而是事实；Tanh 反事实仅作敏感性分析，主读数即 ReLU。]
+  reason: WB0 17:55 轮验收：机检 PASS；判据落 pending——坍塌判据 4/4 成立且属彻底坍塌（exp(H) 全档 1.0000-1.0098，K=8 起有效码字≈1），预处理判据 0/6（提升比 1.00-1.01），两族指标矛盾（逐样本熵饱和 vs 码字使用分布 1-2 码→8-10 码分散）→ 按指令 §4(e) 与 D1 落 pending，未升格未证伪。边界：n=60 仅机制观察；"逐样本 one-hot"以标准 Linear-ReLU-Linear 读法为条件（Tanh 反事实 exp(H)=4.63-8.84 不饱和；训练脚本缺失，Tanh 附录补交前不得外引为无条件结论）。 [2026-10-22 补录：激活函数经 src/semantickv/vllm_plugin/learned_router.py SemanticRouter 源码确认=ReLU（nn.Sequential(Linear,ReLU,Linear)），故“标准读法”非假设而是事实；Tanh 反事实仅作敏感性分析，主读数即 ReLU。] [2026-10-22 23:55 轮补录：EXP-07（softmax-top-k 门控 V1 + 常驻专家/负载均衡 V2 vs ReLU 坍塌基线 V0）已执行并验收 pending（详见 H-EXP-07-SOFTMAX-RELIEF）——V0 复现 R2（max_abs_diff=2.08e-07）；两变体相对 V0 大幅缓解（K=64 逐样本 exp(H) 3.63-8.61、pooled 最高 53.26/64、最多 42/64 码字被使用）但预登记等比判据未达（V1 2/4、V2 0/4 格），双族指标矛盾 + n=60 功效低 → 不升格、不证伪，H-ROUTER-COLLAPSE 维持 pending；工业抗坍塌设计（I-B/I-A）救治效力待口径和解后的 redesign 复检（最早 2026-10-23 派发，须预注册）。]
   updated_by: WB0-scheduled-wake
+  external_corroboration: WB0 调研（2026-10-22）：Recursive Flint（Richard Socher/Recursive，2026-10-21 Apache 2.0 发布）为 47 层 MoE，每层 256 routed experts，router 每 token 选 6 + 1 常驻 shared expert；工业级门控 = 线性层 + softmax + top-k，决策路径无 ReLU 死区，配 Switch 式负载均衡 loss（L_aux = alpha·K·Σ_i f_i·P_i）防 dead experts / 马太效应。该抗坍塌设计与本 H-ROUTER-COLLAPSE 的 ReLU 源诊断方向一致， 且直接启发 EXP-07（V1 softmax-top-k 门控 / V2 常驻专家 + 负载均衡）作为坍塌救治对照。属外部独立佐证，非结论， 不改变 pending 状态。
+  planned_experiment: WB0-INSTR-20261022-EXP-07
 - id: H-FIXUP-ENCODE
   status: confirmed
   review_id: WB1-20261022-FIXUP-v1
@@ -406,6 +408,17 @@ hypotheses:
   owner: WB2
   review_id: WB2-20261022-EXP-06
   updated_by: WB0-scheduled-wake
+- id: H-EXP-07-SOFTMAX-RELIEF
+  claim: 将 ReLU-MLP 路由头替换为 softmax-top-k 门控（V1）并叠加常驻专家 + 负载均衡 loss（V2），可解除 H-ROUTER-COLLAPSE 观测到的 K-坍塌（有效码字数随 K 等比增长），且 V2 优于 V1。
+  status: pending
+  criterion: V1/V2 在 K∈{8,16,64} 上 exp(H)|K=64 ≥ 2×exp(H)|K=8 且显著优于 V0（ReLU 基线，exp(H)≈1） → confirmed；V1/V2 仍 exp(H)≈1 不随 K 增长 → refuted；矛盾或样本不足（n=60 功效低）→ pending。V2 有效码字数 > V1 → 支持常驻专家 + 负载均衡子论断。
+  data_source: results_v2/exp07_router_relief.json
+  owner: WB1
+  review_id: WB1-20261022-EXP-07
+  source: WB0-INSTR-20261022-EXP-07 + 外部佐证 Recursive Flint (2026-10-21)
+  ds_admitted_refutation: false
+  updated_by: WB0-scheduled-wake
+  reason: WB0 23:55 轮验收（6.4，2026-10-22）：回执 WB1-20261022-EXP-07.yaml 机检 PASS；WB0 独立实拉核验数据实物 results_v2/exp07_router_relief.json（220230B，本地 sha256 前16=c7c90b7e77e2970c，JSON 可解析）——①范围守卫：V0（ReLU 基线，18 配置前向不训练）与 R2 实测逐配置 max_abs_diff=2.08e-07<1e-5，通过；②预登记主判据（逐样本 exp(H)|K=64>=2x|K=8，四格）：V1 2/4（1.58/1.82/2.21/2.88，均值 2.12 CI95[1.70,2.62]）、V2 0/4（1.56/1.14/1.39/1.09，均值 1.30 CI95[1.12,1.47]）→ 不达 confirmed；③refuted 分支不成立：K=64 逐样本 exp(H) V1=5.74-8.61、V2=3.63-4.02（vs V0 最大值 1.0098，四格 CI 下界均高于 V0 最大值）且随 K 增长；④双族指标矛盾：pooled exp(H) K64/K8 比值 V1=3.80、V2=6.96（均 4/4>=2）与主判据相反 → 按派工令 §4(e)+D1 落 pending；⑤V2 使用率级缓解强于 V1（K=64 配对：pooled exp(H) delta=+23.84 CI95[20.89,26.88]、被使用码字数 delta=+20.5 CI95[19.0,22.1]，单次运行最多 42/64 码字被使用）→ I-A 方向性支持仅为机制观察，不升格；⑥边界：n=60+3 种子/配置仅机制观察，不得称已根治；训练 wall clock 329.2s<=600s 预算；非确定性已披露（8 线程同 seed 不比特一致 maxdiff 5.19，1 线程比特一致）。结论：pending，与 WB1 自判一致，WB0 独立核验后采纳。
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -418,8 +431,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792681792
-  action: upsert open_item WB0-LEDGER-DECISIONS-STALE
+  at: 1792685289
+  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

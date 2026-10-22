@@ -1,0 +1,124 @@
+review_id: WB1-20261022-EXP-07-v1
+id: WB1-20261022-EXP-07-v1
+author: WB1
+target: WB0
+date: 2026-10-22
+round: EXP-07
+version: v1
+instruction_ids:
+  - 1792682216-94e463
+data_source: results_v2/exp07_router_relief.json
+status: pending
+status_note: >
+  EXP-07（路由坍塌救治：softmax-top-k 门控 + 常驻专家 + 负载均衡，对照 ReLU 坍塌基线）已执行，纯 CPU、零主干模型加载，
+  训练 wall clock 329s（指令预算 ≤600s）。V0（ReLU 基线，18 个 Hub .pt 前向，不训练）复现 R2 坍塌读数
+  （exp(H)=1.0000-1.0098），与 R2 JSON 逐配置 max_abs_diff=2.08e-07 < 1e-5，范围守卫通过。V1（softmax-top-k
+  门控，k=min(K,4)，软分配）与 V2（V1 + 1 常驻 shared code + Switch 式负载均衡 loss，alpha=0.01）各 18 配置
+  ×3 种子从零训练（VQ 式重建 MSE，Adam lr=1e-3 × 300 步，码本数据初始化，门控末层零初始化）。结论：
+  **pending（预登记主判据未达 + 双族指标矛盾，D1 不升格、不证伪）**。四条主线事实：
+  (1) **相对 V0 坍塌基线大幅缓解**：K=64 逐样本 exp(H)：V1=5.74-8.61（为 V0 最大值 1.0098 的 5.7-8.5 倍）、
+  V2=3.63-4.02（3.6-4.0 倍），四格 CI95 下界全部高于 V0 最大值；逐样本 exp(H) 随 K 增长
+  （V1 raw 3.07→3.55→5.74、zscore 3.66→3.93→8.61；V2 raw 2.76→2.91→4.02、zscore 3.24→3.45→3.63）。
+  (2) **预登记主判据未达 confirmed**：逐样本 exp(H)|K=64 ≥ 2×exp(H)|K=8 在 method×preproc 四格上，
+  V1 仅 2/4 格通过（四格比值 1.58/1.82/2.21/2.88，均值 2.12 CI95 [1.70, 2.62]），V2 0/4 格通过
+  （1.56/1.14/1.39/1.09，均值 1.30 CI95 [1.12, 1.47]）。
+  (3) **不落 refuted**：两变体均未坍塌（exp(H) 3.6-8.6 ≫ 1 且随 K 增长），refuted 分支（exp(H)≈1 不随 K 增长）明确不成立。
+  (4) **双族指标矛盾（pending 的直接原因）**：次级指标 pooled exp(H)（平均门控分布熵的指数，反映跨样本使用分散度）
+  的 K64/K8 比值 V1=3.80（4/4 格 ≥2）、V2=6.96（4/4 格 ≥2）；V2 相对 V1 的使用率级缓解显著更强
+  （K=64 配对检验：pooled exp(H) Δ=+23.8 CI95 [20.9, 26.9]、被使用码字数 Δ=+20.5 CI95 [19.0, 22.1]，
+  单次运行最多 42/64 个码字被使用、pooled exp(H) 最高 55.1/64）——逐样本熵判据说"未等比增长"，
+  使用分散度判据说"强增长且 V2 更强"，两族度量与 R2 轮同型地给出不同答案，按指令 §4(e)"结果矛盾→pending"
+  与 D1"测不出≠已证伪"落位 pending。
+  【口径披露（D2）】主判据口径=逐样本 exp(H)（与 R2 的 effective_codes_expH 同口径，保证 V0/V1/V2 可比）；
+  pooled exp(H) 与使用统计为次级指标，未静默替换主口径。训练实现披露：门控末层零初始化（raw 输入 norm≈165 下
+  默认初始化会使 softmax 在第一步即饱和、门控梯度消失——开发 benchmark 实证，属实现细节而非机制主张）；
+  码本数据初始化（标准 VQ 做法，随机初始化码本在步数预算内达不到 embedding 尺度）；软 top-k 分配
+  （指令允许软/硬）；k=min(K,4)（指令建议值）；method 标签对从零 VQ 训练为名义维度（不复现
+  differentiable_pr/reinforce_ema 原训练，指令 §3 规定 VQ 目标）；preproc=none 喂 raw（与 R2 相同披露）。
+  【非确定性披露】8 线程下同 seed 重复训练不比特一致（exp(H) 最大差 5.19），1 线程对照比特一致（差 0.0）：
+  非确定性源于多线程浮点归约顺序，被 300 步混沌训练动力学（门控 rich-get-richer）放大；单次运行结果不可比特复现，
+  全部统计立足于种子级聚合（3 种子×18 配置），浮点噪声已并入复本方差披露。
+  【n 边界】n=60 + 3 种子/配置，仅机制观察；不得称"已根治"（指令 §4）；I-A 方向性支持仅为机制观察，非 confirmed 升级。
+prediction: >
+  H-ROUTER-COLLAPSE 框架下检验两条工业 MoE 实践：(I-B) 健康路由器决策路径不用 ReLU、改 softmax-top-k 门控；
+  (I-A) 常驻专家 + 负载均衡 loss 防 dead experts/马太效应。预登记可观测形式（指令 §4）：confirmed = V1/V2
+  有效码字数随 K 近似等比增长（exp(H)|K=64 ≥ 2×exp(H)|K=8）且显著优于 V0 的坍塌（exp(H)≈1），V2 优于 V1
+  进一步支持 I-A；refuted = V1/V2 仍坍塌（exp(H)≈1 不随 K 增长）；pending = 结果矛盾或样本不足。
+falsifiable_criterion: >
+  指令 §4 预登记判据，逐条执行：
+  (a) confirmed ⇔ V1/V2 在 method×preproc 四格上 exp(H)|K=64 ≥ 2×exp(H)|K=8，且显著优于 V0 坍塌基线；
+  (b) refuted ⇔ V1/V2 exp(H)≈1 且不随 K 增长；
+  (c) pending ⇔ 结果矛盾或样本不足（n=60 功效低，仅机制观察）；
+  (d) 范围守卫：V0 必须与 R2 实测一致。
+  本轮执行结果：(a) V1 2/4 格（1.58/1.82/2.21/2.88，均值 2.12 CI95 [1.70, 2.62]）、V2 0/4 格
+  （1.56/1.14/1.39/1.09，均值 1.30 CI95 [1.12, 1.47]）→ 不达 confirmed；(b) 两变体 K=64 exp(H)=3.63-8.61
+  且随 K 增长 → refuted 分支明确不成立；(c) 逐样本判据（2/4、0/4）与 pooled 判据（3.80、6.96，均 4/4 ≥2）
+  互相矛盾，且 n=60+3 种子功效低 → pending；(d) V0 与 R2 max_abs_diff=2.08e-07 < 1e-5 → 通过。
+actual_data: >
+  【输入与校验】entity_embeddings.json（60×2048 fp32 base64）自 Hub /api/file/r2_entity_embeddings 取得，
+  解码后 sha256 前 16 位与文件内 emb_sha256 及 R2 记录（d1cf27753f274405）一致，全有限；18 个 Router .pt 自 Hub
+  /api/file/r2_b_routers/* 取得（本地 experiments/r2/inputs/ 缓存，逐文件字节数与 Hub /api/files 元数据一致）。
+  确定性纪律：OMP/MKL=1；V0 相位单线程（R2  parity）；训练相位 8 线程；1 线程重复对照比特一致（见非确定性披露）。
+  【V0（ReLU 基线，不训练）】18 配置逐样本 softmax exp(H)=1.0000-1.0098、mean top1=0.995-1.000，与 R2 实测
+  max_abs_diff=2.08e-07（判据字段：exp(H)/top1/gini/maxshare，容差 1e-5）→ 范围守卫通过。
+  【V1（softmax-top-k）】逐样本 exp(H)：K8/K16/K64 = raw 3.07/3.55/5.74、zscore 3.66/3.93/8.61
+  （6 复本均值，CI95 宽约 ±1）；pooled exp(H)：raw 6.74/10.76/20.06、zscore 7.58/14.35/35.00；K=64 被使用
+  码字数最多 20/64；最终 MSE raw≈1.3-2.3、zscore≈0.5-0.8（重建目标=预处理后输入，自监督）。
+  【V2（+常驻专家+负载均衡）】逐样本 exp(H)：raw 2.76/2.91/4.02、zscore 3.24/3.45/3.63；pooled exp(H)：
+  raw 6.98/13.27/47.41、zscore 7.57/14.92/53.26；K=64 被使用码字数最多 42/64（单次运行），
+  典型 30-42/64；最终 MSE raw≈0.8-1.3、zscore≈0.27-0.32；L_aux 终值 0.04-0.09（接近均匀选择的理论值 0.01k=0.04）。
+  【判据四格（逐样本 exp(H) K64/K8 比值）】V1：raw|diff_pr 1.58 FAIL、zscore|diff_pr 1.82 FAIL、
+  raw|reinforce 2.21 PASS、zscore|reinforce 2.88 PASS；V2：1.56/1.14/1.39/1.09 全 FAIL。
+  【pooled 判据四格（K64/K8）】V1 3.80（4/4 PASS）、V2 6.96（4/4 PASS）。
+  【V2 vs V1 配对（config×seed）】K=64：逐样本 exp(H) Δ=-2.75 CI95 [-3.93, -1.66]（V2 更低）、
+  pooled exp(H) Δ=+23.84 CI95 [20.89, 26.88]（V2 更高）、被使用码字数 Δ=+20.5 CI95 [19.0, 22.1]（V2 更多）。
+  【与 V0 分离度】K=64 均值/V0 最大值：V1 raw 5.68×、zscore 8.53×；V2 raw 3.98×、zscore 3.59×；四格 CI 下界均 > V0 最大值。
+  【n 边界】n=60，3 种子/配置；全部结论仅至机制观察级。
+hypotheses:
+  - id: H-ROUTER-COLLAPSE
+    statement: K 增大时 Router 有效码字数不按比例增长（扩容不增容）；工业抗坍塌设计（softmax-top-k 门控、常驻专家+负载均衡）可缓解坍塌。
+    prediction: V1/V2 的有效码字数随 K 近似等比增长（exp(H)|K=64 ≥ 2×exp(H)|K=8）且显著优于 V0 坍塌基线；V2 使用率级缓解强于 V1 则支持 I-A。
+    falsifiable_criterion: exp(H)|K=64 ≥ 2×exp(H)|K=8（四格）→ 缓解成立；exp(H)≈1 不随 K 增长 → 坍塌未缓解（refuted 分支）；矛盾或样本不足 → pending。
+    actual_data: >
+      V1/V2 相对 V0 均有大幅缓解（K=64 逐样本 exp(H) 3.6-8.6 vs 1.01，pooled exp(H) 最高 55.1/64，
+      最多 42/64 码字被使用）；但逐样本等比判据 V1 2/4、V2 0/4 格，pooled 判据均 4/4 格，两族指标矛盾。
+    ds_admitted_refutation: false
+    ds_pending_reason: >
+      双族指标矛盾：逐样本熵判据（预登记主口径，R2 同口径）显示"缓解但未达等比增长"，
+      而 pooled/使用分散度判据显示"强增长（3.80/6.96）且 V2 显著强于 V1（+23.8 pooled exp(H)、+20.5 码字）"。
+      按 D1，此为判据不可分辨 + 样本不足（n=60、3 种子），不得记为已证伪；亦不得把"缓解显著"写成 confirmed。
+    status: pending
+collaboration_audit:
+  black_box_isolation: 仅经 Hub HTTP API 取指令/文件/上传产物；未直连 WB0/WB2 沙盒；未读他人台账。
+  interface_alignment: >
+    data_source 指向已推实物 results_v2/exp07_router_relief.json（先推实物后推回执）；复算脚本
+    experiments/exp07/exp07_router_relief.py 同推（kind=other）；输入 embedding 与 18 个 Router 均为
+    Hub 自取（本地缓存字节数与 Hub 元数据相符、sha256 核对通过），未假设本地存在。
+  handoff_boundary: 仅处理 target=WB1/ALL、auto_run=true、id 不在 done.json 的指令；本轮执行 1 条
+    （1792682216-94e463，long_run=false）、确认 2 条无执行动作裁定（1792680773-ce8741、1792681928-845b87）；
+    long_run AB-01/AB-02（1792564435-ee5050、1792566417-67614f）按规则跳过——不执行、不标记 done、不发
+    open_item（由专用长时任务负责）；target=WB0/WB2 指令未触碰；WB1 自己发出的 open_item 未自处理。
+  ledger_discipline: 不写 hypothesis_ledger.yaml；done.json 仅追加指令 id。
+  dual_channel: Hub=控制面；本轮无团队空间双写要求，仅 Hub 单写。
+compliance:
+  - 未伪造数据：全部数值由 Hub 原始 .pt/embedding 经脚本计算（18 次前向 + 108 次训练），脚本随附可复算（1 线程比特级可复现）
+  - 未加载主干模型（scope_guard 遵守），纯 CPU，训练 wall clock 329s ≤ 指令 600s 预算
+  - 范围守卫通过：V0 与 R2 实测 max_abs_diff=2.08e-07 < 1e-5
+  - 未覆盖任何既有文件：主交付物、脚本、回执均为新建（results_v2/exp07_router_relief.json、experiments/exp07/exp07_router_relief.py、results_v2/WB1-20261022-EXP-07.yaml）
+  - 未写台账；done.json 仅记指令 id
+  - 结论带 n=60 边界声明；pending 的双族指标矛盾已逐条披露；未把"判据未达"写成 confirmed，也未把"缓解显著"写成 refuted（D1）
+  - 换口径/实现选择均显式披露（zero-init 门控层、码本数据初始化、软 top-k、k=min(K,4)、method 名义维度、none→raw、主判据=逐样本 exp(H) 与 R2 同口径），未用代理指标冒充原口径（D2）
+  - 非确定性披露：8 线程同 seed 重复不比特一致（maxdiff 5.19）、1 线程比特一致（0.0），结论立足于种子级聚合
+  - long_run 跳过 2 条（AB-01/AB-02），未执行、未标记、未升级
+  - D4/D5：输入资源全部在位（sha256/字节数核验），无 dependency_missing；产物为可再生产（脚本+Hub 输入齐备），不属不可再生孤本，p0 不置位
+round_self_check:
+  B-01: '未证推论——"softmax-top-k/常驻专家能使有效码字随 K 近似等比增长"未获确认（逐样本判据 V1 2/4、V2 0/4 格）；备选解释：逐样本熵度量对跨样本使用分散不敏感（与 R2 轮同型的两族指标张力），且 n=60+3 种子功效低、8 线程浮点噪声被混沌训练放大（同 seed 两次 exp(H) 差 5.19）。'
+  B-02: '判据分级——E2 可立即跑：输入全部本地缓存自 Hub 且校验通过，CPU 329s 完成，无资源阻塞；无 E3；无 E5（无原则上不可判项，矛盾型结果按指令 §4(e) 落 pending 而非撤回）。'
+  B-03: '动机猜测——回应指令 EXP-07 对工业 MoE 抗坍塌设计（I-B 门控去 ReLU / I-A 常驻专家+负载均衡）能否解除 R2 观测到的 K-坍塌的直接检验需求。'
+  B-04: '类比——"坍塌/dead experts/马太效应"为 MoE 与 VQ 文献标准术语转用，Recursive Flint 工业设计为指令 §8 原文转述的外部佐证注记；本轮回合计 0 处跨领域数值类比，无 [发生器] 标注需求。'
+  B-05: '自我规划——本轮范围=执行 EXP-07 单条 auto_run 指令（V0 复现+V1/V2 训练+双族指标+判据+交付）并确认 2 条裁定类指令；下轮计划=按 :20 档巡检 /api/brief 与新指令，long_run 继续跳过。'
+  B-06: '循序渐进——本轮完成"基准复现→三变体训练→双族指标→判据→交付"全链路；预留接口：JSON 内 per_router（3 变体×18 配置×3 种子全量）、aggregate_mean_expH、criterion_cells、v2_vs_v1_paired 分块可供 WB0 复核或扩样本复用。'
+  B-07: 'Agent 调用——0 次；任务为单脚本确定性计算 + Hub API 读写，无需子代理。'
+  B-08: '交付前验证——V0 与 R2 一致性 max_abs_diff=2.08e-07<1e-5（范围守卫）；embedding sha256 前缀与 R2 记录一致；1 线程对照比特一致/8 线程不一致已定性并写入 JSON；JSON 可解析（220KB）；上传后将自查 GET /api/file/r2_exp07_router_relief 返回 200 且 size 与本地产物一致。'
+  B-09: '动机优先——本轮 100% 回应指令明文要求（EXP-07 执行 + 2 条裁定确认），无自选研究方向、无抢跑。'
+  B-10: '不下断定——"I-B/I-A 成立或失效""坍塌已根治"均未断言；仅陈述双族指标读数与 pending 判据，留待 WB0 裁定与扩样本复核。'
