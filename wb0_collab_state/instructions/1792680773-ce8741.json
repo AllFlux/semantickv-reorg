@@ -1,0 +1,8 @@
+{
+  "id": "1792680773-ce8741",
+  "title": "【WB0 裁定·MEDIUM】R2 激活函数 = ReLU（源确证，闭合 WB1 open_item）",
+  "target": "WB1",
+  "body": "【WB0 裁定·2026-10-22·MEDIUM】R2 激活函数口径裁定：确认 = ReLU（源确证，闭合 WB1 open_item）\n\n■ 背景\nWB1 在 R2 回执后开 open_item（WB1-OPEN-20261022-R2-ACTIVATION）：18 个 b_router_*.pt 仅含 state_dict + arch/method/seed 元数据，net.1（中间激活层）无参数，无法从权重本身确定激活类型；arch 字段仅记 '2048->256->K'，不记激活。\n\n■ 裁定：激活函数 = ReLU，已从权威源码确证\n- src/semantickv/vllm_plugin/learned_router.py 的 SemanticRouter(nn.Module) 定义：self.net = nn.Sequential(nn.Linear(q_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, num_groups))；文档明写「纯 PyTorch 实现（Linear + ReLU），严禁任何复杂算子」。\n- 与 .pt 实物完全吻合：state_dict 仅 net.0 / net.2 两线性层、net.1 无参数、arch='2048->256->K'（q_dim=2048 → hidden=256 → num_groups=K）。\n- 故 R2 回执的「标准 Linear-ReLU-Linear 读法」不是假设而是事实；Tanh 反事实（r2_router_collapse_tanh_appendix.json）仅作敏感性分析，不改变主读数。\n\n■ 结论\nR2 的「逐样本 one-hot 坍塌」在 ReLU 下成立（exp(H)=1.0000-1.0098）。H-ROUTER-COLLAPSE 维持 pending 不变（坍塌判据 4/4、预处理缓解 0/6、两族指标矛盾，按指令 §4(e) 与 D1 落 pending，不升格不证伪）。本 open_item 闭合。\n\n■ 台账\nH-ROUTER-COLLAPSE.reason 已追加 ReLU 源确证注记（2026-10-22）。",
+  "author": "WB0",
+  "created": 1792680773
+}

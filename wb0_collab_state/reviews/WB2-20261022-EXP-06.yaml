@@ -1,0 +1,155 @@
+review_id: WB2-20261022-EXP-06
+id: WB2-20261022-EXP-06
+author: WB2
+date: "2026-10-22"
+target: WB2
+executor: WB2
+round: "2026-10-22 21:40 GMT+8"
+instruction_id: "1792650493-7cd4cc"
+instruction_ids: ["1792650493-7cd4cc"]
+instruction_ref: WB0-INSTR-20261022-EXP-06
+title: EXP-06 语义 Router 课程学习（递增 vs 随机 vs 递减）——码本利用率 exp(H) 与下游 OOD 泛化
+status: delivered
+verdict: pending
+status_note: >-
+  按 D1 三分判 pending，核心是**判据前提缺失 + 效应矛盾**，而非单纯样本不足。指令 §3 预注册判据
+  （递增课程在 exp(H) 或 OOD 上显著优于随机/递减，≥2pp）在主设置上均未满足：OOD 主设置
+  （lp_community × p × online，m=60）d(inc−rnd)=+1.0pp（CI95[−0.3,+2.5] 跨 0）、
+  d(inc−dec)=+0.6pp（CI95[0.0,+1.9]）；exp(H) 主设置 m=24 |d|<0.3pp。更关键的是主难度
+  （Router 逐样本预测熵）在 17/18 个 Router 上无梯度（H_std<1e-6）→ inc/dec 臂退化为
+  索引序/逆序，inc−dec 对比被结构性拉平，confirmed 判据在本批 Router 上近乎不可执行（前提缺失）。
+  敏感性扫描（2 任务 × 2 输入 × 2 模式 × 5 预算 × 2 臂 = 32 个显著 delta）存在显著但方向相反
+  或幅值远不足的效应（如 lp_community×h×online m=60：d(inc−rnd)=−6.0pp CI[−11.2,−1.0]；
+  degree 臂 expH m=24：+0.5~0.8pp），故"课程顺序无显著影响"的全局陈述亦不成立。
+  按 D1"测不出≠已证伪"：不写 refuted；未达判据也不写 confirmed → pending。
+  n=60 为指令明示边界（功效低，仅机制观察）；实体级留出（同类两 split 可见），社区级未见类 OOD
+  对闭集分类器不可计算（已披露）。
+prediction: >-
+  指令 §3 预注册：若课程顺序对 Router 码本使用与下游泛化有因果影响，则递增课程（easy-first）应在
+  exp(H)（码本利用率）或下游 OOD 宏准确率上优于随机与递减课程 ≥2pp（或 ≥10% 相对提升）；
+  递减课程（hard-first）应劣于或等同于随机。操作化（WB2 口径，实验前固定）：难度=per-router
+  逐样本预测熵 H(p_i)（并列 1e-6 取整稳定排序）；敏感性难度=图 degree（高频=易，方向假设已披露）；
+  课程=递增/递减/随机（随机 3 个种子）；预算 m∈{12,24,36,48,60}；指标=前缀 m 样本池化码分布
+  exp(H)（util=exp(H)/K，WB1 口径）+ 下游 OOD 宏准确率（线性探针，输入 p 码分布为主）。
+falsifiable_criterion: >-
+  confirmed ⟺ 主设置（lp_community × p × online）OOD 或 exp(H) 上，递增同时胜随机与递减
+  ≥2pp 且配对 bootstrap CI95 下界>0；refuted ⟺ 两臂 |d|<2pp 且 CI 覆盖 0；否则 pending
+  （指令 §3：样本不足或矛盾）。附加纪律：主难度臂若结构性退化（绝大多数 Router 无逐样本难度
+  梯度），inc−dec 对比不可解释为课程效应，不得据此下任一 verdict（伪重复披露）。
+actual_data:
+  executed_at: "2026-10-22 21:40 GMT+8"
+  wall_clock_s: 18.16
+  budget_s: 600
+  inputs:
+    routers: "18 个（K∈{8,16,64} × {differentiable_pr, reinforce_ema} × {raw, zscore, none}）；指令标注路径 r2_b_routers/b_router_* 实测 404，实体在 Hub 顶层 b_router_K*_*.pt（与 WB1 r2_router_collapse.json inputs.routers.source 同源）→ 判非缺失依赖，未发 open_item，路径不符已披露"
+    embeddings: "60×2048 fp32；本地 entity_embeddings.npz hidden_states 与 Hub r2_entity_embeddings（json base64）逐字节相等，sha256 前缀 d1cf27753f274405 与 WB1 记录一致"
+    graph: "复用 EXP-02E 口径：200 条 2wikimqa 题内 title 共现图 1404 实体/7475 边；55/60 实体入图；LP 社区预测 6 类（21 train / 14 OOD，实体级 60/40 分层留出，同类两 split 可见）；k-core 层级 9 类（32/22）"
+  method:
+    difficulty_primary: "per-router 逐样本预测熵 H(p_i)；并列 1e-6 取整稳定排序"
+    difficulty_sensitivity: "图 degree（高频=易，方向假设已披露；5 个非图实体 degree=0）"
+    curricula: "递增（easy-first）/ 递减（hard-first）/ 随机（3 种子 11/22/33）；每臂 3 个探针初始化种子（配对设计）"
+    budgets: "m∈{12,24,36,48,60}"
+    expH_metric: "前缀 m 样本池化码分布有效码数 exp(H)，util=exp(H)/K（WB1 口径）"
+    probe: "多项逻辑回归；输入 p（K 维码分布，主）/ h（256 维隐层 z-score，敏感性）；online 单遍 SGD lr=0.5（顺序敏感，主）/ batch 前缀全批 GD E=200（子集敏感）；init N(0,0.01)"
+    preproc: "WB1 口径：raw/none→raw 输入；zscore→逐特征数据集 z-score（60 实体统计量，无监督）"
+    determinism: "OMP/MKL=1；fp32 前向、f64 熵；全部 rng 种子化（crc32 派生探针种子）；单脚本可重跑"
+  results_primary:
+    ood: "lp_community × p × online m=60：d(inc−rnd)=+1.00pp CI95[−0.31,+2.52]；d(inc−dec)=+0.62pp CI95[0.00,+1.85]（均不达 2pp 判据）"
+    expH: "util m=24：d(inc−rnd)=+0.20pp CI95[−0.29,+0.72]；d(inc−dec)=−0.03pp CI95[−0.16,+0.08]（|d|<0.3pp）"
+    expH_m60_invariance: "m=60 时 exp(H) 顺序严格不变（delta≈0，数值 −7.7e−19；batch 模式 m=60 delta 精确=0）→ 前缀全集时课程对比自然坍缩，对照成立"
+  results_sensitivity: >-
+    32 个 (设置×预算×臂) delta 的 CI95 排除 0，但无一满足 confirmed 判据，且方向/幅值问题突出：
+    lp_community×h×online m=60 d(inc−rnd)=−6.0pp CI[−11.2,−1.0]（方向与预测相反）；
+    degree 臂 expH m=24 d(inc−rnd)=+0.55pp、d(inc−dec)=+0.84pp（显著但 <<2pp）；
+    degree 臂 OOD m=24 d(inc−dec)=−4.4pp CI[−8.6,−1.1]（方向不一致）。early-budget
+    （m=12）若干显著 delta 与伪重复警告叠加，不可解释为课程顺序效应。
+  probe_accuracy:
+    h_ood: "lp_community OOD 宏准确率 0.4286（机会 0.1667，多数类 0.2857）→ 隐层含社区信号"
+    p_ood: "同任务码分布 p 输入 OOD 0.2215（仅略高于机会）→ 码分布承载的下游信息远弱于隐层，佐证 WB1 Router collapse 结论"
+  controls:
+    wb1_forward_xcheck: "18 Router 前向（exp(H)/util/top1）与 WB1 记录最大偏差 7.38e−09 → 强复现性"
+    entropy_degenerate: "17/18 Router H_std<1e-6（低至 1e−121）→ 主难度臂无逐样本梯度，inc≈dec 退化（inc_eq_dec=true）"
+    degree_degenerate: "0/18"
+  reproducibility: "seed=20261022；纯 CPU 18.16s（≤600s 预算）；确定性可重跑；无训练（仅下游线性探针）、无主干加载、无 LLM 前向、无合成数据"
+hypotheses:
+  - id: H-EXP-06-CURRICULUM
+    statement: 课程顺序（递增 vs 随机 vs 递减）对 Router 码本利用率（exp(H)）与下游 OOD 宏准确率有因果影响，递增优于随机与递减 ≥2pp。
+    status: pending
+    prediction: 主设置 OOD 或 exp(H) 上 d(inc−rnd) 与 d(inc−dec) 均 ≥2pp 且 CI95 下界>0 → confirmed；两臂均 <2pp → refuted；矛盾/前提缺失 → pending。
+    falsifiable_criterion: 同 prediction；主难度臂结构性退化时不得据 inc−dec 退化下 refuted（伪重复纪律）。
+    actual_data: >-
+      主设置 OOD m=60：+1.00pp（CI 跨 0）/+0.62pp；expH m=24：+0.20pp/−0.03pp；m=60 exp(H) 顺序严格不变。
+      敏感性 32 个显著 delta 方向相反或 <<2pp（如 h×online m=60 −6.0pp；degree 臂 +0.5~0.8pp）。
+      17/18 Router 无难度梯度使 inc−dec 对比结构性拉平。confirmed 未达，全局"无影响"亦不成立 → pending。
+    status_reason: >-
+      (1) confirmed 判据任何设置均未满足；(2) 主难度前提缺失（17/18 退化），confirmed 判据在本批 Router
+      上近乎不可执行；(3) 敏感性存在方向相反/幅值不足的显著效应，"无显著影响"全局陈述不成立，
+      按 D1 不写 refuted；(4) 落入指令 §3 pending 分支（矛盾 + n=60 边界）。
+  - id: H-EXP-06-DEGENERACY
+    statement: 主难度口径（Router 逐样本预测熵）在本批 18 个 Router 上缺乏逐样本梯度，使递增/递减课程对比结构性退化（inc≈dec）。
+    status: confirmed
+    prediction: 多数 Router 的 per-sample H 标准差 <1e-6，inc/dec 顺序等价于索引序/逆序。
+    falsifiable_criterion: 若多数 Router H_std ≥1e−3（存在可用难度梯度），本假设被证伪。
+    actual_data: "17/18 Router H_std<1e−6（最低 1e−121）；per_router.inc_eq_dec=true 覆盖 17 个；仅 1 个 Router（exp06 JSON per_router 可查）有非退化梯度。degree 难度臂 0/18 退化（对照：难度信号可构造，塌缩来自 Router 熵本身）。"
+  - id: H-EXP-06-H-PROBE
+    statement: 下游线性探针在隐层输入 h 上的 OOD 宏准确率显著高于码分布输入 p，即 Router 码分布丢失了主干隐层中可线性读出的社区信息（WB1 collapse 结论的补充证据）。
+    status: confirmed
+    prediction: h 探针 OOD 宏准确率 − p 探针 OOD 宏准确率 ≥ 10pp（机会 0.167）。
+    falsifiable_criterion: 若差值 <2pp，本假设被证伪。
+    actual_data: "lp_community OOD：h=0.4286 vs p=0.2215，差 +20.7pp（p 仅略高于机会 0.1667；h 亦超多数类基线 0.2857）。"
+data_source:
+  - relpath: results_v2/exp06_curriculum.json
+    size: 47410
+    sha256: 4e72bdb871bf41ba423ecf582e7802a58946cbd9eb331073b588409998474a31
+  - relpath: results_v2/exp06_curriculum.py
+    size: 28813
+    sha256: a33f0ae8106012a47a85689213ad1054749d7c00ebf113f373cea630ea19d986
+  - relpath: results_v2/wb2_run_report_20261022_2140.md
+    size: 8921
+    sha256: 6525d6ee82590b2c694252ab690d3507b7cae6b5fa44d4d39f2e564135c0ec63
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: probe_only
+  trained_note: "仅训练下游线性探针（多项逻辑回归，本地 CPU，属于评测协议而非 Router 训练）；未训练 18 个 Router、未加载主干模型、无 LLM 前向"
+  llm_forward: false
+  external_dependency_missing: false
+  dependency_note: "EXP-03（1792622667-1d55e4）已于 14:40 轮闭环，依赖满足；18 Router 与 60 embedding 均自 Hub 可得（Router 实际路径在 Hub 顶层，指令标注的 r2_b_routers/ 子路径 404，已披露并更正，未发 open_item）；无其他外部依赖缺失"
+  secrets_disclosed: false
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  router_training: false
+  backbone_loaded: false
+  llm_forward: false
+  exp06_deliverable_overwritten: false
+  fabrication: false
+  budget_respected: true
+  budget_detail: "18.16s ≤ 600s 指令预算"
+  path_correction_disclosed: true
+  pseudo_replication_disclosed: true
+  no_verdict_from_degenerate_contrast: true
+  no_refuted_from_contradiction: true
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；全部数值由本地 60 embedding + 18 Router 单脚本计算，未沿用他方自述数值（WB1 前向记录仅作 xcheck 对照，最大偏差 7.38e−09）"
+  interface_alignment: "建会话 → GET /api/brief → GET /api/instructions?brief=1&target=WB2&since=... → 单条取 EXP-06 正文 → 复用 EXP-02E 图口径与本地 embedding → CPU 18.16s → POST /api/upload（relpath=results_v2/…）→ POST /api/review（本回执）→ done.json 追加"
+  upstream_contract: "WB0-INSTR-20261022-EXP-06（判据、交付清单、scope_guard 逐项对齐）"
+  scope_guard_honored: >-
+    未伪造；未写台账；未动冻结件；未覆盖既有产物；未训练 Router、未加载主干（仅 Router 前向 + 下游
+    线性探针）；路径不符已披露而未伪造依赖；难度退化与伪重复已披露；confirmed/refuted 均未在前提
+    缺失下妄下（D1）。
+  cross_executor_conflicts: 0
+self_check:
+  B-01_goal_addressed: "按指令 §2 完成三种课程 × 5 预算 × 2 任务 × 2 输入 × 2 模式的 exp(H) 与 OOD 对比（18 Router，每臂 3 种子），给出全部 delta 与 CI 及判定"
+  B-02_criteria_predeclared: "prediction 与 falsifiable_criterion 取自指令 §3 并在实验前固定（exp06_curriculum.py criteria 字段与回执一致），判定分支未事后修改；判据前提缺失（17/18 无难度梯度）作为独立披露项，未用于改写判据"
+  B-03_data_source_real: "三个文件为本地实测生成（json/py/运行报告），sha256 已登记，data_source 指向 Hub relpath 非自引用；上传后经 GET /api/file/r2_<stem> 自查 200 且 size 一致"
+  B-04_construction_disclosed: "难度操作化（per-router 熵，1e-6 取整）、degree 敏感性方向假设、课程序列、预算集合、探针协议（输入/模式/lr/E/种子）、z-score 口径（60 实体统计）、60/40 分层留出、n=60 边界全部披露"
+  B-05_negative_finding_reported: "17/18 Router 难度梯度缺失、inc≈dec 退化、m=60 exp(H) 顺序不变、伪重复（有效 n≈1-2）、h 探针方向相反效应、degree 臂幅值不足均如实留痕，未删"
+  B-06_verdict_three_way: "未把'测不出'写作'已证伪'：confirmed 判据未达 + 前提缺失 + 敏感性效应矛盾 → pending；亦未把方向相反/幅值不足的显著 delta 写成 confirmed"
+  B-07_reproducibility: "单脚本确定性可重跑（crc32 派生种子、OMP=1）；WB1 前向 xcheck 最大偏差 7.38e−09 证明 Router 前向口径与 WB1 一致"
+  B-08_no_overreach: "未宣称课程顺序有效或无效；h>p 探针差仅作 WB1 collapse 的补充证据，未据此升降任何既有假设；degree 臂效应因伪重复未作因果解读"
+  B-09_token_discipline: "本轮用 /api/brief + /api/instructions?brief=1&target&since + 单条取正文 + /api/files?brief=1，未裸拉 instructions/files 全量、未拉 ledger/state"
+  B-10_handoff: "遗留待裁：(a) 主难度口径塌缩（17/18 Router 无逐样本熵梯度）是否需换难度定义（如逐样本 top1 边际差、h 空间边际）后重跑 EXP-06；(b) 显著性效应方向矛盾（h×online m=60 −6.0pp）是否需预注册后复核；(c) 社区级未见类 OOD 需换开集/检索式评测协议——均交 WB0 裁定，未自行扩大"
+created_at: "2026-10-22T22:25:00+08:00"

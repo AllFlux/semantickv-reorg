@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.66'
+ledger_version: '0.69'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -15,7 +15,7 @@ open_items:
   title: 云端 scheduled-agent 执行层整体故障
   updated_at: 2026-10-21T23:02+08:00
   updated_by: WB0-scheduled-wake
-  note: 【21:55】WB1 持续健康：21:37 Hub 写入（R2-ERRATUM 回执+2 件上传，机检 PASS）。WB2 自 19:07 后无 Hub 写入（2h50m），但其中 19:10-21:10 为治理静默窗（cron 触发受抑，/api/silence 证实该段 8 次写入全部归属 18:55 档 WB0 会话、无 WB2 写入）；静默后首个触发点 21:40 距今约 17 分钟，EXP-06（CPU<=600s）在跑或待跑均属正常窗口 → 本轮不判停滞，转观察。升级条件：若 22:55 轮 WB2 仍无 Hub 写入且 EXP-06（1792650493-7cd4cc）未完成 → 按 3d 判 HIGH 停滞并升级本项。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁）。
+  note: 【22:55】WB2 已恢复：22:27:10 EXP-06 回执落板（机检 PASS）+ exp06_curriculum.json/py 上传，22:40:05 22:40 档运行报告上传；WB1 21:37:48 持续健康（R2-ERRATUM 回执+2 上传）。双执行器均已恢复 Hub 写入，21:55 轮设定的升级条件（22:55 轮 WB2 仍无 Hub 写入且 EXP-06 未完成）不触发，不判停滞。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁），维持 open 不擅自关闭。
 - id: WB0-EGRESS
   severity: low
   desc: GitHub 数据传出仍被阻断（deploy-key 认证 OK，packfile/raw GET 超时）。但回执闭环已不受影响：WB2 经 Hub relpath 推送交付物，机检双路 PASS。剩余仅为 GitHub 仓库同步这一次通道。
@@ -81,6 +81,8 @@ open_items:
   mitigation: 已停止重试（避免版本噪声）。请主会话在 Hub 代码层处置：为 decisions 段增加作废字段/接口，或修正 decisions 渲染源使其随 hypotheses 状态派生。过渡期纪律：引用 DEC-20261021-E2E-GATE-CLOSED 一律视为作废；闸门升级依据仅认 DEC-20261021-E2E-GATE（user-confirmed）。
   resolution: ''
   target: WB0
+  note: 【22:55】观察：契约机检现存 1 项 FAIL（1792680773-ce8741，22:52 ReLU 裁定缺 B-05/B-06 自检块，归发布方补块重发，与本项 decisions 段缺陷相互独立）；主会话已清理历史缺块 12->1、修复纪律检查器索引 7->0，decisions 段缺陷依旧待代码级修复。
+  updated_by: WB0-scheduled-wake
 - id: WB0-FILE-API-STALE-RESOLVER
   severity: high
   status: resolved
@@ -348,7 +350,7 @@ hypotheses:
   status: pending
   statement: K 增大时 Router 有效码字数不按比例增长（扩容不增容）；zscore 预处理能缓解坍塌。
   review_id: WB1-20261022-R2-v1
-  reason: WB0 17:55 轮验收：机检 PASS；判据落 pending——坍塌判据 4/4 成立且属彻底坍塌（exp(H) 全档 1.0000-1.0098，K=8 起有效码字≈1），预处理判据 0/6（提升比 1.00-1.01），两族指标矛盾（逐样本熵饱和 vs 码字使用分布 1-2 码→8-10 码分散）→ 按指令 §4(e) 与 D1 落 pending，未升格未证伪。边界：n=60 仅机制观察；"逐样本 one-hot"以标准 Linear-ReLU-Linear 读法为条件（Tanh 反事实 exp(H)=4.63-8.84 不饱和；训练脚本缺失，Tanh 附录补交前不得外引为无条件结论）。
+  reason: WB0 17:55 轮验收：机检 PASS；判据落 pending——坍塌判据 4/4 成立且属彻底坍塌（exp(H) 全档 1.0000-1.0098，K=8 起有效码字≈1），预处理判据 0/6（提升比 1.00-1.01），两族指标矛盾（逐样本熵饱和 vs 码字使用分布 1-2 码→8-10 码分散）→ 按指令 §4(e) 与 D1 落 pending，未升格未证伪。边界：n=60 仅机制观察；"逐样本 one-hot"以标准 Linear-ReLU-Linear 读法为条件（Tanh 反事实 exp(H)=4.63-8.84 不饱和；训练脚本缺失，Tanh 附录补交前不得外引为无条件结论）。 [2026-10-22 补录：激活函数经 src/semantickv/vllm_plugin/learned_router.py SemanticRouter 源码确认=ReLU（nn.Sequential(Linear,ReLU,Linear)），故“标准读法”非假设而是事实；Tanh 反事实仅作敏感性分析，主读数即 ReLU。]
   updated_by: WB0-scheduled-wake
 - id: H-FIXUP-ENCODE
   status: confirmed
@@ -395,6 +397,15 @@ hypotheses:
   review_id: WB2-20261022-EXP-05
   ds_admitted_refutation: false
   updated_by: WB0-scheduled-wake
+- id: H-EXP-06-CURRICULUM
+  claim: 难度递增课程（easy-first）在 Router 码本利用率 exp(H)/util 或下游 OOD 泛化上优于随机/递减课程 >=2pp（或 >=10% 相对提升）。
+  status: pending
+  criterion: 预注册（派工令 1792650493-7cd4cc §3）：confirmed=递增课程在 exp(H) 或 OOD 上显著优于随机/递减（>=2pp 或 >=10% 相对提升）；refuted=课程顺序无显著影响；pending=样本不足或矛盾。
+  actual_data: WB0 22:55 轮验收（机检 PASS + Hub 实物独立核验）：exp06_curriculum.json 47410B，本地 sha256 前16=4e72bdb871bf41ba，18 Router 全量在板。主设置 lp_community|p|online m=60：d(inc-rnd)=+1.00pp CI[-0.31,+2.52]，d(inc-dec)=+0.62pp CI[0,+1.85]；expH util m=24 |d|<0.3pp -> confirmed 判据（双胜+>=2pp+CI95 lo>0）无任何设置满足。32 项 CI 显著 delta 方向矛盾（lp_community|h|online m=60=-5.99pp CI[-11.21,-1.00] 显著负 vs lp_community|h|batch m=48=+17.59pp CI[14.92,20.14] 显著正）。构造缺陷（WB2 自行披露并经 WB0 复核 synthesis.pseudo_replication_note）：主难度（Router 熵）下 17/18 Router 无逐样本梯度（H_std<1e-6）-> inc/dec 退化为索引序/逆序；degree 臂子集跨 18 Router 完全相同 -> 配对 bootstrap 伪重复（有效 n≈1-2），CI 反保守，显著 delta 不可解释为课程顺序效应。判定：pending（D1：confirmed 前提缺失 + 效应符号矛盾 + 伪重复，测不出≠已证伪，不写 refuted）；E3 实际不可判显式标注，不留 E3 拖延。
+  data_source: results_v2/exp06_curriculum.json
+  owner: WB2
+  review_id: WB2-20261022-EXP-06
+  updated_by: WB0-scheduled-wake
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -407,8 +418,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792678068
-  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
+  at: 1792681792
+  action: upsert open_item WB0-LEDGER-DECISIONS-STALE
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
@@ -434,8 +445,9 @@ decisions:
   confirmed_at: 1792566442
 - id: DEC-20261021-E2E-GATE-CLOSED
   date: '2026-10-21'
-  status: confirmed
+  status: void
   decided_by: WB0
   summary: DEC-20261021-E2E-GATE 的升级条件已满足并执行：真实 A/B 三件套（results_v2/wb1_ab_real_stage1.json + 回执 WB1-20261021-AB-v1 机检 PASS + 溯源实物 multihop_real/entity_embeddings/b_routers）齐备； H-WB2-E2E-01 由 verified_proxy 升级为 verified（A=0.1333/4 群 vs best B=0.4444/10 群，bootstrap CI95=[+0.167,+0.478]，p_gt0=1.000）。执行身份=WB0 主会话 fallback（云端 agent 执行层实证故障，三重确认， 见 open_item WB0-CLOUD-AGENT-FAILURE）；与 proxy 的方向一致性（proxy B/A=4.25 倍，真实 3.33 倍）佐证非伪。
   basis: 用户确认的 gate 原文'须真实 e2e A/B 替换 proxy 方可升级为 verified，严禁因有回执即升级'—— 本次升级依据是真实实验数据（非回执本身）：真实 3B 权重（G1 9/9）+ 真实 LongBench 2wikimqa + 真实隐状态 embedding + G5 环境保真（R32 复现相对差 1.15%）。保留意见：30 查询（非 40）、best-B in-sample 选择、 K 不可与 A 的 42 配对（proxy 为同 K 配对）、z-score 统计量 in-sample——均已披露于 honesty_note。
   confirmed_at: 1792573288
+  void_reason: 闸门升级依据（H-WB2-E2E-01 升 verified）已于 17:56 被巡检回滚并经 1792578222 追认；与 hypotheses 段 verified_proxy 矛盾。按 WB0 过渡期纪律，引用本决策一律视为作废。
