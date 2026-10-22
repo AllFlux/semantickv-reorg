@@ -1,0 +1,313 @@
+{
+ "schema": "exp04_struct_freq_decoupling/v4",
+ "created_at": "2026-10-22T12:43:19+0800",
+ "params": {
+  "n": 300,
+  "X": [
+   40,
+   50,
+   60
+  ],
+  "damping": 0.85,
+  "iters": 50,
+  "n_queries": 60,
+  "seed": 20261022,
+  "primary_metric": "kcore",
+  "aux_metric": "community_bridge",
+  "shared_topology": true
+ },
+ "conditions": {
+  "decoupled": {
+   "graph": {
+    "kind": "decoupled",
+    "n": 300,
+    "m": 588,
+    "seed": 20261022,
+    "freq_target_corr": -0.1,
+    "freq_achieved_corr_bridge": -0.09998358688694274,
+    "freq_mix_w": 0.0,
+    "kcore_hist": {
+     "1": 60,
+     "3": 228,
+     "11": 12
+    }
+   },
+   "correlations": {
+    "freq_vs_bridge_score": -0.09998358688694274,
+    "freq_vs_kcore": -0.09042877216552961,
+    "freq_vs_degree": -0.10096065439372746,
+    "freq_vs_community_bridge": -0.028631693689916082
+   },
+   "budget_results": {
+    "X=40": {
+     "frequency": {
+      "pr@5": 0.4375,
+      "pr@1": 0.4375,
+      "n_evaluated": 16
+     },
+     "kcore": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 32
+     },
+     "community_bridge": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 27
+     },
+     "degree": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 32
+     },
+     "delta_pp": {
+      "kcore": 56.25,
+      "community_bridge": 56.25,
+      "degree": 56.25
+     },
+     "keep_n": 120
+    },
+    "X=50": {
+     "frequency": {
+      "pr@5": 0.34782608695652173,
+      "pr@1": 0.30434782608695654,
+      "n_evaluated": 23
+     },
+     "kcore": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 38
+     },
+     "community_bridge": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 33
+     },
+     "degree": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 38
+     },
+     "delta_pp": {
+      "kcore": 65.22,
+      "community_bridge": 65.22,
+      "degree": 65.22
+     },
+     "keep_n": 150
+    },
+    "X=60": {
+     "frequency": {
+      "pr@5": 0.3125,
+      "pr@1": 0.28125,
+      "n_evaluated": 32
+     },
+     "kcore": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 44
+     },
+     "community_bridge": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 38
+     },
+     "degree": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 44
+     },
+     "delta_pp": {
+      "kcore": 68.75,
+      "community_bridge": 68.75,
+      "degree": 68.75
+     },
+     "keep_n": 180
+    }
+   },
+   "kcore_delta_pp_by_budget": {
+    "X=40": 56.25,
+    "X=50": 65.22,
+    "X=60": 68.75
+   },
+   "kcore_mean_delta_pp": 63.41,
+   "commbridge_mean_delta_pp": 63.41,
+   "queries": {
+    "n": 60,
+    "mean_path_len": 13.0
+   },
+   "evaluated_n_by_budget": {
+    "X=40": 32,
+    "X=50": 38,
+    "X=60": 44
+   }
+  },
+  "collinear": {
+   "graph": {
+    "kind": "collinear",
+    "n": 300,
+    "m": 588,
+    "seed": 20261022,
+    "freq_target_corr": 0.95,
+    "freq_achieved_corr_bridge": 0.7412957390443181,
+    "freq_mix_w": 0.995,
+    "kcore_hist": {
+     "1": 60,
+     "3": 228,
+     "11": 12
+    }
+   },
+   "correlations": {
+    "freq_vs_bridge_score": 0.7412957390443181,
+    "freq_vs_kcore": 0.740459671963276,
+    "freq_vs_degree": 0.7411666585663577,
+    "freq_vs_community_bridge": 0.3400382590802405
+   },
+   "budget_results": {
+    "X=40": {
+     "frequency": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 32
+     },
+     "kcore": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 32
+     },
+     "community_bridge": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 27
+     },
+     "degree": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 32
+     },
+     "delta_pp": {
+      "kcore": 0.0,
+      "community_bridge": 0.0,
+      "degree": 0.0
+     },
+     "keep_n": 120
+    },
+    "X=50": {
+     "frequency": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 38
+     },
+     "kcore": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 38
+     },
+     "community_bridge": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 33
+     },
+     "degree": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 38
+     },
+     "delta_pp": {
+      "kcore": 0.0,
+      "community_bridge": 0.0,
+      "degree": 0.0
+     },
+     "keep_n": 150
+    },
+    "X=60": {
+     "frequency": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 44
+     },
+     "kcore": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 44
+     },
+     "community_bridge": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 38
+     },
+     "degree": {
+      "pr@5": 1.0,
+      "pr@1": 1.0,
+      "n_evaluated": 44
+     },
+     "delta_pp": {
+      "kcore": 0.0,
+      "community_bridge": 0.0,
+      "degree": 0.0
+     },
+     "keep_n": 180
+    }
+   },
+   "kcore_delta_pp_by_budget": {
+    "X=40": 0.0,
+    "X=50": 0.0,
+    "X=60": 0.0
+   },
+   "kcore_mean_delta_pp": 0.0,
+   "commbridge_mean_delta_pp": 0.0,
+   "queries": {
+    "n": 60,
+    "mean_path_len": 13.0
+   },
+   "evaluated_n_by_budget": {
+    "X=40": 32,
+    "X=50": 38,
+    "X=60": 44
+   }
+  }
+ },
+ "construction_guard": {
+  "metric": "bridge_score (continuous)",
+  "decoupled_freq_bridge_lt_0_2": true,
+  "collinear_freq_bridge_gt_0_9": false,
+  "decoupled_freq_kcore": -0.09042877216552961,
+  "collinear_freq_kcore": 0.740459671963276,
+  "kcore_spearman_ceiling_note": "k-core 与 bridge_score 取值离散并列，|rho| 上限约 0.74；0.9 阈值在本拓扑上不可达",
+  "passed_strict_0_9": false,
+  "passed_graded_0_7": true,
+  "note": "若未过闸，本文件仅报告构造事实，不下 confirmed/refuted 判定"
+ },
+ "alternative_checks": {
+  "graph_size": {
+   "nm_both": [
+    300,
+    588
+   ],
+   "note": "两变体共用同一拓扑，n 与 m 完全相同 → 规模混淆被完全排除"
+  },
+  "kcore_residual_freq": {
+   "decoupled_corr": -0.09042877216552961,
+   "collinear_corr": 0.740459671963276,
+   "decoupled_corr_bridge": -0.09998358688694274,
+   "collinear_corr_bridge": 0.7412957390443181,
+   "note": "共线图上 k-core 与 freq 强相关 → 该图 k-core 分配≈频次分配，增益应消失"
+  },
+  "topology_identical_note": "唯一差异为 freq 赋值 → delta 差异可归因于解耦度"
+ },
+ "verdict": {
+  "primary": "confirmed_conditional_collinearity_0.74",
+  "criteria": {
+   "decoupled_all_budget_delta_ge_2pp": true,
+   "collinear_abs_mean_delta_lt_1pp": true,
+   "decoupled_mean_delta_pp": 63.41,
+   "collinear_mean_delta_pp": 0.0,
+   "rho_decoupled": -0.09998358688694274,
+   "rho_collinear": 0.7412957390443181,
+   "strict_0_9_passed": false,
+   "graded_0_7_passed": true
+  },
+  "weakest_form_struct_minus_freq_decoupled_gt_collinear": true
+ },
+ "elapsed_s": 3.4,
+ "self_sha256": "81fe90aad2342220610ec9b3261ca651665ee9c2203833df1dbd0a6df5dbc17c"
+}

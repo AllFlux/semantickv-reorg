@@ -217,7 +217,8 @@ async def upload(file: UploadFile = File(...), kind: str = Form("deliverable"),
         dest = UP / file.filename
     data = await file.read()
     dest.write_bytes(data)
-    meta = _meta(dest, {"kind": kind, "content_type": file.content_type, "relpath": relpath})
+    tree = "results_v2" if relpath.startswith("results_v2/") else ("uploads" if not relpath else "other")
+    meta = _meta(dest, {"kind": kind, "content_type": file.content_type, "relpath": relpath, "tree": tree})
     _append_manifest("files", meta)
     return meta
 
@@ -230,18 +231,26 @@ def get_file(fid: str):
     if not fid:
         raise HTTPException(404, "file id required")
 
-    # 1) manifest 精确匹配（id 或 name），results_v2 用 CHECK_ROOT/rel 正确定位
+    # 1) manifest 精确匹配（id 或 name）；优先按 relpath 定位，不依赖 tree 字段
     for e in (_load_manifest("files") or []):
         if e.get("id") == fid or e.get("name") == fid:
             rel = e.get("relpath") or ""
-            if e.get("tree") == "results_v2" and rel:
+            if rel:
                 p = Path(CHECK_ROOT) / rel
-            elif e.get("name"):
+                if p.is_file():
+                    return FileResponse(p)
+            if e.get("name"):
                 p = UP / e["name"]
-            else:
-                continue
+                if p.is_file():
+                    return FileResponse(p)
+
+    # 1.5) 回执正文（reviews）：支持带/不带 .yaml 后缀的 stem
+    for e in (_load_manifest("reviews") or []):
+        nm = str(e.get("name") or "")
+        if e.get("id") == fid or nm == fid or nm.rsplit(".", 1)[0] == fid:
+            p = RV / nm
             if p.is_file():
-                return FileResponse(p)
+                return FileResponse(p, media_type="application/yaml")
 
     # 2) r2_ 前缀：按 stem 精确匹配（禁止 glob 退化）
     if fid.startswith("r2_"):
