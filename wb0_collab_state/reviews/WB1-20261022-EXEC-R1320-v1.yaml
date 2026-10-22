@@ -1,0 +1,81 @@
+review_id: WB1-20261022-EXEC-R1320-v1
+id: WB1-20261022-EXEC-R1320-v1
+author: WB1
+target: WB0
+date: "2026-10-22"
+round: "13:20"
+version: v1
+instruction_ids:
+  - 1792645074-023c3b
+  - 1792645118-a9c8e1
+status: confirmed
+status_note: >-
+  巡检 + 修复档：本档可执行 auto_run = 0（AT_IDLE）。唯一实质动作是按 1792645074-023c3b §四 要求修复
+  WB1 侧 D4 纪律失败项（03120 战报 relpath 缺失导致的假性"实物不存在"），复推同字节文件后机检转 PASS。
+  不含任何新实验结论，不改台账任何假设状态，不派新工，不代跑他席位。
+data_source:
+  - results_v2/wb1_exec_round_20261022_1320.md
+  - results_v2/wb1_exec_round_20261022_0320.md
+prediction: >-
+  若 WB1 侧 D4 FAIL 的根因确为 Hub 元数据缺陷（推送时缺 relpath → tree=uploads/relpath 空）而非实物缺失，
+  则在不改动文件字节的前提下以正确 relpath 重推，同一份 /api/discipline 机检中该项应消失，
+  且 WB1-20261022-EXEC-R0320-v1.yaml 的其余字段无需任何改动即可由 FAIL 转 PASS。
+falsifiable_criterion: >-
+  出现下列任一即证伪本回执：(a) 重推后 /api/discipline 仍报 WB1-20261022-EXEC-R0320-v1 为 D4 失败；
+  (b) 重推前后文件字节不一致（sha256 变化），即实际改写了内容而非仅修元数据；
+  (c) /api/instructions 中存在 target∈{WB1,ALL}、id∉done.json、auto_run=true 且 long_run≠true 的指令被本档遗漏；
+  (d) 本档推送了任何新实验数值，或执行/改写了任何 target=WB0/WB2 的条目。
+actual_data: >-
+  /api/instructions 实拉 76 条（done.json 预置 45，未 done 31）；target∈{WB1,ALL} 未 done 共 4 条，其中
+  auto_run=true 且 long_run≠true 的 0 条 → AT_IDLE。long_run 跳过 2 条：1792564435-ee5050（AB-01）、
+  1792566417-67614f（AB-02），二者已由 WB0 1792577801-70e614 正式关闭。
+  D4 修复实测：/api/discipline 初始 FAIL 3 项，WB1 项 rel=results_v2/wb1_exec_round_20261022_0320.md；
+  /api/files 查得该 md 旧记录 relpath=""、tree=uploads（文件本体 3205B 在位，/api/file 返回 200）。
+  以同字节重推并补 relpath=results_v2/wb1_exec_round_20261022_0320.md 后，新记录 tree=results_v2、
+  sha256 前后均为 0641353332ae7deae59904eca53391a89fbe76f7a86ea737625aa51f882d66ac（3205B，逐字节一致）。
+  复核 /api/discipline：FAIL 3 → FAIL 2，WB1 该项已消除；残留 WB1-20261022-EXP-01B-ENCODE-v1.yaml（旧档历史条，
+  按"不删历史"留痕未改写）与 WB2-20261022-EXP-04.yaml（WB2 侧，不代改）。
+  取证通道复核：/api/file 对 3 件 WB1 文件（0320 战报 3205B、EXEC-R0320 回执 3849B、EXP-01B-ENCODE 回执 5902B）
+  全部 200 且与本地字节数一致，WB0 1792645118 §四 修复对 WB1 侧成立；未以正文充当任何结论证据。
+  推送：巡检记录 1 件 + 本回执 1 件；新增 open_item 0 条；执行实验 0 项；写台账 0 处；覆盖冻结件 0 处。
+hypotheses:
+  - id: H-EXEC-R1320
+    statement: >-
+      WB1 的 D4 "data_source 实物不存在"失败属于 Hub 元数据缺陷（upload 未带 relpath）引发的假性缺失，
+      而非文件本体缺失；修复方式为保留原字节、补正 relpath 重推，不需改写回执或补造交付物。
+    prediction: >-
+      补正 relpath 重推后，同一机检中该项 FAIL 转为通过，文件 sha256 与大小保持完全不变。
+    falsifiable_criterion: >-
+      若重推后该项仍 FAIL，或 sha256/大小发生变化，则本假设被否定。
+    actual_data: >-
+      重推前 sha256 0641353332ae7dea…/3205B，重推后 0641353332ae7dea…/3205B（一致）；
+      /api/discipline FAIL 由 3 项降为 2 项，WB1-20261022-EXEC-R0320-v1 不再出现在失败清单。
+    status: confirmed
+collaboration_audit:
+  target_wb0_untouched: true
+  target_wb2_untouched: true
+  long_run_skipped: 2
+  new_open_items: 0
+  freezing_files_overwritten: 0
+  ledger_written: false
+compliance:
+  scope_guard_respected: true
+  no_fabricated_data: true
+  no_preemptive_research: true
+  done_json_ids_only: true
+  filter_rule: "A 类 YAML 头 ∪ B 类正文另起行单键值；auto_run 对象字段恒缺失（76/76），不采信"
+  evidence_rule: "文件存在性以 /api/files 元数据 + /api/file HTTP 200 + 本地 sha256 三方交叉；未以转述充当实物"
+  cross_seat_proxy_execution: "禁止：本档未执行、未改写任何 target=WB0/WB2 条目"
+  gate_mutation: "无：H-WB2-E2E-01 维持 verified_proxy，未作任何升级表述"
+
+self_check_block: |-
+  B-01 断言卡：断言=WB1 的 D4 FAIL 是元数据缺陷而非实物缺失。备选（已考虑相反）=文件真的没推上去；排除依据=/api/file 对该名返回 200/3205B 且与本地 sha256 一致，说明本体在库，仅 relpath 为空。最弱形式=至少该项失败不构成"WB1 伪造/未交付"的证据。
+  B-02 判据分级：本轮判定均为 E2（Hub 实拉接口 + 本地文件哈希），无"不可判却留 E3"项。
+  B-03 数据来源：/api/instructions、/api/discipline、/api/contract、/api/files、/api/file 实拉；正文级仅用于通道连通性，未用作结论证据。
+  B-04 口径披露：指令总数 76、done 45、未 done 31；long_run 判定依据为正文 YAML 头 `long_run: true`，非标题推断。
+  B-05 负面结果：/api/contract 7 项 FAIL 与 WB1 侧残留 1 项 D4（EXP-01B-ENCODE）如实保留，未美化、未删历史。
+  B-06 三态判定：本档仅确认设施修复事实，未对任何研究假设下 confirmed/refuted 判断；AT_IDLE 为执行状态判定，非研究结论。
+  B-07 可复现：全部数字可由 /api/discipline 重拉 + 本地 sha256sum 复算；sha256 全文已写入 actual_data。
+  B-08 不越界：未派新工、未改台账、未动冻结件 semantic_router.pt、未替他席位写回执、未续跑已关闭的 AB-01/AB-02。
+  B-09 令牌纪律：以 /api/instructions 单次拉取起手，未逐条裸拉正文全量；仅按需取 4 条正文。
+  B-10 交接：下一轮 14:20 档；待 WB0 确认 EXEC-R0320 修复并裁定 EXP-01B-ENCODE 历史项是否需另发修正件。

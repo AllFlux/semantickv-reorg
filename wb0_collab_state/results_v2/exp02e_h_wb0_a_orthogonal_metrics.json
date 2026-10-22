@@ -1,0 +1,244 @@
+{
+  "schema": "exp02e_h_wb0_a_orthogonal_metrics/v1",
+  "task": "WB0-INSTR-20261022-EXP-02E / H-WB0-A 正交结构度量复判（k-core + community bridge）",
+  "executor": "WB2",
+  "executed_at": "2026-10-22 13:40 GMT+8",
+  "seed": 20261022,
+  "data_source": {
+    "longbench_2wikimqa": {
+      "hub_relpath": "results_v2/longbench_multihop_2wikimqa.jsonl",
+      "n_samples": 200,
+      "synthesis_used": false
+    },
+    "llm_forward": false,
+    "training": false
+  },
+  "graph": {
+    "construction": "题内 title 共现（每题内所有段落标题两两连边；段落标题=段落首行，归一化对齐 EXP-02/02C 口径）",
+    "note": "对齐 EXP-02E 指令'题内 title 共现'；与 EXP-02/02C 的 mention-based 图（657 边）是不同构造。n_ent 实测 1404，n_edges 实测 7475，与指令背景口径一致。",
+    "n_ent": 1404,
+    "n_edges": 7475,
+    "n_communities_lp": 94,
+    "n_bridges": 0
+  },
+  "metric_definitions": {
+    "frequency": "跨题出现次数（title 在多少题中出现）",
+    "kcore": "迭代剥离得到的 k-core 数（主结构度量，正交候选）",
+    "community_bridge": "标签传播社区下跨社区邻居数（辅结构度量）",
+    "betweenness": "抽样 Brandes（200 源）相对中介中心性（对照，预期不可判）",
+    "label_propagation": "异步标签传播，确定性 tie-break（最小标签），seed=20261022"
+  },
+  "correlation_matrix_spearman_vs_freq": {
+    "degree": 0.8241,
+    "kcore": 0.2502,
+    "community_bridge": 0.1727,
+    "betweenness": 0.8976
+  },
+  "correlation_matrix_pearson_vs_freq": {
+    "degree": 0.9651,
+    "kcore": 0.1698,
+    "community_bridge": 0.6732,
+    "betweenness": 0.6137
+  },
+  "corr_detail": {
+    "degree": {
+      "spearman_vs_freq": 0.8241,
+      "pearson_vs_freq": 0.9651
+    },
+    "kcore": {
+      "spearman_vs_freq": 0.2502,
+      "pearson_vs_freq": 0.1698
+    },
+    "community_bridge": {
+      "spearman_vs_freq": 0.1727,
+      "pearson_vs_freq": 0.6732
+    },
+    "betweenness": {
+      "spearman_vs_freq": 0.8976,
+      "pearson_vs_freq": 0.6137
+    }
+  },
+  "budget_allocation": {
+    "X": [
+      40,
+      50,
+      60
+    ],
+    "retrieval_metric": "个性化 PageRank（damping=0.85, iters=50, top5）ID/OOD PR@5；纯图指标（无 embedding，口径披露）",
+    "note": "成对比较（struct vs freq）仅取 seed 与 gold 均在保留子集内的同一查询；ID/OOD 分列。",
+    "results": {
+      "kcore": {
+        "40": {
+          "kept": 561,
+          "id_pr5": 0.7273,
+          "id_n": 11,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        },
+        "50": {
+          "kept": 702,
+          "id_pr5": 0.4091,
+          "id_n": 22,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        },
+        "60": {
+          "kept": 842,
+          "id_pr5": 0.4062,
+          "id_n": 32,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        }
+      },
+      "freq": {
+        "40": {
+          "kept": 561,
+          "id_pr5": 0.2727,
+          "id_n": 22,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        },
+        "50": {
+          "kept": 702,
+          "id_pr5": 0.3226,
+          "id_n": 31,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        },
+        "60": {
+          "kept": 842,
+          "id_pr5": 0.3056,
+          "id_n": 36,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        }
+      },
+      "random": {
+        "40": {
+          "kept": 561,
+          "id_pr5": 1.0,
+          "id_n": 12,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        },
+        "50": {
+          "kept": 702,
+          "id_pr5": 0.7143,
+          "id_n": 14,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        },
+        "60": {
+          "kept": 842,
+          "id_pr5": 0.7037,
+          "id_n": 27,
+          "ood_lp_pr5": null,
+          "ood_lp_n": 0,
+          "ood_bridge_pr5": null,
+          "ood_bridge_n": 0
+        }
+      }
+    },
+    "paired_delta_struct_minus_freq": {
+      "40": {
+        "id": {
+          "delta_pp": 20.0,
+          "ci95_lo": -40.0,
+          "ci95_hi": 80.0,
+          "n": 5
+        },
+        "ood_lp": {
+          "delta_pp": null,
+          "ci95_lo": null,
+          "ci95_hi": null,
+          "n": 0
+        }
+      },
+      "50": {
+        "id": {
+          "delta_pp": 13.33,
+          "ci95_lo": -20.0,
+          "ci95_hi": 46.67,
+          "n": 15
+        },
+        "ood_lp": {
+          "delta_pp": null,
+          "ci95_lo": null,
+          "ci95_hi": null,
+          "n": 0
+        }
+      },
+      "60": {
+        "id": {
+          "delta_pp": 4.76,
+          "ci95_lo": -14.29,
+          "ci95_hi": 23.81,
+          "n": 21
+        },
+        "ood_lp": {
+          "delta_pp": null,
+          "ci95_lo": null,
+          "ci95_hi": null,
+          "n": 0
+        }
+      }
+    },
+    "random_baseline": {
+      "40": {
+        "kept": 561,
+        "id_pr5": 1.0,
+        "id_n": 12,
+        "ood_lp_pr5": null,
+        "ood_lp_n": 0,
+        "ood_bridge_pr5": null,
+        "ood_bridge_n": 0
+      },
+      "50": {
+        "kept": 702,
+        "id_pr5": 0.7143,
+        "id_n": 14,
+        "ood_lp_pr5": null,
+        "ood_lp_n": 0,
+        "ood_bridge_pr5": null,
+        "ood_bridge_n": 0
+      },
+      "60": {
+        "kept": 842,
+        "id_pr5": 0.7037,
+        "id_n": 27,
+        "ood_lp_pr5": null,
+        "ood_lp_n": 0,
+        "ood_bridge_pr5": null,
+        "ood_bridge_n": 0
+      }
+    }
+  },
+  "queries_total": 66,
+  "ood_prevalence": {
+    "ood_lp_total": 0,
+    "ood_bridge_total": 0,
+    "note": "共现图为逐题团结构，每个问题的标题构成团且倾向落入同一 LP 社区；跨社区/桥边 OOD 在此构造上结构性为 0（与 EXP-02C 在 mention 图上报告 OOD-LP max=8 的语料属性一致）。故 H-WB0-A 的 OOD 泛化判据在此图上不可得，按指令判 pending。"
+  },
+  "ood_definitions": {
+    "ood_lp": "seed 与 gold 的标签传播社区不同（EXP-02 原口径）",
+    "ood_bridge": "边(seed,gold) 属全图桥集合（强定义）"
+  },
+  "elapsed_s": 4.42,
+  "total_wall_clock_s": 4.42
+}

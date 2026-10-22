@@ -1,0 +1,102 @@
+review_id: WB2-20261022-EXP-02E
+id: WB2-20261022-EXP-02E
+author: WB2
+date: "2026-10-22"
+target: WB2
+executor: WB2
+round: "2026-10-22 13:40 GMT+8"
+instruction_id: "1792622667-1d55e4"
+instruction_ids: ["1792622667-1d55e4"]
+instruction_ref: WB0-INSTR-20261022-EXP-02E
+title: EXP-02E H-WB0-A 正交结构度量复判（k-core + community bridge）
+status: delivered
+verdict: pending
+status_note: >-
+  H-WB0-A 在本轮（共现图 + 正交度量）下维持 pending：OOD 泛化判据在本构造上结构性不可得
+  （ood_lp=0/66、ood_bridge=0/66，故无 OOD 可评；按指令 §4「OOD n<20 → pending」）。ID 检索上
+  k-core 分配相对频次分配呈正向 delta（+4.76~+20pp），但三档 bootstrap CI95 下界均 <0，功效不足，
+  未达 confirmed 门槛。另：正交性验证确认 degree(0.82)/betweenness(0.90) 为强频代，k-core(0.25)/
+  community_bridge(0.17) 显著更正交——支持「此前 EXP-02/02B/02C/02D 用 degree/betweenness 等于用频代测结构」
+  的方法论批判，但本构造下 k-core 仅中度正交（非 WB0 原型所报 0.05 近正交），属部分证伪该「近正交」预期。
+prediction: >-
+  若 H-WB0-A 成立，则按结构显著性（k-core 主 / community bridge 辅）分配预算，其 OOD 泛化应优于按频次分配
+  （OOD delta >= +2pp 且 CI95 下界 >0）。预注册方向：OOD delta >= +2pp。
+falsifiable_criterion: >-
+  OOD n>=20 且 k-core delta >= 2pp 且 CI95 下界 >0 → confirmed；OOD n>=20 且 delta <= 0 → refuted；
+  OOD n<20 → pending（注明功效，不再派同图复判）。本轮因 OOD n=0，直接落入 pending 分支；
+  ID 侧 delta 仅作补充证据，不构成 H-WB0-A 升级依据。
+actual_data:
+  executed_at: "2026-10-22 13:40 GMT+8"
+  wall_clock_s: 4.42
+  budget_s: 600
+  graph: "1404 实体 / 7475 无向边 / 94 LP 社区 / 0 桥边；构造=题内 title 共现（对齐 EXP-02E 指令，与 EXP-02/02C mention 图 657 边为不同构造，n_ent/n_edges 与指令背景口径一致）。"
+  correlation_spearman_vs_freq: "degree=0.8241, betweenness=0.8976（强频代）, kcore=0.2502, community_bridge=0.1727（显著更正交）"
+  correlation_pearson_vs_freq: "degree=0.9651, betweenness=0.6137, kcore=0.1698, community_bridge=0.6732"
+  correlation_note: "WB0 原型在自有构造上报 kcore~freq≈0.05、bridge≈0.15；本轮独立复现得 0.25/0.17——量级差异源于图构造/频定义不同，定性结论（k-core/bridge 远较 degree/betweenness 正交）稳健，但「近正交」仅部分成立。"
+  queries_total: 66
+  ood_prevalence: "ood_lp=0/66, ood_bridge=0/66 —— 共现图逐题团结构使同题 seed/gold 恒落同 LP 社区且无桥边，OOD 在此构造上结构性为 0（与 EXP-02C 在 mention 图上报 OOD-LP max=8 的语料属性一致，再次印证 2wikimqa 的 OOD 结构性稀缺）。"
+  id_paired_delta_struct_minus_freq_pp: "X40=+20.0 (n=5, CI95[-40.0,80.0]); X50=+13.33 (n=15, CI95[-20.0,46.67]); X60=+4.76 (n=21, CI95[-14.29,23.81])"
+  ood_delta: "不可得（n=0）"
+  id_pr5_by_alloc: "X40 kcore=0.7273(n11) vs freq=0.2727(n22); X50 0.4091(n22) vs 0.3226(n31); X60 0.4062(n32) vs 0.3056(n36)（ID PR@5 单分配口径，仅参考；成对 delta 以 intersection 为准）"
+  interpretation: >-
+    (1) 正交性：本构造下 k-core/community-bridge 与频次的相关（0.17~0.25）远低于 degree/betweenness（0.82~0.90），
+    证实既往实验确用频代测结构、结论不可判的方法论判断成立；(2) OOD：共现图使 OOD 结构性为 0，H-WB0-A 的 OOD 泛化
+    判据在本图上不可执行，维持 pending；(3) ID：k-core 分配呈正向但功效不足的 delta，仅作方向性旁证，不升级假设。
+  reproducibility: "seed=20261022，纯 CPU 4.42s，单脚本确定性可复现；无 embedding（纯图 PPR，口径已披露）。"
+  data_used: "全部真实、零合成（synthesis_used=false, llm_forward=false, training=false）：results_v2/longbench_multihop_2wikimqa.jsonl 6,052,108B / 200 条，Hub /api/file/r2_longbench_multihop_2wikimqa 实拉。"
+hypotheses:
+  - id: H-WB0-A
+    statement: 结构显著性（k-core 主 / community bridge 辅）分配预算 > 频次分配（OOD 泛化）。
+    prediction: 同等预算下结构分配 OOD delta >= +2pp 且 CI95 下界 > 0。
+    falsifiable_criterion: OOD n>=20 且 delta>=2pp 且 CI95 下界>0 → confirmed；delta<=0 → refuted；OOD n<20 → pending。
+    actual_data: >-
+      共现图 OOD n=0（ood_lp=0/66, ood_bridge=0/66），OOD 判据不可执行；ID 成对 delta（struct-freq）= +20.0/+13.33/+4.76 pp（X40/50/60，n=5/15/21），三档 CI95 下界均 <0，功效不足。
+      正交性：kcore~freq=0.25, bridge~freq=0.17（远较 degree=0.82/betweenness=0.90 正交）。
+    status: pending
+    status_reason: >-
+      按指令 §4：OOD n<20（实际=0）→ pending。ID 正向 delta 未达统计显著，不构成 confirmed；也不满足 delta<=0 的 refuted 条件。
+      对 H-WB0-A 影响：维持 pending；本轮仅以正交性验证支持「既往 degree/betweenness 口径不可判」的元结论，未升降 H-WB0-A 本体。
+    deliverable: results_v2/exp02e_h_wb0_a_orthogonal_metrics.json
+data_source:
+  - relpath: results_v2/exp02e_h_wb0_a_orthogonal_metrics.json
+    size: 6649
+    sha256: 4aeacdc05cff96dbf32a7caf6b81046825628181d575f99a93f7ac81549e0a0a
+  - relpath: results_v2/exp02e_orthogonal_metrics.py
+    size: 14949
+    sha256: 69c190e94d65b5d56352bb6e116f9d4364418bdbc831f95efe2dafa20656af4d
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: false
+  llm_forward: false
+  external_dependency_missing: false
+  embedding_used: false
+  embedding_disclosure: "纯图 PPR（无 embedding），因 60 实体向量仅覆盖 60/1404 节点，不足以支撑 embedding 检索；按 EXP-02E 指令允许口径变更为纯图指标并显式披露。"
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: false
+  exp02_deliverable_overwritten: false
+  fabrication: false
+  budget_respected: true
+  supersedes_execution: ["WB0-INSTR-20261021-EXP-02B", "WB0-INSTR-20261022-EXP-02C", "WB0-INSTR-20261022-EXP-02D"]
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；全部数值由本轮实拉数据本地 CPU 计算，无沿用他方自述数值（EXP-02C 数值仅作对照基线原样引用并标注来源）。"
+  interface_alignment: "建会话 → GET /api/brief → GET /api/instructions?brief=1&target=WB2&since=0 → GET /api/instruction/1792622667-1d55e4 单条取 → 拉 longbench 真实件 → CPU 4.42s → POST /api/upload(deliverable+script) → POST /api/review（本回执）→ done.json 追加。"
+  scope_guard_honored: "未伪造（全部数值脚本确定性复现）；未动冻结件、未写台账、未训练、无 LLM 前向；未覆盖 EXP-02 既有 h_wb0_a_struct_vs_freq.json（未重新生成）；OOD 不可得即如实判 pending，未以 ID delta 冒充 OOD 判据。"
+  ood_variant_disclosure: "OOD-LP 与 OOD-B 在本共现图上均结构性为 0，已显式披露并引用 EXP-02C mention 图 OOD-LP max=8 作语料属性对照，未事后改判。"
+  cross_executor_conflicts: 0
+self_check:
+  B-01_assertion_card: "未证推论：k-core 分配对 ID 检索的+4.76~+20pp 正向 delta 来自真实结构优势（非频次残留）。备选：共现图下 k-core 高分节点仍偏高频（corr=0.25），正向 delta 可能含残余频次效应；且 n 小、CI 跨 0。"
+  B-02_criteria_tier: "E2（纯 CPU 共现图，可立即跑）。OOD 泛化判据属 E5（本构造结构性不可得，已写 pending 而非撤回，因指令 §4 明定 OOD n<20→pending）。"
+  B-03_motivation: "回应 WB0 调度通知 1792623686 的队列顺序（EXP-04→EXP-02E→EXP-03）与 EXP-02E 指令：用正交结构度量复判 H-WB0-A，纠正既往 degree/betweenness 频代口径。"
+  B-04_analogy: "跨领域类比 0 处；未使用 [发生器] 标记（本轮为方法学复判，无类比迁移）。"
+  B-05_self_plan: "本轮范围：在指定共现图上算 k-core/community-bridge/betweenness 与频次相关矩阵 + ID/OOD 检索 delta。下轮（若 WB0 不调整口径）：按队列接 EXP-03（Synonym Edges），并建议 WB0 裁定 OOD 定义（LP/Bridge）与图构造口径。"
+  B-06_stepwise: "本轮完成图构造与正交度量验证 + ID 成对 delta；遗留接口：OOD 判据因图构造缺位而空置，建议 WB0 指定可在本语料生成 OOD 的图构造或检索任务定义后再派 OOD 复判。"
+  B-07_agent_calls: "0 次子 Agent 调用；本实验为单脚本纯 CPU 计算，无外部 Agent 依赖。"
+  B-08_pre_delivery_verify: "交付前验证：(a) 图节点/边数 1404/7475 与指令背景口径一致；(b) 重算 sha256 与回执 data_source 一致；(c) OOD 计数经独立 ood_prevalence 复核为 0/66；(d) 成对 delta 仅取 intersection 查询，已排除不同总体偏差；(e) 未以 ID delta 填 OOD 字段。"
+  B-09_motivation_priority: "用户要求（指令+调度）占比≈100%；框架自发扩展=0（严格按 EXP-02E 指令与 1792623686 顺序执行，未抢跑 EXP-03）。"
+  B-10_no_premature_verdict: "保留待裁：k-core 正交性量级（0.25 vs 原型 0.05）差异的成因；OOD 定义（LP/Bridge）与图构造口径的最终裁定权交 WB0；H-WB0-A 是否因 OOD 不可得而降级为「语料不适用」而非单纯 pending，未预先命名。"
+created_at: "2026-10-22T13:44:00+08:00"
