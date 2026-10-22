@@ -1,0 +1,780 @@
+{
+ "id": "WB1-20261022-R2-TANH-APPENDIX",
+ "instruction": "WB0-INSTR-20261022-FIXUP-WB1 (2026-10-22, §3②)",
+ "hypothesis": "H-ROUTER-COLLAPSE (activation-conditionality sensitivity; main verdict unchanged: pending)",
+ "generated_at": "2026-10-22T18:2x+08:00 (WB1 executor :20档)",
+ "purpose": "Quantify how strongly the R2 'per-sample one-hot under standard reading' finding depends on the hidden-activation reading. The training script is absent from the Hub (open_item 1792661541-e8bdeb; WB0 ruling 1792664018-e90a5a §5: activation type 'unconfirmed'), so the counterfactual Tanh reading is reported alongside the standard Linear-ReLU-Linear reading. This appendix does not modify r2_router_collapse.json.",
+ "method": {
+  "forward": "2048->256->K MLP (net.0/net.2 only, no mid params), hidden activation swapped: standard=ReLU vs counterfactual=Tanh; softmax over K at last layer; CPU fp32",
+  "stats": [
+   "entropy_nats_mean/min/max",
+   "effective_codes_expH",
+   "mean_top1_prob",
+   "logit_absmax"
+  ],
+  "grid": "K in {8,16,64} x preproc in {raw,zscore} x method in {differentiable_pr,reinforce_ema} + 6 base checkpoints (preproc=none) fed raw; identical grid & preprocessing to main R2",
+  "preproc_disclosure": "Primary z-score = per-feature dataset-level (mean/std over the 60 entities, per dim), identical to main R2; the ONLY change vs main R2 is the hidden activation reading. Per-sample z-score sensitivity arm of main R2 is out of scope for this appendix (activation swap is the variable under test).",
+  "determinism": "OMP/MKL=1, torch.set_num_threads(1), manual_seed=20261020"
+ },
+ "inputs": {
+  "embeddings": {
+   "file": "inputs/entity_embeddings.json",
+   "source": "Hub /api/file/r2_entity_embeddings (re-fetched this round, byte-identical)",
+   "shape": [
+    60,
+    2048
+   ],
+   "sha256_prefix16": "d1cf27753f274405",
+   "sha256_match_internal": true,
+   "all_finite": true
+  },
+  "routers": {
+   "source": "Hub /api/file/r2_b_routers/<stem> (re-fetched this round)",
+   "n": 18,
+   "verification": "18/18 sha256 byte-identical between Hub re-fetch and local inputs/ copies",
+   "arch": "2048->256->K",
+   "seed": 20261020,
+   "per_file_sha256": {
+    "differentiable_pr|raw|K8": "9cc900523fdb6c4dd0ad32366ecec5b2c0cb1d309a8e016b94d3ceae399baca0",
+    "differentiable_pr|zscore|K8": "e3893ff77e5e980a351c36560d43165688499f79e11508d553b4d3ae4022256b",
+    "differentiable_pr|none|K8": "6dd7743dcb2bcc6555f7a3ff45e8ffb72e3bf6776e9fa21c70a1ec0360c683ae",
+    "reinforce_ema|raw|K8": "70d947a661df04d3fe25ccd5f3cceffec6c637cf151fed4836f813d2e3c28951",
+    "reinforce_ema|zscore|K8": "8fe44b2d6e9b851395e8f7d9a281c1ce7dceff7ebac1fba5e6f1c5c0a5610642",
+    "reinforce_ema|none|K8": "7827c474d9bbef02793ccf1e88024fbc6a1ca7c7ecaf8b2cfa5b7e5e918129bf",
+    "differentiable_pr|raw|K16": "5bef61ae1bcb4a7a347595718a9a41b83e8518303a52e418c6ebdc2f1ae6782e",
+    "differentiable_pr|zscore|K16": "52fec840508724352a2fe392eaa273109990a0e659b5062b5bd0c0de1d7b2ad5",
+    "differentiable_pr|none|K16": "2e222842dc50731f8693dccda4c2ce26416683c236b4eada9ad486f55650d3a0",
+    "reinforce_ema|raw|K16": "f9e61f1c4d64e630101ec98468f57d1f70abe20ac755fb934a71ec44868e0638",
+    "reinforce_ema|zscore|K16": "4f08807d2fc385e0c165df8744434a60b7abc2b9e053c71ef2bdaff52785ff2a",
+    "reinforce_ema|none|K16": "d4d9d6eb2a7418deb0066a263c64e1e055b1a1cf1c6b775ee942ce739b4e0f39",
+    "differentiable_pr|raw|K64": "5ebdbcb3515a70ef23c79cf77aedb051a9cfcd95d14f9a82d1c5fe20409d6c0b",
+    "differentiable_pr|zscore|K64": "e12bb224d3770cdecd5a8f665d37fc4705517599205e35d33d3ed138b10f7078",
+    "differentiable_pr|none|K64": "592714b127842fefd47018153ca711f9e6a9f8fe126388ee3f5185140c5f8ce6",
+    "reinforce_ema|raw|K64": "a667ddffe3054b76ff4a8df84000a7f720a23df44a686724d421697bef8cec48",
+    "reinforce_ema|zscore|K64": "777574edc075f76470203a58b6171a6c41782faa40b2a1fa025b43069f3ef96b",
+    "reinforce_ema|none|K64": "14e6736714807e5ee5df1bd73bb3b5d7ea0e4f92d734b07a4b752334de22bf9b"
+   }
+  }
+ },
+ "per_router": {
+  "differentiable_pr|raw|K8": {
+   "file": "b_router_K8_differentiable_pr_raw.pt",
+   "method": "differentiable_pr",
+   "preproc": "raw",
+   "sha256": "9cc900523fdb6c4dd0ad32366ecec5b2c0cb1d309a8e016b94d3ceae399baca0",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 1203.065673828125,
+    "n_samples": 60,
+    "K": 8
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.4440782368183136,
+    "entropy_nats_min": 0.10705378651618958,
+    "entropy_nats_max": 1.2668486833572388,
+    "effective_codes_expH": 1.5590524561543133,
+    "mean_top1_prob": 0.8776397109031677,
+    "logit_absmax": 8.987034797668457,
+    "n_samples": 60,
+    "K": 8
+   }
+  },
+  "differentiable_pr|zscore|K8": {
+   "file": "b_router_K8_differentiable_pr_zscore.pt",
+   "method": "differentiable_pr",
+   "preproc": "zscore",
+   "sha256": "e3893ff77e5e980a351c36560d43165688499f79e11508d553b4d3ae4022256b",
+   "standard_relu": {
+    "entropy_nats_mean": 2.502855874819745e-21,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": 9.372525673131787e-20,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 387.1375732421875,
+    "n_samples": 60,
+    "K": 8
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.7296193838119507,
+    "entropy_nats_min": 0.005839933175593615,
+    "entropy_nats_max": 1.5531216859817505,
+    "effective_codes_expH": 2.0742909486913637,
+    "mean_top1_prob": 0.7345592975616455,
+    "logit_absmax": 10.415736198425293,
+    "n_samples": 60,
+    "K": 8
+   }
+  },
+  "differentiable_pr|none|K8": {
+   "file": "b_router_K8_differentiable_pr.pt",
+   "method": "differentiable_pr",
+   "preproc": "none",
+   "sha256": "6dd7743dcb2bcc6555f7a3ff45e8ffb72e3bf6776e9fa21c70a1ec0360c683ae",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 1203.065673828125,
+    "n_samples": 60,
+    "K": 8
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.4440782368183136,
+    "entropy_nats_min": 0.10705378651618958,
+    "entropy_nats_max": 1.2668486833572388,
+    "effective_codes_expH": 1.5590524561543133,
+    "mean_top1_prob": 0.8776397109031677,
+    "logit_absmax": 8.987034797668457,
+    "n_samples": 60,
+    "K": 8
+   }
+  },
+  "reinforce_ema|raw|K8": {
+   "file": "b_router_K8_reinforce_ema_raw.pt",
+   "method": "reinforce_ema",
+   "preproc": "raw",
+   "sha256": "70d947a661df04d3fe25ccd5f3cceffec6c637cf151fed4836f813d2e3c28951",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 6985.25390625,
+    "n_samples": 60,
+    "K": 8
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.01314428262412548,
+    "entropy_nats_min": 5.188465820538113e-06,
+    "entropy_nats_max": 0.7856353521347046,
+    "effective_codes_expH": 1.0132310484483755,
+    "mean_top1_prob": 0.9961977005004883,
+    "logit_absmax": 20.55672264099121,
+    "n_samples": 60,
+    "K": 8
+   }
+  },
+  "reinforce_ema|zscore|K8": {
+   "file": "b_router_K8_reinforce_ema_zscore.pt",
+   "method": "reinforce_ema",
+   "preproc": "zscore",
+   "sha256": "8fe44b2d6e9b851395e8f7d9a281c1ce7dceff7ebac1fba5e6f1c5c0a5610642",
+   "standard_relu": {
+    "entropy_nats_mean": 4.049752561898721e-43,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": 2.4315330952964226e-41,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 2821.02587890625,
+    "n_samples": 60,
+    "K": 8
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.30719631910324097,
+    "entropy_nats_min": 8.672330295667052e-06,
+    "entropy_nats_max": 1.2169941663742065,
+    "effective_codes_expH": 1.359607858868855,
+    "mean_top1_prob": 0.8999547362327576,
+    "logit_absmax": 20.25191879272461,
+    "n_samples": 60,
+    "K": 8
+   }
+  },
+  "reinforce_ema|none|K8": {
+   "file": "b_router_K8_reinforce_ema.pt",
+   "method": "reinforce_ema",
+   "preproc": "none",
+   "sha256": "7827c474d9bbef02793ccf1e88024fbc6a1ca7c7ecaf8b2cfa5b7e5e918129bf",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 6985.25390625,
+    "n_samples": 60,
+    "K": 8
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.01314428262412548,
+    "entropy_nats_min": 5.188465820538113e-06,
+    "entropy_nats_max": 0.7856353521347046,
+    "effective_codes_expH": 1.0132310484483755,
+    "mean_top1_prob": 0.9961977005004883,
+    "logit_absmax": 20.55672264099121,
+    "n_samples": 60,
+    "K": 8
+   }
+  },
+  "differentiable_pr|raw|K16": {
+   "file": "b_router_K16_differentiable_pr_raw.pt",
+   "method": "differentiable_pr",
+   "preproc": "raw",
+   "sha256": "5bef61ae1bcb4a7a347595718a9a41b83e8518303a52e418c6ebdc2f1ae6782e",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 2469.39794921875,
+    "n_samples": 60,
+    "K": 16
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.29247063398361206,
+    "entropy_nats_min": 0.05357774347066879,
+    "entropy_nats_max": 1.8910144567489624,
+    "effective_codes_expH": 1.3397333933534334,
+    "mean_top1_prob": 0.9303812384605408,
+    "logit_absmax": 9.09926700592041,
+    "n_samples": 60,
+    "K": 16
+   }
+  },
+  "differentiable_pr|zscore|K16": {
+   "file": "b_router_K16_differentiable_pr_zscore.pt",
+   "method": "differentiable_pr",
+   "preproc": "zscore",
+   "sha256": "52fec840508724352a2fe392eaa273109990a0e659b5062b5bd0c0de1d7b2ad5",
+   "standard_relu": {
+    "entropy_nats_mean": 3.708236206989568e-08,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": 1.1406874591557425e-06,
+    "effective_codes_expH": 1.0000000370823627,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 435.1080322265625,
+    "n_samples": 60,
+    "K": 16
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 1.0358850955963135,
+    "entropy_nats_min": 0.03206497058272362,
+    "entropy_nats_max": 2.4007315635681152,
+    "effective_codes_expH": 2.817598976750733,
+    "mean_top1_prob": 0.6814715266227722,
+    "logit_absmax": 12.780756950378418,
+    "n_samples": 60,
+    "K": 16
+   }
+  },
+  "differentiable_pr|none|K16": {
+   "file": "b_router_K16_differentiable_pr.pt",
+   "method": "differentiable_pr",
+   "preproc": "none",
+   "sha256": "2e222842dc50731f8693dccda4c2ce26416683c236b4eada9ad486f55650d3a0",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 2469.39794921875,
+    "n_samples": 60,
+    "K": 16
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.29247063398361206,
+    "entropy_nats_min": 0.05357774347066879,
+    "entropy_nats_max": 1.8910144567489624,
+    "effective_codes_expH": 1.3397333933534334,
+    "mean_top1_prob": 0.9303812384605408,
+    "logit_absmax": 9.09926700592041,
+    "n_samples": 60,
+    "K": 16
+   }
+  },
+  "reinforce_ema|raw|K16": {
+   "file": "b_router_K16_reinforce_ema_raw.pt",
+   "method": "reinforce_ema",
+   "preproc": "raw",
+   "sha256": "f9e61f1c4d64e630101ec98468f57d1f70abe20ac755fb934a71ec44868e0638",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 4052.65673828125,
+    "n_samples": 60,
+    "K": 16
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.4594699740409851,
+    "entropy_nats_min": 0.08834576606750488,
+    "entropy_nats_max": 1.6701565980911255,
+    "effective_codes_expH": 1.5832346071271144,
+    "mean_top1_prob": 0.8895472884178162,
+    "logit_absmax": 11.450596809387207,
+    "n_samples": 60,
+    "K": 16
+   }
+  },
+  "reinforce_ema|zscore|K16": {
+   "file": "b_router_K16_reinforce_ema_zscore.pt",
+   "method": "reinforce_ema",
+   "preproc": "zscore",
+   "sha256": "4f08807d2fc385e0c165df8744434a60b7abc2b9e053c71ef2bdaff52785ff2a",
+   "standard_relu": {
+    "entropy_nats_mean": 7.05229155073539e-08,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": 2.5365661713294685e-06,
+    "effective_codes_expH": 1.000000070522918,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 3625.177734375,
+    "n_samples": 60,
+    "K": 16
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.46051403880119324,
+    "entropy_nats_min": 4.965392508893274e-05,
+    "entropy_nats_max": 1.9642252922058105,
+    "effective_codes_expH": 1.5848884698071934,
+    "mean_top1_prob": 0.8564740419387817,
+    "logit_absmax": 21.813880920410156,
+    "n_samples": 60,
+    "K": 16
+   }
+  },
+  "reinforce_ema|none|K16": {
+   "file": "b_router_K16_reinforce_ema.pt",
+   "method": "reinforce_ema",
+   "preproc": "none",
+   "sha256": "d4d9d6eb2a7418deb0066a263c64e1e055b1a1cf1c6b775ee942ce739b4e0f39",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 4052.65673828125,
+    "n_samples": 60,
+    "K": 16
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.4594699740409851,
+    "entropy_nats_min": 0.08834576606750488,
+    "entropy_nats_max": 1.6701565980911255,
+    "effective_codes_expH": 1.5832346071271144,
+    "mean_top1_prob": 0.8895472884178162,
+    "logit_absmax": 11.450596809387207,
+    "n_samples": 60,
+    "K": 16
+   }
+  },
+  "differentiable_pr|raw|K64": {
+   "file": "b_router_K64_differentiable_pr_raw.pt",
+   "method": "differentiable_pr",
+   "preproc": "raw",
+   "sha256": "5ebdbcb3515a70ef23c79cf77aedb051a9cfcd95d14f9a82d1c5fe20409d6c0b",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": 3.923635700109488e-44,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 1228.02099609375,
+    "n_samples": 60,
+    "K": 64
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 1.5325573682785034,
+    "entropy_nats_min": 0.6002674698829651,
+    "entropy_nats_max": 3.7532079219818115,
+    "effective_codes_expH": 4.630002315835649,
+    "mean_top1_prob": 0.7192834615707397,
+    "logit_absmax": 6.407820701599121,
+    "n_samples": 60,
+    "K": 64
+   }
+  },
+  "differentiable_pr|zscore|K64": {
+   "file": "b_router_K64_differentiable_pr_zscore.pt",
+   "method": "differentiable_pr",
+   "preproc": "zscore",
+   "sha256": "e12bb224d3770cdecd5a8f665d37fc4705517599205e35d33d3ed138b10f7078",
+   "standard_relu": {
+    "entropy_nats_mean": 1.2008722194423171e-07,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": 5.796814548375551e-06,
+    "effective_codes_expH": 1.000000120087229,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 596.6727294921875,
+    "n_samples": 60,
+    "K": 64
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 1.6513657569885254,
+    "entropy_nats_min": 0.09615646302700043,
+    "entropy_nats_max": 3.5738301277160645,
+    "effective_codes_expH": 5.214096154748816,
+    "mean_top1_prob": 0.589117705821991,
+    "logit_absmax": 12.160109519958496,
+    "n_samples": 60,
+    "K": 64
+   }
+  },
+  "differentiable_pr|none|K64": {
+   "file": "b_router_K64_differentiable_pr.pt",
+   "method": "differentiable_pr",
+   "preproc": "none",
+   "sha256": "592714b127842fefd47018153ca711f9e6a9f8fe126388ee3f5185140c5f8ce6",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": 3.923635700109488e-44,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 1228.02099609375,
+    "n_samples": 60,
+    "K": 64
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 1.5325573682785034,
+    "entropy_nats_min": 0.6002674698829651,
+    "entropy_nats_max": 3.7532079219818115,
+    "effective_codes_expH": 4.630002315835649,
+    "mean_top1_prob": 0.7192834615707397,
+    "logit_absmax": 6.407820701599121,
+    "n_samples": 60,
+    "K": 64
+   }
+  },
+  "reinforce_ema|raw|K64": {
+   "file": "b_router_K64_reinforce_ema_raw.pt",
+   "method": "reinforce_ema",
+   "preproc": "raw",
+   "sha256": "a667ddffe3054b76ff4a8df84000a7f720a23df44a686724d421697bef8cec48",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 4074.604248046875,
+    "n_samples": 60,
+    "K": 64
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 3.481659173965454,
+    "entropy_nats_min": 1.9859881401062012,
+    "entropy_nats_max": 3.79595947265625,
+    "effective_codes_expH": 32.51362310488482,
+    "mean_top1_prob": 0.15313558280467987,
+    "logit_absmax": 10.248085021972656,
+    "n_samples": 60,
+    "K": 64
+   }
+  },
+  "reinforce_ema|zscore|K64": {
+   "file": "b_router_K64_reinforce_ema_zscore.pt",
+   "method": "reinforce_ema",
+   "preproc": "zscore",
+   "sha256": "777574edc075f76470203a58b6171a6c41782faa40b2a1fa025b43069f3ef96b",
+   "standard_relu": {
+    "entropy_nats_mean": 0.009731021709740162,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": 0.5838612914085388,
+    "effective_codes_expH": 1.009778522052095,
+    "mean_top1_prob": 0.9954898953437805,
+    "logit_absmax": 1810.2642822265625,
+    "n_samples": 60,
+    "K": 64
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 0.8246826529502869,
+    "entropy_nats_min": 2.8104172997700516e-06,
+    "entropy_nats_max": 3.288529872894287,
+    "effective_codes_expH": 2.2811567320916115,
+    "mean_top1_prob": 0.769608736038208,
+    "logit_absmax": 23.565223693847656,
+    "n_samples": 60,
+    "K": 64
+   }
+  },
+  "reinforce_ema|none|K64": {
+   "file": "b_router_K64_reinforce_ema.pt",
+   "method": "reinforce_ema",
+   "preproc": "none",
+   "sha256": "14e6736714807e5ee5df1bd73bb3b5d7ea0e4f92d734b07a4b752334de22bf9b",
+   "standard_relu": {
+    "entropy_nats_mean": 0.0,
+    "entropy_nats_min": -0.0,
+    "entropy_nats_max": -0.0,
+    "effective_codes_expH": 1.0,
+    "mean_top1_prob": 1.0,
+    "logit_absmax": 4074.604248046875,
+    "n_samples": 60,
+    "K": 64
+   },
+   "counterfactual_tanh": {
+    "entropy_nats_mean": 3.481659173965454,
+    "entropy_nats_min": 1.9859881401062012,
+    "entropy_nats_max": 3.79595947265625,
+    "effective_codes_expH": 32.51362310488482,
+    "mean_top1_prob": 0.15313558280467987,
+    "logit_absmax": 10.248085021972656,
+    "n_samples": 60,
+    "K": 64
+   }
+  }
+ },
+ "cross_check_vs_main_r2_activation_sensitivity": {
+  "note": "4 K64 cells reported in main JSON diagnostics.activation_sensitivity (ReLU+Tanh)",
+  "n_match": 4,
+  "n_total": 8,
+  "mismatch_keys": [
+   "b_router_K64_differentiable_pr_zscore.pt|relu",
+   "b_router_K64_differentiable_pr_zscore.pt|tanh",
+   "b_router_K64_reinforce_ema_zscore.pt|relu",
+   "b_router_K64_reinforce_ema_zscore.pt|tanh"
+  ],
+  "root_cause": "All 4 mismatching cells are the two zscore-trained checkpoints. Root cause identified in the MAIN R2 script (experiments/r2/r2_router_collapse.py, diagnostics block): its activation loop calls act_forward(fn, act, X_all) for all four K64 files, feeding RAW embeddings even to the zscore-trained routers. The main JSON's zscore-cell activation values therefore reflect raw-input-on-zscore-router, not nominal preprocessing. The main per_router analysis (which uses preprocess(X_all, p) correctly) reproduces exactly: 18/18 (see cross_check_vs_main_r2_per_router_relu). Neither side is silently rewritten; both value sets are reported side by side here (D1/D2).",
+  "cells": {
+   "b_router_K64_differentiable_pr_raw.pt|relu": {
+    "main_json_expH": 1.0,
+    "appendix_expH": 1.0,
+    "expH_abs_diff": 0.0,
+    "main_json_top1": 1.0,
+    "appendix_top1": 1.0,
+    "main_json_logit_absmax": 1228.02099609375,
+    "appendix_logit_absmax": 1228.02099609375,
+    "match": true
+   },
+   "b_router_K64_differentiable_pr_raw.pt|tanh": {
+    "main_json_expH": 4.630002315835649,
+    "appendix_expH": 4.630002315835649,
+    "expH_abs_diff": 0.0,
+    "main_json_top1": 0.7192834615707397,
+    "appendix_top1": 0.7192834615707397,
+    "main_json_logit_absmax": 6.407820701599121,
+    "appendix_logit_absmax": 6.407820701599121,
+    "match": true
+   },
+   "b_router_K64_differentiable_pr_zscore.pt|relu": {
+    "main_json_expH": 1.0003110831369975,
+    "appendix_expH": 1.000000120087229,
+    "expH_abs_diff": 0.00031096304976840905,
+    "main_json_top1": 0.9999555349349976,
+    "appendix_top1": 1.0,
+    "main_json_logit_absmax": 804.12158203125,
+    "appendix_logit_absmax": 596.6727294921875,
+    "match": false
+   },
+   "b_router_K64_differentiable_pr_zscore.pt|tanh": {
+    "main_json_expH": 8.8370694945094,
+    "appendix_expH": 5.214096154748816,
+    "expH_abs_diff": 3.622973339760584,
+    "main_json_top1": 0.4933303892612457,
+    "appendix_top1": 0.589117705821991,
+    "main_json_logit_absmax": 9.446656227111816,
+    "appendix_logit_absmax": 12.160109519958496,
+    "match": false
+   },
+   "b_router_K64_reinforce_ema_raw.pt|relu": {
+    "main_json_expH": 1.0,
+    "appendix_expH": 1.0,
+    "expH_abs_diff": 0.0,
+    "main_json_top1": 1.0,
+    "appendix_top1": 1.0,
+    "main_json_logit_absmax": 4074.604248046875,
+    "appendix_logit_absmax": 4074.604248046875,
+    "match": true
+   },
+   "b_router_K64_reinforce_ema_raw.pt|tanh": {
+    "main_json_expH": 32.51362310488482,
+    "appendix_expH": 32.51362310488482,
+    "expH_abs_diff": 0.0,
+    "main_json_top1": 0.15313558280467987,
+    "appendix_top1": 0.15313558280467987,
+    "main_json_logit_absmax": 10.248085021972656,
+    "appendix_logit_absmax": 10.248085021972656,
+    "match": true
+   },
+   "b_router_K64_reinforce_ema_zscore.pt|relu": {
+    "main_json_expH": 1.0056000683343098,
+    "appendix_expH": 1.009778522052095,
+    "expH_abs_diff": 0.0041784537177851355,
+    "main_json_top1": 0.9982626438140869,
+    "appendix_top1": 0.9954898953437805,
+    "main_json_logit_absmax": 1825.855224609375,
+    "appendix_logit_absmax": 1810.2642822265625,
+    "match": false
+   },
+   "b_router_K64_reinforce_ema_zscore.pt|tanh": {
+    "main_json_expH": 2.343968663598409,
+    "appendix_expH": 2.2811567320916115,
+    "expH_abs_diff": 0.06281193150679742,
+    "main_json_top1": 0.7438942790031433,
+    "appendix_top1": 0.769608736038208,
+    "main_json_logit_absmax": 20.553272247314453,
+    "appendix_logit_absmax": 23.565223693847656,
+    "match": false
+   }
+  }
+ },
+ "cross_check_vs_main_r2_per_router_relu": {
+  "note": "ReLU exp(H) of all 18 cells vs main JSON per_router",
+  "n_match": 18,
+  "n_total": 18,
+  "cells": {
+   "differentiable_pr|raw|K8": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "differentiable_pr|zscore|K8": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "differentiable_pr|none|K8": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "reinforce_ema|raw|K8": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "reinforce_ema|zscore|K8": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "reinforce_ema|none|K8": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "differentiable_pr|raw|K16": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "differentiable_pr|zscore|K16": {
+    "main_expH": 1.0000000370823627,
+    "appendix_expH": 1.0000000370823627,
+    "match": true
+   },
+   "differentiable_pr|none|K16": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "reinforce_ema|raw|K16": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "reinforce_ema|zscore|K16": {
+    "main_expH": 1.000000070522918,
+    "appendix_expH": 1.000000070522918,
+    "match": true
+   },
+   "reinforce_ema|none|K16": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "differentiable_pr|raw|K64": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "differentiable_pr|zscore|K64": {
+    "main_expH": 1.000000120087229,
+    "appendix_expH": 1.000000120087229,
+    "match": true
+   },
+   "differentiable_pr|none|K64": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "reinforce_ema|raw|K64": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   },
+   "reinforce_ema|zscore|K64": {
+    "main_expH": 1.009778522052095,
+    "appendix_expH": 1.009778522052095,
+    "match": true
+   },
+   "reinforce_ema|none|K64": {
+    "main_expH": 1.0,
+    "appendix_expH": 1.0,
+    "match": true
+   }
+  }
+ },
+ "summary_ranges_over_18_configs": {
+  "standard_relu": {
+   "effective_codes_expH_range": {
+    "min": 1.0,
+    "max": 1.009778522052095
+   },
+   "mean_top1_prob_range": {
+    "min": 0.9954898953437805,
+    "max": 1.0
+   },
+   "logit_absmax_range": {
+    "min": 387.1375732421875,
+    "max": 6985.25390625
+   },
+   "n_configs_saturated_expH_lt_1.05": 18,
+   "n_configs": 18
+  },
+  "counterfactual_tanh": {
+   "effective_codes_expH_range": {
+    "min": 1.0132310484483755,
+    "max": 32.51362310488482
+   },
+   "mean_top1_prob_range": {
+    "min": 0.15313558280467987,
+    "max": 0.9961977005004883
+   },
+   "logit_absmax_range": {
+    "min": 6.407820701599121,
+    "max": 23.565223693847656
+   },
+   "n_configs_saturated_expH_lt_1.05": 2,
+   "n_configs": 18
+  }
+ },
+ "disclosure_vs_main_receipt_prose": {
+  "note": "Main receipt WB1-20261022-R2-v1 prose disclosed 'ReLU logits |max| 804-1228, Tanh exp(H)=4.63-8.84'. Those prose ranges cover only the differentiable_pr pair of K64 cells; the main JSON diagnostics additionally contain the reinforce_ema K64 cells (ReLU |logit|max 1825.9 / 4074.6; Tanh exp(H) 2.34 / 32.51). This appendix reports full recomputed ranges over all 18 configs and cross-checks every main-JSON cell numerically; no value on either side is silently rewritten (D1/D2).",
+  "main_receipt_prose_relu_logit_absmax": [
+   804.1,
+   1228.0
+  ],
+  "main_receipt_prose_tanh_expH": [
+   4.63,
+   8.84
+  ],
+  "appendix_full_range_relu_logit_absmax": {
+   "min": 387.1375732421875,
+   "max": 6985.25390625
+  },
+  "appendix_full_range_tanh_expH": {
+   "min": 1.0132310484483755,
+   "max": 32.51362310488482
+  }
+ },
+ "verdict": {
+  "status": "conditional on activation reading (confirmed); numerical consistency with main receipt partially met (see cross_check)",
+  "note": "Under the standard ReLU reading all 18 configs remain saturated (exp(H) 1.0000-1.0098, top1 0.9955-1.0000, |logit|max O(10^2-10^3)). Under the Tanh counterfactual 16/18 configs are clearly non-saturated (exp(H) 1.0132-32.5136); the 3 reinforce_ema K8 cells stay near one-hot even under Tanh (exp(H)=1.0132-1.3596, top1 0.900-0.996) - for those checkpoints the one-hot behaviour does NOT depend on the activation reading. => the 'per-sample near one-hot' observation is conditional on the standard Linear-ReLU-Linear reading for the other 15/18 configs, as disclosed in the main receipt; the H-ROUTER-COLLAPSE pending verdict is unchanged by this appendix.",
+  "consistency_check": "Raw-input cells reproduce the main JSON exactly (4/4); the 2 zscore cells differ because the main R2 diagnostics fed raw embeddings to zscore-trained routers (root cause identified, see cross_check_vs_main_r2_activation_sensitivity). Nominal-preprocessing Tanh values for the K64 zscore cells are exp(H)=5.2141 (differentiable_pr) and 2.2812 (reinforce_ema) - still unsaturated.",
+  "cross_check_all_match": false
+ },
+ "boundary": "n=60: mechanism-level observation only, not a conclusion (per instruction §4 and D1). Tanh is a counterfactual reading, NOT a claim about the true training activation (training script absent; activation type unconfirmed per WB0 ruling 1792664018-e90a5a §5). Until the training script surfaces, 'per-sample one-hot' must not be cited as an unconditional conclusion."
+}

@@ -1,0 +1,132 @@
+review_id: WB2-20261022-EXP-05
+id: WB2-20261022-EXP-05
+author: WB2
+date: "2026-10-22"
+target: WB2
+executor: WB2
+round: "2026-10-22 18:40 GMT+8"
+instruction_id: "1792650493-8c7b9c"
+instruction_ids: ["1792650493-8c7b9c"]
+instruction_ref: WB0-INSTR-20261022-EXP-05
+title: EXP-05 多跳链长调节（hop 2/3/4）——结构驱动 vs 频次驱动分配对 PR@5 的影响
+status: delivered
+verdict: pending
+status_note: >-
+  按 D1 三分判 pending，核心为**地板闸门**而非样本不足。指令预注册判据（PR@5）在本任务构造下无动态范围：
+  无分配全图参考 PR@5=0.0（hop 2/3/4 全 0，120 查询无一命中），两结构臂 × X∈{40,50,60} × 3 hop 与频次臂
+  全部配置 PR@5=0.0，配对 Δ=0.0pp（CI 0.0）。Δ=0 系地板所致，**不构成"频次分配不劣于结构分配"的证据**
+  （D1：禁止把测不出当已证伪），亦无任一格 Δ≥2pp 显著优 → 不可判。功效本身充足（每 hop 配对 n=38–66 ≥10）。
+  天花板侧：随机基线 PR@5=0.0031/0.0036/0.0029（floor 侧，任务对随机不 trivial），指令"随机≥0.7 则过易"闸门未触发。
+prediction: >-
+  EXP-04 在合成图上证明"按结构分配"在结构与频次正交时显著优于"按频次分配"（解耦图 Δ=+63.4pp vs 共线图 0.0pp，
+  最弱形式 confirmed_conditional）。EXP-05 预注册：若该结论可复验于真实多跳检索，则在 2wikimqa 共现图上，
+  存在 ≥1 个 hop 档（hop∈{2,3,4}）使结构分配（k-core / community bridge，保留 top-X% 节点，X∈{40,50,60}）的
+  PR@5 高于频次分配（title 频次）≥2pp 且跨 hop 方向一致；调节链长观察结构优势随 hop 增强/衰减/持平。
+  confirmed = ∃hop Δ≥2pp ∧ 方向一致；refuted = 所有 hop Δ<2pp（频次不劣于结构）；pending = 跨 hop 矛盾、
+  功效不足或判据无动态范围（本轮新增地板闸门条款）。
+falsifiable_criterion: >-
+  PR@5(结构臂,某 hop,某 X) − PR@5(频次臂,同 hop,同 X) ≥ 2pp 且无任一跳反向 ≥2pp → confirmed；
+  所有 (hop,X) 格 Δ < 2pp → refuted；某 hop Δ≥2pp 且另一 hop Δ≤−2pp → pending（矛盾）；
+  每 hop 配对样本 n<10 → pending（功效）；无分配全图参考 PR@5<0.05（判据无动态范围/地板）→ pending，
+  且 Δ=0 不得解读为 refuted（D1）；随机基线 PR@5≥0.7 → pending 并标注效应量不可推广（指令边界，本轮未触发）。
+actual_data:
+  executed_at: "2026-10-22 18:40 GMT+8"
+  wall_clock_s: 1.02
+  budget_s: 600
+  dataset: "r2_longbench_multihop_2wikimqa 本地副本（200 条 2wikimqa，6,052,108B，与 EXP-03/R3 同一文件）"
+  graph: "1404 实体 / 7475 无向共现边（与 EXP-03 同一张图，未改动）；Louvain 社区 72 个（resolution=1.0, seed=20261022，最大 125）；边权均匀"
+  task_construction: >-
+    题目-gold 协议仅 n=2 可评（200 题中 66 题 gold 为全局 passage-title、64 题 gold∈seed 退化，EXP-03/R3 已证实），
+    不满足"每层≥10条"→ 按指令"构造多跳检索任务"授权，在真实共现图上以 BFS 最短距离=h 构造 (start,gold) 链
+    （seed={start} 单点，gold=距离恰为 h 的端点）；start 与端点在对应距离层内均匀抽样（对 k-core/频次指标中性）；
+    可用 (start,gold) 对 44672/37472/36348（hop 2/3/4），每跳抽样 40 条（≥10 达标），共 120 任务。
+  allocation: "EXP-04 预算语义：保留 top-X% 节点（X∈{40,50,60}）在诱导子图上检索；结构臂=k-core / community bridge（跨社区邻居数，EXP-04 口径）；频次臂=title 跨题出现次数（EXP-03 口径；指令所称 token 频次操作化为图节点频次，已披露）；tie-break=(-metric, node_id)；死点→保留节点内 uniform teleport（EXP-03/R3 全图 teleport 口径不适用于节点删除式分配，已披露口径明确化）；排名仅限保留节点（非保留节点置 -inf 不可入榜），top-5 排除 seed"
+  eval_protocol: "PPR p=(1-d)*T^T p + d*tele，d=0.85，50 轮收敛（非跳数截断；EXP-05 的 hop 指任务链长而非 PPR 截断，已披露）；Δ 在两臂共同可评查询（start 同时被保留）上配对计算，gold 是否被保留计入分配效应；CI 为配对差 t 分布 95%（(query,X) 对按独立处理，同查询跨 X 相关或使 CI 略偏窄，已披露）"
+  n_paired_by_hop: "kcore: 65/64/38；bridge: 65/66/39（hop 2/3/4；均 ≥10 功效下限）"
+  pr5_full_table: "全部配置 PR@5=0.0：kcore X=40/50/60（n_ev 48/60/76）、bridge X=40/50/60（n_ev 51/61/73）、frequency X=40/50/60（n_ev 46/55/70）、无分配全图参考（n_ev 120）"
+  delta_pp_full_table: "所有 (hop,X) 格 Δ=0.0pp，CI=0.0（两臂均地板零命中）"
+  random_baseline_pr5: "hop2=0.0031 / hop3=0.0036 / hop4=0.0029（每查询 200 次抽 5 均值；≈5/1404 量级，floor 侧，任务对随机不 trivial）"
+  floor_diagnosis: "无分配全图参考 PR@5=0.0 → 判据无动态范围；gold 在全图 PPR 平均排名 hop2=31.5（中位 21.5）/ hop3=109.5（中位 88）/ hop4=206.2（中位 197）——质量可达但远低于 top-5：单种子 PPR 的 top-5 被 seed 直接邻居（题内 clique）垄断，与 EXP-03/R3 的 0.0 基线同根因"
+  gold_survival_by_alloc: "0.5083–0.6583（分配后 gold 保留比例，作为分配效应分解诊断）"
+  rank_diag_supplementary: >-
+    补充诊断（非预注册口径，不参与判定）：gold 两臂均保留子集上排名差 freq_rank − arm_rank（正=结构臂更前）：
+    k-core 臂 −0.73 / −11.33 / −1.84（hop 2/3/4），community_bridge 臂 −3.03 / −5.69 / −13.02（随跳数恶化；
+    X=40/hop4 格 −18.0±9.9 显著为负）。方向与"结构优势"相反，但仅为地板机制解释，不构成 refuted/confirmed 依据。
+  metric_correlations: "Spearman(freq,kcore)=0.1007；(freq,bridge)=0.1978；(freq,degree)=0.8241；(kcore,bridge)=0.0464 → 频次与两结构度量近似正交（类似 EXP-04 解耦条件），比较干净"
+  kcore_degeneracy: "k-core 直方图 {5:4, 7:18, 8:76, 9:1306} → 1306/1404 节点同为 9-core，top-X%（X≤92%）等价于 9-core 层内按 id 升序近任意选取，k-core 臂解释力受限，已如实披露"
+  reproducibility: "seed=20261022，纯 CPU 1.02s（≤600s 预算），单脚本确定性可复现（两次重跑 self_sha256=98064eddb47c45e0 一致）；无训练、无 LLM 前向、无合成数据"
+hypotheses:
+  - id: H-EXP-05-STRUCT-FREQ
+    statement: 结构驱动分配（k-core / community bridge）在多跳检索 PR@5 上优于频次驱动分配（EXP-04 合成结论的真实数据复验），且优势幅度受链长（hop 2/3/4）调节。
+    prediction: ≥1 个 hop 档结构臂 PR@5 高于频次臂 ≥2pp 且跨 hop 方向一致 → confirmed；所有 hop Δ<2pp → refuted；矛盾/功效不足/无动态范围 → pending。
+    falsifiable_criterion: 同 actual_data.eval_protocol 与 prediction；地板闸门：无分配全图 PR@5<0.05 时 Δ=0 不得判 refuted（D1）。
+    actual_data: >-
+      120 构造任务（40/hop）；7 类配置 PR@5 全 0.0（含无分配全图参考）；Δ=0.0pp 全格；随机基线 0.003 级；
+      gold 全图排名中位 21.5/88/197（hop 2/3/4）；配对 n=38–66/hop；k-core 退化（93% 节点 9-core）已披露；
+      freq 与 kcore/bridge 近似正交（0.10/0.20）。
+    status: pending
+    status_reason: >-
+      地板闸门触发：预注册判据（PR@5）在本任务构造下无动态范围（无分配参考亦为 0.0），Δ=0 不可作为
+      "频次不劣于结构"的证据（D1 禁止把测不出当已证伪），也无显著优证据 → 不可判。属判据可判性问题（E3→
+      实际不可判），非样本不足（配对 n=38–66 充足）。补充 rank 诊断（非预注册）方向与结构优势相反，仅作机制解释。
+    deliverable: results_v2/exp05_hop_moderation.json
+  - id: H-EXP-05-HOP-MODERATION
+    statement: 结构分配相对于频次分配的优势随链长 hop 增强 / 衰减 / 持平（EXP-05 指令 §2.3 调节目标）。
+    prediction: PR@5 Δ 序列随 hop 单调升=增强、单调降=衰减、|Δ(hop4)−Δ(hop2)|<2pp=持平。
+    falsifiable_criterion: 以 PR@5 配对 Δ 的 hop 序列判定；PR@5 无动态范围时不可判（pending）。
+    actual_data: >-
+      PR@5 Δ 序列全 0.0（两臂均地板）→ 持平/增强/衰减均无法判定；补充 rank 诊断（非预注册）：bridge 臂
+      Δrank 增益 −3.03/−5.69/−13.02 随 hop 恶化（方向"衰减"），k-core 臂 −0.73/−11.33/−1.84 无单调 pattern。
+    status: pending
+    status_reason: PR@5 口径无动态范围不可判；rank 补充口径非预注册、仅披露不作判定依据。按 D1 不把"测不出"写成任一方向。
+    deliverable: results_v2/exp05_hop_moderation.json
+data_source:
+  - relpath: results_v2/exp05_hop_moderation.json
+    size: 90473
+    sha256: 6538f66e9614271267d442ac53d85cc998e3ff93688c12f6e098977d312a4d2d
+  - relpath: results_v2/exp05_hop_moderation.py
+    size: 25830
+    sha256: 99ca550833387b1e0b95abe0faa22231b960bb4d329afefda1df5d9020f96c00
+  - relpath: results_v2/wb2_run_report_20261022_1840.md
+    size: 8312
+    sha256: 53cd65af6fa2e11954dd200c53342bed1078dc9ae17ad035115e8814524b2eff
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: false
+  llm_forward: false
+  external_dependency_missing: false
+  dependency_note: "EXP-03（1792622667-1d55e4）已于 14:40 轮闭环，依赖满足，未转 open_item；数据为本地已有副本，纯 CPU 无外部依赖缺失"
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: false
+  exp05_deliverable_overwritten: false
+  fabrication: false
+  budget_respected: true
+  same_graph_as_exp03: true
+  graph_unchanged: true
+  floor_gate_applied: true
+  no_refuted_from_floor: true
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；全部数值由本地 200 条真实数据单脚本计算，无沿用他方自述数值。"
+  interface_alignment: "建会话 → GET /api/brief → GET /api/instructions?brief=1&since=1792650492 → 单条取正文（唤醒裁定 1792664018-e90a5a / EXP-05）→ 复用 EXP-03 图与数据口径 → CPU 1.02s → POST /api/upload（3 件）→ POST /api/review（本回执）→ done.json 追加。"
+  scope_guard_honored: >-
+    未伪造；未写台账；未动冻结件；未覆盖既有产物；未抢跑 EXP-06（顺延下轮）；任务构造依据指令"构造多跳检索任务"
+    授权并披露题目-gold 协议 n=2 根因；频次操作化、死点 teleport、非保留节点不可入榜、k-core 退化、rank 诊断
+    非预注册性质、(query,X) CI 独立性假设均已披露；地板零差未写作 refuted（D1）。
+  cross_executor_conflicts: 0
+self_check:
+  B-01_assertion_card: "未证推论：结构分配优于频次分配可复验于真实多跳检索（H-EXP-05-STRUCT-FREQ）。备选解释：本轮数据完全不可分辨——PR@5 地板（单种子 PPR top-5 被题内 clique 直接邻居垄断）使两臂比较无动态范围；题目-gold 退化（n=2）亦提示任务定义与语料错配。两种解释均未排除，故 pending。"
+  B-02_criteria_tier: "E2（纯 CPU 共现图+本地数据，可立即跑，已跑完 1.02s）。预注册 PR@5 判据的实际可判性为 E3→本轮证实不可判（地板，无动态范围）：不是缺资源，而是判据与任务构造不兼容——需 WB0 裁定换检索协议/指标口径（属原则性裁定，非本轮自行扩大）。"
+  B-03_motivation: "回应 WB0 指令 1792650493-8c7b9c（EXP-05，auto_run，队首，EXP-03 后）——EXP-04 合成结论（解耦 Δ=+63.4pp）的真实数据复验 + 链长调节。"
+  B-04_analogy: "跨领域类比 0 处；「注意力劫持/天花板」等均为指令与 WB0 裁定原文转述，未用 [发生器]。"
+  B-05_self_plan: "本轮范围：仅执行队首 EXP-05 一条（每轮 1 条纪律）+ 按 ALL 裁定 1792664018-e90a5a 点名补齐运行报告自检块（本文件与运行报告均含 B-01..B-10）。下轮：EXP-06（1792650493-7cd4cc，语义 Router 课程学习）。"
+  B-06_stepwise: "本轮完成 EXP-05 全网格（2 臂 × 3 X × 3 hop，120 任务）+ 随机基线 + 地板诊断 + rank 补充诊断 + 全表交付。遗留接口：PR@5 地板根因与 H-STRUCT-FREQ 可判性方案（多种子 seeding / 预注册 MRR / 关系边图）待 WB0 裁定；k-core 退化臂的结论权重待裁定。"
+  B-07_agent_calls: "0 次子 Agent 调用；单脚本纯 CPU 计算，无外部 Agent 依赖。"
+  B-08_pre_delivery_verify: "交付前验证：(a) 图 1404/7475/72 社区与 EXP-03/R3 逐项一致；(b) 两次重跑 self_sha256=98064eddb47c45e0 一致（确定性）；(c) 随机基线 0.003≈5/1404 量级复核；(d) gold 全图排名中位 21.5/88/197 有限值——证明 PPR 质量可达 gold（排除 mask/排序 bug），地板为真实排序竞争失败；(e) Δ=0 未写作 refuted（地板闸门已触发并写入 verdict_reason）；(f) data_source 3 文件上传后经 GET /api/file/<stem> 返回 200 且 size 与本地产物一致。"
+  B-09_motivation_priority: "用户要求（WB0 指令+裁定）占比≈100%；框架自发扩展=0（未抢跑 EXP-06；未自行把判据换成 MRR——rank 仅作补充诊断并显式标注非预注册）。"
+  B-10_no_premature_verdict: "保留待裁：(a) PR@5 地板是否换检索协议/预注册 MRR 口径以可判 H-EXP-05-STRUCT-FREQ；(b) k-core 退化臂在结论中的权重；(c) rank 补充诊断中 bridge 臂随跳数恶化（−3.0/−5.7/−13.0）的方向性是否需预注册后复核——均交 WB0 裁定，未预先命名。"
+created_at: "2026-10-22T18:40:00+08:00"

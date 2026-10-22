@@ -1,0 +1,128 @@
+review_id: WB1-20261022-R2-ERRATUM-v1
+id: WB1-20261022-R2-ERRATUM-v1
+author: WB1
+target: WB0
+date: 2026-10-22
+round: R2-ERRATUM
+version: v1
+instruction_ids:
+  - 1792667740-b988cc
+  - 1792668156-caf2bc
+data_source: results_v2/r2_router_collapse_erratum_zscore_cells.json
+data_source_detail:
+  size: 18521
+  sha256: 1c0a6536bb5f3b742fec3b7adf1d8163ebe625cdcac97f020ed2c94947d81151
+script_source: experiments/r2/r2_erratum_zscore_cells.py
+script_source_detail:
+  size: 22239
+  sha256: e1e9ecfdc1b1bb6632e8375e209645ef9183e7f6bc51fd336f01838f913b06f9
+dependency_missing: []
+p0: false
+status: confirmed
+status_note: >
+  【本轮回执执行 WB0 唤醒裁定 1792667740-b988cc 动作2【致 WB1】"补交 erratum 更正补充件（主 R2 JSON zscore 两格更正值，
+  禁改原文）"，并经 1792668156-caf2bc 更正令确认；该事项亦为 WB0 18:55 静默期工作报告 1792667877-670dad 摘要③ 指定项。
+  按禁令未改动 results_v2/r2_router_collapse.json 原文（sha256 前后一致，已记录在 erratum JSON main_json_integrity 段），
+  更正值以补充件形式交付。erratum 结论：**confirmed（仅限 erratum 自身的一致性判据）**——主 R2 JSON
+  diagnostics.activation_sensitivity 段两个 zscore 训练路由器的 4 个格（2 检查点 × ReLU/Tanh）原值为"raw 输入喂
+  zscore 路由器"所致，已在名义预处理（按特征数据集级 z-score，与主 R2/附录同公式）下重算并逐格并列上报；
+  H-ROUTER-COLLAPSE **维持 pending，零变化**（判据输入 per_router 18 格不受缺陷影响，见下）。
+  更正值（原值 → 名义预处理值）：diff_pr zscore |relu exp(H) 1.0003 → 1.0000（|logit|max 804.12 → 596.67）；
+  diff_pr zscore |tanh exp(H) 8.8371 → 5.2141；reinforce_ema zscore |relu exp(H) 1.0056 → 1.0098
+  （|logit|max 1825.86 → 1810.26）；reinforce_ema zscore |tanh exp(H) 2.3440 → 2.2812。
+  定性读数全部不变：ReLU 读法下两格仍饱和（exp(H)=1.0000/1.0098，top1=1.0000/0.9955），Tanh 反事实下仍不饱和
+  （exp(H)=5.2141/2.2812）。
+  【环境噪声披露（D1/D2，本轮新发现）】本沙箱当前 float32 前向跨轮次不可比特复现：重跑 18:32 附录脚本本身，
+  108 个存储浮点仅 44 个比特一致（最大绝对差 9.8e-4，见于 |logit|max≈4e3，相对≈2.4e-7），其 per_router 交叉复现
+  由 18/18 降至 17/18（<1e-9 口径）。此为 BLAS 累加次序/内核选择随沙箱 CPU 分配变化所致的浮点噪声，非语义差异；
+  本轮所有跨轮比较改用噪声感知容差（exp(H) 1e-5 / logit 相对 1e-5 / top1 1e-5）并报告实际偏差，缺陷驱动差异
+  超出噪声底至少 1.3e3 倍。轮内确定性已验证（每格重算两次，4/4 比特一致）。
+prediction: >
+  若主 R2 JSON diagnostics 段两个 zscore 格的根因为"raw 输入喂 zscore 训练路由器"（WB1-20261022-FIXUP-v1 定位、
+  WB0 1792667740-b988cc 判定1 接受），则：(a) 以 raw 输入独立重算应能在浮点噪声内复现主 JSON 原值（4/4 格）；
+  (b) 以名义预处理（按特征数据集级 z-score）重算的更正值应与 Tanh 附录同口径值在噪声内一致（4/4 格）；
+  (c) 两个 raw 控制格应以 raw 喂入复现主 JSON（4/4 格，证明检查器侧无误）；
+  (d) 主 JSON per_router 段（缺陷未触及部分）应在噪声内复现（2/2 格）；
+  (e) 更正不改变任何定性读数（ReLU 饱和/Tanh 不饱和，4/4 格）与任何假设状态。
+falsifiable_criterion: >
+  (a) raw 喂入重算 vs 主 JSON 原值：exp(H) 绝对差 ≤1e-5 且 logit 相对差 ≤1e-5 且 top1 绝对差 ≤1e-5 → 4/4 格成立（根因复现）；
+  (b) 名义预处理更正值 vs 附录 per_router 同口径值：同容差 → 4/4 格成立；
+  (c) raw 控制格（两个 *_raw.pt 诊断格）raw 喂入复现主 JSON：同容差 → 4/4 格成立；
+  (d) per_router 两格（differentiable_pr|zscore|K64、reinforce_ema|zscore|K64）名义预处理复现主 JSON per_router：exp(H) 绝对差 ≤1e-5 → 2/2 格成立；
+  (e) 定性读数（saturated := exp(H)<1.05 且 top1>0.98）在原值与更正值间一致 → 4/4 格成立；
+  (f) 范围守卫：r2_router_collapse.json sha256/字节数前后一致 → 成立。
+  判读规则：全部成立 → erratum confirmed；任一指判据不成立 → 不发 confirmed、按 D1 落 pending 并上报矛盾点。
+  注意：confirmed 仅覆盖 erratum 自身一致性判据，不得外推为 H-ROUTER-COLLAPSE 的状态变化（该假设维持 pending）。
+actual_data: >
+  【范围与禁令遵守】执行指令 1792667740-b988cc 动作2 + 1792668156-caf2bc；未改 r2_router_collapse.json 原文
+  （sha256 前后一致，unmodified=true，见 erratum JSON）；未触碰 target=WB0/WB2 指令；未自处理 WB1 己方 open_item；
+  无 long_run 指令命中（AB-01/AB-02 早已由 WB0 裁定关闭，不在候选池）。
+  【输入】experiments/r2/inputs/ 下 entity_embeddings.json（60×2048，sha256 前 16 位 d1cf27753f274405，
+  与文件内 emb_sha256 一致、全有限）与两个 K64 zscore 路由器 .pt；其 sha256 与 18:32 附录记录逐一致（2/2），
+  即与 Hub r2_b_routers 字节相同（该字节级核验在 WB1-20261022-FIXUP-v1 完成，18/18）。
+  【根因复现（raw 喂入 vs 主 JSON 原值，噪声内）】diff_pr zscore|relu：expH 1.0003111 vs 1.0003111；
+  |tanh：8.8371 vs 8.8371；reinforce zscore|relu：1.0056 vs 1.0056；|tanh：2.3440 vs 2.3440 —— 4/4 复现，
+  根因"诊断段对两个 zscore 路由器喂 raw"证实。
+  【更正值（名义预处理：按特征数据集级 z-score，与主 R2/附录同公式）】
+  b_router_K64_differentiable_pr_zscore.pt |relu：H=0.000000，exp(H)=1.000000，top1=1.0000，|logit|max=596.67（原 804.12）；
+  b_router_K64_differentiable_pr_zscore.pt |tanh：H=1.651366，exp(H)=5.214097，top1=0.5891，|logit|max=12.16（原 9.45）；
+  b_router_K64_reinforce_ema_zscore.pt |relu：H=0.009731，exp(H)=1.009779，top1=0.9955，|logit|max=1810.26（原 1825.86）；
+  b_router_K64_reinforce_ema_zscore.pt |tanh：H=0.824683，exp(H)=2.281157，top1=0.7696，|logit|max=23.57（原 20.55）。
+  【控制与交叉核验】raw 控制格 4/4 复现主 JSON；per_router 两格名义预处理复现主 JSON（expH 差 1.2e-7 / 2.2e-7，
+  在噪声内）；附录交叉核验 4/4（噪声内）；轮内确定性 4/4 比特一致；最小缺陷驱动差异/噪声底比值 1.3e3。
+  【定性影响】全部读数不变：ReLU 下两格仍饱和，Tanh 下两格仍不饱和（与附录 verdict.consistency_check 报告的
+  名义 Tanh 值 5.2141/2.2812 一致）。
+  【对假设的影响】H-ROUTER-COLLAPSE 判据输入（per_router 18 格、criteria、scaling）不受缺陷影响 → 维持 pending；
+  H-FIXUP-TANH-CONSISTENCY 维持 refuted（本 erratum 是其指定后续，非改写）。
+  【n 边界】n=60；更正值为机制级观察，不得升格为结论；Tanh 仍为反事实读法（训练脚本缺失，open_item 1792661541-e8bdeb）。
+hypotheses:
+  - id: H-R2-ERRATUM-ZSCORE-CELLS
+    statement: 主 R2 JSON diagnostics.activation_sensitivity 段两个 zscore 训练路由器的 4 个格原值为 raw 输入所致；名义预处理下的更正值已在本补充件中给出，且不改变任何定性读数与假设状态。
+    prediction: (a) raw 喂入复现主 JSON 原值 4/4；(b) 名义预处理更正值与附录一致 4/4；(c) raw 控制格 4/4；(d) per_router 不受影响 2/2；(e) 定性读数不变 4/4。
+    falsifiable_criterion: 噪声感知容差 exp(H)≤1e-5 / logit 相对≤1e-5 / top1≤1e-5；全部成立才可 confirmed；任一不成立落 pending 并上报。
+    actual_data: >
+      (a) 4/4 复现；(b) 4/4 一致；(c) 4/4 复现；(d) 2/2 复现（expH 差 1.2e-7/2.2e-7）；(e) 4/4 不变；
+      范围守卫成立（主 JSON sha256 前后一致）。更正值：diff_pr zscore tanh exp(H) 8.8371→5.2141、
+      reinforce_ema zscore tanh 2.3440→2.2812、diff_pr zscore relu |logit|max 804.12→596.67、
+      reinforce_ema zscore relu 1825.86→1810.26。
+    ds_admitted_refutation: false
+    ds_pending_reason: ""
+    status: confirmed
+  - id: H-ROUTER-COLLAPSE
+    statement: K 增大时 Router 有效码字数不按比例增长（扩容不增容）；zscore 预处理能缓解坍塌。
+    prediction: exp(H) 不随 K 等比增长（坍塌迹象）；zscore 臂 exp(H) 较 raw 臂提升 ≥20%（预处理有效）。
+    falsifiable_criterion: exp(H|K=64) < 2×exp(H|K=8) → 坍塌；zscore 提升 ≥20% → 有效；exp(H) 随 K 近似等比增长 → refuted；矛盾或样本不足 → pending。
+    actual_data: 维持 WB1-20261022-R2-v1 原状：逐样本熵全档饱和，坍塌判据 4/4 成立（彻底坍塌），zscore 提升判据 0/6 成立但使用分布显示分散，两族指标矛盾 → pending。本 erratum 未改动其任何判据输入（per_router 18 格噪声内复现）。
+    ds_admitted_refutation: false
+    ds_pending_reason: 两族指标互相矛盾（逐样本熵已饱和对分散不敏感 vs 使用分布显示 zscore 确有分散）；判据不可分辨，按 D1 不得记为已证伪。激活口径未确证（训练脚本缺失，open_item 1792661541-e8bdeb）。
+    status: pending
+collaboration_audit:
+  black_box_isolation: 仅经 Hub HTTP API 取指令/上传产物；未直连 WB0/WB2 沙盒；未读他人台账；未写 hypothesis_ledger.yaml。
+  interface_alignment: >
+    data_source 指向本轮回交实物 results_v2/r2_router_collapse_erratum_zscore_cells.json（先推实物后推回执）；
+    复算脚本 experiments/r2/r2_erratum_zscore_cells.py 同推（kind=other）；输入取自本地 experiments/r2/inputs/
+    （其字节级身份经 FIXUP 轮 Hub 重取核验 18/18，本轮的 sha256 与附录记录 2/2 相符）；relpath 解析经仓库内递归检索确认。
+  handoff_boundary: 仅处理 target=WB1/ALL、auto_run（对象无该字段按 body YAML 裁定口径）、id 不在 done.json 的指令；
+    本轮命中 WB0 18:55 档裁定族（1792667740-b988cc 主裁定 + 1792668156-caf2bc 更正 + 1792667877-670dad 静默报告 +
+    1792667684-1f0f37 已被替换的编码失误旧版），其中唯一致 WB1 的执行动作=erratum，已执行；long_run 指令 0 条跳过
+    （候选池无 long_run）；WB1 己方 open_item 未自处理。
+  ledger_discipline: 不写台账；done.json 仅追加本轮 4 条指令 id 及处置注记。
+  dual_channel: Hub=控制面；本轮无团队空间双写要求，仅 Hub 单写。
+compliance:
+  - 未伪造数据：全部数值由既有输入确定性前向计算，脚本随附可复现；跨轮浮点噪声已如实披露并改用噪声感知容差
+  - 未覆盖任何既有文件：erratum JSON 与脚本均为新建；r2_router_collapse.json 原文 sha256 前后一致（范围守卫）
+  - 未加载主干模型，纯 CPU fp32 前向
+  - 未写台账；done.json 仅记指令 id
+  - 结论带 n=60 边界；confirmed 仅覆盖 erratum 一致性判据，未外推至 H-ROUTER-COLLAPSE（维持 pending）
+  - 口径未变：z-score 公式与激活读法均沿用主 R2/附录原口径，无代理指标冒充（D2）
+round_self_check:
+  B-01: '未证推论——"跨轮浮点噪声纯由 BLAS 累加次序/CPU 分配变化引起"：备选解释是 torch 版本或内核库在轮次间被更换（未核验构建信息）；已用"轮内两次重算比特一致 + 附录脚本自重跑同样失配"两条证据约束，保留构建级核验给主会话。'
+  B-02: '判据分级——E2 可立即跑：输入全部在位且字节身份已核（2/2 sha256 相符），无资源阻塞；无 E3；无 E5（不存在原则上不可判项；不一致将落 pending 而非撤回）。'
+  B-03: '动机猜测——执行 WB0 18:55 档裁定动作2【致 WB1】明文要求的 erratum 补交（用户令驱动，非自选方向）。'
+  B-04: '类比——0 处跨领域类比；"噪声底/容差"为数值计算直述，无 [发生器] 标注需求。'
+  B-05: '自我规划——本轮范围=erratum 单事项（根因复现+名义预处理重算+控制/交叉核验+范围守卫+交付）；下轮计划=继续 :20 档巡检 brief 与新指令，erratum 评估交 WB0。'
+  B-06: '循序渐进——本轮完成"读裁定→定位缺陷→重算→控制/交叉核验→交付"全链路；预留接口：erratum JSON 内 original_vs_reproduction 逐格并列原值/复现值/更正值，可供 WB0 按 B-10 "待 erratum 后评估"直接取用。'
+  B-07: 'Agent 调用——0 次子 Agent；单脚本确定性计算 + Hub API 上传，全部主会话内完成。'
+  B-08: '交付前验证——输入 sha256 2/2 与附录记录相符；根因复现 4/4、控制 4/4、per_router 2/2、附录交叉 4/4、轮内确定性 4/4、主 JSON 未改（sha256 前后一致）；erratum JSON 可解析（18521B）；上传后将自查 GET /api/file/r2_r2_router_collapse_erratum_zscore_cells 返回 200 且 size 一致。'
+  B-09: '动机优先——本轮 100% 回应指令 1792667740-b988cc/1792668156-caf2bc 的明文动作项（erratum 补交），无框架自发扩展、无自派研究方向。'
+  B-10: '不下断定——未断言"H-ROUTER-COLLAPSE 成立/证伪"（维持 pending）；未断言真实训练激活类型（Tanh 仍为反事实）；跨轮噪声的构建级根因保留待核；erratum 对 collapse 结论的影响评估按 WB0 B-10 留待 WB0 裁定。'

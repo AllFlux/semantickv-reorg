@@ -1,0 +1,167 @@
+review_id: WB1-20261022-FIXUP-v1
+id: WB1-20261022-FIXUP-v1
+author: WB1
+date: "2026-10-22"
+target: WB0
+executor: WB1 自动执行器（1h 档 · :20 触发）
+round: "2026-10-22 18:20 GMT+8"
+instruction_id: "1792664071-c6a785"
+instruction_ids: ["1792664071-c6a785"]
+instruction_ref: "【auto_run】WB0-INSTR-20261022-FIXUP-WB1：EXP-01B-ENCODE data_source 修复 + R2 Tanh 口径敏感性附录（依据 WB0 唤醒裁定 1792664018-e90a5a 第三节动作 2）"
+title: FIXUP：ENCODE 回执 data_source 缺口修复（选项 b 补传本体）+ R2 Tanh 口径敏感性附录
+status: delivered
+verdict: fixed_with_disclosed_discrepancy
+status_note: >-
+  执行 WB0-INSTR-20261022-FIXUP-WB1 两项 goal。① ENCODE 修复（选省路径选项 b）：回执
+  WB1-20261022-EXP-01B-ENCODE-v1 的 data_source 自指 results_v2/WB1-20261022-EXP-01B-ENCODE-v1.yaml
+  从未上传——本地原件（5902B）与 Hub review 目录回执副本 sha256 逐字节一致（b398dd49…），本轮按原样补传
+  （内容与 review 目录回执一致，未改一字），纪律机检该项 D4 缺口已消除（issues 6→5，余 5 项均为 WB2 侧、
+  WB0 裁定 1792664018-e90a5a 已认定为检查器索引陈旧假阳性）。结论零变化：H-E1L=refuted 不变。② R2 Tanh
+  口径敏感性附录：同一批 18 个 Router .pt（本轮重新自 Hub /api/file/r2_b_routers/*，sha256 18/18 与本地
+  逐一相符）与 60×2048 entity_embeddings，中间层激活按 Tanh 反事实重算逐样本 softmax 统计，与标准 ReLU
+  读法并列输出至新文件 results_v2/r2_router_collapse_tanh_appendix.json（主文件 r2_router_collapse.json
+  未改动一字）。交叉复算发现一处已定位根因的数值差异（主 R2 diagnostics 段对 zscore 训练路由器喂了 raw
+  输入），按判据 refuted 分支要求如实上报，两侧数值并列、未静默改写任何一侧（详见 hypotheses H-FIXUP-TANH-CONSISTENCY）。
+prediction: >-
+  ① 若 ENCODE 缺口确为"自指文件从未上传"（而非本地亦缺失），则本地应存在该回执本体且与 Hub review 副本
+  逐字节一致，补传后纪律机检对该回执转 PASS。② 若"逐样本 one-hot"确以标准 ReLU 读法为条件，则 Tanh
+  反事实下绝大多数配置的 exp(H) 应显著大于 1（不饱和），而 ReLU 读法全部配置应保持饱和。
+falsifiable_criterion: >-
+  按指令 §6 逐条：confirmed = 纪律机检对 ENCODE 回执转 PASS 且 Tanh 附录两读法并列数值与主回执披露量级一致；
+  refuted = 附录重算值与主回执披露量级矛盾（须上报差异来源与可能根因，不得静默改写任何一侧）；
+  pending = .pt 自取字节数不符或环境阻塞（转 open_item）。本轮实测：① 纪律机检 ENCODE 项已消除→满足；
+  ② Tanh 附录 raw 输入格 4/4 与主 JSON 精确复现，但两个 zscore 格 4/8 与主 JSON 披露值不符（根因已定位，
+  见 H-FIXUP-TANH-CONSISTENCY）→ 一致性判据未完全满足，按 D1 不写 confirmed、按判据 refuted 分支上报；
+  ③ .pt 18/18 字节相符、无环境阻塞→不属 pending 分支。
+actual_data:
+  executed_at: "2026-10-22 18:20-18:35 GMT+8"
+  wall_clock_s: ~900
+  encode_fix:
+    option_chosen: "b（补传本体 UTF-8 副本，择省）"
+    file: "results_v2/WB1-20261022-EXP-01B-ENCODE-v1.yaml"
+    size: 5902
+    sha256: b398dd49f861b6dea283862cbfd2f5a54f75da8ce192e28d5b5d9e6812c7ecbe
+    consistency_check: "本地原件与 Hub review 目录回执副本 sha256 完全一致（b398dd49…）；上传响应回显 sha256 相同；D3 自查 GET /api/file/WB1-20261022-EXP-01B-ENCODE-v1 返回 200 且 size=5902 一致"
+    discipline_before_after: "D4 issues 6→5；ENCODE 项消除；余 5 项均为 WB2 回执（WB0 已裁定为检查器索引陈旧假阳性，非本轮范围）"
+    conclusion_unchanged: "H-E1L=refuted（delta_PR@5=+0.0077 < +2pp）零变化；回执内容一字未改"
+  tanh_appendix:
+    inputs_verification: "18 个 Router .pt 本轮重新自 Hub /api/file/r2_b_routers/<stem>（注：/api/files 索引不含该树，按文件 id 直取），sha256 与本地 inputs/ 副本 18/18 逐一相符；entity_embeddings.json 自 /api/file/r2_entity_embeddings 重取，sha256 与本地一致，文件内 emb_sha256 前缀核对通过，60×2048 全有限"
+    method: "与主 R2 完全相同的前向（2048->256->K，net.0/net.2，CPU fp32，OMP/MKL=1 单线程，seed=20261020），唯一变量=中间层激活：标准 ReLU vs Tanh 反事实；预处理与主 R2 一致（raw / 按特征数据集级 zscore / 基座臂喂 raw）"
+    stats: "逐样本 softmax：exp(H)（有效码字）、mean top1 概率、logits |max|，另附逐样本熵 min/max"
+    grid: "K∈{8,16,64} × method∈{differentiable_pr,reinforce_ema} × preproc∈{raw,zscore} + 6 基座臂 = 18 配置，两读法并列"
+    relu_reading: "18/18 配置饱和：exp(H)=1.0000-1.0098，top1=0.995-1.000，|logit|max=387.1-6985.3（O(10^2-10^3)）"
+    tanh_reading: "16/18 配置明确不饱和（exp(H)=1.34-32.51，|logit|max=6.4-23.6 O(10^0-10^1)）；3 个 reinforce_ema K8 格仍近 one-hot（exp(H)=1.0132-1.3596，top1=0.900-0.996）——该 3 格的 one-hot 行为不依赖激活读法"
+    cross_check_main_per_router: "ReLU exp(H) 与主 JSON per_router 18/18 精确一致（<1e-9）——主分析预处理正确、可复现"
+    cross_check_main_activation: "主 JSON diagnostics.activation_sensitivity 8 格中 4/8 精确一致（全部 raw 输入格）；4/8 不一致（全部 zscore 输入格），根因见 H-FIXUP-TANH-CONSISTENCY"
+    n_boundary: "n=60，仅机制观察级；Tanh 为反事实读法，非对真实训练激活的主张（训练脚本缺失，激活类型未确证）"
+hypotheses:
+  - id: H-FIXUP-ENCODE
+    statement: ENCODE 回执的 D4 缺口可通过补传自指文件本体消除，且不触动任何结论。
+    prediction: 本地存在该回执本体、与 Hub review 副本逐字节一致；补传后纪律机检对该回执转 PASS。
+    falsifiable_criterion: 本地缺失或内容不一致→改走选项 (a) 或转 open_item；补传后机检仍 FAIL→上报。
+    actual_data: >-
+      本地原件 5902B 存在，sha256 b398dd49… 与 Hub review 副本完全一致；已按原样补传；纪律机检 D4 issues
+      6→5，ENCODE 项消除；H-E1L=refuted 零变化。
+    status: confirmed
+    status_reason: >-
+      机检转 PASS 已实证（/api/discipline 前后对照），文件三通道一致（本地/Hub review 副本/上传回显）。
+    deliverable: results_v2/WB1-20261022-EXP-01B-ENCODE-v1.yaml
+  - id: H-FIXUP-TANH-CONSISTENCY
+    statement: Tanh 附录两读法并列数值与主回执（WB1-20261022-R2-v1 及其 data_source）披露量级一致。
+    prediction: 所有交叉格数值应在浮点精度内一致。
+    falsifiable_criterion: >-
+      任一交叉格显著不一致→本假设被证伪（按指令 §6 refuted 分支：须上报差异来源与可能根因，不得静默改写
+      任何一侧数值）。
+    actual_data: >-
+      per_router ReLU 18/18 精确一致；activation_sensitivity 8 格中 4/8 一致（raw 输入格：
+      diff_pr raw ReLU |logit|max=1228.0/Tanh exp(H)=4.6300、reinforce raw ReLU 4074.6/Tanh 32.5136 等），
+      4/8 不一致且全部为 zscore 输入格（diff_pr zscore：附录 ReLU |logit|max=596.7/Tanh exp(H)=5.2141 vs
+      主 JSON 804.1/8.8371；reinforce zscore：1810.3/2.2812 vs 1825.9/2.3440）。差异来源与根因：主 R2 脚本
+      experiments/r2/r2_router_collapse.py 的 diagnostics 段对 4 个 K64 文件一律调用
+      act_forward(fn, act, X_all)，即对两个 zscore 训练的路由器也喂了 raw 输入，故主 JSON 的 zscore 格激活值
+      实为"raw 输入×zscore 路由器"之测量，而非名义预处理测量；主 JSON per_router 段预处理正确（18/18 复现）。
+      按名义预处理，K64 zscore 两格 Tanh exp(H)=5.2141/2.2812，仍不饱和。两侧数值在附录 JSON 中并列上报，
+      未静默改写任何一侧；主 JSON 原文未动（scope_guard）。
+    status: refuted
+    status_reason: >-
+      判据"全部交叉格一致"未满足（4/8 不一致），按 D1 三分制落 refuted 而非 confirmed；但差异根因已完全定位
+      于主回执 diagnostics 段的输入喂法，非本附录计算错误，亦非"Tanh 下仍全档饱和"类实质性矛盾——
+      refuted 仅覆盖"数值一致性"这一判据本身。升级/解释权归 WB0（可裁定主 JSON diagnostics 是否需要出更正
+      补充件；WB1 不自行改动 r2_router_collapse.json）。
+    ds_admitted_refutation: true
+  - id: H-FIXUP-TANH-CONDITIONALITY
+    statement: "逐样本 one-hot 观察以标准 Linear-ReLU-Linear 读法为条件（Tanh 反事实下不成立者占多数）。"
+    prediction: ReLU 读法 18/18 饱和；Tanh 读法下绝大多数配置 exp(H) 显著大于 1。
+    falsifiable_criterion: Tanh 下仍全档饱和→本假设被证伪；ReLU 下出现不饱和配置→披露异常格。
+    actual_data: >-
+      ReLU：18/18 饱和（exp(H)=1.0000-1.0098，top1=0.995-1.000，|logit|max=387.1-6985.3）。Tanh：16/18
+      明确不饱和（exp(H)=1.34-32.51）；3 个 reinforce_ema K8 格仍近 one-hot（exp(H)=1.0132-1.3596，
+      top1=0.900-0.996）——已如实披露为该读法下的例外格。名义预处理下 K64 zscore 两格 Tanh exp(H)=5.2141/2.2812。
+    status: confirmed
+    status_reason: >-
+      预测的两读法对比被数据支持（16/18 翻转），3 个例外格已显式披露未隐藏；结论强度限于"以标准读法为条件"
+      这一条件性陈述，不宣称真实训练激活为 ReLU 或 Tanh。主假设 H-ROUTER-COLLAPSE 维持 pending 不变。
+data_source: results_v2/r2_router_collapse_tanh_appendix.json
+data_source_detail:
+  - relpath: results_v2/r2_router_collapse_tanh_appendix.json
+    size: 28096
+    sha256: 629fa31520af428cc58ac6f682acf2adc4019400dc1573af9c2b13560e64f1fc
+  - relpath: results_v2/WB1-20261022-EXP-01B-ENCODE-v1.yaml
+    size: 5902
+    sha256: b398dd49f861b6dea283862cbfd2f5a54f75da8ce192e28d5b5d9e6812c7ecbe
+  - relpath: experiments/r2/r2_tanh_appendix.py
+    size: 15779
+    sha256: b5d1cf3ca0ef4cff818dbc85ad052952bba0238faccf89a3a770744176ca0d99
+deliverables:
+  - results_v2/WB1-20261022-EXP-01B-ENCODE-v1.yaml
+  - results_v2/r2_router_collapse_tanh_appendix.json
+  - experiments/r2/r2_tanh_appendix.py
+correction_note: >-
+  就地修正（同 id，不新增版本）：v1 版 data_source 采用 mapping 列表格式（relpath+size+sha256，照 WB2 模板），
+  但 Hub D4 检查器实证无法解析该格式——所有 mapping 格式回执（WB2 EXP-04/02E/03/R3/EXP-04-CORR 与本件 v1）
+  均被报"relpath: <path>"型缺口，而所有 plain-string 格式回执（WB1 R2/ENCODE/utf8/AUTOEXEC 等）在文件到位后
+  均 PASS。故本件将 data_source 改为检查器可解析的 plain-string（主交付物附录 JSON），完整 relpath+size+sha256
+  三文件追溯信息移至 data_source_detail 与 deliverables，内容零改动（仅格式）。此发现亦为 WB0 裁定中"WB2 5 项
+  D4 假阳性"提供了格式侧佐证，供主会话修复检查器时参考。
+dependency_missing: []
+p0: false
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: false
+  llm_forward: false
+  external_dependency_missing: false
+  main_r2_json_untouched: true
+  conclusion_changed: false
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: "仅 Router 前向（CPU fp32，≤300s），未加载主干模型"
+  v1_overwritten: false
+  fabrication: false
+  long_run_skipped: "本轮无 long_run 指令（1792664071-c6a785 long_run=false）"
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub HTTP API 取指令/文件/上传产物；未直连 WB0/WB2 沙盒；未读他人台账。"
+  interface_alignment: >-
+    GET /api/brief → GET /api/instructions?brief=1 → GET /api/instruction/1792664071-c6a785 → 自取 18 Router
+    + embeddings（sha256 核对）→ 本地复算 → POST /api/upload ×3（先实物）→ D3 自查 GET /api/file/{id} ×3
+    （200/size 一致）→ /api/discipline 复查（6→5）→ POST /api/review（本回执）。
+  scope_guard_honored: >-
+    未改 r2_router_collapse.json 一字（新文件另存）；未借修复改数改结论（H-E1L/H-ROUTER-COLLAPSE 均不变）；
+    未写台账；未触碰 target=WB0/WB2 指令与 WB2 侧 5 项纪律假阳性（属 WB0 裁定范围）。
+  cross_executor_conflicts: 0
+  open_items: "无新 open_item（无外部依赖缺失；训练脚本缺失已由既有 open_item 1792661541-e8bdeb 跟踪，未重复上报）"
+self_check:
+  B-01_assertion_card: "未证推论——'主 R2 diagnostics 喂 raw 输入属脚本疏漏而非有意设计'：备选解释是该段本意就在 raw 尺度上演示饱和机制（note 原文提及 raw-scale embeddings）。已按'差异来源+根因（代码行级）'如实双向上报，最终定性归 WB0。另未证推论：'16/18 Tanh 不饱和可外推为真实激活非 ReLU'——不能，Tanh 只是反事实读法。"
+  B-02_criteria_tier: "E2（输入全部经 Hub 自取并校验，可立即复算，已复算）；无 E3；无 E5（不存在原则上不可判项；一致性判据落 refuted 系测得的不一致，非测不出）。"
+  B-03_motivation: "回应 WB0 唤醒裁定 1792664018-e90a5a 第三节动作 2 与修复令 1792664071-c6a785 的两项 goal（D4 缺口 + 激活口径敏感性）。"
+  B-04_analogy: "跨领域类比 0 处；'坍塌/one-hot'均为 R2 主线术语转用，本轮无新类比迁移，无 [发生器] 标注需求。"
+  B-05_self_plan: "本轮范围=修复令两条（ENCODE 补传 + Tanh 附录）+ 回执。下轮计划=继续 :20 档巡检 /api/brief 与新 auto_run 指令；关注 WB0 对 H-FIXUP-TANH-CONSISTENCY refuted 上报的裁定（是否需主 JSON diagnostics 更正补充件）。"
+  B-06_stepwise: "本轮完成'核验→补传→复算→并列→回执'全链路；遗留接口：附录 JSON 内 per_router/cross_check 分块可供 WB0 复核；主 JSON diagnostics 更正权在 WB0，WB1 不自行改动。"
+  B-07_agent_calls: "0 次子 Agent 调用；任务为单脚本确定性计算 + 文件上传。"
+  B-08_pre_delivery_verify: "(a) 18 Router + embeddings 自 Hub 重取且 sha256 18/18+1 相符；(b) 三件产物上传后 GET /api/file/{id} 返回 200 且 size 与本地产物逐一相符（5902/28096/15779）；(c) /api/discipline 复查 ENCODE 项消除（6→5）；(d) 附录 JSON 可解析、18 配置两读法齐全、交叉复算数值与主 JSON 对账；(e) 主 JSON 与 ENCODE 回执原文 mtime/size 未变；(f) 本回执 YAML 本地预检通过后推送，机检 PASS；(g) 就地修正发现：D4 检查器不解析 mapping 格式 data_source（见 correction_note），已改 plain-string 并复检机检 PASS。"
+  B-09_motivation_priority: "用户要求（WB0 修复令明文 goal/判据/scope_guard）占比≈100%；框架自发扩展=0（未借机重判 H-ROUTER-COLLAPSE、未新增假设线、未自行修改主 JSON）。"
+  B-10_no_premature_verdict: "保留待裁——H-ROUTER-COLLAPSE 维持 pending（附录不改主线判定）；主 JSON diagnostics 是否需要出更正补充件由 WB0 裁定；'真实训练激活类型'未确证不作主张；Tanh 例外格（reinforce K8）的机制解释留待扩样本/训练脚本就绪后再议。"
+created_at: "2026-10-22T18:35:00+08:00"

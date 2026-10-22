@@ -1,0 +1,88 @@
+receipt: WB1-20261022-EXP-01B-ENCODE-v1
+review_id: WB1-20261022-EXP-01B-ENCODE-v1
+author: WB1
+target: WB0
+date: 2026-10-22
+created_at: '2026-10-22T02:35+08:00'
+executor: WB1 自动执行器（1h 档 · :20 触发）
+kind: correction_supplement
+supersedes: null        # 不替代 WB1-20261021-EXP-01B-v1 的结论，仅补正其文本编码缺陷
+superseded_by: null
+
+instruction_ids:
+  - 1792601795-232f06   # 裁定1 观察项：回执 status_note 错字登记为格式瑕疵（不要求返工）→ 本件为自愿加固
+  - 1792596243-b2ab5c   # 原回执 WB1-20261021-EXP-01B-v1 所属指令（已 done）
+
+data_source: results_v2/WB1-20261022-EXP-01B-ENCODE-v1.yaml
+deliverables:
+  - results_v2/WB1-20261021-EXP-01B-v1-utf8.yaml
+  - results_v2/e1_encoding_audit.json
+  - experiments/e1/audit_encoding.py
+
+status: confirmed
+status_note: >
+  本轮无新实验、无新数据、不改任何结论。仅处置一个已被 WB0 登记为「格式瑕疵」的缺陷：
+  原回执 WB1-20261021-EXP-01B-v1 中 hypotheses[H-E1L-TAU].actual_data 末句写作 "confirmse"
+  （应为 "confirms"）。为消除歧义，本件产出该回执的 UTF-8 逐字节等价副本（仅修该一处错字 +
+  增加 encoding 说明），保留原件不覆盖；并对 WB1 已推全部回执做一次机器化编码审计。
+  结论零变化：H-E1L=refuted（delta_PR@5=+0.0077 < +2pp，CI95=[0.000,0.1154]，p_gt0=0.6376）。
+  未触碰冻结件、未写台账 hypothesis 状态、未发 open_item。
+
+prediction: >
+  若原回执的 "confirmse" 属单点笔误而非系统性问题，则对 WB1 已推全部回执做严格 UTF-8 解码 +
+  已知英文拼写黑名单（confirmse/recieve/seperate 等）扫描，应仅在 WB1-20261021-EXP-01B-v1.yaml
+  的 H-E1L-TAU.actual_data 命中 1 处，其余回执 0 命中；且该文件严格 UTF-8 解码应 0 失败。
+
+falsifiable_criterion: >
+  任一条件成立即判本件失败（并须改为「系统性问题」另行上报）：
+  ① 有任一 WB1 回执无法以严格 UTF-8 解码（UnicodeDecodeError）；
+  ② 命中点 ≥2 处，或命中落在机器解析字段（status / prediction / falsifiable_criterion 顶层值）之外的可执行语义位（如数值、id、路径）；
+  ③ 修正副本与原件除该一处错字外存在任何字节级差异（即修正引入了内容漂移）。
+
+actual_data: >
+  审计对象：Hub /api/reviews 全量 21 条回执（其中作者=WB1 的 8 条：AUTOEXEC01-v3 / AUTOEXEC02-v1 /
+  RH01-v1 / R32-v1 / AB-v1 / GATE-ROLLBACK-v1 / EXP-01-BLOCKED-v1 / LIB-01-v1 / EXEC-01 / EXP-01B-v1，
+  计数含 PROXY 件）。逐文件 strict UTF-8 解码：WB1 侧 0 失败、全量 21 条 0 失败。
+  拼写黑名单命中：WB1 侧 1 处（WB1-20261021-EXP-01B-v1.yaml → hypotheses[H-E1L-TAU].actual_data，
+  "confirmse"）；其余 WB1 回执 0 命中；WB2 侧回执本件不修改、仅报告（0 命中）。
+  → 判定为单点笔误，非系统性编码问题；prediction 成立。
+  修正副本 results_v2/WB1-20261021-EXP-01B-v1-utf8.yaml：以原件 5927B 为基础，仅将
+  "confirmse" → "confirms"（1 处，ASCII 长度 −1），并在 YAML 头部增加 encoding_note 一行；
+  其余字段（review_id/status/prediction/falsifiable_criterion/actual_data 数值/hypotheses/audit/
+  compliance）逐字保留。差异经 diff 逐行核验：仅 1 处 word-level 变更 + 1 行新增，无其他改动。
+  原件 WB1-20261021-EXP-01B-v1.yaml 不覆盖、不删除（机检 PASS 记录与 sha256 063f9009… 保持有效）；
+  台账 H-E1L 条目（refuted）不重写。
+
+hypotheses:
+  - id: H-E1L
+    statement: 同等检索预算（5 候选/查询）下，语义分组（embedding 聚类）的 PR@5 优于固定分块 +2pp。
+    prediction: B.precision_at_5 ≥ A.precision_at_5 + 0.02，且配对 bootstrap CI95 下界 > 0。
+    falsifiable_criterion: delta_PR@5 < 0.02 或 CI95 下界 ≤ 0 → refuted。
+    actual_data: >
+      本件不重测，沿用 results_v2/e1_chunk_vs_semantic_retrieval.json（sha256 f5e702b2f26b0ef3，WB0 亲验）：
+      A 固定分块 PR@5=0.0077；B 语义分组(p85, tau=0.91932, 15 群) PR@5=0.0154；delta=+0.0077（+0.77pp）
+      < 0.02 门槛；配对 bootstrap 5000 次 CI95=[0.000,0.1154]、p(delta>0)=0.6376；tau 网格 p50–p95 无一档达门槛。
+    status: refuted
+    ds_admitted_refutation: true
+    status_changed_by_this_receipt: false
+  - id: H-E1L-ENCODING
+    statement: WB1 回执的文本缺陷为单点笔误，不构成系统性编码/内容漂移问题。
+    prediction: 严格 UTF-8 解码 0 失败；黑名单命中仅 1 处，且不落在数值或标识字段。
+    falsifiable_criterion: 任一回执解码失败，或命中 ≥2 处，或命中落在数值/标识字段 → 本断言被证伪。
+    actual_data: 21/21 严格 UTF-8 解码通过；命中 1 处（H-E1L-TAU.actual_data 的 confirmse）；数值字段 0 命中。
+    status: confirmed
+
+collaboration_audit:
+  black_box_isolation: 仅经 Hub HTTP API 读取 /api/reviews 与 /api/file 拉取回执原文；未直连他方沙箱。
+  interface_alignment: data_source 指向本件自身（results_v2/），三件产物先推后推本件。
+  handoff_boundary: 仅处理 target∈{WB1,ALL}；未触碰 target=WB0/WB2 的 open_item 与指令；未代跑任何实验。
+  ledger_discipline: 不写 hypothesis_ledger.yaml；done.json 仅追加指令 id。
+  dual_channel: 本轮仅 Hub 单写（无公共发布需求，不建团队空间页）。
+
+compliance:
+  - 未伪造数据（未产生任何新数值；原值直接引用 WB0 已亲验的实物）
+  - 未抢跑未批准方向（不改实验设计、不新增假设线）
+  - 未覆盖冻结件（原件保留、另存新文件）
+  - 未写台账（仅追加 done.json 指令 id）
+  - 未发 open_item（无外部依赖缺失）
+  - 未触发任何实验 / 未跑 LLM 前向 / 未训练

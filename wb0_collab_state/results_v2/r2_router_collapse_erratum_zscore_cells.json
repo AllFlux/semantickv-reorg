@@ -1,0 +1,411 @@
+{
+ "id": "WB1-20261022-R2-ERRATUM",
+ "instruction": "WB0 唤醒裁定 1792667740-b988cc 动作2【致 WB1】（补交 erratum 更正补充件：主 R2 JSON zscore 两格更正值，禁改原文），经 1792668156-caf2bc 更正确认；erratum 亦为 WB0 18:55 静默期工作报告 1792667877-670dad 摘要③ 指定事项",
+ "hypothesis": "H-ROUTER-COLLAPSE (diagnostics correction; main verdict unchanged: pending)",
+ "generated_at": "2026-10-22T21:2x+08:00 (WB1 executor :20档)",
+ "purpose": "Report corrected values for the 4 activation cells of the two zscore-trained K64 routers in results_v2/r2_router_collapse.json diagnostics.activation_sensitivity. The main R2 script fed RAW embeddings to those two zscore routers in its diagnostics loop; this erratum recomputes the cells under the routers' nominal preprocessing (per-feature dataset z-score, identical formula to main R2 and to the Tanh appendix) and reports them side by side with the original raw-fed values. The main deliverable r2_router_collapse.json is NOT modified (scope guard; sha256 verified before/after).",
+ "defect": {
+  "location": "experiments/r2/r2_router_collapse.py, diagnostics block (act_forward loop)",
+  "root_cause": "act_forward(fn, act, X_all) called for all four K64 checkpoints: RAW embeddings fed even to b_router_K64_{differentiable_pr,reinforce_ema}_zscore.pt, whose nominal preprocessing is the per-feature dataset z-score.",
+  "affected_cells": [
+   "b_router_K64_differentiable_pr_zscore.pt|relu",
+   "b_router_K64_differentiable_pr_zscore.pt|tanh",
+   "b_router_K64_reinforce_ema_zscore.pt|relu",
+   "b_router_K64_reinforce_ema_zscore.pt|tanh"
+  ],
+  "n_affected": 4,
+  "unaffected": "main JSON per_router (18/18), sensitivity_persample_zscore, aggregate_mean_expH, criteria, scaling and verdict sections all use preprocess(X_all, p) correctly; the 4 diagnostics cells keyed by the two *_raw.pt files are correct as published.",
+  "first_reported": "WB1-20261022-FIXUP-v1 (H-FIXUP-TANH-CONSISTENCY=refuted; WB0 1792667740-b988cc 判定1)"
+ },
+ "method": {
+  "forward": "2048->256->K MLP (net.0/net.2), hidden activation ReLU (standard) vs Tanh (counterfactual); softmax over K; CPU fp32",
+  "corrected_input": "per-feature dataset z-score: (arr - mu) / sd_safe, mu/sd over the 60 entities per dim (identical to main R2 preprocess(X_all,'zscore'))",
+  "original_input": "raw embeddings X_all (as the main R2 diagnostics erroneously did for these two files)",
+  "determinism": "OMP/MKL=1, torch.set_num_threads(1), manual_seed=20261020 (same as main R2)",
+  "stats": [
+   "entropy_nats_mean",
+   "effective_codes_expH",
+   "logit_absmax",
+   "mean_top1_prob"
+  ],
+  "tolerances": {
+   "expH_abs": 1e-05,
+   "logit_rel": 1e-05,
+   "top1_abs": 1e-05,
+   "rationale": "cross-round float32 accumulation noise observed up to ~2.4e-7 relative (sandbox CPU allocation varies between rounds; BLAS kernel/accumulation order follows). Tolerances sit >= 40x above the observed noise floor; every defect-driven difference exceeds the noise floor by >= 3 orders of magnitude (see qualitative_impact.min_defect_diff_over_noise_ratio)."
+  }
+ },
+ "inputs": {
+  "embeddings": {
+   "file": "inputs/entity_embeddings.json",
+   "source": "Hub /api/file/r2_entity_embeddings (re-fetched and byte-verified in WB1-20261022-FIXUP-v1)",
+   "shape": [
+    60,
+    2048
+   ],
+   "sha256_prefix16": "d1cf27753f274405",
+   "sha256_match_internal": true,
+   "all_finite": true
+  },
+  "routers": {
+   "n": 2,
+   "files": [
+    "b_router_K64_differentiable_pr_zscore.pt",
+    "b_router_K64_reinforce_ema_zscore.pt"
+   ],
+   "per_file_sha256": {
+    "b_router_K64_differentiable_pr_zscore.pt": "e12bb224d3770cdecd5a8f665d37fc4705517599205e35d33d3ed138b10f7078",
+    "b_router_K64_reinforce_ema_zscore.pt": "777574edc075f76470203a58b6171a6c41782faa40b2a1fa025b43069f3ef96b"
+   },
+   "source": "experiments/r2/inputs/ (byte-identical to Hub r2_b_routers, verified in WB1-20261022-FIXUP-v1)"
+  },
+  "identity_cross_check_vs_appendix_records": {
+   "embeddings_sha256_prefix16": "d1cf27753f274405",
+   "embeddings_sha256_match_internal": true,
+   "router_sha256_match_appendix_records": {
+    "b_router_K64_differentiable_pr_zscore.pt": true,
+    "b_router_K64_reinforce_ema_zscore.pt": true
+   }
+  }
+ },
+ "corrected_cells_nominal_preprocessing": {
+  "b_router_K64_differentiable_pr_zscore.pt|relu": {
+   "entropy_nats_mean": 1.2008651140149595e-07,
+   "effective_codes_expH": 1.0000001200865185,
+   "logit_absmax": 596.6726684570312,
+   "mean_top1_prob": 1.0,
+   "n_samples": 60,
+   "K": 64
+  },
+  "b_router_K64_differentiable_pr_zscore.pt|tanh": {
+   "entropy_nats_mean": 1.651365876197815,
+   "effective_codes_expH": 5.214096776317551,
+   "logit_absmax": 12.160106658935547,
+   "mean_top1_prob": 0.589117705821991,
+   "n_samples": 60,
+   "K": 64
+  },
+  "b_router_K64_reinforce_ema_zscore.pt|relu": {
+   "entropy_nats_mean": 0.00973122101277113,
+   "effective_codes_expH": 1.0097787233040352,
+   "logit_absmax": 1810.263916015625,
+   "mean_top1_prob": 0.9954897165298462,
+   "n_samples": 60,
+   "K": 64
+  },
+  "b_router_K64_reinforce_ema_zscore.pt|tanh": {
+   "entropy_nats_mean": 0.8246826529502869,
+   "effective_codes_expH": 2.2811567320916115,
+   "logit_absmax": 23.565221786499023,
+   "mean_top1_prob": 0.7696087956428528,
+   "n_samples": 60,
+   "K": 64
+  }
+ },
+ "original_vs_reproduction": {
+  "note": "For each affected cell: the main JSON's original value, an independent raw-feed reproduction (proving the root cause), and the corrected nominal-preprocessing value. Neither value set is silently rewritten; both are reported side by side (D1/D2). Raw-feed reproduces the main JSON within the float32 noise floor in all 4 cells -> root cause confirmed.",
+  "n_raw_feed_reproduces_main": 4,
+  "n_total": 4,
+  "cells": {
+   "b_router_K64_differentiable_pr_zscore.pt|relu": {
+    "main_json_original_value": {
+     "entropy_nats_mean": 0.00031103476067073643,
+     "effective_codes_expH": 1.0003110831369975,
+     "logit_absmax": 804.12158203125,
+     "mean_top1_prob": 0.9999555349349976
+    },
+    "raw_feed_reproduction": {
+     "entropy_nats_mean": 0.0003110271645709872,
+     "effective_codes_expH": 1.0003110755385347,
+     "logit_absmax": 804.1214599609375,
+     "mean_top1_prob": 0.9999555349349976,
+     "n_samples": 60,
+     "K": 64
+    },
+    "raw_feed_reproduces_main_json_within_noise": true,
+    "raw_feed_vs_main_json_diffs": {
+     "expH_abs_diff": 7.598462747893109e-09,
+     "logit_rel_diff": 1.5180579060152133e-07,
+     "top1_abs_diff": 0.0
+    },
+    "nominal_preprocessing_corrected_value": {
+     "entropy_nats_mean": 1.2008651140149595e-07,
+     "effective_codes_expH": 1.0000001200865185,
+     "logit_absmax": 596.6726684570312,
+     "mean_top1_prob": 1.0,
+     "n_samples": 60,
+     "K": 64
+    },
+    "within_round_determinism_bit_identical": true,
+    "file_sha256": "e12bb224d3770cdecd5a8f665d37fc4705517599205e35d33d3ed138b10f7078"
+   },
+   "b_router_K64_differentiable_pr_zscore.pt|tanh": {
+    "main_json_original_value": {
+     "entropy_nats_mean": 2.178955316543579,
+     "effective_codes_expH": 8.8370694945094,
+     "logit_absmax": 9.446656227111816,
+     "mean_top1_prob": 0.4933303892612457
+    },
+    "raw_feed_reproduction": {
+     "entropy_nats_mean": 2.178955554962158,
+     "effective_codes_expH": 8.837071601431205,
+     "logit_absmax": 9.446657180786133,
+     "mean_top1_prob": 0.4933303892612457,
+     "n_samples": 60,
+     "K": 64
+    },
+    "raw_feed_reproduces_main_json_within_noise": true,
+    "raw_feed_vs_main_json_diffs": {
+     "expH_abs_diff": 2.106921805022921e-06,
+     "logit_rel_diff": 1.0095363835398324e-07,
+     "top1_abs_diff": 0.0
+    },
+    "nominal_preprocessing_corrected_value": {
+     "entropy_nats_mean": 1.651365876197815,
+     "effective_codes_expH": 5.214096776317551,
+     "logit_absmax": 12.160106658935547,
+     "mean_top1_prob": 0.589117705821991,
+     "n_samples": 60,
+     "K": 64
+    },
+    "within_round_determinism_bit_identical": true,
+    "file_sha256": "e12bb224d3770cdecd5a8f665d37fc4705517599205e35d33d3ed138b10f7078"
+   },
+   "b_router_K64_reinforce_ema_zscore.pt|relu": {
+    "main_json_original_value": {
+     "entropy_nats_mean": 0.005584446247667074,
+     "effective_codes_expH": 1.0056000683343098,
+     "logit_absmax": 1825.855224609375,
+     "mean_top1_prob": 0.9982626438140869
+    },
+    "raw_feed_reproduction": {
+     "entropy_nats_mean": 0.005583629943430424,
+     "effective_codes_expH": 1.0055992474590487,
+     "logit_absmax": 1825.85546875,
+     "mean_top1_prob": 0.9982630610466003,
+     "n_samples": 60,
+     "K": 64
+    },
+    "raw_feed_reproduces_main_json_within_noise": true,
+    "raw_feed_vs_main_json_diffs": {
+     "expH_abs_diff": 8.208752610983083e-07,
+     "logit_rel_diff": 1.337130248386652e-07,
+     "top1_abs_diff": 4.172325134277344e-07
+    },
+    "nominal_preprocessing_corrected_value": {
+     "entropy_nats_mean": 0.00973122101277113,
+     "effective_codes_expH": 1.0097787233040352,
+     "logit_absmax": 1810.263916015625,
+     "mean_top1_prob": 0.9954897165298462,
+     "n_samples": 60,
+     "K": 64
+    },
+    "within_round_determinism_bit_identical": true,
+    "file_sha256": "777574edc075f76470203a58b6171a6c41782faa40b2a1fa025b43069f3ef96b"
+   },
+   "b_router_K64_reinforce_ema_zscore.pt|tanh": {
+    "main_json_original_value": {
+     "entropy_nats_mean": 0.8518455028533936,
+     "effective_codes_expH": 2.343968663598409,
+     "logit_absmax": 20.553272247314453,
+     "mean_top1_prob": 0.7438942790031433
+    },
+    "raw_feed_reproduction": {
+     "entropy_nats_mean": 0.851845920085907,
+     "effective_codes_expH": 2.34396964157855,
+     "logit_absmax": 20.55327033996582,
+     "mean_top1_prob": 0.7438941597938538,
+     "n_samples": 60,
+     "K": 64
+    },
+    "raw_feed_reproduces_main_json_within_noise": true,
+    "raw_feed_vs_main_json_diffs": {
+     "expH_abs_diff": 9.779801408704714e-07,
+     "logit_rel_diff": 9.280024172606965e-08,
+     "top1_abs_diff": 1.1920928955078125e-07
+    },
+    "nominal_preprocessing_corrected_value": {
+     "entropy_nats_mean": 0.8246826529502869,
+     "effective_codes_expH": 2.2811567320916115,
+     "logit_absmax": 23.565221786499023,
+     "mean_top1_prob": 0.7696087956428528,
+     "n_samples": 60,
+     "K": 64
+    },
+    "within_round_determinism_bit_identical": true,
+    "file_sha256": "777574edc075f76470203a58b6171a6c41782faa40b2a1fa025b43069f3ef96b"
+   }
+  }
+ },
+ "control_raw_cells": {
+  "note": "The two *_raw.pt diagnostics cells must reproduce under raw feed (they are correct as published).",
+  "n_match": 4,
+  "n_total": 4,
+  "cells": {
+   "b_router_K64_differentiable_pr_raw.pt|relu": {
+    "reproduces_main_json_within_noise": true,
+    "diffs": {
+     "expH_abs_diff": 0.0,
+     "logit_rel_diff": 2.982122770415911e-07,
+     "top1_abs_diff": 0.0
+    }
+   },
+   "b_router_K64_differentiable_pr_raw.pt|tanh": {
+    "reproduces_main_json_within_noise": true,
+    "diffs": {
+     "expH_abs_diff": 0.0,
+     "logit_rel_diff": 0.0,
+     "top1_abs_diff": 5.960464477539063e-08
+    }
+   },
+   "b_router_K64_reinforce_ema_raw.pt|relu": {
+    "reproduces_main_json_within_noise": true,
+    "diffs": {
+     "expH_abs_diff": 0.0,
+     "logit_rel_diff": 1.1983525767785995e-07,
+     "top1_abs_diff": 0.0
+    }
+   },
+   "b_router_K64_reinforce_ema_raw.pt|tanh": {
+    "reproduces_main_json_within_noise": true,
+    "diffs": {
+     "expH_abs_diff": 7.751850901627222e-06,
+     "logit_rel_diff": 9.305878262733977e-08,
+     "top1_abs_diff": 4.470348358154297e-08
+    }
+   }
+  }
+ },
+ "per_router_unaffected_evidence": {
+  "note": "The main JSON per_router section (which uses preprocess(X_all, p) correctly) is reproduced within the float32 noise floor for the two zscore K64 configs under nominal preprocessing -> the collapse criteria, scaling and verdict inputs are untouched by the defect.",
+  "n_match": 2,
+  "n_total": 2,
+  "cells": {
+   "differentiable_pr|zscore|K64": {
+    "main_per_router_expH": 1.000000120087229,
+    "recompute_nominal_zscore_expH": 1.0000001200865185,
+    "expH_abs_diff": 7.105427357601002e-13,
+    "reproduced_within_noise": true
+   },
+   "reinforce_ema|zscore|K64": {
+    "main_per_router_expH": 1.009778522052095,
+    "recompute_nominal_zscore_expH": 1.0097787233040352,
+    "expH_abs_diff": 2.0125194022391213e-07,
+    "reproduced_within_noise": true
+   }
+  }
+ },
+ "appendix_cross_check": {
+  "note": "Corrected values must equal the Tanh appendix per_router values (same preprocessing, same math) within the noise floor.",
+  "n_match": 4,
+  "n_total": 4,
+  "cells": {
+   "b_router_K64_differentiable_pr_zscore.pt|relu": {
+    "appendix_expH": 1.000000120087229,
+    "erratum_expH": 1.0000001200865185,
+    "match_within_noise": true,
+    "diffs": {
+     "expH_abs_diff": 7.105427357601002e-13,
+     "logit_rel_diff": 1.0229251855023677e-07,
+     "top1_abs_diff": 0.0
+    }
+   },
+   "b_router_K64_differentiable_pr_zscore.pt|tanh": {
+    "appendix_expH": 5.214096154748816,
+    "erratum_expH": 5.214096776317551,
+    "match_within_noise": true,
+    "diffs": {
+     "expH_abs_diff": 6.215687351485144e-07,
+     "logit_rel_diff": 2.3527937347298786e-07,
+     "top1_abs_diff": 0.0
+    }
+   },
+   "b_router_K64_reinforce_ema_zscore.pt|relu": {
+    "appendix_expH": 1.009778522052095,
+    "erratum_expH": 1.0097787233040352,
+    "match_within_noise": true,
+    "diffs": {
+     "expH_abs_diff": 2.0125194022391213e-07,
+     "logit_rel_diff": 2.022969469681925e-07,
+     "top1_abs_diff": 1.7881393432617188e-07
+    }
+   },
+   "b_router_K64_reinforce_ema_zscore.pt|tanh": {
+    "appendix_expH": 2.2811567320916115,
+    "erratum_expH": 2.2811567320916115,
+    "match_within_noise": true,
+    "diffs": {
+     "expH_abs_diff": 0.0,
+     "logit_rel_diff": 8.093912697762616e-08,
+     "top1_abs_diff": 5.960464477539063e-08
+    }
+   }
+  }
+ },
+ "qualitative_impact": {
+  "note": "Does the correction change any qualitative reading of the affected cells? saturated := exp(H)<1.05 and mean top1>0.98.",
+  "cells": [
+   {
+    "cell": "b_router_K64_differentiable_pr_zscore.pt|relu",
+    "activation": "relu",
+    "original_raw_fed_expH": 1.0003110831369975,
+    "corrected_nominal_expH": 1.0000001200865185,
+    "defect_driven_expH_abs_diff": 0.0003109630504789518,
+    "original_raw_fed_saturated": true,
+    "corrected_nominal_saturated": true,
+    "qualitative_reading_unchanged": true
+   },
+   {
+    "cell": "b_router_K64_differentiable_pr_zscore.pt|tanh",
+    "activation": "tanh",
+    "original_raw_fed_expH": 8.8370694945094,
+    "corrected_nominal_expH": 5.214096776317551,
+    "defect_driven_expH_abs_diff": 3.622972718191849,
+    "original_raw_fed_saturated": false,
+    "corrected_nominal_saturated": false,
+    "qualitative_reading_unchanged": true
+   },
+   {
+    "cell": "b_router_K64_reinforce_ema_zscore.pt|relu",
+    "activation": "relu",
+    "original_raw_fed_expH": 1.0056000683343098,
+    "corrected_nominal_expH": 1.0097787233040352,
+    "defect_driven_expH_abs_diff": 0.0041786549697253594,
+    "original_raw_fed_saturated": true,
+    "corrected_nominal_saturated": true,
+    "qualitative_reading_unchanged": true
+   },
+   {
+    "cell": "b_router_K64_reinforce_ema_zscore.pt|tanh",
+    "activation": "tanh",
+    "original_raw_fed_expH": 2.343968663598409,
+    "corrected_nominal_expH": 2.2811567320916115,
+    "defect_driven_expH_abs_diff": 0.06281193150679742,
+    "original_raw_fed_saturated": false,
+    "corrected_nominal_saturated": false,
+    "qualitative_reading_unchanged": true
+   }
+  ],
+  "all_readings_unchanged": true,
+  "min_defect_diff_over_noise_ratio": 1295.2764383379154
+ },
+ "main_json_integrity": {
+  "file": "results_v2/r2_router_collapse.json",
+  "sha256_before": "1fa41da9d32a1701d2ab595f7c8b75d5b0c225a2cbfd5532d6e08989665da94c",
+  "sha256_after": "1fa41da9d32a1701d2ab595f7c8b75d5b0c225a2cbfd5532d6e08989665da94c",
+  "size_before": 32762,
+  "size_after": 32762,
+  "unmodified": true
+ },
+ "reproducibility_environment_note": "Within this round the corrected cells are deterministic (each computed twice; 4/4 bit-identical). Across rounds, bit-exact reproduction of the 17:28 main-R2 / 18:32 appendix runs is NOT achievable in the current sandbox state: re-running the appendix script itself this round reproduces only 44/108 stored floats bit-identically (max abs diff 9.8e-4 on |logit|max ~4e3, i.e. ~2.4e-7 relative) and its per_router cross-check drops from 18/18 to 17/18 at a <1e-9 tolerance. This is float32 accumulation-order noise (sandbox CPU allocation varies between rounds), not a semantic difference; all comparisons here use noise-aware tolerances and report actual deviations. Disclosed per D1/D2; no earlier value is silently rewritten.",
+ "impact_on_hypothesis": {
+  "H-ROUTER-COLLAPSE": "UNCHANGED, stays pending. The verdict inputs (per_router, criteria, scaling) are reproduced within the float32 noise floor; the corrected diagnostics cells keep both qualitative readings: under the standard ReLU reading the two zscore K64 cells remain saturated (exp(H)=1.0000 / 1.0098, top1=1.0000 / 0.9955) and under the Tanh counterfactual they remain non-saturated (exp(H)=5.2141 / 2.2812). No criterion outcome changes; the erratum corrects published diagnostic NUMBERS (zscore|tanh differentiable_pr exp(H) 8.8371 -> 5.2141; reinforce_ema 2.3440 -> 2.2812; zscore|relu logit_absmax 804.12 -> 596.67 and 1825.86 -> 1810.26) without altering any confirmed/refuted/pending status.",
+  "H-FIXUP-TANH-CONSISTENCY": "unchanged (refuted; this erratum is its mandated follow-up, not a rewrite)"
+ },
+ "verdict": {
+  "status": "erratum internally consistent: root cause reproduced within noise (4/4), controls pass (4/4), per_router unaffected (2/2), appendix cross-check (4/4), within-round determinism (4/4 bit-identical), main JSON unmodified",
+  "hypothesis_status_change": "none",
+  "note": "Erratum changes 4 published diagnostic values of r2_router_collapse.json diagnostics.activation_sensitivity; all qualitative readings and all hypothesis statuses (H-ROUTER-COLLAPSE = pending) are unchanged. n=60 功效边界不变: 机制级观察，不得升格为结论 (D1)."
+ },
+ "boundary": "n=60: mechanism-level observation only. Tanh remains a counterfactual reading, not a claim about the true training activation (training script absent; open_item 1792661541-e8bdeb). The erratum does not reopen H-ROUTER-COLLAPSE; evaluation of the defect's impact on the collapse conclusion (reserved by WB0 1792667740-b988cc B-10: '待 erratum 后评估') is delegated to WB0 with this artifact as the evidence base."
+}
