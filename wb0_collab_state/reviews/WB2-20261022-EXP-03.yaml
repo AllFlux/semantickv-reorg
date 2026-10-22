@@ -1,0 +1,103 @@
+review_id: WB2-20261022-EXP-03
+id: WB2-20261022-EXP-03
+author: WB2
+date: "2026-10-22"
+target: WB2
+executor: WB2
+round: "2026-10-22 14:56 GMT+8"
+instruction_id: "1792623420-7ec24d"
+instruction_ids: ["1792623420-7ec24d"]
+instruction_ref: WB0-INSTR-20261022-EXP-03
+title: EXP-03 Synonym Edges 增强（HippoRAG 式）对多跳检索的影响
+status: delivered
+verdict: pending
+status_note: >-
+  按 D1 三分：H-SYN 维持 pending。原因——有效多跳可评样本 n=2（200 题中 66 题 gold 为全局 passage-title、
+  其中 64 题答案实体已在题面共现→PPR seed 退化，仅 2 题构成有效多跳评测），远低功效下限（<20），按 D1 不得把
+  点估计当 confirmed。两点确证：① synonym-edge 增强在本 embedding 下非真空——BGE-small-en-v1.5 在
+  τ∈{0.6,0.7,0.8} 形成 27337/2699/542 条语义边（若用指令允许的 TF-IDF 兜底，唯一 proper-noun 标题余弦≈0，
+  边数为 0，增强将真空）；② 这 2 个有效样本在加边后 PR@5 由 0→1（+100pp 点估计），但 n=2，二项 95%CI≈[15.8%,100%]，
+  不可判。分层：两有效 gold 均属低频层（本图 87.5% 叶子，freq 分位=1.0/1.0，故低频=绝大多数、高频 n=0），
+  无法检验「低频增益≥高频 50%」判据。未把「测不出」写作「已证伪」，也未把未达判据写作 confirmed。
+prediction: >-
+  若 H-SYN 成立，则在同等实体/查询集上加入 synonym edges（cos>τ）后，个性化 Pagerank 的 PR@5 显著高于仅共现边图，
+  且增益不随节点频次单调（排除「只是连接了高频节点」）。预注册方向：加边后 PR@5 提升 >= 2pp，且低频层增益 >= 高频层增益的 50%。
+falsifiable_criterion: >-
+  PR@5 提升 >= 2pp 且低频层增益 >= 高频层增益 50% → confirmed；加边后 < 2pp 或增益集中于高频层 → refuted；
+  有效样本不足（n<20）或分层矛盾 → pending（注明功效 n=?、CI=?）。本轮 n=2 → 落入 pending 分支；
+  synonym-edge 计数仅证增强非真空，不构成 PR@5 判据升级依据。
+actual_data:
+  executed_at: "2026-10-22 14:56 GMT+8"
+  wall_clock_s: 3.79
+  budget_s: 600
+  graph: "1404 实体 / 7475 无向共现边（题内 title 共现，对齐指令背景口径）；87.5% 节点为叶子（freq=1）。"
+  embedding: "BGE-small-en-v1.5（Qdrant ONNX，CLS pooling，无 query prefix，全 title 一致处理）；经 HuggingFace Qdrant/bge-small-en-v1.5-onnx-Q 直连下载（指令优先项），非 TF-IDF 兜底。"
+  embedding_sanity: "US~'United States of America'=0.79，US~'Barack Obama'=0.58，US~'quantum entanglement'=0.44——确为语义相似度（非词面）。"
+  synonym_edge_counts: "tau=0.6: 27337 条；tau=0.7: 2699 条；tau=0.8: 542 条（cos>tau，边权=cos）。"
+  n_total: 200
+  n_gold_title: 66
+  n_gold_in_seed: 64
+  n_evaluable: 2
+  ppr_params: "damping=0.85, iters=50, top5, 排除 seed 实体。"
+  baseline_pr5: 0.0
+  aug_pr5_by_tau: "tau0.6=1.0, tau0.7=1.0, tau0.8=1.0（delta=+100pp 点估计，n=2）"
+  stratified_gain_pp: "low: n=2, +100.0pp；mid: n=0；high: n=0（无法检验低频≥50%·高频，因高频层无有效样本）。"
+  ci_note: "n=2 二项 95%CI≈[15.8%,100%]，功效不足，点估计不可作为 confirmed。"
+  freq_layer_note: "freq 33/66 分位=1.0/1.0（87.5% 叶子），分层实质退化为「低频=绝大多数、高频≈0」，已显式披露；不影响 pending 结论。"
+  reproducibility: "seed=20261022，纯 CPU 3.79s，单脚本确定性可复现；无训练、无 LLM 前向。"
+  data_used: "全部真实、零合成（synthesis_used=false, llm_forward=false, training=false）：Hub /api/file/r2_longbench_multihop_2wikimqa 实拉 6,052,108B / 200 条 2wikimqa。"
+hypotheses:
+  - id: H-SYN
+    statement: 同等实体/查询集下，加入 synonym edges（cos>τ）后个性化 Pagerank 的 PR@5 显著高于仅共现边图，且增益不随节点频次单调。
+    prediction: 加边后 PR@5 提升 >= 2pp 且低频层增益 >= 高频层增益 50%。
+    falsifiable_criterion: PR@5+>=2pp 且低频>=50%高频 → confirmed；<2pp 或增益集中于高频 → refuted；n<20 → pending。
+    actual_data: >-
+      synonym 边非真空（27337/2699/542 @τ0.6/0.7/0.8）；PR@5 点估计 baseline=0.0、加边=1.0（n=2, +100pp），
+      但有效多跳样本 n=2（64/66 答案实体已在题面共现→seed 退化），二项 95%CI≈[15.8%,100%]，未达判据功效。
+    status: pending
+    status_reason: >-
+      按 D1：有效样本 n=2 < 20 → pending。点估计 +100pp 不构成 confirmed；也不满足「<2pp/增益集中于高频」的 refuted 条件；
+      属不可判而非已证伪。对 H-SYN 影响：维持 pending；本轮仅以 synonym-edge 计数证「增强非真空」的方法学前提成立。
+    deliverable: results_v2/exp03_synonym_edges.json
+data_source:
+  - relpath: results_v2/exp03_synonym_edges.json
+    size: 2345
+    sha256: 0df09800642cca7525223851969a10146dea4610d3a1c584e09d8c78b05241c1
+  - relpath: results_v2/exp03_synonym_edges.py
+    size: 10983
+    sha256: 4803d654eba7e2625395d70483c908fef7ef87bec84393524bcbde6d70373f09
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: false
+  llm_forward: false
+  external_dependency_missing: false
+  embedding_used: true
+  embedding_disclosure: "BGE-small-en-v1.5（Qdrant ONNX，CLS pooling，无 query prefix），HuggingFace 直连下载；指令允许的 TF-IDF 兜底未触发（BGE 可下载）。seed/gold 口径：全局 title 图，seed=题面提及实体，gold=答案 passage-title 且非 seed。"
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: false
+  exp02e_deliverable_overwritten: false
+  fabrication: false
+  budget_respected: true
+  dependency_exp03_predecessors: "EXP-04(已闭环 12:44)、EXP-02E(已闭环 13:40) 均完成；本轮按队列 1792623686 接 EXP-03。"
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；全部数值由本轮实拉 200 条数据本地 CPU 计算，无沿用他方自述数值。"
+  interface_alignment: "建会话 → GET /api/brief → GET /api/instructions?brief=1&target=WB2&since=0 → GET /api/instruction/1792623420-7ec24d 单条取 → 拉 r2_longbench_multihop_2wikimqa → BGE ONNX 直连下载并 embed → CPU 3.79s → POST /api/upload(deliverable+script) → POST /api/review（本回执）→ done.json 追加。"
+  scope_guard_honored: "未伪造（数值脚本确定性复现）；未动冻结件、未写台账、未训练、无 LLM 前向；embedding 口径与 τ 三档已披露；n=2 功效不足即如实判 pending，未把点估计当 confirmed。"
+  cross_executor_conflicts: 0
+self_check:
+  B-01_assertion_card: "未证推论：synonym edges 通过跨文档语义桥接提升多跳 PR@5（机制成立）。备选：本轮 2 有效样本的提升可能来自边密度变化而非语义桥接本身；且 n=2 无法排除偶然。"
+  B-02_criteria_tier: "E2（纯 CPU 共现图 + 本地 BGE ONNX，可立即跑）。PR@5 多跳判据属 E5（本语料答案实体多已在题面共现→有效样本 n=2，原则性不可判，已写 pending 而非撤回）。"
+  B-03_motivation: "回应 WB0 调度通知 1792623686 队列顺序（EXP-04→EXP-02E→EXP-03）与 EXP-03 指令：检验 HippoRAG 式 synonym edges 对多跳检索的影响。"
+  B-04_analogy: "跨领域类比 0 处；未使用 [发生器] 标记（本轮为检索图实验，无类比迁移）。"
+  B-05_self_plan: "本轮范围：在 1404 实体共现图上加 BGE synonym edges（τ三档），跑 PPR 检索评 PR@5 并分层。下轮：EXP-05/06/R3（均依赖 EXP-03 完成，本轮已补齐依赖）待 WB0 或下轮执行器接续。"
+  B-06_stepwise: "本轮完成图构造 + BGE embedding + synonym 边 + PPR 检索评测；遗留接口：有效多跳样本 n=2 过小的根因（2wikimqa 答案为题面共现实体）需 WB0 裁定是否换检索任务定义或数据集以可判 H-SYN。"
+  B-07_agent_calls: "0 次子 Agent 调用；本实验为单脚本纯 CPU 计算，无外部 Agent 依赖。"
+  B-08_pre_delivery_verify: "交付前验证：(a) 图 1404/7475 与指令背景口径一致；(b) 重算 sha256 与回执 data_source 一致（json=0df098…、py=4803d6…）；(c) BGE embedding 经 US~USA/Obama/quantum 余弦合理性复核；(d) synonym 边数三档单调（542<2699<27337）；(e) n_evaluable=2 经全局/局部两种 gold 口径独立复核一致；(f) 未把 n=2 点估计写作 confirmed。"
+  B-09_motivation_priority: "用户要求（指令+调度）占比≈100%；框架自发扩展=0（严格按 EXP-03 指令与 1792623686 顺序执行，未抢跑 EXP-05/06/R3）。"
+  B-10_no_premature_verdict: "保留待裁：H-SYN 是否因本语料有效样本过小而降级为「语料不适用」而非单纯 pending；是否需换检索任务/数据集以达判据；BGE 与 TF-IDF 兜底对 synonym 边量的量级差异对结论的影响——均交 WB0 裁定，未预先命名。"
+created_at: "2026-10-22T14:56:00+08:00"

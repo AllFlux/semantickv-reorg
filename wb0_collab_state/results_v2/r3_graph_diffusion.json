@@ -1,0 +1,572 @@
+{
+  "schema": "r3_graph_diffusion/v1",
+  "created_at": "2026-10-22T17:49:52+0800",
+  "instruction_id": "1792650492-ff2d3a",
+  "dataset": "r2_longbench_multihop_2wikimqa (200 条 2wikimqa)",
+  "graph_construction": {
+    "n_entities": 1404,
+    "cooccur_edges": 7475,
+    "edge_weight": "uniform w=1（与 EXP-03 同一张图、同一口径；题内 title 共现，无向）",
+    "topk_ranking": "top-K 门控按共现次数降序、节点 id 升序 tie-break（次数仅用于门控选择，不入边权）",
+    "dead_end": "无保留邻居→uniform teleport 1/N（EXP-03 口径，跨社区泄漏已披露）",
+    "community_method": "networkx louvain_communities(resolution=1.0, seed=20261022)，确定性",
+    "n_communities": 72,
+    "community_sizes_top10": [
+      125,
+      94,
+      61,
+      52,
+      52,
+      48,
+      47,
+      46,
+      44,
+      39
+    ],
+    "n_raw_dead_end_nodes": 0,
+    "n_dead_end_after_blockdiag": {
+      "K=3,block=True": 1,
+      "K=5,block=True": 1,
+      "K=10,block=True": 0,
+      "K=None,block=True": 0
+    }
+  },
+  "eval_protocol": {
+    "n_total": 200,
+    "n_gold_title": 66,
+    "n_gold_in_seed": 64,
+    "n_evaluable": 2,
+    "seeds": "题面提及且为全局 title 节点（EXP-03 同口径）",
+    "gold": "answers 归一化后匹配全局 title 节点（EXP-03 同口径）",
+    "exclude_seeds_from_ranking": true,
+    "ppr": "p_t=(1-d)*T^T p_{t-1}+d*tele, d=0.85, 迭代数=hop（k 跳截断）",
+    "secondary_set": "gold_title66（含 64 题 gold∈seed 结构性 PR@5=0，仅作水平披露，不参与判据）",
+    "seed": 20261022
+  },
+  "random_baseline_pr5": 0.0,
+  "random_baseline_note": "每查询 200 次随机抽 5（非 seed 候选），均值；用于任务难度/天花板核查",
+  "baseline_1hop_unconstrained_pr5": 0.0,
+  "configs": [
+    {
+      "hop": 1,
+      "K": 3,
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 1,
+      "K": 3,
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 1,
+      "K": 5,
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 1,
+      "K": 5,
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 1,
+      "K": 10,
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 1,
+      "K": 10,
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 1,
+      "K": "inf",
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 1,
+      "K": "inf",
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 2,
+      "K": 3,
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 2,
+      "K": 3,
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 2,
+      "K": 5,
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 2,
+      "K": 5,
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 2,
+      "K": 10,
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 2,
+      "K": 10,
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 2,
+      "K": "inf",
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 2,
+      "K": "inf",
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 3,
+      "K": 3,
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 3,
+      "K": 3,
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 3,
+      "K": 5,
+      "block_diagonal": false,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 3,
+      "K": 5,
+      "block_diagonal": true,
+      "pr5_evaluable": 0.0,
+      "pr5_goldtitle66": 0.0,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 0
+        },
+        {
+          "q": 30,
+          "hit": 0
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 0.0
+    },
+    {
+      "hop": 3,
+      "K": 10,
+      "block_diagonal": false,
+      "pr5_evaluable": 1.0,
+      "pr5_goldtitle66": 0.0303,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 1
+        },
+        {
+          "q": 30,
+          "hit": 1
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 100.0
+    },
+    {
+      "hop": 3,
+      "K": 10,
+      "block_diagonal": true,
+      "pr5_evaluable": 1.0,
+      "pr5_goldtitle66": 0.0303,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 1
+        },
+        {
+          "q": 30,
+          "hit": 1
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 100.0
+    },
+    {
+      "hop": 3,
+      "K": "inf",
+      "block_diagonal": false,
+      "pr5_evaluable": 1.0,
+      "pr5_goldtitle66": 0.0303,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 1
+        },
+        {
+          "q": 30,
+          "hit": 1
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 100.0
+    },
+    {
+      "hop": 3,
+      "K": "inf",
+      "block_diagonal": true,
+      "pr5_evaluable": 1.0,
+      "pr5_goldtitle66": 0.0303,
+      "per_query_evaluable": [
+        {
+          "q": 12,
+          "hit": 1
+        },
+        {
+          "q": 30,
+          "hit": 1
+        }
+      ],
+      "delta_vs_1hop_baseline_pp": 100.0
+    }
+  ],
+  "unconstrained_series_pr5": {
+    "1": 0.0,
+    "2": 0.0,
+    "3": 1.0
+  },
+  "inflections": {
+    "K=3,block=False": {
+      "series": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "peak_hop": 1,
+      "decline_after_peak": false
+    },
+    "K=3,block=True": {
+      "series": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "peak_hop": 1,
+      "decline_after_peak": false
+    },
+    "K=5,block=False": {
+      "series": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "peak_hop": 1,
+      "decline_after_peak": false
+    },
+    "K=5,block=True": {
+      "series": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "peak_hop": 1,
+      "decline_after_peak": false
+    },
+    "K=10,block=False": {
+      "series": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "peak_hop": 3,
+      "decline_after_peak": false
+    },
+    "K=10,block=True": {
+      "series": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "peak_hop": 3,
+      "decline_after_peak": false
+    },
+    "K=inf,block=False": {
+      "series": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "peak_hop": 3,
+      "decline_after_peak": false
+    },
+    "K=inf,block=True": {
+      "series": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "peak_hop": 3,
+      "decline_after_peak": false
+    }
+  },
+  "criteria_check": {
+    "multi_hop_gain_ge2pp": true,
+    "unconstrained_3hop_decline": false,
+    "random_baseline_le0.7": true,
+    "baseline_saturated_1.0": false
+  },
+  "verdict": "pending",
+  "verdict_reason": "D1 功效闸门：有效多跳可评样本 n=2（200 题中 66 题 gold 为全局 passage-title、其中 64 题答案实体已在题面共现→seed 退化），远低于功效下限 20，点估计不可作为 confirmed/refuted 依据。R3 判据核查：最佳配置 3跳/K=10/block=False PR@5=1.0 vs 1跳基线 0.0（Δ=100.0pp，≥2pp 触发=True）；无约束 3 跳下降=False（序列 {1: 0.0, 2: 0.0, 3: 1.0}）。天花板核查：随机基线 PR@5=0.0（≤0.7 易度闸门=True）；1 跳基线饱和=False。按 D1 未把『测不出』写成『已证伪』，亦未把 n=2 点估计写成 confirmed。",
+  "elapsed_s": 22.46,
+  "self_sha256": "f7ff6953661fd701"
+}

@@ -1,0 +1,112 @@
+review_id: WB1-20261022-R2-v1
+id: WB1-20261022-R2-v1
+author: WB1
+target: WB0
+date: 2026-10-22
+round: R2
+version: v1
+instruction_ids:
+  - 1792650492-991111
+data_source: results_v2/r2_router_collapse.json
+status: pending
+status_note: >
+  R2（Router 码本坍塌与预处理效应）已执行完毕，纯 CPU 前向，未加载任何主干模型。18 个 Router（3K×2method×2preproc
+  + 6 个 preproc=none 基座臂，共 18 个 .pt 全部从 Hub 自取，字节数与 Hub 元数据逐一相符）对 60×2048 entity_embeddings
+  前向，取末层 softmax 计算熵/有效码字数/最大码字占比/Gini/落点直方图。结论：**pending（判据两族指标互相矛盾，
+  不可判定）**，按指令 §4 判据规则严格落位，未升格、未证伪。三条主线事实：
+  (1) **坍塌迹象成立**：全部 18 个 Router 的逐样本 softmax 饱和（平均熵 0.0000-0.0097 nats，exp(H)=1.0000-1.0098，
+  top1≈1.000），exp(H) 不随 K 增长（K64/K8 比值 1.00-1.01），预登记坍塌判据 exp(H|K=64) < 2×exp(H|K=8) 在 4/4
+  格成立——且属**全档位彻底坍塌**（K=8 时有效码字已≈1），比判据预设的"扩容不增容"更极端；原始输入臂 60 条样本
+  几乎全部落向单一码字（raw/none 臂仅 1-2 个码字被使用）。
+  (2) **预处理判据未达**：zscore 使 exp(H) 提升 ≥20% 的判据在 6/6 格失败（提升比 1.00-1.01），逐样本 z-score
+  敏感性口径同样失败（exp(H) 1.000-1.063）。
+  (3) **矛盾点（pending 的直接原因）**：码字**使用分布**层面 zscore 确有分散作用——K=64 时原始臂仅 1-2/64 个码字
+  被使用（最大码字质量占比 0.983-1.000），zscore 臂 8-10/64 个（最大占比 0.279-0.283，Gini 0.918/0.913 vs
+  0.984）；但逐样本熵指标已饱和，对该分散不敏感。两族指标对"zscore 是否缓解坍塌"给出相反答案，且 n=60 功效极低，
+  按指令 §4"结果矛盾→pending"与 D1"测不出≠已证伪"落位 pending。
+  【口径披露（D2）】指令未固定 z-score 公式：主口径=按特征数据集级 z-score（60 实体各维 mean/std），
+  敏感性口径=逐样本 z-score，两者分列于 JSON sensitivity_persample_zscore，未静默替换。
+  【架构口径披露】.pt 仅含 net.0/net.2（中间层无参数），训练脚本不在 Hub。主分析按"两层 MLP"标准读法
+  Linear-ReLU-Linear；激活敏感性检查显示 ReLU 下 logits 达 O(10^2-10^3) 导致 softmax 饱和，Tanh 反事实下
+  exp(H)=4.63-8.84 不饱和——即"逐样本 one-hot"这一发现**以标准读法为条件**，已就训练脚本/激活口径向 WB0 发
+  open_item 1792661541-e8bdeb（不阻塞本轮交付）。
+  【n 边界】n=60，仅机制观察，不得升格为结论；不得表述为"Router 已坍塌"或"zscore 无效/有效"。
+prediction: >
+  H-ROUTER-COLLAPSE：K 增大时有效码字数不按比例增长（扩容不增容）；zscore 预处理能缓解坍塌。
+  预登记可观测形式：exp(H) 不随 K∈{8,16,64} 等比增长即坍塌迹象成立；zscore 臂 exp(H) 较 raw 臂提升 ≥20%
+  即预处理有效。
+falsifiable_criterion: >
+  指令 §3 预登记判据，逐条执行：
+  (a) 坍塌成立 ⇔ exp(H)|K=64 < 2×exp(H)|K=8（按 method×preproc 四格分别判定）；
+  (b) 预处理有效 ⇔ zscore 使 exp(H) 提升 ≥20%（按 method×K 六格分别判定）；
+  (c) confirmed = 观察到坍塌迹象**且** zscore 缓解（表述限"观察到坍塌迹象，需扩样本复核"）；
+  (d) refuted = exp(H) 随 K 近似等比增长；
+  (e) pending = 结果矛盾或样本不足。
+  本轮执行结果：(a) 4/4 格成立（比值 1.00-1.01，属彻底坍塌而非部分缩放失效）；(b) 0/6 格成立（提升比 1.00-1.01）；
+  (d) 不成立（exp(H) 全档贴 1.0，与等比增长相反）；故 (c) 因 (b) 失败不达 confirmed，(d) 明确不成立故不判 refuted，
+  按 (e) 落 pending。
+actual_data: >
+  【输入与校验】entity_embeddings.json 自 Hub /api/file/r2_entity_embeddings 取得（60×2048，base64 fp32，
+  解码后 sha256 前 16 位与文件内 emb_sha256 一致，全有限）；18 个 Router .pt 自 Hub /api/file/r2_b_routers/*
+  取得（K8≈2.109MB/K16≈2.118MB/K64≈2.167MB，逐文件字节数与 Hub /api/files 元数据一致，均为 seed=20261020）。
+  确定性：OMP/MKL=1、torch 单线程、manual_seed=20261020。
+  【逐样本 softmax 统计（mean±range，18 配置）】平均熵 0.0000-0.0097 nats；exp(H)=1.0000-1.0098；
+  mean top1 概率 0.995-1.000；即逐样本分布在标准 ReLU 读法下全部近 one-hot。
+  【坍塌判据四格】diff_pr raw：expH K8=1.000/K64=1.000；diff_pr zscore：1.000/1.000；
+  reinforce raw：1.000/1.000；reinforce zscore：1.000/1.010。比值均≈1.0 < 2 → 四格全部"观察到坍塌迹象"，
+  但机制为 K=8 起即饱和（彻底坍塌），非判据预设的渐进扩容失效。
+  【预处理判据六格】zscore/raw 提升比：diff_pr K8=1.00/K16=1.00/K64=1.00；reinforce K8=1.00/K16=1.00/K64=1.01。
+  全部 <1.2 → 判据失败。
+  【使用分布（直方图，60 样本 argmax 落点）】raw/none 臂：K8 diff_pr 59/60 落单码字#7；K8 reinforce 60/60 落 #3；
+  K16 reinforce 60/60 落 #9；K64 diff_pr 60/60 落 #16；K64 reinforce 59/60 落 #32——1-2 个码字吃掉全部流量。
+  zscore 臂：K8 diff_pr 用 3 码（32/21/7）；K16 diff_pr 用 5 码（28/15/6/...）；K64 diff_pr 用 10 码
+  （top 17/60=0.283）；K64 reinforce 用 8 码（top 0.279）。最大码字质量占比：raw/none 0.983-1.000 →
+  zscore 0.279-0.783；Gini：0.871-0.984 → 0.729-0.918。
+  【敏感性】逐样本 z-score 口径 exp(H)=1.000-1.063，六格提升比仍 <1.2，判据结论不变。
+  【激活敏感性】ReLU：logits |max| 804-1228，softmax 饱和；Tanh 反事实：exp(H)=4.63-8.84、top1=0.49-0.72，
+  不饱和。"one-hot/坍塌"结论以标准 Linear-ReLU-Linear 读法为条件，训练脚本缺失已升 open_item。
+  【n 边界】n=60；结论仅至机制观察级。
+hypotheses:
+  - id: H-ROUTER-COLLAPSE
+    statement: K 增大时 Router 有效码字数不按比例增长（扩容不增容）；zscore 预处理能缓解坍塌。
+    prediction: exp(H) 不随 K 等比增长（坍塌迹象）；zscore 臂 exp(H) 较 raw 臂提升 ≥20%（预处理有效）。
+    falsifiable_criterion: exp(H|K=64) < 2×exp(H|K=8) → 坍塌；zscore 提升 ≥20% → 有效；exp(H) 随 K 近似等比增长 → refuted；矛盾或样本不足 → pending。
+    actual_data: >
+      逐样本熵全档饱和（exp(H)=1.0000-1.0098），坍塌判据 4/4 格成立且属彻底坍塌（K=8 起有效码字≈1）；
+      原始输入臂 60 样本几乎全落单一码字（1-2 个码字被使用）。zscore 提升 exp(H) 判据 0/6 格成立
+      （提升比 1.00-1.01），但码字使用分布显著分散（K=64：1-2 码 → 8-10 码，最大码字占比 1.000 → 0.28）。
+    ds_admitted_refutation: false
+    ds_pending_reason: >
+      两族指标互相矛盾：逐样本熵指标（判据 (b) 的度量）对 zscore 分散作用不敏感且已饱和，使用分布指标
+      （直方图/Gini/最大占比）显示 zscore 确实分散码字使用。按 D1，此为"测不出/判据不可分辨"，
+      不得记为已证伪；亦不得把"熵指标未提升"写成"zscore 无效"的 confirmed 反面。
+    status: pending
+collaboration_audit:
+  black_box_isolation: 仅经 Hub HTTP API 取指令/文件/上传产物；未直连 WB0/WB2 沙盒；未读他人台账。
+  interface_alignment: >
+    data_source 指向已推实物 results_v2/r2_router_collapse.json（先推实物后推回执）；复算脚本
+    experiments/r2/r2_router_collapse.py 同推（kind=other）；18 个 Router 与 embedding 均为 Hub 自取，
+    未假设本地存在（本地全盘递归搜索 0 命中后走 Hub 通道）。
+  handoff_boundary: 仅处理 target=WB1 且 auto_run=true 且 id 不在 done.json 的指令；本轮命中 1 条
+    （1792650492-991111，long_run=false，已执行）。long_run AB-01/AB-02 不在候选池、未触碰；
+    target=WB0/WB2 指令未触碰；WB1 自己发出的 open_item 未自处理。
+  ledger_discipline: 不写 hypothesis_ledger.yaml；done.json 仅追加 id 1792650492-991111。
+  dual_channel: Hub=控制面；本轮无团队空间双写要求，仅 Hub 单写。
+compliance:
+  - 未伪造数据：全部数值由 Hub 原始 .pt/embedding 确定性前向计算，脚本随附可复现
+  - 未加载主干模型（scope_guard 遵守），纯 CPU fp32 前向
+  - 未覆盖任何既有文件：主交付物与脚本均为新建（results_v2/r2_router_collapse.json、experiments/r2/r2_router_collapse.py）
+  - 未写台账；done.json 仅记指令 id
+  - 结论带 n=60 边界声明；pending 判据两族指标矛盾已逐条披露
+  - 换口径（z-score 公式、激活函数读法）均显式披露，未用代理指标冒充原口径（D2）
+round_self_check:
+  B-01: '未证推论——"zscore 缓解坍塌"在主判据（exp(H) 提升≥20%）下未验证成功；备选解释：逐样本熵已饱和对该分散不敏感，而码字使用分布（1-2 码→8-10 码）显示分散真实存在，两族度量不可互相替代。'
+  B-02: '判据分级——E2 可立即跑：输入全部经 Hub 自取并校验（sha256/字节数），无资源阻塞；无 E3；无 E5（不存在原则上不可判项，矛盾型数据按指令规则落 pending 而非撤回）。'
+  B-03: '动机猜测——回应分享中"VQ 码本易坍塌"的担忧，在已有 18 个 Router 上做直接检验（设计 7/方向 7）。'
+  B-04: '类比——"坍塌"借自 VQ-VAE 文献的术语转用，未做跨领域数值类比；无 [发生器] 标注需求（本轮回合计 0 处跨域类比）。'
+  B-05: '自我规划——本轮范围=执行 R2 单条指令（前向+四指标+判据+交付）；下轮计划=继续按 :20 档巡检 /api/brief 与新指令。'
+  B-06: '循序渐进——本轮完成"取数→前向→指标→判据→交付"全链路；预留接口：JSON 内 per_router/sensitivity/activation_sensitivity 分块可供 WB0 复核或扩样本复用。'
+  B-07: 'Agent 调用——0 次；任务为单脚本确定性计算，无需子代理。'
+  B-08: '交付前验证——embedding sha256 前缀核对通过、18 个 .pt 字节数与 Hub 元数据逐一相符、激活/口径双敏感性已跑、JSON 可解析；上传后将自查 GET /api/file/r2_r2_router_collapse 返回 200 且 size 一致。'
+  B-09: '动机优先——本轮 100% 回应指令 1792650492-991111 的明文要求，无自选研究方向。'
+  B-10: '不下断定——"Router 已坍塌""zscore 有效/无效"均未断言；仅陈述"逐样本分布近 one-hot（标准读法下）"与"判据矛盾→pending"，留待 WB0 裁定与扩样本复核。'

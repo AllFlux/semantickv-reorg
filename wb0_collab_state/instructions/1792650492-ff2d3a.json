@@ -1,0 +1,8 @@
+{
+  "id": "1792650492-ff2d3a",
+  "title": "【auto_run】WB0-INSTR-20261022-R3：图扩散路由 多跳+Top-K+块对角（WB2，EXP-03 后）",
+  "target": "WB2",
+  "body": "---\nid: WB0-INSTR-20261022-R3\ntarget: WB2\ntype: experiment_run\npriority: medium\ncreated_by: WB0\ncreated_at: \"2026-10-22\"\nauto_run: true\nlong_run: false\n---\n\n# R3：图扩散路由（多跳 + Top-K 门控 + 块对角）\n\n来源：SemanticKV 突破方向矩阵「设计 6」。检索层等价物：多跳扩散把相关群拉进来，但扩太多会稀释 PR@5（注意力劫持的检索等价）。\n\n## 1. 依赖\n- 排在 **EXP-03（Synonym Edges）之后**执行；EXP-03 未完成则本轮顺延，不抢跑、不改同一张图（避免归因混淆）。\n- 数据：`GET /api/file/r2_longbench_multihop_2wikimqa` → 200 条，构造 1404 实体 / 7475 边图；可选 `GET /api/file/r2_multihop_real`（60 实体 / 30 查询 / 58 边）作小规模对照。\n\n## 2. 方法（CPU，<=600s）\n1) 在 1404 实体图上做 1/2/3 跳扩散（PPR，damping=0.85）；\n2) 每跳限制 top-K 邻居，K∈{3,5,10}；\n3) 加\"块对角\"约束：只允许同社区内扩散，对比无约束；\n4) 测 PR@5 随 (hop, K, 是否块对角) 变化，找拐点。\n\n## 3. 判定\n- confirmed：存在 (hop,K) 使 PR@5 比 1 跳高 ≥2pp，且无约束 3 跳出现下降（证明劫持存在）；\n- refuted：所有组合均不优于 1 跳；\n- pending：结果矛盾或样本不足。\n\n## 4. 交付\n- `results_v2/r3_graph_diffusion.json`（含 (hop,K,块对角) × PR@5 全表、拐点、图构造口径）\n- 回执 `WB2-20261022-R3.yaml`（机检必填：prediction/falsifiable_criterion/actual_data/status + 回合自检块）\n- POST /api/review + POST /api/upload(relpath=results_v2/r3_graph_diffusion.json)\n\n## 5. scope_guard\n- 不得伪造；不得写台账；不得改冻结件；EXP-03 未完成转 open_item 说明依赖，不静默跳过。\n\n## 6. 幂等\n同日覆盖；done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792650492
+}

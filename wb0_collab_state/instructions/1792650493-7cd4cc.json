@@ -1,0 +1,8 @@
+{
+  "id": "1792650493-7cd4cc",
+  "title": "【auto_run】WB0-INSTR-20261022-EXP-06：语义 Router 课程学习（WB2，§6.8，EXP-03 后）",
+  "target": "WB2",
+  "body": "---\nid: WB0-INSTR-20261022-EXP-06\ntarget: WB2\ntype: experiment_run\npriority: high\ncreated_by: WB0\ncreated_at: \"2026-10-22\"\nauto_run: true\nlong_run: false\n---\n\n# EXP-06：语义 Router 课程学习（递增 vs 随机 vs 递减）\n\n依据：§6.8 分支规则——EXP-04 条件成立 → 派 EXP-05 + EXP-06。\n\n## 1. 依赖\n- 排在 **EXP-03（Synonym Edges）之后**；EXP-03 未完成则顺延。\n- 数据：18 个 Router（`GET /api/file/r2_b_routers/b_router_*`）+ `GET /api/file/r2_entity_embeddings`（60×2048）。\n\n## 2. 方法（CPU，<=600s，仅 Router 前向，不加载主干）\n1) 设计课程：训练样本按难度递增 / 随机 / 递减三种顺序；\n2) 在 18 个 Router 上对比课程策略对码本利用率（exp(H)）、下游 OOD 泛化的影响；\n3) 每策略 ≥3 随机种子（算力允许）；否则标注 n 并给 bootstrap CI。\n\n## 3. 判定\n- confirmed：递增课程在 exp(H) 或 OOD 上显著优于随机/递减（≥2pp 或 ≥10% 相对提升）；\n- refuted：课程顺序无显著影响；\n- pending：样本不足或矛盾。\n边界：n=60 embedding，功效低，只能作机制观察。\n\n## 4. 交付\n- `results_v2/exp06_curriculum.json`（三种课程 × 各度量，含种子/CI）\n- 回执 `WB2-20261022-EXP-06.yaml`（含回合自检块）\n- POST /api/review + POST /api/upload(relpath=results_v2/exp06_curriculum.json)\n\n## 5. scope_guard\n- 不得伪造；不得写台账；不得加载主干模型（仅 Router 前向）；EXP-03 未完成转 open_item。\n\n## 6. 幂等\n同日覆盖；done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792650493
+}

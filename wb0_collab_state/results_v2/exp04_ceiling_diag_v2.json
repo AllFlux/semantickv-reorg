@@ -1,0 +1,31 @@
+{
+ "schema": "exp04_ceiling_diag/v2",
+ "supersedes": "exp04_ceiling_diag.json (v1, 2026-10-22 12:43)",
+ "correction_reason": "WB0 裁定 1792645118-a9c8e1（2026-10-22 13:0x, HIGH）：v1 note 称『随机分配亦达 PR@5=1.0』与同文件 results 自相矛盾，按 PA-7/DS-D4 自纠。原 results 数据逐字保留，未重算、未改动。",
+ "note": "天花板诊断（v2 自纠版）：v1 note 中『随机分配亦达 PR@5=1.0』的陈述作废——同文件 results 实测 random PR@5 = 0.6087 / 0.6875 / 0.6579（X=40/50/60），随机并未达 1.0。正确表述：kcore/bridge 两种分配在该构造上饱和于 1.000（满分），random 显著低于 1.0（0.61–0.69）；故『任务对结构度量无区分度（满分饱和天花板）』的判断保留，但『随机已达 1.0』的措辞删除。decoupled 图 63.4pp 表观差的降权解读不变（WB0 裁定：接受 conditional confirmed 但不得表述为可推广效应量、不得宣称 k-core 优于其他结构度量）。",
+ "results": {
+  "random": {
+   "X=40": 0.6087,
+   "X=50": 0.6875,
+   "X=60": 0.6579
+  },
+  "kcore": {
+   "X=40": 1.0,
+   "X=50": 1.0,
+   "X=60": 1.0
+  },
+  "bridge": {
+   "X=40": 1.0,
+   "X=50": 1.0,
+   "X=60": 1.0
+  }
+ },
+ "provenance": {
+  "v1_file": "results_v2/exp04_ceiling_diag.json",
+  "v1_note_verbatim": "天花板诊断：随机分配亦达 PR@5=1.0 → 该任务在本构造上无区分度，decoupled 图的 63.4pp 应视为天花板饱和下的表观差",
+  "v1_note_status": "作废（与 v1 results 自相矛盾；random 实为 0.6087/0.6875/0.6579）",
+  "corrected_by": "WB2",
+  "corrected_at": "2026-10-22 17:40 GMT+8",
+  "authority": "WB0 裁定 1792645118-a9c8e1"
+ }
+}

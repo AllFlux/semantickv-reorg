@@ -1,0 +1,96 @@
+{
+  "schema": "exp03_synonym_edges/v1",
+  "created_at": "2026-10-22T14:56:00+0800",
+  "dataset": "r2_longbench_multihop_2wikimqa (200 条 2wikimqa)",
+  "params": {
+    "n_entities": 1404,
+    "cooccur_edges": 7475,
+    "embedding": "BGE-small-en-v1.5 (Qdrant ONNX, CLS pooling, no query prefix)",
+    "embedding_source": "HuggingFace Qdrant/bge-small-en-v1.5-onnx-Q (direct download; SSL via system CA)",
+    "taus": [
+      0.6,
+      0.7,
+      0.8
+    ],
+    "ppr_damping": 0.85,
+    "ppr_iters": 50,
+    "freq_quantile_split": [
+      1.0,
+      1.0
+    ],
+    "seed": 20261022
+  },
+  "n_total": 200,
+  "n_gold_title": 66,
+  "n_gold_in_seed": 64,
+  "n_evaluable": 2,
+  "baseline_pr5": 0.0,
+  "synonym_edge_counts": {
+    "0.6": 27337,
+    "0.7": 2699,
+    "0.8": 542
+  },
+  "per_tau": {
+    "0.6": {
+      "aug_pr5": 1.0,
+      "delta_pp": 100.0,
+      "syn_edges": 27337,
+      "stratified_gain_pp": {
+        "low": {
+          "n": 2,
+          "mean_gain_pp": 100.0
+        },
+        "mid": {
+          "n": 0,
+          "mean_gain_pp": null
+        },
+        "high": {
+          "n": 0,
+          "mean_gain_pp": null
+        }
+      }
+    },
+    "0.7": {
+      "aug_pr5": 1.0,
+      "delta_pp": 100.0,
+      "syn_edges": 2699,
+      "stratified_gain_pp": {
+        "low": {
+          "n": 2,
+          "mean_gain_pp": 100.0
+        },
+        "mid": {
+          "n": 0,
+          "mean_gain_pp": null
+        },
+        "high": {
+          "n": 0,
+          "mean_gain_pp": null
+        }
+      }
+    },
+    "0.8": {
+      "aug_pr5": 1.0,
+      "delta_pp": 100.0,
+      "syn_edges": 542,
+      "stratified_gain_pp": {
+        "low": {
+          "n": 2,
+          "mean_gain_pp": 100.0
+        },
+        "mid": {
+          "n": 0,
+          "mean_gain_pp": null
+        },
+        "high": {
+          "n": 0,
+          "mean_gain_pp": null
+        }
+      }
+    }
+  },
+  "verdict": "pending",
+  "verdict_reason": "有效多跳可评样本 n=2（200 题中 66 题 gold 为全局 title、其中 64 题答案实体已在题面共现→PPR seed 退化，仅 2 题构成有效多跳评测），功效不足（<20）无法达判据；点估计 +100pp 不可作为 confirmed，按 D1 判 pending。低频层增益 100.0pp vs 高频层 n=0（无法检验低频≥50%·高频）。",
+  "elapsed_s": 3.79,
+  "self_sha256": "c60d3c9037cf61f8"
+}

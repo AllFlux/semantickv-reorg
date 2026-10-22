@@ -1,45 +1,38 @@
-# CEO 简报 · 2026-10-22 05:55（台账 v0.55 · EXP-02D 收口）
+# CEO 汇报 · 2026-10-22 17:55（WB0 定时唤醒 · 17:55 档）
 
-> 数据来源：本轮 05:55 公网 Hub 实拉（/api/state、/api/ledger、/api/reviews、/api/files、/api/snapshot）。所有数字为实物值，不估算、不沿用旧值。
+数据源：Hub 公网 API 本轮实拉（/api/brief、/api/reviews、/api/instructions、/api/files、/api/ledger、/api/silence、/api/audit、/api/discipline、/api/contract）。台账版本 v0.56。零估算、零记忆复述。
 
 ## 一、进度
 
-| 项 | 数值 |
-|---|---|
-| 台账版本 | v0.52 → **v0.55**（本轮两条入账） |
-| 假设总数 | 25 → **27**（confirmed 5 / pending 11 / refuted 10 / verified_proxy 1） |
-| open_items | 10（**open 3**：云端执行层故障 HIGH、取证通道缺陷 HIGH、decisions 段陈旧 MEDIUM） |
-| 回执 | **31**（29 PASS、2 FAIL 均已 -v2 取代留痕） |
-| 指令 | 58 → **61**（含 2 条探测残留已公开标注无效） |
-| 文件 | **102** |
-| 执行器 | WB1 最后写入 05:20、WB2 05:48-05:49 → **双活**，无停滞 |
+- 台账 v0.56；假设 27 条：confirmed 5 / pending 11 / refuted 10 / verified_proxy 1。闸门假设 H-WB2-E2E-01 维持 verified_proxy（未被翻 verified），五条件未满足前不得升级。
+- open_items 10 项：open 2（WB0-CLOUD-AGENT-FAILURE、WB0-LEDGER-DECISIONS-STALE），resolved 8。
+- 回执 39 份：索引态机检 PASS 36 / FAIL 3；本轮实时重跑确认 EXP-04-CORR（17:55:51 版）已 PASS，现存 FAIL 2 条均为已被新版取代的历史版本（AUDIT-CEO043、DS62-01 v1）。
+- 指令板 81 条；文件库 131 个。
+- 路线图 E0→E1→E3→E4 已闭环：EXP-03（14:58 机检 PASS）、EXP-04 条件成立（13:05 HIGH 裁定，conditional confirmed 降权解读）；进阶实验 EXP-05/EXP-06 已于 14:28 派工（target=WB2），待执行器自取。
+- 执行器健康（以 Hub 写入时戳为准，不采信 lastRunAt）：WB1 末次写入 17:32–17:33（R2-v1 回执 + open_item 指令），WB2 末次写入 17:54–17:55（R3、EXP-04-CORR 回执 + 3 件交付物）——双执行器在线，无超 45 分钟静默。
+- 周期合规：WB0/WB1/WB2/离平台备份四个在运任务均为 1h/4h 档，无越档（用户令：仅限 1h/4h 两档）。
 
-本阶段（H-WB0-A 结构侧）已完成 EXP-02 系列 → EXP-01B（refuted）→ EXP-02B/02C（pending）→ **EXP-02D（本轮收口）**。
+## 二、本轮成果（验收）
 
-## 二、成果
-
-1. **EXP-02D 验收 PASS**（WB2-20261022-EXP-02D-v2，05:49 机检）：A/B 侧 30/30 逐查询复现 WB1 stage1（A recall@5 0.1333、B 0.4444、pr@5 0.1067，mismatch=0）——B 侧 Router 的实现口径首次被独立复算证实可信。
-2. **两条新假设入账**：`H-WB2-EXP02D-GRAPHPOWER`（confirmed）= 现役 60 实体图对结构序判别**功效为零**（betweenness 最大并列 86.7%、种子度≤1 占 53.3%）；`H-WB2-EXP02D-ABREPRO`（confirmed）= A/B 可确定性复现。
-3. **H-WB0-A 维持 pending**：EXP-02D 的预注册判据 M1/M2 均不成立，但同时命中"不可判"分支（低功效），按规则不得据此证伪 → 不升不降，等扩图后再判。
-4. **接口缺陷定位**：`POST /api/instruction` 仅接受表单编码，JSON 一律 422（`/api/ledger/hypothesis` 相反，只吃 JSON）——此前多轮"写入 200 但未生效"疑与此同源。
+1. **EXP-04-CORR（WB2，17:40，机检 PASS）**：ceiling 诊断自纠——v1 note「随机分配亦达 PR@5=1.0」与 v1 自带 results（random 0.6087/0.6875/0.6579）自相矛盾，作废并出 v2（results 九值逐字保留，size 1699B / sha256 b2b13845… 已核）。判定 H-EXP04-CEILING = confirmed（描述性事实：kcore/bridge 双饱和 1.000、random 0.61–0.69 → 该构造对结构度量族无区分度）；EXP-04 主结论维持 conditional confirmed 降权解读（解耦图 Δ=+63.4pp vs 共线图 Δ=0.0pp，两图同拓扑 n=300/m=588），不得宣称可推广效应量、不得宣称 k-core 优于其他结构度量。
+2. **R3（WB2，17:40，机检 PASS）**：图扩散路由 24 配置全网格（hop{1,2,3}×K{3,5,10,∞}×块对角，纯 CPU 22.46s）。有效多跳样本 n=2（200 题中 64/66 答案实体在题面共现 → PPR seed 退化）→ 判 pending：+100pp 点估计（二项 95%CI≈[15.8%,100%]）不构成 confirmed；无约束 3 跳无下降（0.0→0.0→1.0），劫持/稀释判据未触发；块对角跨社区边仅 1.5% 无分辨力。该判据在本语料标 E5-撤回（结构性退化，加样本不可解），后续多跳检验须换任务定义/数据集。
+3. **R2-v1（WB1，17:32，机检 PASS）**：18 个 Router 纯 CPU 前向（Hub 自取 .pt 字节数逐一核对）。坍塌判据 4/4 成立且属彻底坍塌（exp(H) 全档 1.0000–1.0098，K=8 起有效码字≈1）；预处理判据 0/6（zscore 提升比 1.00–1.01）；两族指标矛盾（逐样本熵饱和 vs 码字使用分布 1–2 码→8–10 码分散）→ pending，未升格未证伪。"逐样本 one-hot"结论以标准 Linear-ReLU-Linear 读法为条件（Tanh 反事实 exp(H)=4.63–8.84 不饱和；ReLU 下 logits |max| 804–1228）；训练脚本缺失已由 WB1 升 open_item，本轮裁定：接受条件披露 + 要求补 Tanh 口径敏感性附录。
+4. **新交付物（今日 17:32–17:55 上传）**：exp04_ceiling_diag_v2.json（1699B）、r3_graph_diffusion.json（11947B）+ r3_graph_diffusion.py、r2_router_collapse.json（32762B）、wb2_run_report_20261022_1740.md。
+5. **台账更新（经 /api/ledger/hypothesis，仅机检 PASS 后写入）**：H-EXP04-CEILING→confirmed；H-R3-DIFFUSION→pending；H-ROUTER-COLLAPSE→pending。
 
 ## 三、问题
 
-| 问题 | 级别 | 状态 |
-|---|---|---|
-| `/api/file` 对任意 id 恒返同一 4178B 陈旧件（本轮 8 次复测全中） | HIGH | open，WB2 提出的 `r2_` 旁证**不可复现**，维持原判 |
-| `/api/snapshot` 解包树恒为 132-133 条目、不随新上传增长 | HIGH（并入上项） | 新件正文取证存在时效盲区 |
-| ledger decisions 段 4 条仍为 confirmed，与 hypotheses 段 verified_proxy 矛盾 | MEDIUM | open，待代码层处置 |
-| 云端 scheduled-agent 执行层故障恢复判据需调度器 trigger 日志 | HIGH | open，WB0 无权终裁 |
+1. **纪律机检 FAIL 6 项（全部 D4 data_source 实物缺失）**：其中 5 项为检查器索引陈旧假阳性——实物均现存（exp04_struct_freq_decoupling.json 12:24、exp02e_h_wb0_a_orthogonal_metrics.json 14:33、exp03_synonym_edges.json 14:58、r3_graph_diffusion.json 17:54:58、exp04_ceiling_diag_v2.json 17:54:59）；1 项真实缺失：WB1-20261022-EXP-01B-ENCODE-v1 回执的 data_source 自指 results_v2/WB1-20261022-EXP-01B-ENCODE-v1.yaml（从未上传；其三件 deliverables 02:22 起均在库）→ 修复令已发 WB1。
+2. **合约机检 FAIL 11 项**：07:30 后 4 条指令、2 份静默报告、5 份运行报告缺回合自检块（B-05/B-06）→ 已列入裁定要求修正；本轮裁定正文自带完整 B-01~B-10 自检块。
+3. **静默期报告治理**：05:55 时点双份留档（_silence_report_20261022_0555.md 合规 + _silence_report_20261022_05.md 命名违规，按规则 8c 应只存 _0555 一份）；11:55 轮无裁定留档、14:55 时点静默报告缺失（按规则 8e 不补发，仅说明缺失）→ 提请主会话核查 WB0 调度触发日志。
+4. **WB0 唤醒空档**：指令板最后一次 WB0 裁定 13:05、最后一次派工 14:28；12:55 之后无 wb0_round 留档，17:32 之前无任何指令板写入。
+5. **未决事项**：WB0-CLOUD-AGENT-FAILURE（恢复判据主体条件已满足：双执行器持续在线、静默段无 agent 写入；该项明文保留主会话终裁权，维持 open 并附新证据）；WB0-LEDGER-DECISIONS-STALE（Hub 端缺陷，待主会话代码级修复）；WB1-OPEN-20261022-R2-ACTIVATION（本轮已裁定）。
 
 ## 四、风险
 
-- **实验进度触顶**：本轮不派工的直接原因是"资源不可行"——同图同资源重跑只会重复已知的结构性零功效，下一阶段必须靠**扩图（新实体/新查询）**或**用户批准 long_run**才能推进。这是当前最大瓶颈。
-- **取证链脆弱**：正文级证据只依赖低频重建的快照树，新件无法即时逐字节核验；若主会话不修 `/api/file`，任何"复算一致"的结论都只能降级为旁证。
-- **静默期盲区**：05:20 起若进入 6 小时静默，05:55 轮不触发（报告已由 05:00 轮提前留档 `_silence_report_20261022_05.md`），期间无裁定、无验收，回执将积压。
-
-## 五、下一步
-
-1. 请主会话裁定两项接口缺陷（`/api/file` 解析、`/api/snapshot` 重建周期），并以 trigger 日志终裁执行层故障。
-2. 解锁下一阶段的条件（任一）：Hub 入新实体/新查询资产；用户批准 long_run 扩图；换用不依赖 betweenness 判别力的替代判据。
-3. 静默恢复（11:20）首检：EXP-02D 是否进入 decisions、两条新假设是否稳定落账、JSON 写接口是否修复。
+1. **EXP-05/EXP-06 派工约 3.3 小时未执行**：WB2 17:40 轮按队列纪律执行了队首 R3 + 裁定要求的 EXP-04 自纠；EXP-03 依赖已满足，WB2 自述下轮接 EXP-05（须落实随机基线 PR@5<0.7 预注册闸门）→ 下轮（18:55）若仍无 EXP-05 回执将判停滞并裁定。
+2. **2wikimqa 语料多跳有效样本结构性退化（n=2，64/66 答案实体题面共现）**：多跳类结论在本语料长期不可判（已标 E5-撤回）；EXP-05 的 LongBench 扩池 + hop 分层（每层≥10）是正确载体，但同样受随机基线闸门约束。
+3. **低功效样本（R2 n=60、R3 n=2）仅为机制观察**，已按 D1 落 pending，不得升格为结论。
+4. **纪律/合约检查器与 Hub file 通道（relpath 定位修复后）索引不同步**，产生假阳性 FAIL，可能误导后续轮次判级 → 需主会话代码级修复检查器缓存/解析逻辑。
+5. **静默期合规**：15:10–17:10 段 Hub 写入 0 次（正常）；06:10–11:10 段 10 次写入全部来自 127.0.0.1（主会话/手动会话，治理规则明确保留其静默期工作能力），时间跨度 07:37–10:56，可追溯，判正常。
+6. **激活口径未确证**（Router 训练脚本缺失，Hub/本地均无实物）：R2 的"逐样本 one-hot"强度结论以标准 ReLU 读法为条件；Tanh 附录补交前不得外引为无条件结论。

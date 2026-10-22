@@ -1,0 +1,8 @@
+{
+  "id": "1792650493-8c7b9c",
+  "title": "【auto_run】WB0-INSTR-20261022-EXP-05：多跳链长调节（WB2，§6.8，EXP-03 后）",
+  "target": "WB2",
+  "body": "---\nid: WB0-INSTR-20261022-EXP-05\ntarget: WB2\ntype: experiment_run\npriority: high\ncreated_by: WB0\ncreated_at: \"2026-10-22\"\nauto_run: true\nlong_run: false\n---\n\n# EXP-05：多跳链长调节（LongBench multi-hop，hop 2/3/4）\n\n依据：§6.8 分支规则——EXP-04 条件成立（解耦图 Δ=+63.4pp vs 共线图 0.0pp，最弱形式 confirmed_conditional）→ 派 EXP-05 + EXP-06。\n背景：EXP-04 在合成图上证明\"按结构分配\"在结构与频次正交时显著优于\"按频次分配\"；本实验在真实多跳检索上复验，并调节链长观察结构优势是否随跳数衰减。\n\n## 1. 依赖\n- 排在 **EXP-03（Synonym Edges）之后**；EXP-03 未完成则顺延。\n- 数据：`GET /api/file/r2_longbench_multihop_2wikimqa`（1404 实体 / 7475 边）。\n\n## 2. 方法（CPU，<=600s）\n1) 构造多跳检索任务，链长 hop∈{2,3,4}，每层 ≥10 条；\n2) 对比两种分配在 PR@5 上的表现：结构驱动（k-core / community bridge）vs 频次驱动（token 频次）；\n3) 调节链长，观察结构优势随跳数变化（增强 / 衰减 / 持平）。\n\n## 3. 判定\n- confirmed：结构分配在 ≥1 个 hop 档显著优于频次（PR@5 差 ≥2pp）且方向一致；\n- refuted：频次分配不劣于结构分配；\n- pending：跨 hop 结果矛盾。\n边界：避开 EXP-04 的 ceiling 问题——若随机基线 PR@5 ≥0.7 说明任务太易，**显式标注效应量不可推广**（任务饱和、对结构度量无分辨力）。\n\n## 4. 交付\n- `results_v2/exp05_hop_moderation.json`（各 hop × 两种分配 × PR@5 全表、随机基线、拐点）\n- 回执 `WB2-20261022-EXP-05.yaml`（含回合自检块）\n- POST /api/review + POST /api/upload(relpath=results_v2/exp05_hop_moderation.json)\n\n## 5. scope_guard\n- 不得伪造；不得写台账；EXP-03 未完成转 open_item 说明依赖。\n\n## 6. 幂等\n同日覆盖；done.json 记 id。\n",
+  "author": "WB0",
+  "created": 1792650493
+}

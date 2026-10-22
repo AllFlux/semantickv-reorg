@@ -1,0 +1,104 @@
+review_id: WB2-20261022-R3
+id: WB2-20261022-R3
+author: WB2
+date: "2026-10-22"
+target: WB2
+executor: WB2
+round: "2026-10-22 17:40 GMT+8"
+instruction_id: "1792650492-ff2d3a"
+instruction_ids: ["1792650492-ff2d3a"]
+instruction_ref: WB0-INSTR-20261022-R3
+title: R3 图扩散路由（多跳 + Top-K 门控 + 块对角）对 PR@5 的影响
+status: delivered
+verdict: pending
+status_note: >-
+  按 D1 三分判 pending。核心限制：有效多跳可评样本 n=2（200 题中 66 题 gold 为全局 passage-title，其中 64 题答案实体
+  已在题面共现→PPR seed 退化），远低功效下限 20，点估计不可作为 confirmed/refuted 依据。R3 判据核查：多跳增益
+  （3 跳 K=10 或无限制 PR@5=1.0 vs 1 跳基线 0.0，Δ=+100pp 点估计）数值触发 ≥2pp，但无约束 3 跳下降未触发
+  （序列 0.0→0.0→1.0 单调升）→ confirmed 分支不完整；亦不满足「所有组合均不优于 1 跳」的 refuted 条件；
+  按 D1 属不可判（pending），未把「测不出」写成「已证伪」，也未把 n=2 点估计写成 confirmed。
+prediction: >-
+  若多跳扩散有益且存在注意力劫持的检索等价物，则在 1404 实体共现图上：存在 (hop,K) 配置使 PR@5 比 1 跳基线高 ≥2pp，
+  且无约束（K=∞）3 跳相对 2 跳出现下降（扩散过多稀释 PR@5）；块对角（仅同社区扩散）通过限制稀释保住或提升 PR@5。
+  预注册判定：confirmed = 存在 (hop,K) 且 PR@5 比 1 跳高 ≥2pp 且无约束 3 跳下降；refuted = 所有组合均不优于 1 跳；
+  pending = 结果矛盾或样本不足。
+falsifiable_criterion: >-
+  PR@5(某 hop,K) - PR@5(1跳,∞,无块对角) ≥ 2pp 且 无约束 3 跳 PR@5 < 无约束 2 跳 PR@5 → confirmed；
+  所有 (hop,K,块对角) 组合 Δ < 2pp → refuted；n<20 或判据分支互斥 → pending（注明 n 与 CI）。
+  本轮 n=2 → 落入 pending 分支；+100pp 点估计（二项 95%CI≈[15.8%,100%]）不构成 confirmed 依据。
+actual_data:
+  executed_at: "2026-10-22 17:40 GMT+8"
+  wall_clock_s: 22.46
+  budget_s: 600
+  dataset: "r2_longbench_multihop_2wikimqa 实拉本地副本（200 条 2wikimqa，6,052,108B，与 EXP-03 同一文件）"
+  graph: "1404 实体 / 7475 无向共现边（题内 title 共现，与 EXP-03 同一张图，未改动）；边权均匀 w=1（EXP-03 口径）；Louvain 社区 72 个（resolution=1.0, seed=20261022，最大社区 125 节点）；块对角仅移除 111/7475=1.5% 跨社区边"
+  eval_protocol: "seed=题面提及且为全局 title 节点；gold=answers 匹配全局 title 且非 seed；排名排除 seed 实体；PPR 递推 p_t=(1-d)·T^T·p_{t-1}+d·tele（d=0.85，与 EXP-03 一致），迭代数=hop（k 跳截断）；top-K 门控按共现次数降序+id 升序 tie-break（次数仅用于门控选择，不入边权）；死点 uniform teleport"
+  n_total: 200
+  n_gold_title: 66
+  n_gold_in_seed: 64
+  n_evaluable: 2
+  grid: "hop{1,2,3} × K{3,5,10,∞} × 块对角{关,开} = 24 配置；基线 = (1跳, K=∞, 无块对角)"
+  pr5_evaluable: "1 跳全配置 0.0；2 跳全配置 0.0；3 跳 K=3/5 → 0.0，K=10 与 K=∞ → 1.0（块对角开/关完全一致）；goldtitle66 次要集仅 3 跳 K≥10 配置为 0.0303（=2/66），其余全 0.0"
+  delta_best_vs_baseline_pp: "+100.0pp（3跳/K=10 或无限制，n=2 点估计）"
+  unconstrained_series: "hop1=0.0 → hop2=0.0 → hop3=1.0（单调升，3 跳无下降 → 劫持/稀释判据未触发）"
+  inflection: "K 维度拐点在 3 跳时位于 5→10 之间（K≤5 门控切断通向 gold 的支撑路径）；hop 维度无下降拐点"
+  random_baseline_pr5: 0.0
+  random_baseline_note: "每查询 200 次随机抽 5（非 seed 候选）均值；任务对随机不trivial（ floor 侧），1 跳基线 0.0 亦未饱和"
+  diagnostic: "两可评样本 gold 均为 seed 的直接邻居（BFS 距离=1，且与 seed 同社区）：1/2 跳因等权 tie-break 未进 top-5，3 跳多径累积质量后进入；块对角无差异因跨社区边仅 1.5% 且两 gold 与 seed 同社区"
+  reproducibility: "seed=20261022，纯 CPU 22.46s，单脚本确定性可复现；无训练、无 LLM 前向、无合成数据"
+hypotheses:
+  - id: H-R3-DIFFUSION
+    statement: 多跳扩散（PPR, d=0.85）在共现图上能把相关群拉入 top-5，但扩散过多会稀释 PR@5（注意力劫持的检索等价）；块对角约束可通过限制跨社区稀释保住 PR@5。
+    prediction: 存在 (hop,K) 使 PR@5 比 1 跳高 ≥2pp，且无约束 3 跳相对 2 跳下降；块对角不劣于无约束。
+    falsifiable_criterion: 增益 ≥2pp 且无约束 3 跳下降 → confirmed；所有组合 Δ<2pp → refuted；n<20 → pending。
+    actual_data: >-
+      24 配置全表：1/2 跳全 0.0；3 跳 K≤5 全 0.0、K≥10 全 1.0（块对角无差异）；无约束序列 0.0/0.0/1.0 无下降；
+      随机基线 0.0；n_evaluable=2（64/66 gold∈seed 退化）；二项 95%CI≈[15.8%,100%]。
+    status: pending
+    status_reason: >-
+      D1 功效闸门 n=2<20：多跳增益点估计 +100pp 数值触发，但（a）n=2 无法排除偶然；（b）无约束 3 跳下降未触发，
+      confirmed 分支不完整；（c）两样本 gold 实为 seed 直接邻居（BFS=1），PR@5 差异反映等权 tie-break 与扩散累积动力学，
+      而非真实多跳推理。属不可判而非已证伪。块对角分支：本评测集上无可观测效应（跨社区边仅 1.5%），单独记 pending（无分辨力）。
+    deliverable: results_v2/r3_graph_diffusion.json
+data_source:
+  - relpath: results_v2/r3_graph_diffusion.json
+    size: 11947
+    sha256: 4e7d33353db9f2685205aa9d07f1dcda1e619d49fdd4eeb091f661d6af462838
+  - relpath: results_v2/r3_graph_diffusion.py
+    size: 13217
+    sha256: 8492daef3e8d4d18a2e902b9dc9a8d290bdf3a79c481ed34c67e025ccd65a44b
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: false
+  llm_forward: false
+  external_dependency_missing: false
+  dependency_note: "EXP-03（1792623420-7ec24d）已于 14:40 轮闭环，依赖满足，未转 open_item；数据为本地已有副本，无外部依赖缺失"
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: false
+  r3_deliverable_overwritten: false
+  fabrication: false
+  budget_respected: true
+  same_graph_as_exp03: true
+  graph_unchanged: true
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；全部数值由本地 200 条真实数据单脚本计算，无沿用他方自述数值。"
+  interface_alignment: "建会话 → GET /api/brief → GET /api/instructions?brief=1&target=WB2&since=1792644283 → 单条取正文（R3/EXP-05/EXP-06/两条裁定）→ 复用 EXP-03 图与评测口径 → CPU 22.46s → POST /api/upload → POST /api/review（本回执）→ done.json 追加。"
+  scope_guard_honored: "未伪造；未写台账；未动冻结件；未改 EXP-03 同一张图（避免归因混淆，符合 R3 指令）；n=2 功效不足如实判 pending；top-K 门控排序口径、死点 teleport、块对角边移除比例均已披露。"
+  cross_executor_conflicts: 0
+self_check:
+  B-01_assertion_card: "未证推论：3 跳扩散把 gold 拉入 top-5 是「相关群被拉进来」的机制证据。备选解释：两样本 gold 本就是 seed 直接邻居（BFS=1），进入 top-5 可能只是等权 tie-break 下多径累积的排序动力学，与「多跳推理」无关；n=2 无法排除偶然。"
+  B-02_criteria_tier: "E2（纯 CPU 共现图+本地数据，可立即跑，已跑完）。「多跳扩散有益且存在劫持」判据在本语料上属 E5（有效样本 n=2 为语料结构性退化：64/66 答案实体在题面共现，原则上不可通过加样本解决，已写 pending 并建议 WB0 裁定是否换任务定义/数据集）。"
+  B-03_motivation: "回应 WB0 指令 1792650492-ff2d3a（R3，auto_run，队列队首，EXP-03 后）与突破方向矩阵「设计 6」的检索层等价物检验。"
+  B-04_analogy: "跨领域类比 0 处；「注意力劫持的检索等价物」为指令原文转述，非本轮新构造类比，未用 [发生器]。"
+  B-05_self_plan: "本轮范围：仅执行队首 R3 一条（每轮 1 条纪律），外加 WB0 HIGH 裁定 1792645118 要求的 EXP-04 ceiling 诊断自纠。下轮：按创建顺序接 EXP-05（1792650493-8c7b9c），须落实 WB0 预注册要求（随机基线 PR@5≤0.7 才可作判据任务），再 EXP-06。"
+  B-06_stepwise: "本轮完成 R3 全网格 24 配置 + 随机基线 + 无约束序列 + gold 距离诊断；遗留接口：有效多跳样本 n=2 的语料根因（2wikimqa 答案为题面共现实体）待 WB0 裁定是否换检索任务定义/数据集；块对角分支因跨社区边仅 1.5% 无分辨力，需更异质社区结构才可检验。"
+  B-07_agent_calls: "0 次子 Agent 调用；单脚本纯 CPU 计算，无外部 Agent 依赖。"
+  B-08_pre_delivery_verify: "交付前验证：(a) 图 1404/7475 与 EXP-03 及指令背景口径逐项一致；(b) 24 配置数值由单脚本确定性重跑一致（self_sha256 见 JSON）；(c) 随机基线 0.0 与「每查询 200 次抽 5」口径复核；(d) 两可评样本 gold 的 BFS 距离与社区归属独立复核（=1，同社区）；(e) 未把 +100pp 点估计写作 confirmed；(f) 回执 data_source 与上传文件 size/sha256 一致。"
+  B-09_motivation_priority: "用户要求（WB0 指令+裁定）占比≈100%；框架自发扩展=0（未抢跑 EXP-05/06，未自行扩大网格或换数据集）。"
+  B-10_no_premature_verdict: "保留待裁：(a) n=2 语料退化是否换任务定义/数据集以可判 H-R3-DIFFUSION；(b) 块对角分支是否需要异质社区结构才有分辨力；(c) 等权 tie-break 对 1/2 跳全零的贡献是否应以加权边复核——均交 WB0 裁定，未预先命名。"
+created_at: "2026-10-22T17:40:00+08:00"

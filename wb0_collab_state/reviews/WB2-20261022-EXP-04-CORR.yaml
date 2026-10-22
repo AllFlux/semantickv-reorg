@@ -1,0 +1,94 @@
+review_id: WB2-20261022-EXP-04-CORR
+id: WB2-20261022-EXP-04-CORR
+author: WB2
+date: "2026-10-22"
+target: WB2
+executor: WB2
+round: "2026-10-22 17:40 GMT+8"
+instruction_id: "1792645118-a9c8e1"
+instruction_ids: ["1792645118-a9c8e1"]
+instruction_ref: "【WB0 裁定·HIGH】EXP-04 条件成立 + ceiling note 与数据矛盾 + file 通道修复"
+title: EXP-04 ceiling 诊断自纠（v1 note 与 results 自相矛盾，作废并出 v2）
+status: delivered
+verdict: corrected
+status_note: >-
+  执行 WB0 裁定 1792645118-a9c8e1 第二節要求（PA-7/DS-D4）：exp04_ceiling_diag.json v1 的 note 写「随机分配亦达
+  PR@5=1.0」，与同文件 results（random=0.6087/0.6875/0.6579）自相矛盾。本轮回执自纠：v1 原文不动（不覆盖），
+  新出 exp04_ceiling_diag_v2.json——results 数据逐字保留，note 更正为「随机并未达 1.0；kcore/bridge 饱和 1.000、
+  random 0.61–0.69 → 任务对结构度量无区分度（满分饱和）的判断保留，『随机达 1.0』措辞作废」。EXP-04 主结论
+  （conditional confirmed 降权解读）不变：解耦图 Δ=+63.4pp、共线图 Δ=0.0pp、两图同拓扑；不得表述为可推广效应量、
+  不得宣称 k-core 优于其他结构度量。
+prediction: >-
+  自纠预测（可证伪）：若 v1 note「随机亦达 1.0」为真，则 v1 results 的 random 三档应=1.0；实测 random=0.6087/0.6875/0.6579
+  → note 陈述被自文件数据证伪，必须作废。作废后剩余陈述（kcore/bridge 饱和 1.000、任务对结构度量无区分度）仍被
+  results 支持（1.000 vs 0.61–0.69）。
+falsifiable_criterion: >-
+  若 random 三档任一 =1.0 → note 可保留（未触发自纠）；若 random 三档均 <1.0 → note 作废、出 v2（本轮触发）。
+  附带核查：v2 必须逐字保留 v1 results（不得借自纠之机改数）——已满足（三档九值逐字相同）。
+actual_data:
+  executed_at: "2026-10-22 17:40 GMT+8"
+  wall_clock_s: 0.01
+  correction_type: "note 陈述纠错（PA-7/DS-D4 自纠），非数据重算"
+  v1_file: "results_v2/exp04_ceiling_diag.json（原样保留，未覆盖）"
+  v1_note_verbatim: "天花板诊断：随机分配亦达 PR@5=1.0 → 该任务在本构造上无区分度，decoupled 图的 63.4pp 应视为天花板饱和下的表观差"
+  v1_results_verbatim: "random X=40/50/60 = 0.6087/0.6875/0.6579；kcore 与 bridge 三档均 1.0"
+  contradiction: "note 称 random=1.0，results 实为 0.6087/0.6875/0.6579 → note 与数据矛盾，作废"
+  v2_file: "results_v2/exp04_ceiling_diag_v2.json（1699B，results 逐字保留，note 更正+provenance）"
+  v2_size_sha256: "1699B / b2b138458bb7e5f6eb0ea68ab90de6e989713e17b77e45845d781215f6487a3c"
+  unchanged_conclusions: "解耦图 Δ=+63.4pp vs 共线图 Δ=0.0pp（两图同拓扑 n=300/m=588）；WB0 接受 conditional confirmed 但降权解读；不得宣称 k-core 优于其他结构度量；不得宣称 63.4pp 可推广"
+  channel_fix_verified: "WB0 13:0x 裁定称 /api/file 已改按 relpath 定位；本轮上传后按 D3 自查 GET /api/file/r2_exp04_ceiling_diag_v2 与 r2_exp04_struct_freq_decoupling 返回 200 且 size 一致（结果见交付后验证）"
+hypotheses:
+  - id: H-EXP04-CEILING
+    statement: EXP-04 构造上 kcore/bridge 分配饱和于 PR@5=1.000 而 random 为 0.61–0.69 → 任务对结构度量无区分度（满分饱和天花板），decoupled 图 63.4pp 为天花板下的表观差。
+    prediction: 若任务对结构度量有区分度，则 random 与结构分配之间应存在非饱和差距且结构度量之间可区分；实测结构度量全部 1.000（不可区分）、random 显著低于 1.0 → 支持「无区分度」但 random 未达顶。
+    falsifiable_criterion: random 三档=1.0 → 「无区分度」表述过强（连随机都满分，应表述为任务整体无分辨力）；kcore/bridge 出现非 1.0 差异 → 可区分结构度量。均未触发。
+    actual_data: >-
+      v1 results 逐字保留：random 0.6087/0.6875/0.6579，kcore/bridge 均 1.000×3。v1 note「随机亦达 1.0」作废；
+      「任务对结构度量无区分度」保留（依据 kcore/bridge 双饱和 1.000）。
+    status: confirmed
+    status_reason: >-
+      按机检约束取三分值：本假设为描述性事实「kcore 与 bridge 均饱和 1.000、random 为 0.61–0.69」，由 v1 results
+      九值逐字直接确认（双度量完全一致→不可区分；random 显著低于 1.0→未达顶），故 confirmed。注意边界：此 confirmed
+      仅覆盖「该构造对结构度量族无区分度（满分饱和）」这一事实，不覆盖 EXP-04 因果主假设 H-WB0-A——后者本轮无新
+      实验数据，维持 pending，是否升降级由 WB0 按台账规则裁定。v1 note 的矛盾措辞已作废（见 status_note）。
+    deliverable: results_v2/exp04_ceiling_diag_v2.json
+data_source:
+  - relpath: results_v2/exp04_ceiling_diag_v2.json
+    size: 1699
+    sha256: b2b138458bb7e5f6eb0ea68ab90de6e989713e17b77e45845d781215f6487a3c
+  - relpath: results_v2/exp04_ceiling_diag.json
+    size: 390
+    note: "v1 原文（2026-10-22 12:43，Hub 已有），本轮回执未修改；引用其 results 作为矛盾证据"
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: false
+  llm_forward: false
+  external_dependency_missing: false
+  v1_preserved: true
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: false
+  v1_overwritten: false
+  fabrication: false
+  pa7_d4_self_correction: true
+collaboration_audit:
+  blackbox_isolation: "矛盾证据取自 Hub 已归档 v1 文件原文（本地副本与 Hub 一致，390B）；更正仅涉 note 文字，无数值改动。"
+  interface_alignment: "GET /api/instruction/1792645118-a9c8e1 → 读 v1 原文 → 写 v2（保留 results+provenance）→ POST /api/upload(relpath=results_v2/exp04_ceiling_diag_v2.json) → POST /api/review（本回执）→ D3 自查 GET /api/file/r2_* 200/size。"
+  scope_guard_honored: "未覆盖 v1（新文件另存，符合冻结件/铁律）；未借自纠改数；未写台账；EXP-04 主结论按 WB0 裁定原文转述，未越界表述。"
+  cross_executor_conflicts: 0
+self_check:
+  B-01_assertion_card: "未证推论：v2 之后「任务对结构度量无区分度」仍完全成立。备选：random 0.61–0.69 说明任务对随机有部分分辨力，「完全无区分度」或应限定为「对结构度量族（kcore/bridge）无区分度」——v2 note 已按此限定措辞。"
+  B-02_criteria_tier: "E2（v1 数据已在 Hub/本地，矛盾可立即核对，已核对）。无需补资源；无 E5 项。"
+  B-03_motivation: "回应 WB0 HIGH 裁定 1792645118-a9c8e1 第二节「ceiling note 与数据矛盾，必须纠正」与 PA-7/DS-D4 自纠要求。"
+  B-04_analogy: "跨领域类比 0 处；本轮为文档纠错，无比喻迁移。"
+  B-05_self_plan: "本轮范围：R3 实验 + 本自纠（均为已派 auto_run/裁定指令）。下轮：EXP-05（须先落实 WB0 预注册：随机基线 PR@5≤0.7 才可作判据任务）。"
+  B-06_stepwise: "本轮完成 note 作废 + v2 交付；遗留接口：v1 的 discipline FAIL（data_source 实物不存在）因 Hub file 通道已修而消解，回执 data_source 现可经 /api/file/r2_* 验证。"
+  B-07_agent_calls: "0 次子 Agent 调用；纠错为文件级操作。"
+  B-08_pre_delivery_verify: "交付前验证：(a) v1 与 v2 results 九值逐字 diff 一致（无改数）；(b) v2 size/sha256 与回执 data_source 一致；(c) 矛盾点（note vs results）双源复核（Hub 归档版+本地副本）；(d) v1 文件未被触碰（mtime/size 390B 不变）。"
+  B-09_motivation_priority: "用户要求（WB0 裁定）占比≈100%；框架自发扩展=0（未借机重判 EXP-04 主结论，未自行升级/降级 H-WB0-A）。"
+  B-10_no_premature_verdict: "保留待裁：H-WB0-A 是否维持 pending 由 WB0 按台账规则裁定（本轮无新数据，不表态）；「任务整体无分辨力」与「仅对结构度量族无分辨力」的最终措辞由 WB0 验收时定。"
+created_at: "2026-10-22T17:40:00+08:00"
