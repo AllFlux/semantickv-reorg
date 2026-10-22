@@ -643,6 +643,109 @@ def audit():
             "note": "A1=brief自一致 A2=索引指向实物 A3=空回执/缺段 A4=非法target A6=重复正文"}
 
 
+ARCHIVE_LEDGER = DATA / "manifests" / "archive_ledger.json"
+
+
+def _load_archive():
+    try:
+        return json.loads(ARCHIVE_LEDGER.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+
+@app.get("/api/assets")
+def assets(stale_hours: int = 2):
+    """资产保全视图：P0（不可再生/孤本）清单 + 归档状态 + 超期告警。
+    设计依据：2026-10-22 沙箱清理导致 5.8G Qwen2.5-3B 权重丢失，
+    使 layer_sensitivity_3b.json / router_e2e_training.json / 指纹文件 沦为孤本。
+    本端点只读，为备份任务提供"该保什么、保了没"的确定性依据。"""
+    import re as _re
+    files = _collect_files()
+    r2 = [e for e in files if e.get("tree") == "results_v2"]
+    mp = _re.compile(r'/workspace/models/[^\s"\'\\,}\]]+')
+    orphans = {}
+    for e in r2:
+        if not str(e.get("name", "")).endswith(".json"):
+            continue
+        p = Path(CHECK_ROOT) / str(e.get("relpath") or "")
+        try:
+            txt = p.read_text(encoding="utf-8", errors="replace")[:300000]
+        except Exception:
+            continue
+        deps = sorted(set(mp.findall(txt)))
+        miss = [d for d in deps if not Path(d).exists()]
+        if miss:
+            orphans[str(e.get("name"))] = miss[:3]
+
+    led = _load_archive()
+    sha_gh = {str(x.get("sha256")) for x in led if x.get("sha256") and x.get("channel") == "github"}
+    sha_lib = {str(x.get("sha256")) for x in led if x.get("sha256") and x.get("channel") == "library"}
+    name_gh = {str(x.get("name")) for x in led if x.get("name") and x.get("channel") == "github"}
+    name_lib = {str(x.get("name")) for x in led if x.get("name") and x.get("channel") == "library"}
+    now = time.time()
+    p0, stale = [], []
+    for e in r2:
+        name = str(e.get("name") or "")
+        rel = str(e.get("relpath") or "")
+        reason = None
+        if name.startswith("b_router") or "b_routers/" in rel:
+            reason = "训练产物·不可再生"
+        elif name in orphans:
+            reason = "孤本：依赖资源已消失"
+        elif "fingerprint" in name:
+            reason = "资源重建唯一依据"
+        if not reason:
+            continue
+        sha = str(e.get("sha256") or "")
+        gh_ok = (sha in sha_gh) or (name in name_gh)
+        lib_ok = (sha in sha_lib) or (name in name_lib)
+        age = (now - float(e.get("mtime") or now)) / 3600.0
+        item = {"name": name, "relpath": rel, "size": e.get("size"), "sha256": sha,
+                "mtime": e.get("mtime"), "age_hours": round(age, 1), "reason": reason,
+                "github": gh_ok, "library": lib_ok,
+                "dual": gh_ok and lib_ok, "archived": gh_ok or lib_ok}
+        p0.append(item)
+        if not item["dual"] and age > stale_hours:
+            stale.append(item)
+
+    return {
+        "now": _now(),
+        "summary": {"p0_count": len(p0),
+                    "p0_bytes": sum(int(x.get("size") or 0) for x in p0),
+                    "orphan_files": len(orphans),
+                    "github_ok": sum(1 for x in p0 if x["github"]),
+                    "library_ok": sum(1 for x in p0 if x["library"]),
+                    "dual_ok": sum(1 for x in p0 if x["dual"]),
+                    "stale_unarchived": len(stale), "stale_hours": stale_hours,
+                    "gap": "P0 要求双通道；stale 含「只有单通道」的条目，不只是「完全没有」。"},
+        "p0": p0,
+        "stale": stale,
+        "orphans": orphans,
+        "archive_ledger_entries": len(led),
+        "discipline": "P0 须双通道（GitHub + 资料库）且 sha256 一致；orphan 类优先级最高，立即归档。",
+    }
+
+
+@app.post("/api/archive/record")
+def archive_record(payload: dict = Body(...)):
+    """记录归档动作（备份任务调用），用于判定 P0 是否已落地。
+    payload: {channel: "github"|"library", files: [{name, sha256, size}], note}"""
+    try:
+        arr = _load_archive()
+        ts = int(time.time())
+        ch = str(payload.get("channel") or "unknown")
+        fl = payload.get("files") or []
+        for f in fl:
+            arr.append({"ts": ts, "time": _now(), "channel": ch,
+                        "name": f.get("name"), "sha256": f.get("sha256"),
+                        "size": f.get("size"), "note": payload.get("note")})
+        ARCHIVE_LEDGER.parent.mkdir(parents=True, exist_ok=True)
+        ARCHIVE_LEDGER.write_text(json.dumps(arr[-500:], ensure_ascii=False), encoding="utf-8")
+        return {"ok": True, "recorded": len(fl), "total": len(arr)}
+    except Exception as e:
+        raise HTTPException(500, str(e)[:200])
+
+
 @app.get("/api/silence")
 def silence_status():
     """静默期可观测性：当前是否在静默窗口 + 今日静默期内的写操作清单。
