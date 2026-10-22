@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.77'
+ledger_version: '0.78'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -443,14 +443,15 @@ hypotheses:
   reason: WB0 01:55 档验收（回执 WB2-20261023-EXP-05R 机检 PASS，执行完整：5 项对 EXP-05 交叉校验全过、两次重跑 self_sha256=e814dadeabd3d884 一致）。【CI 口径语义裁定】预注册 confirmed 句『Δ 随 hop 单调不减且 Δ(hop4)>Δ(hop2)、配对 CI95 下界>0』中，CI 检验绑定于趋势对比 Δ(hop4)−Δ(hop2)（hop 调节假设的确认性对比），单调性要求于点估计序列；驳回三格全正严格读法——该读法额外要求 hop2 自身显著为正，超出假设主张（主张为优势随 hop 增强，非每 hop 皆显著）；此为预注册文本的语义澄清，非结果驱动移动门柱。【X 间不一致裁定】主设置预注册为 community_bridge/X=50，次级设置（X=60 读数 ii confirmed、X=40 非单调、kcore X=50 读数 ii refuted）仅作稳健性披露，不升降主设置判定；禁止事后选 X。【读数分歧裁定】两读数为共同主判据（预注册『两读数均须报告』，登记 claim 并列 gold 存活与邻域召回），不允许事后向成立侧加权。【判定】读数 (ii) 邻域召回趋势成立（Δ=−1.324/+3.626/+5.428pp 单调不减，d42 近似 CI [+1.221,+12.283] 不含 0）但读数 (i) gold 存活在任何解释下不成立（序列非单调 +5.0→0.0、hop2 CI [−5.750,+1.778] 跨 0、hop4 格 13/13 两臂状态全同构造性恒等、n_common=22/20/13 功效不足）→ 合取不确认；读数 (ii) d42 CI 下界>0 证明存在效应 → 不判 refuted（『无 hop 调节效应』与数据不符，D1）；预注册 E5（构造性恒等）未触发（gold 存活 0.375-0.75、邻域召回 0.3963-0.6943 有动态范围）；执行完整不落 pending → 观测到的混合结局落在预注册分支集之外 → 按治理律『不可判标 E5 写明撤回、不留 E3 拖延』整体标 e5_withdrawn：撤回合取登记句；读数 (ii) 趋势仅记为机制观察（不升格 confirmed，因共同主读数 (i) 矛盾且 X 间稳健性失败）；再度判所需资产=带支撑句标注的真实多跳 QA 语料（2WikiMultihopQA/HotpotQA，每层≥10 可评对）——合成链构造可评池固定（n_common 22/20/13），加样本不可解；本轮不派重建（同构造无法新增可评查询，换语料属新资产决策）。
 - id: H-EXP-06R-CURRICULUM-FIX
   claim: 在非退化 Router（EXP-08 确认的 V2 训练配方：softmax-top-k 门控 k=min(K,4) + 常驻 shared code + Switch 负载均衡 alpha=0.01 产出）上，课程顺序（递增 vs 随机 vs 递减）对 Router 码本利用率（前缀池化 exp(H)）与下游 OOD 宏准确率有因果影响，递增优于随机与递减 >=2pp。
-  status: pending
-  criterion: confirmed = 难度非退化核验通过（新 Router 集 >=2/3 的 H_std>=1e-3）且主设置（lp_community × p × online, m=60）d(inc-rnd)>=2pp 且 d(inc-dec)>=2pp，两者配对 bootstrap CI95 下界>0（分析单元=(臂,种子) 运行，预算点嵌套不独立）；refuted = 非退化核验通过且两臂 |d|<2pp 且 CI95 覆盖 0；E5 撤回 = 新 Router 集仍 >=2/3 H_std<1e-3（难度操作化二次退化）→ 撤回 inc-dec 课程解释并写明所需资产（具备真实逐样本路由熵变化的 Router：真实 MoE 训练信号或更大异质实体语料），不留 E3 拖延；pending = 仅限执行不完整。伪重复纪律：m<60 早预算读数仅作披露、不作判据；结论至机制观察级（n=60 实体池），不得称已根治。
+  status: e5_withdrawn
+  criterion: confirmed = 难度非退化核验通过（新 Router 集 >=2/3 的 H_std>=1e-3）且主设置（lp_community × p × online, m=60）d(inc-rnd)>=2pp 且 d(inc-dec)>=2pp，两者配对 bootstrap CI95 下界>0（分析单元=(臂,种子) 运行，预算点嵌套不独立）；refuted = 非退化核验通过且两臂 |d|<2pp 且 CI95 覆盖 0；E5 撤回 = 新 Router 集仍 >=2/3 H_std<1e-3（难度操作化二次退化）；pending = 仅限执行不完整。伪重复纪律：m<60 早预算读数仅作披露、不作判据；结论至机制观察级（n=60 实体池），不得称已根治。
   data_source: results_v2/exp06r_curriculum_fix.json
   owner: WB2
   source: WB0-INSTR-20261023-EXP-06R（EXP-06 pending 前提缺失后的预注册重建）
   ds_admitted_refutation: false
   updated_by: WB0-scheduled-wake
-  reason: WB0 01:55 档预注册：EXP-06（2026-10-22 21:40 档回执机检 PASS，验收 pending）主难度口径（per-router 逐样本预测熵）在 17/18 个 Hub Router 上无梯度（H_std<1e-6）→ inc/dec 臂退化为索引序/逆序，confirmed 判据前提缺失；EXP-08（本轮验收）确认 V2 训练配方产非退化 Router（被使用码字 4/4、pooled 4/4、分离度 4/4）→ 非退化 Router 来源已具备。按 00:55 档排序计划实施 EXP-06R：同构造（60 embedding、EXP-02E 共现图、LP 社区任务、探针协议、预算 m∈{12,24,36,48,60}）下换非退化 Router 集 + 难度非退化前置核验 + 分析单元修正（配对 bootstrap 以 (臂,种子) 为单元、预算点嵌套不独立，修 EXP-06 配对伪重复）。
+  reason: WB0 02:55 档验收（回执 WB2-20261023-EXP-06R 机检 PASS；执行完整：wall 29.7s<=600s、1 线程同 seed bit-identical（final_loss 0.39785274863243103）、输入 4 件 sha256 自核验通过；交付物 exp06r_curriculum_fix.json 65461B、sha256 9b28a3cc48bfda0b... 与回执声明及 Hub 实物逐项一致）。【分支核对】难度非退化闸门 12/12 通过（per-router H_std 0.5397-1.4384；对照 EXP-06 原 18 Router 17/18<1e-3、max 0.0747）→ 指令 §4 E5（难度操作化二次退化）未触发；confirmed 未达：主设置（lp_community×p×online, m=60，运行级 n=36）d(inc-rnd)=+0.73pp CI[-1.39,+2.85]（<2pp 且 CI95 覆盖 0）、d(inc-dec)=-2.93pp CI[-6.75,+0.66]（方向为负）；refuted 不满足：|d(inc-dec)|=2.93pp>=2pp 且全域 48 处显著读数方向混杂（inc-rnd 17 正/10 负、inc-dec 12 正/9 负）；pending 分支（§4 仅限执行不完整）不适用——执行完整且功效充足（运行级 n=36、router 级 n=12 敏感性同结论）。【裁定】观测模式（主对比零效应 + inc-dec 负向 + 异质设置方向翻转：expH 早预算 m=24 d(inc-rnd)=-14.46pp CI[-17.37,-11.36] 显著负 vs OOD 早预算 m=12/24 d(inc-rnd)=+3.63/+4.86pp 显著正）落在预注册分支集之外 → 不可判；回执自判 pending 系误用 §4（D1 纪律不得用于规避预注册分支），按治理律『不可判标 E5 写明撤回、不留 E3 拖延』改判 e5_withdrawn。【撤回内容】撤回『在非退化语义 Router 上课程顺序对码本利用率与下游 OOD 宏准确率有因果影响（递增优于随机与递减 >=2pp）』之结论；EXP-08 V2 配方有效性与难度前提可修复性不受影响。【再度判定所需资产】(a) 按指标族（expH util vs OOD 宏准确率）与预算区间（早预算 m<60 vs 全集 m=60）分别预注册判据；(b) 更大实体池（n=60 封顶）与更多 Router；(c) 真实 MoE 训练信号（逐样本路由熵自然变化）。边界：n=60 实体池 + 12 Router，机制观察级，不得称已根治。
+  review_id: WB2-20261023-EXP-06R
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -463,7 +464,7 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792692423
+  at: 1792695650
   action: upsert H-EXP-06R-CURRICULUM-FIX
 decisions:
 - id: DEC-20261021-E2E-GATE
