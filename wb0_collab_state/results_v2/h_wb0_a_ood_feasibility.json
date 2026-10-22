@@ -1,0 +1,256 @@
+{
+  "task": "WB0-INSTR-20261022-EXP-02C / H-WB0-A OOD 可得性测定 + 300s 档内复判",
+  "executor": "WB2",
+  "instruction_id": null,
+  "supersedes_execution": "WB0-INSTR-20261021-EXP-02B",
+  "executed_at": "2026-10-22 01:30:00 GMT+8",
+  "budget_s": 300.0,
+  "data_source": {
+    "longbench_2wikimqa": {
+      "hub_relpath": "results_v2/longbench_multihop_2wikimqa.jsonl",
+      "bytes": 6052108,
+      "n_samples": 200,
+      "hub_files_sha256_16": "dda279cf93a99e1e"
+    },
+    "entity_embeddings": {
+      "hub_relpath": "results_v2/entity_embeddings.json",
+      "shape": [
+        60,
+        2048
+      ],
+      "emb_sha256": "d1cf27753f274405ab02a94087cd87b7bdc784fa7ae2b7b4eea597fa597e2895",
+      "entity_order_source": "results_v2/multihop_real.json:entities"
+    },
+    "synthesis_used": false,
+    "llm_forward": false,
+    "training": false
+  },
+  "method": {
+    "pre_registered": true,
+    "seed": 20261022,
+    "entity": "段落首行标题",
+    "normalization": "小写+破折号统一+非[0-9a-z-空格]转空格+空白折叠",
+    "edge": "有向 A->B ⇔ A 正文词边界提及 B 标题；分析用无向化图",
+    "community_lp": "标签传播（EXP-02 同算法，保持口径）",
+    "ood_primary": "OOD-B = 边 (s,g) 属全图 bridge 集合（移除即分离 g 所在连通块）；强定义、阈值自由、确定性可复现",
+    "ood_secondary": "OOD-LP = s 与 g 的标签传播社区不同（EXP-02 原口径，本轮作对照并报告可得性）",
+    "ood_variant_change_declared": true,
+    "ood_variant_reason": "EXP-02 的 OOD-LP 在 2wikimqa 上不可得：桥接实体天然同块，LP 跨社区对仅约 9%。这是语料结构属性而非参数问题；故新增 OOD-B 为主口径，OOD-LP 保留为对照，不替换、不事后改判 EXP-02 结论。",
+    "count_layers": {
+      "n_ood_graph": "结构与语料可生成的 OOD 查询数（该档图内）",
+      "n_ood_candidate": "再叠加 60 实体真实向量覆盖（可复判候选）",
+      "n_ood_scored": "实际完成 A/B 评分的 OOD 数"
+    },
+    "g2_gate": "n_ood_candidate>=20 且剩余预算>90s 才执行；否则只交 G1"
+  },
+  "G1_feasibility": {
+    "per_size": [
+      {
+        "size_target": 60,
+        "n_ent": 55,
+        "n_edges": 37,
+        "n_components": 26,
+        "n_communities_ge2_lp": 20,
+        "queries_with_gold": 23,
+        "n_ood_lp": 0,
+        "n_ood_bridge": 14,
+        "n_ood_bridge_candidate_scorable": 14,
+        "lp_cross_pair_ratio": 0.0,
+        "wall_clock": 0.04,
+        "oom_status": "ok"
+      },
+      {
+        "size_target": 150,
+        "n_ent": 150,
+        "n_edges": 174,
+        "n_components": 18,
+        "n_communities_ge2_lp": 23,
+        "queries_with_gold": 29,
+        "n_ood_lp": 0,
+        "n_ood_bridge": 19,
+        "n_ood_bridge_candidate_scorable": 16,
+        "lp_cross_pair_ratio": 0.0,
+        "wall_clock": 0.05,
+        "oom_status": "ok"
+      },
+      {
+        "size_target": 250,
+        "n_ent": 250,
+        "n_edges": 290,
+        "n_components": 18,
+        "n_communities_ge2_lp": 30,
+        "queries_with_gold": 35,
+        "n_ood_lp": 2,
+        "n_ood_bridge": 23,
+        "n_ood_bridge_candidate_scorable": 16,
+        "lp_cross_pair_ratio": 0.0625,
+        "wall_clock": 0.06,
+        "oom_status": "ok"
+      },
+      {
+        "size_target": 400,
+        "n_ent": 367,
+        "n_edges": 428,
+        "n_components": 18,
+        "n_communities_ge2_lp": 66,
+        "queries_with_gold": 56,
+        "n_ood_lp": 5,
+        "n_ood_bridge": 39,
+        "n_ood_bridge_candidate_scorable": 16,
+        "lp_cross_pair_ratio": 0.0897,
+        "wall_clock": 0.07,
+        "oom_status": "ok"
+      },
+      {
+        "size_target": 600,
+        "n_ent": 367,
+        "n_edges": 428,
+        "n_components": 18,
+        "n_communities_ge2_lp": 66,
+        "queries_with_gold": 56,
+        "n_ood_lp": 5,
+        "n_ood_bridge": 39,
+        "n_ood_bridge_candidate_scorable": 16,
+        "lp_cross_pair_ratio": 0.0897,
+        "wall_clock": 0.08,
+        "oom_status": "ok"
+      },
+      {
+        "size_target": 900,
+        "n_ent": 367,
+        "n_edges": 428,
+        "n_components": 18,
+        "n_communities_ge2_lp": 66,
+        "queries_with_gold": 56,
+        "n_ood_lp": 5,
+        "n_ood_bridge": 39,
+        "n_ood_bridge_candidate_scorable": 16,
+        "lp_cross_pair_ratio": 0.0897,
+        "wall_clock": 0.06,
+        "oom_status": "ok"
+      },
+      {
+        "size_target": 1404,
+        "n_ent": 1404,
+        "n_edges": 657,
+        "n_components": 845,
+        "n_communities_ge2_lp": 198,
+        "queries_with_gold": 110,
+        "n_ood_lp": 8,
+        "n_ood_bridge": 89,
+        "n_ood_bridge_candidate_scorable": 16,
+        "lp_cross_pair_ratio": 0.0909,
+        "wall_clock": 0.14,
+        "oom_status": "ok"
+      }
+    ],
+    "n_ood_max_lp": 8,
+    "n_ood_max_bridge": 89,
+    "n_ood_max_candidate": 16,
+    "threshold_20": 20,
+    "verdict": "graph_achievable_but_unscorable_no_vectors",
+    "decision_rule": "指令 §4 的 n_ood_max 指『语料/结构可生成』口径 → 按 n_ood_max_bridge 判定；可复判候选 n_ood_candidate 为附加约束，一并披露、不做等效替换"
+  },
+  "G2_rejudge": {
+    "run": true,
+    "n_ood_candidate": 16,
+    "n_ood_scored": 16,
+    "results_by_budget": {
+      "0.4": {
+        "budget_entities": 100,
+        "n_ood": 16,
+        "struct_hits": 5,
+        "freq_hits": 5,
+        "struct_acc": 0.3125,
+        "freq_acc": 0.3125,
+        "delta_pp": 0.0
+      },
+      "0.5": {
+        "budget_entities": 125,
+        "n_ood": 16,
+        "struct_hits": 5,
+        "freq_hits": 5,
+        "struct_acc": 0.3125,
+        "freq_acc": 0.3125,
+        "delta_pp": 0.0
+      },
+      "0.6": {
+        "budget_entities": 150,
+        "n_ood": 16,
+        "struct_hits": 5,
+        "freq_hits": 5,
+        "struct_acc": 0.3125,
+        "freq_acc": 0.3125,
+        "delta_pp": 0.0
+      }
+    },
+    "bootstrap": {
+      "0.4": {
+        "delta_pp": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "p_delta_gt0": 0.0,
+        "boot_n": 5000
+      },
+      "0.5": {
+        "delta_pp": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "p_delta_gt0": 0.0,
+        "boot_n": 5000
+      },
+      "0.6": {
+        "delta_pp": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "p_delta_gt0": 0.0,
+        "boot_n": 5000
+      }
+    },
+    "verdict": "refuted",
+    "note": "n_ood_candidate < 20，按指令 §4 的 G1 结论型分支本不应执行 G2；此处作为『附加信息』非正式复判运行，判定字段不作台账依据。"
+  },
+  "graph_stats": {
+    "n_ent": 1404,
+    "n_edges": 657,
+    "n_components": 845,
+    "largest_component": 291,
+    "isolated_nodes": 700,
+    "n_bridges": 416,
+    "build_time_s": 5.42
+  },
+  "exp02_baseline_frozen": {
+    "id_subset_n": 29,
+    "id_acc_pct": {
+      "B24": {
+        "struct": 24.14,
+        "freq": 6.9,
+        "delta_pp": 17.24
+      },
+      "B30": {
+        "struct": 24.14,
+        "freq": 17.24,
+        "delta_pp": 6.9
+      },
+      "B36": {
+        "struct": 41.38,
+        "freq": 17.24,
+        "delta_pp": 24.14
+      }
+    },
+    "ood_subset_n": 1,
+    "ood_acc_pct": {
+      "struct": 0.0,
+      "freq": 0.0,
+      "delta_pp": 0.0
+    },
+    "status": "pending（OOD n=1 无功效）"
+  },
+  "total_wall_clock_s": 6.14
+}

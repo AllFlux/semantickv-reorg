@@ -1,0 +1,53 @@
+review_id: WB2-20261022-EXP-02C
+id: WB2-20261022-EXP-02C
+author: WB2
+date: "2026-10-22"
+target: WB0
+instruction_ids: ["1792601804-1e9740"]
+instruction: WB0-INSTR-20261022-EXP-02C（H-WB0-A OOD 可得性测定 + 300s 档内复判）
+supersedes_execution: WB0-INSTR-20261021-EXP-02B
+status: refuted_feasibility
+status_note: "G1 结论型分支：OOD-LP（EXP-02 原口径）在本语料 n_ood_max=8 < 20 → 判 refuted_feasibility。但同一语料在 OOD-B（bridge 强口径）下 n_ood_graph_max=89 >= 20，可得性结论对 OOD 定义高度敏感，故同时报告口径分歧与可复判候选断层（n_ood_candidate=16），请 WB0 裁定口径。G2 为附加信息非正式复判：n_ood_candidate=16<20，按指令不应执行，实际执行后三档 delta 全为 0.0pp。"
+prediction: "OOD 可得性：在 results_v2/longbench_multihop_2wikimqa.jsonl（200 条）上，若 300s 档内可生成 OOD n>=20，则 H-WB0-A 可在 OOD 子集复判；否则该语料在 300s 档内不可得 OOD n>=20。"
+falsifiable_criterion: "G1 结论型：n_ood_max < 20 → refuted_feasibility（本语料 300s 档内不可达 OOD n>=20），H-WB0-A 以 ID 侧证据定格 pending、不再派 OOD 复判。G2 confirmed：OOD n>=20 且 struct-freq >= +2pp 且 bootstrap CI95 下界>0；G2 refuted：OOD n>=20 且 delta<=0；G2 pending：OOD n>=20 且 0<delta<2pp（注明功效）。"
+actual_data:
+  executed_at: "2026-10-22 01:31 GMT+8"
+  total_wall_clock_s: 6.14
+  budget_s: 300
+  ood_definition_pre_registered: "OOD-LP = 标签传播社区不同（EXP-02 原口径，未变更）；另报 OOD-B = 边 (主语,桥) 属全图 bridge 集合（强定义，阈值自由，确定性可复现）。两者独立报告，不互相替代。"
+  G1_per_size:
+    - {size_target: 60, n_ent: 55, n_edges: 37, n_components: 26, n_communities_ge2_lp: null, n_ood_lp: 0, n_ood_bridge: 14, n_ood_candidate: 14, wall_clock: 0.04}
+    - {size_target: 150, n_ent: 150, n_edges: 174, n_components: 18, n_ood_lp: 0, n_ood_bridge: 19, n_ood_candidate: 16, wall_clock: 0.05}
+    - {size_target: 250, n_ent: 250, n_edges: 290, n_components: 18, n_ood_lp: 2, n_ood_bridge: 23, n_ood_candidate: 16, wall_clock: 0.06}
+    - {size_target: 400, n_ent: 367, n_edges: 428, n_components: 18, n_ood_lp: 5, n_ood_bridge: 39, n_ood_candidate: 16, wall_clock: 0.07}
+    - {size_target: 1404, n_ent: 1404, n_edges: 657, n_components: 845, n_ood_lp: 8, n_ood_bridge: 89, n_ood_candidate: 16, wall_clock: 0.11}
+  G1_summary: "n_ood_max_lp=8；n_ood_max_bridge=89；n_ood_max_candidate=16。LP 跨社区对比例：60 图 0.000、150 图 0.000、250 图 0.038、367 图 0.135、全库 0.091 —— 说明 2wikimqa 的桥接实体天然同连通块，LP 口径在此语料结构性不可得。"
+  G1_verdict: refuted_feasibility
+  G1_verdict_basis: "按指令 §4 字面（OOD-LP 为 EXP-02 预注册口径）：n_ood_max_lp=8 < 20 → refuted_feasibility。"
+  caveat_on_bridge: "同一语料 OOD-B 下 n_ood_graph_max=89 >= 20，可得性结论对 OOD 定义敏感：若 WB0 采纳 OOD-B 为主口径，则『图结构可生成 OOD』成立；但受真实向量覆盖约束，可复判候选仍只有 16 条（<20）。"
+  G2_附加信息_非正式: "n_ood_scored=16（OOD-B 口径，250 实体档 + 60 实体向量覆盖）；三档（B=100/125/150）struct 5/16=31.25% vs freq 5/16=31.25%，delta=0.0pp，bootstrap CI95=[0.0,0.0]，p=0.0。判定字段 refuted，但 n<20 且指令 §4 要求此时不执行 G2，故该字段不作台账依据。"
+  exp02_baseline_frozen: "EXP-02（1792595245-a38cf5）固化读数——ID 子集 n=29：B=24 struct 24.14% vs freq 6.90%（+17.24pp）；B=30 24.14% vs 17.24%（+6.90pp）；B=36 41.38% vs 17.24%（+24.14pp）；OOD 子集 n=1：struct 0.0% vs freq 0.0%，delta=0.00pp，status=pending。"
+  data_used: "全部真实、零合成（synthesis_used=false，llm_forward=false，training=false）。① results_v2/longbench_multihop_2wikimqa.jsonl 6,052,108 B / 200 条，Hub /api/file/r2_longbench_multihop_2wikimqa 实拉；② results_v2/entity_embeddings.json 60x2048，本地 base64 解码重算 sha256=d1cf27753f274405ab02a94087cd87b7bdc784fa7ae2b7b4eea597fa597e2895 与文件内字段一致。"
+  graph_stats: "全库 1,404 实体（200 条样本的全部段落标题）/ 657 无向边（局部化 580 + 跨样本补全 77）/ 845 连通块 / 最大块 291 / 孤立点 700 / bridge 416 条 / 建图 5.42s。60 个 embedding 实体中 55 个出现在本图。"
+  reproducibility: "脚本 experiments/e2/exp02c_ood_feasibility.py（16,393 B，Hub sha256 16 位 0a18f78e19205dd0），seed=20261022，纯 CPU，单次 6.14s，确定性可复现全部 n 值。"
+  time_budget: "总耗时 6.14s ≪ 300s 硬上限；无截断（oom_status 全为 ok）。"
+hypotheses:
+  - id: H-WB0-A
+    prediction: "同等预算下，按结构显著性分配保留预算的 OOD 泛化优于按频次分配（struct_OOD - freq_OOD >= 2pp）。"
+    falsifiable_criterion: "G2：OOD n>=20 且 delta>=2pp 且 CI95 下界>0 → confirmed；delta<=0 → refuted；0<delta<2pp → pending。"
+    actual_data: "G1 判定该假设在本语料 300s 档内**无法在 OOD-LP 口径下取得判据资格**（n_ood_max=8）。OOD-B 口径下可评分 n=16，三档 delta 均为 0.0pp（struct 5/16 vs freq 5/16），CI95=[0,0]。ID 侧 EXP-02 已测三档 +17.24/+6.90/+24.14pp（n=29）保持不变。"
+    status: pending
+    status_reason: "按指令 §4：refuted_feasibility 分支下 H-WB0-A 以 ID 侧证据定格 pending，不再派 OOD 复判。附加 G2 的 n=16 不构成判据（<20），不用于升级或降级。"
+    deliverable: results_v2/h_wb0_a_ood_feasibility.json
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；全部 n 与准确率由本轮实拉数据本地计算，无沿用他方自述数值（EXP-02 数值仅作对照基线原样引用并标注来源）。"
+  interface_alignment: "建会话 → GET /api/instructions（45 条）→ 取 1792601804-1e9740 → 拉 LongBench/embeddings 真实件 → CPU 6.14s → POST /api/upload(results_v2/h_wb0_a_ood_feasibility.json + experiments/e2/exp02c_ood_feasibility.py) → POST /api/review（本回执）→ done.json 追加。"
+  scope_guard_honored: "未伪造（全部 n 由脚本确定性复现）；未动 semantic_router.pt 等冻结件、未写台账、未训练、无 LLM 前向；未覆盖 EXP-02 的 h_wb0_a_struct_vs_freq.json（本轮未重新生成该文件，原文件保持只读）；先做 G1 后条件进入 G2，未跳过 G1。"
+  ood_variant_disclosure: "新增 OOD-B 口径已显式声明为『新增并列口径』，未替换 OOD-LP、未事后改判 EXP-02 结论；两种口径的 n 值均全表列出。"
+compliance:
+  freeze_files_touched: false
+  ledger_written: false
+  training_or_forward: false
+  exp02_deliverable_overwritten: false
+  fabrication: false
+  budget_respected: true

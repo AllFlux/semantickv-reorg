@@ -1,0 +1,280 @@
+{
+  "task": "WB0-INSTR-20261021-EXP-02 / H-WB0-A",
+  "executor": "WB2",
+  "schema_version": "2",
+  "executed_at": "2026-10-21 23:41:40 GMT+8",
+  "hypothesis": "同等预算下，按结构显著性分配 > 按频次分配（OOD 泛化）",
+  "data_source": {
+    "entity_embeddings": {
+      "hub_relpath": "results_v2/entity_embeddings.json",
+      "shape": [
+        60,
+        2048
+      ],
+      "emb_sha256_recomputed": "d1cf27753f274405ab02a94087cd87b7bdc784fa7ae2b7b4eea597fa597e2895",
+      "sha_match_file_field": true,
+      "model": "/tmp/dryrun/models/Qwen2.5-3B-Instruct",
+      "extraction": "final_layer_last_token_hidden_2048_f32",
+      "text_template": "<title>. <first_body_sentence>",
+      "source": {
+        "multihop": "/tmp/ab_full/out/multihop_real.json",
+        "graph_cache": "/tmp/ab_full/out/graph_cache.json"
+      }
+    },
+    "multihop_graph": {
+      "hub_relpath": "results_v2/multihop_real.json",
+      "n_ent": 60,
+      "n_queries": 30,
+      "n_edges": 58,
+      "seed": 20261020,
+      "construction": "2wikimqa-passage-title-coccurrence + mention-terminated-2hop",
+      "honesty_note_inherited": "构造规格与 runbook S3 字面规则的差异（必要修正，实证驱动）：① runbook 原要求路径终点为'黄金答案实体'（answers[0] 须是段落标题），但 2wikimqa 答案类型异构（日期/地点/是否/人名），仅 66/200 的 answers[0] 命中段落标题，字面构造全库仅 4/200 存在 2 跳路径，远不足预注册的 40 查询。故终点放宽为'中间节点文章文本词边界提及答案字符串'（2wiki 桥接结构：桥接实体的文章包含答案），中间节点即 gold intermediate；答案实体自身从 mid 候选中排除。② 实体=段落首行标题（Wikipedia 式实体名行），规范化=小写+去标点+空白折叠，同名实体全局去重文本合并。③ 有向边 A→B=A 的词边界文本提及 B 的标题（含前导冠词 the/a/an 容忍）；路径搜索在无向化图上进行（共现关系本为对称，方向仅作记录）；子串匹配会产生 'dr'/'tom' 类伪桥（两段文本同含子串即连通），故提及检测一律词边界。④ 查询筛选：问题中词边界提及的标题实体为候选主语（排除答案实体），任一候选主语的邻居中，其文本提及答案字符串者为 gold intermediate（并集）。⑤ 111/200 合格；seed=20261020 洗牌后按 60 实体预算贪心选取（确定性），实选 30 条查询/60 实体/58 边；gold_intermediate 为构造定义的桥接候选集（同一样本可含多个桥），A/B 两侧同一标尺，绝对值随构造而变。⑥ 与 proxy 的 multihop_20261020.json 构造不同（proxy 文件不在 Hub），proxy 参考值 A=0.05/8、B=0.2125/6 仅作口径参照。"
+    },
+    "synthesis_used": false,
+    "synthetic_fallback": "未启用：真实 embedding（60x2048，sha256 校验通过）与真实图（58 边/30 查询）均完整取得，未触发指令 §2 兜底。",
+    "local_resolution_note": "Hub /api/file?relpath=… 对 SPA 返回 307 至沙盒网关后落 index.html（非数据）；改以 /api/file/r2_entity_embeddings、/api/file/r2_multihop_real 取回真实文件并 sha256 校验。此为通道差异，不是缺数据。"
+  },
+  "method": {
+    "allocation_struct": "0.6*z(Brandes betweenness, 无向) + 0.4*z(degree)，降序取 top-B；同分按实体名",
+    "allocation_freq": "边端点出现次数 + 查询主语候选命中次数（留一时剔除该查询自身），降序取 top-B；同分按实体名",
+    "budget": "两策略同比例保留 B=round(ratio*60)，ratio∈{0.4,0.5,0.6}",
+    "retrieval": "查询向量=主语候选实体真实 embedding 均值（L2 归一）；保留子集内余弦 top-5；命中=gold_intermediate∈top5",
+    "od_ood_definition": "主口径=held-out 双重 OOD：留一法（每条查询自身不参与频次打分与截断）+ 跨社区(gold 与主语社区不同)。数据无 topic 字段，社区由图结构确定性标签传播派生，非外部标签——如实披露。",
+    "training": "无训练、无调参；零样本余弦检索",
+    "limitation_disclosed": "① 主语候选缺失或 gold 不在 60 实体内的查询不可打分，被跳过；② 结构分由图派生、与查询无关，留一法对其不产生扰动，因此结构侧 ID≈OOD 差异只能来自任务本身而非分配变化——此为本实验的固有结构性限制，判定时已考虑；③ N=60 实体规模小，pp 级差值分辨力有限。"
+  },
+  "graph_stats": {
+    "n_entities": 60,
+    "n_edges": 58,
+    "n_communities_ge2": 23,
+    "community_sizes": {
+      "william de bohun 1st earl of northampton": 8,
+      "the trouble with cali": 5,
+      "pablo sorozábal": 3,
+      "francis leclerc": 2,
+      "thomas of galloway bastard": 2,
+      "postmortem 1998 film": 2,
+      "oskar roehler": 2,
+      "mary of enghien": 2,
+      "fernando flaínez": 2,
+      "ranjit singh": 2,
+      "princess charlotte of saxe meiningen": 2,
+      "stephen i of hungary": 2,
+      "nathan juran": 2,
+      "nanon 1938 film": 2,
+      "kathy griffin": 2,
+      "william paulet 3rd marquess of winchester": 2,
+      "m s sathyu": 2,
+      "you can": 2,
+      "marie louise duchess of parma": 2,
+      "p neelakantan": 2,
+      "égérie song": 2,
+      "sir john hamilton dalrymple 5th baronet": 2,
+      "waylon jennings": 2
+    },
+    "degree_max": 6,
+    "degree_mean": 1.3666666666666667,
+    "isolated_entities": 4,
+    "betweenness_top5": [
+      "elizabeth of rhuddlan",
+      "edward i of england",
+      "paul sorvino",
+      "i will i will for now",
+      "eleanor of castile"
+    ],
+    "freq_top5": [
+      "elizabeth of rhuddlan",
+      "edward i of england",
+      "humphrey de bohun 7th earl of hereford",
+      "paul sorvino",
+      "william de bohun 1st earl of northampton"
+    ]
+  },
+  "query_split": {
+    "cross_community_ood": 1,
+    "id": 29,
+    "scorable": 30
+  },
+  "results_by_budget_loo": {
+    "0.4": {
+      "budget_entities": 24,
+      "budget_ratio": 0.4,
+      "overlap_entities_struct_vs_freq_full": 17,
+      "struct_all_acc": 0.23333333333333334,
+      "struct_all_n": 30,
+      "freq_all_acc": 0.06666666666666667,
+      "freq_all_n": 30,
+      "struct_id_loo_acc": 0.2413793103448276,
+      "struct_id_loo_n": 29,
+      "struct_ood_loo_acc": 0.0,
+      "struct_ood_loo_n": 1,
+      "freq_id_loo_acc": 0.06896551724137931,
+      "freq_id_loo_n": 29,
+      "freq_ood_loo_acc": 0.0,
+      "freq_ood_loo_n": 1,
+      "delta_loo_ood_pp": 0.0,
+      "delta_loo_id_pp": 17.24137931034483,
+      "ood_details": [
+        {
+          "qid": "q094",
+          "struct_hit": false,
+          "freq_hit": false,
+          "struct_top5": [
+            "alan of galloway",
+            "mary of woodstock",
+            "eleanor of castile",
+            "elizabeth of rhuddlan",
+            "humphrey de bohun 7th earl of hereford"
+          ],
+          "freq_top5": [
+            "mary of woodstock",
+            "eleanor of castile",
+            "elizabeth of rhuddlan",
+            "humphrey de bohun 7th earl of hereford",
+            "princess charlotte of saxe meiningen"
+          ],
+          "gold_intermediate": [
+            "nathan juran"
+          ]
+        }
+      ],
+      "struct_loo_invariant": true
+    },
+    "0.5": {
+      "budget_entities": 30,
+      "budget_ratio": 0.5,
+      "overlap_entities_struct_vs_freq_full": 25,
+      "struct_all_acc": 0.23333333333333334,
+      "struct_all_n": 30,
+      "freq_all_acc": 0.16666666666666666,
+      "freq_all_n": 30,
+      "struct_id_loo_acc": 0.2413793103448276,
+      "struct_id_loo_n": 29,
+      "struct_ood_loo_acc": 0.0,
+      "struct_ood_loo_n": 1,
+      "freq_id_loo_acc": 0.1724137931034483,
+      "freq_id_loo_n": 29,
+      "freq_ood_loo_acc": 0.0,
+      "freq_ood_loo_n": 1,
+      "delta_loo_ood_pp": 0.0,
+      "delta_loo_id_pp": 6.896551724137931,
+      "ood_details": [
+        {
+          "qid": "q094",
+          "struct_hit": false,
+          "freq_hit": false,
+          "struct_top5": [
+            "alan of galloway",
+            "mary of woodstock",
+            "eleanor of castile",
+            "elizabeth of rhuddlan",
+            "humphrey de bohun 7th earl of hereford"
+          ],
+          "freq_top5": [
+            "mary of woodstock",
+            "eleanor of castile",
+            "elizabeth of rhuddlan",
+            "humphrey de bohun 7th earl of hereford",
+            "princess charlotte of saxe meiningen"
+          ],
+          "gold_intermediate": [
+            "nathan juran"
+          ]
+        }
+      ],
+      "struct_loo_invariant": true
+    },
+    "0.6": {
+      "budget_entities": 36,
+      "budget_ratio": 0.6,
+      "overlap_entities_struct_vs_freq_full": 29,
+      "struct_all_acc": 0.4,
+      "struct_all_n": 30,
+      "freq_all_acc": 0.16666666666666666,
+      "freq_all_n": 30,
+      "struct_id_loo_acc": 0.41379310344827586,
+      "struct_id_loo_n": 29,
+      "struct_ood_loo_acc": 0.0,
+      "struct_ood_loo_n": 1,
+      "freq_id_loo_acc": 0.1724137931034483,
+      "freq_id_loo_n": 29,
+      "freq_ood_loo_acc": 0.0,
+      "freq_ood_loo_n": 1,
+      "delta_loo_ood_pp": 0.0,
+      "delta_loo_id_pp": 24.137931034482758,
+      "ood_details": [
+        {
+          "qid": "q094",
+          "struct_hit": false,
+          "freq_hit": false,
+          "struct_top5": [
+            "alan of galloway",
+            "mary of woodstock",
+            "eleanor of castile",
+            "elizabeth of rhuddlan",
+            "humphrey de bohun 7th earl of hereford"
+          ],
+          "freq_top5": [
+            "place of birth",
+            "mary of woodstock",
+            "eleanor of castile",
+            "elizabeth of rhuddlan",
+            "humphrey de bohun 7th earl of hereford"
+          ],
+          "gold_intermediate": [
+            "nathan juran"
+          ]
+        }
+      ],
+      "struct_loo_invariant": true
+    }
+  },
+  "sensitivity_cross_community_only": {
+    "n_cross_community": 1,
+    "note": "纯跨社区口径 OOD 样本仅 1 条，统计无功效，仅作敏感性参照。"
+  },
+  "counterexample_records": {
+    "struct_ood_misses_loo": [
+      {
+        "budget_ratio": 0.4,
+        "qid": "q094",
+        "gold_intermediate": [
+          "nathan juran"
+        ]
+      },
+      {
+        "budget_ratio": 0.5,
+        "qid": "q094",
+        "gold_intermediate": [
+          "nathan juran"
+        ]
+      },
+      {
+        "budget_ratio": 0.6,
+        "qid": "q094",
+        "gold_intermediate": [
+          "nathan juran"
+        ]
+      }
+    ],
+    "note": "结构策略在 OOD 子集仍漏检的查询逐条列出（指令 §4 反例记录要求）；若漏检集中于跨句指代型查询，应建议收窄假设。"
+  },
+  "verdict": {
+    "criterion": "confirmed: struct_OOD - freq_OOD >= 2pp；refuted: <=0 或 <2pp",
+    "primary_budget_0.5_delta_pp": 0.0,
+    "all_budgets_delta_pp": {
+      "0.4": 0.0,
+      "0.5": 0.0,
+      "0.6": 0.0
+    },
+    "status": "refuted",
+    "note": "以预注册主判据（0.5 预算、留一 OOD 口径）判定；三档全表并列，不做选择性报告。"
+  },
+  "runtime_sec": 0.03,
+  "verdict_final": {
+    "status": "inconclusive_ood_power",
+    "reason": "OOD 口径下可用样本 n=1（跨社区仅 1 条），delta=0.0pp 由单点构成，既不能满足 confirmed(>=2pp) 也不构成 refuted 的统计证据；按指令 §5「数据不足」处理，如实标 inconclusive 而非硬判。",
+    "id_side_evidence": "ID 子集 n=29，结构 vs 频次三档均结构占优：+17.24pp / +6.90pp / +24.14pp（B=24/30/36）",
+    "needed_to_decide": "需要 ≥20 条跨社区/跨话题 OOD 查询（现图仅 60 实体、23 个 ≥2 社区，跨社区查询天然稀缺）→ 建议经 open_item 申请更大 OOD 集或按话题分层的 2wikimqa 子集。"
+  }
+}

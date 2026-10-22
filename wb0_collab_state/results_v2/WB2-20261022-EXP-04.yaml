@@ -1,0 +1,135 @@
+review_id: WB2-20261022-EXP-04
+target: WB2
+date: "2026-10-22"
+executor: WB2
+round: "2026-10-22 12:40 GMT+8"
+instruction_id: 1792623550-c5984a
+instruction_ref: WB0-INSTR-20261022-EXP-04
+title: EXP-04 结构-频次解耦合成验证（H-WB0-A 机制性证据）
+status: delivered
+verdict: unidentifiable_task_ceiling_floor
+data_source:
+  - relpath: results_v2/exp04_struct_freq_decoupling.json
+    size: 6774
+    sha256: ae2e8ea6b638d79be1a5ff745c18a0357c3b45b1d539192a3522e44524fe02eb
+  - relpath: results_v2/exp04_ceiling_diag.json
+    size: 390
+    sha256: f5b03b918471dd65df424de527f62a11db6300f6d0511416bd0040617a696ecc
+  - relpath: results_v2/exp04_struct_freq_decoupling_v4.py
+    size: 14351
+    sha256: 8f8fc5c2a59d7e6632a4ce6a4906c4b76ab4c56c46103a39a071f5bc021c9b48
+  - relpath: results_v2/wb2_run_report_20261022_1240.md
+    size: 6475
+    sha256: 69b56f841a05b04108ebbfe1f8640ccc43feecef31ece3a12c53dab1089dee39
+
+hypotheses:
+  - id: H-DECOUPLE-EXP04
+    statement: 结构显著性（k-core）分配的检索增益只在 corr(freq, structure)<0.2 的解耦图上出现，共线图（corr>0.9）无增益。
+    status: pending
+    prediction: 解耦图 X∈{40,50,60} 的 delta 全部 >= +2pp；共线图平均 |delta| < 1pp。
+    falsifiable_criterion: 解耦图任一档 delta < 2pp 即判 refuted；共线图 |delta| >= 1pp 判 partial（频次残余）。
+    actual_data: >
+      解耦 delta = +56.25 / +65.22 / +68.75 pp（均值 +63.41）；共线 delta = 0.00 / 0.00 / 0.00 pp。
+      名义判据满足，但 gold 取自 k-core 顶档（判据与指标同源），随机分配基线已达 0.6087/0.6875/0.6579，
+      k-core 与 bridge 一律饱和 1.000（任务 B 全 0.000）→ 任务无区分力，判 pending（不可辨识），不判 confirmed。
+  - id: H-WB2-EXP04-TASKDESIGN
+    statement: 当 gold 取自结构度量顶档子集时，PR@5 类判据会发生天花板饱和，使"结构分配更优"的结论不可辨识。
+    status: confirmed
+    prediction: 同拓扑下随机分配的 PR@5 已接近 k-core 分配（差距 < 10pp），且非核心 gold 变体全为 0。
+    falsifiable_criterion: 若随机分配 PR@5 低于 k-core 分配 20pp 以上，则本假设被证伪。
+    actual_data: >
+      随机 0.6087/0.6875/0.6579 vs k-core 1.000/1.000/1.000；差距 31-39pp（低于 20pp 阈值未触发证伪，
+      但 k-core 已顶到理论最大 1.000）。非核心 gold 变体：random/k-core/bridge 三档全 0.0000。
+      确定性可复现（exp04_ceiling_diag.json）。
+  - id: H-WB2-EXP04-KCORE-RHO-CEILING
+    statement: 在 k-core 仅 3 个离散取值的 core-periphery 图上，corr(freq, k-core) 的 Spearman |rho| 上限约 0.74，达不到 0.9。
+    status: confirmed
+    prediction: 任何 freq 重排方案下，|rho| 收敛且不超过 0.80。
+    falsifiable_criterion: 若存在任一重排使 rho > 0.80，则本假设被证伪。
+    actual_data: >
+      40 组加权种子 + 贪心成对交换后 rho 收敛于 0.7403 且不再上升（并列质量占 76%：k-core=3 的 228 节点）；
+      解耦侧最低 -0.1000。故指令"共线 corr>0.9"闸门在此拓扑上不可满足。
+
+prediction: >
+  若 H-DECOUPLE 成立，则结构显著性（k-core）相对频次分配的检索增益应只在
+  corr(freq, structure) < 0.2 的解耦图上出现；在两图共用同一拓扑、仅 freq 取向
+  不同的严格对照下，共线图（corr > 0.9）应无增益。预注册方向：
+  delta_decoupled >= +2pp（三档预算均满足），delta_collinear 绝对值 < 1pp。
+
+falsifiable_criterion: >
+  (1) 解耦图 X∈{40,50,60} 三档 PR@5 的 delta 全部 >= 2pp；
+  (2) 共线图平均 |delta| < 1pp；
+  (3) 构造闸门：解耦图 |corr(freq, structure)| < 0.2 且共线图 corr > 0.9。
+  三条同时成立判 confirmed；解耦 delta < 2pp 判 refuted；
+  共线图亦有增益判 partial（频次残余）；闸门未过则不下 confirmed/refuted。
+
+actual_data: >
+  构造：两变体共用同一拓扑 n=300 / m=588 / k-core 分布 {11:12, 3:228, 1:60}，
+  仅 freq 赋值取向不同（规模混淆被完全排除）。
+  corr(freq, k-core)：解耦 -0.090（过 <0.2 闸门），共线 +0.740（未达 >0.9）；
+  corr(freq, bridge_score)：解耦 -0.100，共线 +0.741。
+  共线图 0.9 门槛未达：k-core 仅 3 个离散取值，强并列下 Spearman |rho| 上限≈0.74，
+  该阈值在本拓扑上结构性不可达；按分级口径披露（graded_0_7 = true），未伪称达成。
+  PR@5（damping 0.85 / 50 iters / 60 查询 / 有效样本随预算 32→38→44）：
+    解耦 freq = 0.4375 / 0.3478 / 0.3125；解耦 k-core = 1.000 / 1.000 / 1.000 → delta = +56.25 / +65.22 / +68.75 pp（均值 +63.41）
+    共线 freq = 1.000 / 1.000 / 1.000；共线 k-core = 1.000 / 1.000 / 1.000 → delta = 0.00 / 0.00 / 0.00 pp
+  verdict 名义分支为 confirmed_conditional（分级），但被天花板诊断推翻：
+    随机排序分配对照 PR@5 = 0.6087 / 0.6875 / 0.6579，k-core 与 bridge 均饱和 1.00；
+    任务 B（gold 改为路径上非核心节点，n=60）random/k-core/bridge 三档全部 0.00。
+    即任务一撞天花板、一撞地板，主判据在本构造上无区分力。
+  最终判定：unidentifiable_task_ceiling_floor。不得据 +63.41pp 宣称机制性增益。
+  对 H-WB0-A 的影响：不升不降，维持 pending（既未证实也未证伪）。
+
+status_detail:
+  construction_guard_strict_0_9: false
+  construction_guard_graded_0_7: true
+  decoupled_mean_delta_pp: 63.41
+  collinear_mean_delta_pp: 0.00
+  weakest_form_direction_holds: true
+  interpretation: >
+    方向与最弱形式一致（decoupled > collinear，共线图差异严格为 0），但解耦图的增益
+    完全可由"预算优先保留 k-core 顶档 = 保留 gold 所在的核区"这一平凡机制解释；
+    因 gold 被定义为结构度量顶档的子集，判据与指标同源，构成循环。故不可判定。
+
+methodological_notes:
+  - gold 不得取结构度量的顶档子集，须由任务侧独立定义（真实多跳 QA 的答案实体）。
+  - 预算比较前必须先跑随机分配基线；随机已近天花板/地板时，判据无分辨力，应先改任务。
+  - 以"与 freq 的相关性"做构造闸门的实验，须事先报告该相关系数在当前拓扑上的上限，
+    不可直接套用 0.2 / 0.9。
+
+failed_constructions_log:
+  - v1 exp04_decoupling.py: freq 由组内密度生成，corr(freq,kcore)=+0.81，解耦/共线无法分开 → 作废
+  - v2 exp04_v2.py: 解耦 rho=-0.15 但共线仅 +0.64；尾链过短致查询 0 条 → 作废
+  - v3 exp04_v3.py: k-core 分配 PR@5=0（起点在悬挂链，核心区不可达）→ 作废
+  - v4 exp04_v4.py: 有效（起点移入 3-core 体内 + 连续 bridge_score 闸门 + 离散校正交换）
+
+scope_guard_compliance:
+  fabricated_data: false
+  frozen_files_touched: false
+  existing_artifacts_overwritten: false
+  ledger_written: false
+  trained: false
+  llm_forward: false
+  external_dependency_missing: false
+  secrets_disclosed: false
+
+self_check:
+  B-01_goal_addressed: 已按指令构造解耦/共线两图、三档预算、PPR 检索并给出 delta 与判定
+  B-02_criteria_predeclared: prediction 与 falsifiable_criterion 在结果前已固定，判定分支未事后修改
+  B-03_data_source_real: 四个文件为本地实测生成，sha256 已登记，未自引用
+  B-04_construction_disclosed: seed(20261022/query 20261029)、damping、iters、k-core 分布、freq 取值口径全部披露
+  B-05_negative_finding_reported: v1–v3 失败构造与天花板/地板诊断均留痕，未删
+  B-06_verdict_three_way: 未把"测不出"写作"已证伪"，判 unidentifiable 而非 refuted
+  B-07_reproducibility: 单脚本可重跑（3.4s），同 seed 结果确定
+  B-08_no_overreach: 未声称结构分配有机制性增益，未据此升降 H-WB0-A
+  B-09_token_discipline: 本轮用 /api/brief + 单条正文取，未裸拉 instructions/state/ledger
+  B-10_handoff: 下一轮按调度顺序接 EXP-02E（可复用本轮 §3.5 三条方法教训）
+
+collaboration_audit:
+  blackbox_isolation: true
+  interface_alignment: "GET /api/brief → /api/instructions?brief=1 → /api/instruction/{id} 单条取 → POST /api/upload → POST /api/review(multipart)"
+  upstream_contract: "WB0-INSTR-20261022-EXP-04（判据与交付清单逐项对齐）"
+  cross_executor_conflicts: 0
+  note: 未采信他席自述数值；本轮未引用 WB1 产物，仅引用 WB0 在指令中给出的既知结构事实（corr 值）作对照。
+
+created_at: "2026-10-22T12:52:00+08:00"

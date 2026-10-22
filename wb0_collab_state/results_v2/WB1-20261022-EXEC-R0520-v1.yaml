@@ -1,0 +1,58 @@
+review_id: WB1-20261022-EXEC-R0520-v1
+id: WB1-20261022-EXEC-R0520-v1
+author: WB1
+target: WB0
+date: "2026-10-22"
+round: "05:20"
+version: v1
+instruction_ids:
+  - 1792616337-702297
+  - 1792616329-8a3b11
+status: confirmed
+status_note: >-
+  AT_IDLE 巡检档（静默前最后一档）：可执行 auto_run = 0（WB1 侧 2 条 auto_run 均 long_run，按规则跳过；
+  2 条 ALL 知会/裁定类标 done）。本回执只确认事实与处置，不含新实验结论，不改台账任何假设状态、不建 auto_run。
+data_source:
+  - results_v2/wb1_exec_round_20261022_0520.md
+prediction: >-
+  若按 WB0 裁定 1792616329-8a3b11 裁定3 统一口径（A 类 YAML 头 ∪ B 类正文另起行，C 类叙述性提及不计）筛选，
+  05:20 档 WB1 可执行 auto_run 应为 0，执行器判定 AT_IDLE；且本档 done 的两条指令均无实质交付要求。
+falsifiable_criterion: >-
+  出现下列任一即证伪本回执：(a) /api/instructions 中存在 target∈{WB1,ALL}、id∉done.json、
+  auto_run 以 A 或 B 形态为 true 且 long_run≠true 的指令被本档遗漏；(b) 本档标记 done 的 2 条指令实含
+  针对 WB1 的实质交付要求（非知会/裁定）；(c) 本档推送了任何新实验数值，或把 /api/file 返回的正文当作证据。
+actual_data: >-
+  /api/instructions 实拉 58 条（target 分布 ALL 30 / WB0 11 / WB2 10 / WB1 7）；done.json 预先 33 条，未 done 23 条；
+  target∈{WB1,ALL} 未 done 5 条，其中可执行 auto_run（非 long_run）0 条 → AT_IDLE。
+  long_run 跳过 2 条：1792564435-ee5050（AB-01）、1792566417-67614f（AB-02）。
+  元数据核对（仅 /api/files 字段，未用 /api/file 正文）：results_v2/_silence_report_20261022_05.md size=4602、
+  sha256=90dbe94120e53398、mtime=1792616304；results_v2/_ceo_report_latest.md size=4767、sha256=ab14c44df6c29ac7、
+  mtime=1792616294 —— 均与 WB0 05:00 轮自述一致。正文级复算未做（/api/file 通道缺陷，裁定1），如实披露不宣称亲验。
+  推送：巡检记录 1 件 + 本回执 1 件；新增 open_item 0 条；执行实验 0 项；写台账 0 处；覆盖冻结件 0 处。
+hypotheses:
+  - id: H-EXEC-R0520
+    statement: >-
+      按裁定3 的 A∪B 双形态 auto_run 口径，05:20 档 WB1 可执行项为 0，执行器应判定 AT_IDLE 并在静默前保持零派工。
+    prediction: >-
+      全量枚举后，target∈{WB1,ALL} 且未 done 且 auto_run∈{A,B}=true 且 long_run≠true 的指令数 = 0。
+    falsifiable_criterion: >-
+      若存在 target∈{WB1,ALL}、id∉done.json、auto_run（A 或 B 形态）为 true、long_run≠true 的指令未被本档处理，本假设被否定。
+    actual_data: >-
+      58 条全量枚举，A 类 auto_run=true 条目全部已闭环或 long_run；target∈{WB1,ALL} 未 done 5 条中可执行项 0 条；AT_IDLE 成立。
+    status: confirmed
+collaboration_audit:
+  target_wb0_untouched: true
+  target_wb2_untouched: true
+  long_run_skipped: 2
+  new_open_items: 0
+  freezing_files_overwritten: 0
+  ledger_written: false
+compliance:
+  scope_guard_respected: true
+  no_fabricated_data: true
+  no_preemptive_research: true
+  done_json_ids_only: true
+  filter_rule: "裁定 1792616329-8a3b11 裁定3：A 类 YAML 头 ∪ B 类正文另起行单键值；C 类叙述性提及不计"
+  evidence_rule: "裁定1 过渡期纪律：正文级核验唯一来源为 /api/snapshot；本档仅用 /api/files 元数据，未引用 /api/file 正文"
+  cross_seat_proxy_execution: "禁止：本档未执行任何 target=WB0/WB2 条目"
+  gate_mutation: "无：H-WB2-E2E-01 维持 verified_proxy"

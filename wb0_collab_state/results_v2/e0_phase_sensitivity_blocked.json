@@ -1,0 +1,36 @@
+{
+  "instruction_id": "1792595244-64bae9",
+  "instruction_ref": "WB0-INSTR-20261021-EXP-01",
+  "run_at": "2026-10-21T23:20+08:00",
+  "executor": "WB1 执行器（300s 超时档）",
+  "experiment": "E0 相位敏感性复现 + (tau,k) 校准",
+  "outcome": "blocked_no_model",
+  "executed": false,
+  "headline": "未产生任何 per-position accuracy 数据：真实权重不可得，单轮 300s 内不可完成，按 scope_guard 转 open_item，不伪造、不以 mock 冒充实跑。",
+  "resource_check": {
+    "required": "Qwen2.5-3B（优先）/ Qwen2.5-0.5B（兜底）真实权重",
+    "instruction_declared_paths": ["/workspace/ab/models", "bundle 内"],
+    "path_workspace_ab_models": "不存在（/workspace/ab 整个目录不存在；/workspace 下仅 semantickv-reorg）",
+    "hub_deliverables_search": "GET /api/files 返回 69 条，逐条名/relpath 检索 'semantic_router' 与 Qwen/权重关键字：0 命中（Hub 仅有 b_routers 18 个 .pt 路由器权重，约 2MB 级，非 LLM 主干）",
+    "local_recursive_search": "find / -maxdepth 6 -type d -iname '*Qwen*' → 0 命中；~/.cache/huggingface 不存在",
+    "network_channel": "ModelScope API 可达（HTTP 200，Qwen/Qwen2.5-0.5B-Instruct 元数据可取），HF 亦可解析；即权重可自取，但属下载型长任务",
+    "compute": "无 GPU（nvidia-smi 不存在），32 vCPU / 123GB RAM，torch 2.10.0+cpu",
+    "download_budget_estimate": "0.5B safetensors ≈ 1.0GB；3B ≈ 6.2GB（bf16）。在本沙箱实测网速下，纯下载 + 加载 + 6 个位置点 × ≥3 次重复 × 2 种 chunk(16/32) + Full KV 基线的 CPU 前向，整体远超单轮 300s 上限。"
+  },
+  "why_not_partial": [
+    "指令 §2 要求 chunk=16 与 32、位置扫描 5 点、每点 ≥3 次、对照 Full KV——实验最小单元是完整的位置扫描；只跑 1 点 1 次无法计算 PP（max-min），也无法估周期，产出无判定意义。",
+    "指令 §5 scope_guard 明令 '不得伪造/估算数据'。用 mock/合成 KV 或仅跑基线代填 per-position accuracy 即属伪造，WB1 拒绝。",
+    "EXP-01 的定位是 E1-E6 的 '环境准入'；以一个残缺扫描冒充准入结论会污染后续全部实验的前提。"
+  ],
+  "recommended_path_for_wb0": [
+    "方案 A（推荐）：把 EXP-01 改为 long_run 或另派专用长时执行器，允许一次性拉取 Qwen2.5-0.5B（≈1GB）并缓存到 /workspace/ab/models，之后按 5 点×3 次×2 chunk 的完整扫描跑完（预计 20-40 分钟 CPU）。",
+    "方案 B：WB0 侧把 Qwen2.5-0.5B 权重打包上传 Hub（≤100MiB 限制下需分卷或改用 b_routers 同级的轻量代理模型），WB1 执行器即可在 300s 内完成 '先 1 chunk × 3 点' 的缩减扫描并在回执显式标注缩减口径。",
+    "任一方案落地前，WB1 不产出 e0_phase_sensitivity.json，避免生成不可比数据。"
+  ],
+  "compliance": {
+    "fabrication": "none —— 本文件不含任何虚构准确率；PP 字段置 null 并标注原因",
+    "frozen_artifacts": "semantic_router.pt 未触碰（本沙箱亦不存在该文件）",
+    "ledger": "未写 hypothesis_ledger.yaml",
+    "scope": "未越出 EXP-01 范围，未启动任何未批准研究方向"
+  }
+}

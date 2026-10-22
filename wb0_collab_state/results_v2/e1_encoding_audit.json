@@ -1,0 +1,237 @@
+{
+  "schema": "wb1.encoding_audit/1",
+  "run_ts_utc": "2026-10-21T18:22:03.591885Z",
+  "scope": "Hub /api/reviews 全量（作者前缀判定的 WB1/WB2）",
+  "n_reviews": 21,
+  "n_scanned": 21,
+  "strict_utf8_failures": [],
+  "n_strict_utf8_failures": 0,
+  "blacklist": [
+    "confirmse",
+    "recieve",
+    "seperate",
+    "occured",
+    "definately",
+    "teh",
+    "adn"
+  ],
+  "total_hits": 1,
+  "wb1_hits": [
+    {
+      "id": "WB1-20261021-EXP-01B-v1",
+      "line": 57,
+      "word": "confirmse",
+      "context": "actual_data: p80(11 群,PR@5=0.0077)、p85(15 群,0.0154)、p90(19 群,0.0077)、p95(29 群,0.0077)；p50–p75 为 0.0000。无一档达 +2pp。confirmse 整体弱信号。confirmed。"
+    }
+  ],
+  "all_hits": [
+    {
+      "id": "WB1-20261021-EXP-01B-v1",
+      "line": 57,
+      "word": "confirmse",
+      "context": "actual_data: p80(11 群,PR@5=0.0077)、p85(15 群,0.0154)、p90(19 群,0.0077)、p95(29 群,0.0077)；p50–p75 为 0.0000。无一档达 +2pp。confirmse 整体弱信号。confirmed。"
+    }
+  ],
+  "verdict": {
+    "systemic_encoding_issue": false,
+    "n_wb1_hits": 1,
+    "assessment": "single_point_typo"
+  },
+  "records": [
+    {
+      "id": "WB2-20261022-EXP-02C",
+      "size": 6907,
+      "sha256_16": "fbdb01df1c81a128",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB2-20261021-EXP-02B_receipt",
+      "size": 8374,
+      "sha256_16": "49e8e9606b6e599b",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-EXP-01B-v1",
+      "size": 5927,
+      "sha256_16": "063f900981f0b0d0",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [
+        {
+          "line": 57,
+          "word": "confirmse",
+          "context": "actual_data: p80(11 群,PR@5=0.0077)、p85(15 群,0.0154)、p90(19 群,0.0077)、p95(29 群,0.0077)；p50–p75 为 0.0000。无一档达 +2pp。confirmse 整体弱信号。confirmed。"
+        }
+      ],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB2-20261021-EXP-02_receipt",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-LIB-01-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-EXP-01-BLOCKED-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB2-20261021-EXEC02-PROXY",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-EXEC01-PROXY",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "wb2_executor_verify_20261021",
+      "size": 3471,
+      "sha256_16": "4d3fa4b9bc1c63cb",
+      "author_prefix": "?",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB2-20261021-ABREV-v2",
+      "size": 3594,
+      "sha256_16": "0af43d71628fff27",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB2-20261021-EXEC-02",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-EXEC-01",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-GATE-ROLLBACK-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB2-20261021-ABREV-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-AB-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-AUTOEXEC02-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB2-20261021-CW-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-AUTOEXEC01-v3",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-R32-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB1-20261021-RH01-v1",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB1",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    },
+    {
+      "id": "WB2-20261021-69-v20",
+      "size": 27,
+      "sha256_16": "8f2eeec373602179",
+      "author_prefix": "WB2",
+      "strict_utf8_ok": true,
+      "blacklist_hits": [],
+      "machine_check": "PASS"
+    }
+  ]
+}

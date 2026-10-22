@@ -1,0 +1,224 @@
+{
+  "n_samples": 200,
+  "emb_entities": 60,
+  "emb_entities_in_full_graph": 55,
+  "samples_with_subject_in_emb": 25,
+  "samples_with_bridge_in_emb": 23,
+  "samples_scorable_any": 23,
+  "per_sample": [
+    {
+      "qid": "4b28d517ce1c1e3cfec9282ca7b212c1cb87c254781d7c86",
+      "subjects": [
+        "william paulet 3rd marquess of winchester"
+      ],
+      "gold_one_hop": [
+        "john paulet 2nd marquess of winchester"
+      ]
+    },
+    {
+      "qid": "048e82b64b5651b74d452db7151c2110a718128dfd12a774",
+      "subjects": [
+        "humphrey de bohun 7th earl of hereford"
+      ],
+      "gold_one_hop": [
+        "william de bohun 1st earl of northampton"
+      ]
+    },
+    {
+      "qid": "b3845fcad97309850a76e3720cd829a45d2bb12ee29a9cfb",
+      "subjects": [
+        "kanneshwara rama"
+      ],
+      "gold_one_hop": [
+        "m s sathyu"
+      ]
+    },
+    {
+      "qid": "e026b7c57d2d759c12652fae6421931fe4f8cf8745ff9bdb",
+      "subjects": [
+        "i ll say it"
+      ],
+      "gold_one_hop": [
+        "kathy griffin"
+      ]
+    },
+    {
+      "qid": "85d2e8c38cc3b6f464eae6d84ef2df5f41807c9f8bf3aac8",
+      "subjects": [
+        "this time waylon jennings song",
+        "waylon jennings"
+      ],
+      "gold_one_hop": [
+        "waylon jennings"
+      ]
+    },
+    {
+      "qid": "a3c88e70534d79b432d32c0b53d0d181c957b353f658dc95",
+      "subjects": [
+        "you can"
+      ],
+      "gold_one_hop": [
+        "madleen kane"
+      ]
+    },
+    {
+      "qid": "cab5465c3f7663e5d72c15a32bc04c8a917dac3c03828814",
+      "subjects": [
+        "miracle of marcelino"
+      ],
+      "gold_one_hop": [
+        "pablo soroz bal"
+      ]
+    },
+    {
+      "qid": "be0651d84c04af5de43e28cf89e78d7e87490e637167632e",
+      "subjects": [
+        "atomised film"
+      ],
+      "gold_one_hop": [
+        "oskar roehler"
+      ]
+    },
+    {
+      "qid": "0bcff697444354703dd1e8987a709b8ed2f44bf9d6b2d320",
+      "subjects": [
+        "g rie song"
+      ],
+      "gold_one_hop": [
+        "nekfeu"
+      ]
+    },
+    {
+      "qid": "d267c5682ee42c1a570524a4b129fa908997a0ecfe07f8f6",
+      "subjects": [
+        "postmortem 1998 film"
+      ],
+      "gold_one_hop": [
+        "albert pyun"
+      ]
+    },
+    {
+      "qid": "70923ff731dcad518ecdcdc8b53e165e8515a96ecf8f23c7",
+      "subjects": [
+        "duleep singh"
+      ],
+      "gold_one_hop": [
+        "ranjit singh"
+      ]
+    },
+    {
+      "qid": "b8ffb375e75ee2976b8825d05d48c34638c7ffeb6d67baff",
+      "subjects": [
+        "diego fern ndez de oviedo"
+      ],
+      "gold_one_hop": [
+        "fernando fla nez"
+      ]
+    },
+    {
+      "qid": "259c17d6e4a5e4c74669836fec3c6de0730bf65e67e6d988",
+      "subjects": [
+        "the trouble with cali"
+      ],
+      "gold_one_hop": [
+        "michael sorvino",
+        "paul sorvino"
+      ]
+    },
+    {
+      "qid": "cdf0b77af7d55cc9a3424613604e8dbabe7a01e4869ad502",
+      "subjects": [
+        "mary of woodstock"
+      ],
+      "gold_one_hop": [
+        "eleanor of castile"
+      ]
+    },
+    {
+      "qid": "c7347f362602f3a0be4b051c0b68219e0648afa64772bd30",
+      "subjects": [
+        "nallavan vazhvan"
+      ],
+      "gold_one_hop": [
+        "p neelakantan"
+      ]
+    },
+    {
+      "qid": "56db201f810a3d01b7d14e8e9e6dd94820ecaf2f4a86b2b9",
+      "subjects": [
+        "hellcats of the navy"
+      ],
+      "gold_one_hop": [
+        "nathan juran"
+      ]
+    },
+    {
+      "qid": "f73db1873c311b2a38f27a52c5e05b021da0c2fe9590dac3",
+      "subjects": [
+        "gisela of hungary"
+      ],
+      "gold_one_hop": [
+        "stephen i of hungary"
+      ]
+    },
+    {
+      "qid": "a49e29926d7019e6cbaf6b0610453eda22fa1ce9043f5829",
+      "subjects": [
+        "catherine of taranto countess of copertino"
+      ],
+      "gold_one_hop": [
+        "mary of enghien"
+      ]
+    },
+    {
+      "qid": "8848d4bd1425f8bef31b6c279ec378bcbca14f10b702c4ea",
+      "subjects": [
+        "thomas of galloway bastard"
+      ],
+      "gold_one_hop": [
+        "alan of galloway"
+      ]
+    },
+    {
+      "qid": "814dddaa4a997380fc80cc1c72d48cb20545411924a0603f",
+      "subjects": [
+        "elizabeth of rhuddlan"
+      ],
+      "gold_one_hop": [
+        "edward i of england",
+        "eleanor de bohun",
+        "eleanor of castile",
+        "humphrey de bohun 7th earl of hereford",
+        "john de bohun 5th earl of hereford",
+        "william de bohun 1st earl of northampton"
+      ]
+    },
+    {
+      "qid": "1d554e7ae21ed7b5d142b57bcdab110cf6cea6f5256a58ee",
+      "subjects": [
+        "i will i will for now"
+      ],
+      "gold_one_hop": [
+        "norman panama"
+      ]
+    },
+    {
+      "qid": "59e42b2cab6da2436fae05e25c49f6f4b4893b07bb48e3c1",
+      "subjects": [
+        "marie louise duchess of parma"
+      ],
+      "gold_one_hop": [
+        "maria theresa of naples and sicily"
+      ]
+    },
+    {
+      "qid": "67705e148a6e0540819f466bb4fdc73ed2e5cbcd64d80930",
+      "subjects": [
+        "nanon 1938 film"
+      ],
+      "gold_one_hop": [
+        "herbert maisch"
+      ]
+    }
+  ]
+}

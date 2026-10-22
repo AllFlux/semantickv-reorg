@@ -1,0 +1,296 @@
+{
+  "task": "WB0-INSTR-20261021-EXP-02B / H-WB0-A 扩 OOD 样本复判",
+  "executor": "WB2",
+  "schema_version": "1",
+  "executed_at": "2026-10-22 01:20:29 GMT+8",
+  "supersedes": "WB2-20261021-EXP-02",
+  "superseded_by": null,
+  "relation": "承接而非替代：EXP-02 的 ID/OOD 两段数值原样固化为基线（exp02_baseline_frozen）；本文件为新产物、另存，未覆盖 results_v2/h_wb0_a_struct_vs_freq.json。",
+  "exp02_baseline_frozen": {
+    "id_subset_n": 29,
+    "id_acc_pct": {
+      "B24": {
+        "struct": 24.14,
+        "freq": 6.9,
+        "delta_pp": 17.24
+      },
+      "B30": {
+        "struct": 24.14,
+        "freq": 17.24,
+        "delta_pp": 6.9
+      },
+      "B36": {
+        "struct": 41.38,
+        "freq": 17.24,
+        "delta_pp": 24.14
+      }
+    },
+    "ood_subset_n": 1,
+    "ood_acc_pct": {
+      "struct": 0.0,
+      "freq": 0.0,
+      "delta_pp": 0.0
+    },
+    "status": "pending（OOD n=1 无统计功效）"
+  },
+  "data_source": {
+    "longbench_2wikimqa": {
+      "hub_relpath": "results_v2/longbench_multihop_2wikimqa.jsonl",
+      "bytes": 6052108,
+      "n_samples": 200,
+      "read_channel": "/api/file/r2_longbench_multihop_2wikimqa"
+    },
+    "entity_embeddings": {
+      "hub_relpath": "results_v2/entity_embeddings.json",
+      "shape": [
+        60,
+        2048
+      ],
+      "emb_sha256_recomputed": "d1cf27753f274405ab02a94087cd87b7bdc784fa7ae2b7b4eea597fa597e2895",
+      "sha_match_file_field": true,
+      "model": "/tmp/dryrun/models/Qwen2.5-3B-Instruct",
+      "extraction": "final_layer_last_token_hidden_2048_f32",
+      "entity_order_source": "results_v2/multihop_real.json:entities（同批 60 实体序；json 内无 entities 字段）"
+    },
+    "synthesis_used": false
+  },
+  "method": {
+    "registered_before_run": true,
+    "seed": 20261022,
+    "graph_construction": {
+      "entity": "段落首行标题（Wikipedia 式实体名行）",
+      "normalization": "小写 + –/— 统一为 - + 非 [0-9a-z-空格] 转空格 + 空白折叠（保留连字符，避免 i-love-you 类实体被切断）",
+      "edge": "有向 A->B：A 正文以词边界提及 B 标题；社区/中心性/检索在无向化图上",
+      "community": "无向图确定性标签传播（与 EXP-02 同算法）",
+      "subgraph_policy": "60 个有 embedding 的实体为必选种子（保可打分性），再按度降序 BFS 扩增至 ENT_MAX=250；边为诱导子图",
+      "window": {
+        "entities": [
+          150,
+          250
+        ],
+        "queries": [
+          60,
+          80
+        ],
+        "ood_min": 20
+      },
+      "window_hit": true,
+      "attempt_used": 0,
+      "attempts_log": [
+        {
+          "attempt": 0,
+          "n_ent": 250,
+          "n_edges": 332,
+          "n_comm_ge2": 30
+        }
+      ],
+      "full_graph": {
+        "n_ent": 1404,
+        "n_edges": 823
+      }
+    },
+    "query_selection": "主语候选=问题中词边界提及的标题实体（排除答案实体）；gold_intermediate=主语候选邻居中正文词边界提及答案字符串者（并集）；跨社区=任一(主语,gold)标签传播社区不同；OOD/ID 各取一半，上限 80。",
+    "allocation_struct": "0.6*z(Brandes betweenness, 无向)+0.4*z(degree)，降序 top-B",
+    "allocation_freq": "边端点出现次数 + 查询主语候选命中次数（留一时剔除该查询自身），降序 top-B",
+    "baseline_sensitivity_arms": "额外报告两单因素臂 degree-only 与 betweenness-only，用于检验 '结构' 效应是否依赖二因子复合（不改主判据）。",
+    "retrieval": "查询向量=主语候选真实 embedding 均值（L2 归一）；保留子集内余弦 top-5；命中=gold_intermediate∈top5",
+    "embedding_alignment": "本图实体与 60 实体抽取集按规范化名精确匹配才复用向量；未命中者不进入候选池、不做插值或替代",
+    "stats": "配对 bootstrap（2000 次重采样，同一查询集上比较两策略）",
+    "training": "无训练、无调参"
+  },
+  "graph_stats": {
+    "n_entities": 250,
+    "n_edges": 332,
+    "n_communities_ge2": 30,
+    "degree_max": 62,
+    "degree_mean": 2.32,
+    "isolated_entities": 0,
+    "entities_with_embedding": 55
+  },
+  "query_stats": {
+    "candidates": 36,
+    "selected": 36,
+    "ood": 11,
+    "id": 25,
+    "scorable": 25,
+    "scorable_ood": 5,
+    "screened_out_no_vector": 11
+  },
+  "results_by_budget": {
+    "0.4": {
+      "budget_entities": 100,
+      "budget_ratio": 0.4,
+      "struct_id_n": 20,
+      "struct_id_hits": 9,
+      "struct_id_acc": 0.45,
+      "struct_ood_n": 5,
+      "struct_ood_hits": 4,
+      "struct_ood_acc": 0.8,
+      "freq_id_n": 20,
+      "freq_id_hits": 8,
+      "freq_id_acc": 0.4,
+      "freq_ood_n": 5,
+      "freq_ood_hits": 2,
+      "freq_ood_acc": 0.4,
+      "degree_id_n": 20,
+      "degree_id_hits": 9,
+      "degree_id_acc": 0.45,
+      "degree_ood_n": 5,
+      "degree_ood_hits": 4,
+      "degree_ood_acc": 0.8,
+      "betw_id_n": 20,
+      "betw_id_hits": 8,
+      "betw_id_acc": 0.4,
+      "betw_ood_n": 5,
+      "betw_ood_hits": 5,
+      "betw_ood_acc": 1.0,
+      "delta_struct_minus_freq_ood_pp": 40.0,
+      "delta_degree_minus_freq_ood_pp": 40.0,
+      "delta_betw_minus_freq_ood_pp": 60.0,
+      "delta_ood_pp": 40.0,
+      "delta_id_pp": 4.999999999999999
+    },
+    "0.5": {
+      "budget_entities": 125,
+      "budget_ratio": 0.5,
+      "struct_id_n": 20,
+      "struct_id_hits": 9,
+      "struct_id_acc": 0.45,
+      "struct_ood_n": 5,
+      "struct_ood_hits": 4,
+      "struct_ood_acc": 0.8,
+      "freq_id_n": 20,
+      "freq_id_hits": 7,
+      "freq_id_acc": 0.35,
+      "freq_ood_n": 5,
+      "freq_ood_hits": 2,
+      "freq_ood_acc": 0.4,
+      "degree_id_n": 20,
+      "degree_id_hits": 9,
+      "degree_id_acc": 0.45,
+      "degree_ood_n": 5,
+      "degree_ood_hits": 4,
+      "degree_ood_acc": 0.8,
+      "betw_id_n": 20,
+      "betw_id_hits": 9,
+      "betw_id_acc": 0.45,
+      "betw_ood_n": 5,
+      "betw_ood_hits": 5,
+      "betw_ood_acc": 1.0,
+      "delta_struct_minus_freq_ood_pp": 40.0,
+      "delta_degree_minus_freq_ood_pp": 40.0,
+      "delta_betw_minus_freq_ood_pp": 60.0,
+      "delta_ood_pp": 40.0,
+      "delta_id_pp": 10.000000000000004
+    },
+    "0.6": {
+      "budget_entities": 150,
+      "budget_ratio": 0.6,
+      "struct_id_n": 20,
+      "struct_id_hits": 8,
+      "struct_id_acc": 0.4,
+      "struct_ood_n": 5,
+      "struct_ood_hits": 2,
+      "struct_ood_acc": 0.4,
+      "freq_id_n": 20,
+      "freq_id_hits": 7,
+      "freq_id_acc": 0.35,
+      "freq_ood_n": 5,
+      "freq_ood_hits": 2,
+      "freq_ood_acc": 0.4,
+      "degree_id_n": 20,
+      "degree_id_hits": 8,
+      "degree_id_acc": 0.4,
+      "degree_ood_n": 5,
+      "degree_ood_hits": 2,
+      "degree_ood_acc": 0.4,
+      "betw_id_n": 20,
+      "betw_id_hits": 8,
+      "betw_id_acc": 0.4,
+      "betw_ood_n": 5,
+      "betw_ood_hits": 2,
+      "betw_ood_acc": 0.4,
+      "delta_struct_minus_freq_ood_pp": 0.0,
+      "delta_degree_minus_freq_ood_pp": 0.0,
+      "delta_betw_minus_freq_ood_pp": 0.0,
+      "delta_ood_pp": 0.0,
+      "delta_id_pp": 5.000000000000004
+    }
+  },
+  "bootstrap_ood_delta": {
+    "0.4": {
+      "budget_entities": 100,
+      "n_ood": 5,
+      "delta_ood_pp": 40.0,
+      "ci95_lo": 0.0,
+      "ci95_hi": 80.0,
+      "p_delta_gt0": 0.9155,
+      "struct_ood_hits": 4,
+      "freq_ood_hits": 2,
+      "boot_n": 2000
+    },
+    "0.5": {
+      "budget_entities": 125,
+      "n_ood": 5,
+      "delta_ood_pp": 40.0,
+      "ci95_lo": 0.0,
+      "ci95_hi": 80.0,
+      "p_delta_gt0": 0.9235,
+      "struct_ood_hits": 4,
+      "freq_ood_hits": 2,
+      "boot_n": 2000
+    },
+    "0.6": {
+      "budget_entities": 150,
+      "n_ood": 5,
+      "delta_ood_pp": 0.0,
+      "ci95_lo": 0.0,
+      "ci95_hi": 0.0,
+      "p_delta_gt0": 0.0,
+      "struct_ood_hits": 2,
+      "freq_ood_hits": 2,
+      "boot_n": 2000
+    }
+  },
+  "counterexample_records": {
+    "struct_ood_misses": [
+      {
+        "qid": "56db201f810a3d01b7d14e8e9e6dd94820ecaf2f4a86b2b9",
+        "question": "Where was the director of film Hellcats Of The Navy born?",
+        "gold_intermediate": [
+          "dr",
+          "gunsmoke film",
+          "nathan juran",
+          "roger corman"
+        ],
+        "struct_top5": [
+          "you can",
+          "the trouble with cali",
+          "madleen kane",
+          "michael sorvino",
+          "alan of galloway"
+        ]
+      }
+    ],
+    "note": "OOD 上结构策略 top-5 仍未命中 gold_intermediate 的查询逐条列出（指令 §4 反例记录）"
+  },
+  "limitation_disclosed": [
+    "① embedding 仅覆盖 60 个既有实体，新图 1404 实体中绝大多数无向量 → 可打分查询受限（见 query_stats），未用合成/插值向量填补。",
+    "② 结构分与查询无关，留一法只扰动频次侧，结构侧分配不变——EXP-02 已披露的固有结构限制在本轮同样成立。",
+    "③ gold_intermediate 为构造定义的桥接候选集，同一查询可含多桥，A/B 同标尺；构造产物非人工标注 gold。",
+    "④ 规范化合并可能引入同名不同实体；跨社区依赖标签传播，非外部 topic 标签。",
+    "⑤ OOD n=5，pp 级置信区间较宽；confirmed 需同时满足 delta>=2pp 与 CI95 下界>0。"
+  ],
+  "verdict": {
+    "criterion": "OOD n>=20 且 delta>=2pp（配对 bootstrap CI95 下界>0）→ confirmed；OOD n>=20 且 delta<=0 → refuted；OOD n<20 → pending",
+    "primary_budget": "0.5",
+    "delta_ood_pp": 40.0,
+    "ci95": [
+      0.0,
+      80.0
+    ],
+    "n_ood": 5,
+    "status": "pending"
+  },
+  "runtime_sec": 82.1
+}

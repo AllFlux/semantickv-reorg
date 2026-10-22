@@ -1,0 +1,1120 @@
+{
+ "schema": "e1_chunk_vs_semantic_v1",
+ "instr": "WB0-INSTR-20261021-EXP-01B",
+ "hypothesis": "H-E1L：同等检索预算下，语义分组（embedding 聚类）的 PR@5 优于固定分块",
+ "run_ts": "2026-10-22 00:23:51",
+ "wall_clock_s": null,
+ "provenance": {
+  "embeddings": {
+   "hub_id": "r2_entity_embeddings",
+   "file": "entity_embeddings.json",
+   "shape": [
+    60,
+    2048
+   ],
+   "emb_sha256": "d1cf27753f274405ab02a94087cd87b7bdc784fa7ae2b7b4eea597fa597e2895",
+   "model": "/tmp/dryrun/models/Qwen2.5-3B-Instruct",
+   "extraction": "final_layer_last_token_hidden_2048_f32",
+   "ts": "2026-10-21 16:37:14",
+   "recomputed_sha256_match": true,
+   "local_copy": "fetched from Hub /api/file/r2_entity_embeddings",
+   "note": "本沙箱无仓库内实体文件，全部数据经 Hub 自取（非本地产物）"
+  },
+  "multihop": {
+   "hub_id": "r2_multihop_real",
+   "file": "multihop_real.json",
+   "n_ent": 60,
+   "n_queries": 30,
+   "n_edges": 58,
+   "construction": "2wikimqa-passage-title-coccurrence + mention-terminated-2hop",
+   "seed": 20261020
+  }
+ },
+ "protocol": {
+  "pagerank": {
+   "damping": 0.85,
+   "iters": 50,
+   "subject_removed": true,
+   "dangling_mass_redistributed": true
+  },
+  "budget": "5 候选/查询；PR@5=hits@2/(5N)（沿用 WB1-AB-v1 口径），recall@5=hits@5/N",
+  "subject_rule": "取首个在实体表且真实图度>0 的 subject_candidate（避免零度起点使 PR 退化为均匀分布）",
+  "excluded_queries": "4/30 查询因 subject 全为抽象短语（place of birth 等，实体表无边）或无 gold 在表而被排除 → N=26",
+  "fixed_chunk": "实体表序每 4 个一块（15 块），块内全连接",
+  "semantic": "embedding 余弦 kNN 图（cos>=tau）→ 连通分量=群 → 群内全连接；tau 由分位数网格校准，规则=群数最接近 15（与固定分块同块数），并列取低 tau",
+  "group_rerank": "取 PR top5 所属群的全部成员，按 PR 重排取前 5"
+ },
+ "tau_grid": {
+  "p50": {
+   "tau": 0.860424,
+   "n_groups": 7,
+   "mean_group_size": 8.57,
+   "precision_at_5": 0.0,
+   "hit_at_2": 0.0,
+   "recall_at_5": 0.0,
+   "hits_at_2": 0,
+   "hits_at_5": 0,
+   "n_queries": 26
+  },
+  "p60": {
+   "tau": 0.876646,
+   "n_groups": 9,
+   "mean_group_size": 6.67,
+   "precision_at_5": 0.0,
+   "hit_at_2": 0.0,
+   "recall_at_5": 0.0769,
+   "hits_at_2": 0,
+   "hits_at_5": 2,
+   "n_queries": 26
+  },
+  "p70": {
+   "tau": 0.894134,
+   "n_groups": 9,
+   "mean_group_size": 6.67,
+   "precision_at_5": 0.0,
+   "hit_at_2": 0.0,
+   "recall_at_5": 0.0769,
+   "hits_at_2": 0,
+   "hits_at_5": 2,
+   "n_queries": 26
+  },
+  "p75": {
+   "tau": 0.903513,
+   "n_groups": 9,
+   "mean_group_size": 6.67,
+   "precision_at_5": 0.0,
+   "hit_at_2": 0.0,
+   "recall_at_5": 0.0769,
+   "hits_at_2": 0,
+   "hits_at_5": 2,
+   "n_queries": 26
+  },
+  "p80": {
+   "tau": 0.910021,
+   "n_groups": 11,
+   "mean_group_size": 5.45,
+   "precision_at_5": 0.0077,
+   "hit_at_2": 0.0385,
+   "recall_at_5": 0.0769,
+   "hits_at_2": 1,
+   "hits_at_5": 2,
+   "n_queries": 26
+  },
+  "p85": {
+   "tau": 0.91932,
+   "n_groups": 15,
+   "mean_group_size": 4.0,
+   "precision_at_5": 0.0154,
+   "hit_at_2": 0.0769,
+   "recall_at_5": 0.0769,
+   "hits_at_2": 2,
+   "hits_at_5": 2,
+   "n_queries": 26
+  },
+  "p90": {
+   "tau": 0.930924,
+   "n_groups": 19,
+   "mean_group_size": 3.16,
+   "precision_at_5": 0.0077,
+   "hit_at_2": 0.0385,
+   "recall_at_5": 0.0769,
+   "hits_at_2": 1,
+   "hits_at_5": 2,
+   "n_queries": 26
+  },
+  "p95": {
+   "tau": 0.94499,
+   "n_groups": 29,
+   "mean_group_size": 2.07,
+   "precision_at_5": 0.0077,
+   "hit_at_2": 0.0385,
+   "recall_at_5": 0.0385,
+   "hits_at_2": 1,
+   "hits_at_5": 1,
+   "n_queries": 26
+  }
+ },
+ "main_result": {
+  "A_fixed_chunk": {
+   "block_size": 4,
+   "n_blocks": 15,
+   "n_queries": 26,
+   "hits_at_2": 1,
+   "hits_at_5": 2,
+   "precision_at_5": 0.0077,
+   "hit_at_2": 0.0385,
+   "recall_at_5": 0.0769,
+   "per_query": [
+    {
+     "qid": "q060",
+     "subject": "this time waylon jennings song",
+     "gold_intermediate": [
+      "waylon jennings"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 55,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q093",
+     "subject": "duleep singh",
+     "gold_intermediate": [
+      "ranjit singh"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 33,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q196",
+     "subject": "marie louise duchess of parma",
+     "gold_intermediate": [
+      "maria theresa of naples and sicily"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 31,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q193",
+     "subject": "i will i will for now",
+     "gold_intermediate": [
+      "norman panama"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 41,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q004",
+     "subject": "william paulet 3rd marquess of winchester",
+     "gold_intermediate": [
+      "john paulet 2nd marquess of winchester"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 25,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q157",
+     "subject": "gisela of hungary",
+     "gold_intermediate": [
+      "stephen i of hungary"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 52,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q199",
+     "subject": "nanon 1938 film",
+     "gold_intermediate": [
+      "herbert maisch"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 20,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q067",
+     "subject": "atomised film",
+     "gold_intermediate": [
+      "oskar roehler"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 42,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q192",
+     "subject": "elizabeth of rhuddlan",
+     "gold_intermediate": [
+      "edward i of england",
+      "eleanor de bohun",
+      "eleanor of castile",
+      "humphrey de bohun 7th earl of hereford",
+      "john de bohun 5th earl of hereford",
+      "william de bohun 1st earl of northampton"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 10,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q099",
+     "subject": "diego fernández de oviedo",
+     "gold_intermediate": [
+      "fernando flaínez"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 13,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q104",
+     "subject": "mary of woodstock",
+     "gold_intermediate": [
+      "eleanor of castile"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 12,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q071",
+     "subject": "égérie song",
+     "gold_intermediate": [
+      "nekfeu"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 40,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q106",
+     "subject": "nallavan vazhvan",
+     "gold_intermediate": [
+      "p neelakantan"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 43,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q169",
+     "subject": "catherine of taranto countess of copertino",
+     "gold_intermediate": [
+      "mary of enghien"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 32,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q021",
+     "subject": "i ll say it",
+     "gold_intermediate": [
+      "kathy griffin"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 28,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q066",
+     "subject": "miracle of marcelino",
+     "gold_intermediate": [
+      "josé maría sánchez silva",
+      "pablo sorozábal"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 26,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q155",
+     "subject": "a no hit no run summer",
+     "gold_intermediate": [
+      "francis leclerc"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 15,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q174",
+     "subject": "thomas of galloway bastard",
+     "gold_intermediate": [
+      "alan of galloway"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 2,
+     "hit@2": true,
+     "hit@5": true
+    },
+    {
+     "qid": "q019",
+     "subject": "kanneshwara rama",
+     "gold_intermediate": [
+      "m s sathyu"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 28,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q166",
+     "subject": "sir john hamilton dalrymple 5th baronet",
+     "gold_intermediate": [
+      "sir hew dalrymple 3rd baronet"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 50,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q063",
+     "subject": "you can",
+     "gold_intermediate": [
+      "madleen kane"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 30,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q141",
+     "subject": "hellcats of the navy",
+     "gold_intermediate": [
+      "nathan juran"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 39,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q171",
+     "subject": "princess charlotte of saxe meiningen",
+     "gold_intermediate": [
+      "ernest ii duke of saxe gotha altenburg"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 14,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q100",
+     "subject": "the trouble with cali",
+     "gold_intermediate": [
+      "michael sorvino",
+      "paul sorvino"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 35,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q087",
+     "subject": "postmortem 1998 film",
+     "gold_intermediate": [
+      "albert pyun"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 3,
+     "hit@2": false,
+     "hit@5": true
+    },
+    {
+     "qid": "q006",
+     "subject": "humphrey de bohun 7th earl of hereford",
+     "gold_intermediate": [
+      "william de bohun 1st earl of northampton"
+     ],
+     "top5": [
+      "a no hit no run summer",
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa"
+     ],
+     "rank_of_gold": 49,
+     "hit@2": false,
+     "hit@5": false
+    }
+   ]
+  },
+  "B_semantic_knn": {
+   "tau": 0.91932,
+   "tau_percentile": 85,
+   "n_groups": 15,
+   "n_queries": 26,
+   "hits_at_2": 2,
+   "hits_at_5": 2,
+   "precision_at_5": 0.0154,
+   "hit_at_2": 0.0769,
+   "recall_at_5": 0.0769,
+   "per_query": [
+    {
+     "qid": "q060",
+     "subject": "this time waylon jennings song",
+     "gold_intermediate": [
+      "waylon jennings"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 37,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q093",
+     "subject": "duleep singh",
+     "gold_intermediate": [
+      "ranjit singh"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 33,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q196",
+     "subject": "marie louise duchess of parma",
+     "gold_intermediate": [
+      "maria theresa of naples and sicily"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 13,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q193",
+     "subject": "i will i will for now",
+     "gold_intermediate": [
+      "norman panama"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 40,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q004",
+     "subject": "william paulet 3rd marquess of winchester",
+     "gold_intermediate": [
+      "john paulet 2nd marquess of winchester"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 40,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q157",
+     "subject": "gisela of hungary",
+     "gold_intermediate": [
+      "stephen i of hungary"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 59,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q199",
+     "subject": "nanon 1938 film",
+     "gold_intermediate": [
+      "herbert maisch"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 51,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q067",
+     "subject": "atomised film",
+     "gold_intermediate": [
+      "oskar roehler"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 26,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q192",
+     "subject": "elizabeth of rhuddlan",
+     "gold_intermediate": [
+      "edward i of england",
+      "eleanor de bohun",
+      "eleanor of castile",
+      "humphrey de bohun 7th earl of hereford",
+      "john de bohun 5th earl of hereford",
+      "william de bohun 1st earl of northampton"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 6,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q099",
+     "subject": "diego fernández de oviedo",
+     "gold_intermediate": [
+      "fernando flaínez"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 53,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q104",
+     "subject": "mary of woodstock",
+     "gold_intermediate": [
+      "eleanor of castile"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 6,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q071",
+     "subject": "égérie song",
+     "gold_intermediate": [
+      "nekfeu"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 21,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q106",
+     "subject": "nallavan vazhvan",
+     "gold_intermediate": [
+      "p neelakantan"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 43,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q169",
+     "subject": "catherine of taranto countess of copertino",
+     "gold_intermediate": [
+      "mary of enghien"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "charles the fat",
+      "baraguru ramachandrappa",
+      "elizabeth of rhuddlan"
+     ],
+     "rank_of_gold": 32,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q021",
+     "subject": "i ll say it",
+     "gold_intermediate": [
+      "kathy griffin"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 19,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q066",
+     "subject": "miracle of marcelino",
+     "gold_intermediate": [
+      "josé maría sánchez silva",
+      "pablo sorozábal"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 20,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q155",
+     "subject": "a no hit no run summer",
+     "gold_intermediate": [
+      "francis leclerc"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 15,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q174",
+     "subject": "thomas of galloway bastard",
+     "gold_intermediate": [
+      "alan of galloway"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 1,
+     "hit@2": true,
+     "hit@5": true
+    },
+    {
+     "qid": "q019",
+     "subject": "kanneshwara rama",
+     "gold_intermediate": [
+      "m s sathyu"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 27,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q166",
+     "subject": "sir john hamilton dalrymple 5th baronet",
+     "gold_intermediate": [
+      "sir hew dalrymple 3rd baronet"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 22,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q063",
+     "subject": "you can",
+     "gold_intermediate": [
+      "madleen kane"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 18,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q141",
+     "subject": "hellcats of the navy",
+     "gold_intermediate": [
+      "nathan juran"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "atomised film",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 38,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q171",
+     "subject": "princess charlotte of saxe meiningen",
+     "gold_intermediate": [
+      "ernest ii duke of saxe gotha altenburg"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 10,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q100",
+     "subject": "the trouble with cali",
+     "gold_intermediate": [
+      "michael sorvino",
+      "paul sorvino"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 30,
+     "hit@2": false,
+     "hit@5": false
+    },
+    {
+     "qid": "q087",
+     "subject": "postmortem 1998 film",
+     "gold_intermediate": [
+      "albert pyun"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 2,
+     "hit@2": true,
+     "hit@5": true
+    },
+    {
+     "qid": "q006",
+     "subject": "humphrey de bohun 7th earl of hereford",
+     "gold_intermediate": [
+      "william de bohun 1st earl of northampton"
+     ],
+     "top5": [
+      "alan of galloway",
+      "albert pyun",
+      "catherine of taranto countess of copertino",
+      "baraguru ramachandrappa",
+      "charles the fat"
+     ],
+     "rank_of_gold": 49,
+     "hit@2": false,
+     "hit@5": false
+    }
+   ]
+  },
+  "delta_paired": {
+   "delta_hit_at_2": 0.0385,
+   "delta_pp": 3.85,
+   "delta_PR_at_5": 0.0077,
+   "ci95": [
+    0.0,
+    0.1154
+   ],
+   "p_gt_0": 0.6376,
+   "bootstrap_n": 5000,
+   "seed": 20261022,
+   "verdict_rule": "confirmed 若 delta PR@5 >= +0.02（+2pp）；否则 refuted"
+  }
+ },
+ "diagnostic": {
+  "realgraph_oracle_walk": {
+   "n_queries": 26,
+   "hits_at_2": 1,
+   "hits_at_5": 1,
+   "precision_at_5": 0.0077,
+   "hit_at_2": 0.0385,
+   "recall_at_5": 0.0385,
+   "note": "真实共现图的 PR 上界参照（非指令口径，仅示刻度；非结论）"
+  }
+ },
+ "calibration": {
+  "rule": "群数最接近 15",
+  "picked": "p85",
+  "tau": 0.91932,
+  "n_groups": 15
+ },
+ "reachability": {
+  "semantic_group_graph_reachable_mean": 13.12,
+  "fixed_chunk_4_reachable_mean": 3.0,
+  "note": "可达接收者数（PR 实现：仅移除 subject 出边）：固定分块 3（同块唯一邻居），语义分组 13.12（起点群被并后群规模偏大）——分组并不\"看得更远\"，反而可达面更大、稀释更深。两档绝对 PR@5 均<2%，该轻量代理在 60 节点小图上区分力极弱，方向性差异不足以支撑结论。"
+ },
+ "data_integrity": {
+  "emb_nonfinite_or_zero_rows": {
+   "non_finite_or_zero_rows": []
+  },
+  "all_finite": true,
+  "zero_norm_rows": 0,
+  "no_fabrication": "全部数值由上述两份 Hub 文件本地确定性重算，脚本已随附"
+ },
+ "verdict": {
+  "threshold_pp": 2.0,
+  "delta_PR_at_5": 0.0077,
+  "status": "refuted",
+  "reason": "语义分组 PR@5=0.0154 vs 固定分块 PR@5=0.0077，PR@5 差值 +0.77pp < +2pp 门槛；hits@2 为 2 vs 1（N=26），配对 bootstrap CI95=[0.000,0.115]、p(delta>0)=0.64，不显著。",
+  "wording": "H-E1L 在 60 实体/30 查询小图上以本轻量代理未获证：方向为正但幅度不足门槛且不显著；不得表述为\"语义分组有效\"，亦不得表述为\"语义分组无效\"（小样本、绝对 PR@5 均<2%，功效极低）。"
+ },
+ "scope_compliance": {
+  "no_training": true,
+  "no_frozen_artifact_overwrite": true,
+  "no_ledger_write": true,
+  "no_llm_forward": "无需 LLM 前向（纯 CPU 数值计算）",
+  "wall_clock_s": 0.15,
+  "data_source": "Hub r2_entity_embeddings + r2_multihop_real (read-only fetch)"
+ }
+}
