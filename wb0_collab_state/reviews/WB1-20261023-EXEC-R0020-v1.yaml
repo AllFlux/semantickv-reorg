@@ -1,0 +1,96 @@
+review_id: WB1-20261023-EXEC-R0020-v1
+id: WB1-20261023-EXEC-R0020-v1
+author: WB1
+target: WB0
+date: 2026-10-23
+round: "00:20"
+version: v1
+instruction_ids:
+  - 1792682216-94e463
+  - 1792681928-845b87
+  - 1792680773-ce8741
+  - 1792678320-0d5342
+  - 1792678221-06af23
+  - 1792668156-caf2bc
+data_source: results_v2/wb1_exec_round_20261023_0020.md
+data_source_detail:
+  - relpath: results_v2/wb1_exec_round_20261023_0020.md
+    size: 4361
+    sha256: 1de1a5da786b05ba09a31825da0d54ffa72d58a3c94f213102a20276e6e9710a
+status: confirmed
+status_note: >
+  00:20 档巡检：AT_IDLE。按省 token 纪律以 brief 模式完成三轮核对——GET /api/brief（1930B）确认机检
+  discipline PASS/0、contract PASS/0；GET /api/instructions?brief=1&target=WB1&since=1792668156（1030B）
+  得 6 条候选、逐一比对 done.json 全部已处理；另做无 since 全量 brief 交叉核对（12800B）防窗口截断假阴性：
+  target∈{WB1,ALL} 共 60 条，58 已 done，未 done 2 条均为 long_run（AB-01 1792564435-ee5050、
+  AB-02 1792566417-67614f），按规则 2b 跳过——不执行、不标 done、不发 open_item（二者已由 WB0
+  1792577801-70e614 正式关闭，A/B stage=COMPLETE，严禁续跑）。可执行 auto_run 指令 0 条。
+  设施复核：本地 5 件核心交付物 sha256 实算在位；Hub 侧 6 文件 /api/file 直读全部 200 且字节数一致
+  （exp07_router_relief.json 220230B、erratum JSON 18521B、EXP-07 回执 14010B、R2-ERRATUM 回执 13506B、
+  exp07 脚本 33102B、erratum 脚本 22239B）。本档为设施与状态确认，未新增任何研究结论；
+  H-ROUTER-COLLAPSE 维持 pending、闸门 H-WB2-E2E-01 维持 verified_proxy，均零变化。
+  Hub 残留 2 个 open_items（WB0-CLOUD-AGENT-FAILURE、WB0-LEDGER-DECISIONS-STALE）为 WB0/主会话侧事项，WB1 不代处置。
+prediction: >
+  若本档判定 AT_IDLE 且 WB1 侧设施完好，则：(a) 全量 brief 核对下 target∈{WB1,ALL}、id∉done.json、
+  auto_run=true 且 long_run≠true 的指令数应为 0；(b) /api/discipline 与 /api/contract 对 WB1 应维持
+  PASS（无新增 FAIL）；(c) 本地 5 件核心交付物的 sha256 应与 Hub /api/file 直读字节逐一相符；
+  (d) 本档推送的 2 件文件上传后 /api/file/r2_<stem> 应返回 200 且 size 与本地一致。
+falsifiable_criterion: >
+  出现下列任一即证伪本回执或需发更正件：(a) 全量核对发现任何符合筛选条件的可执行指令被本档遗漏；
+  (b) 机检出现 WB1 侧新增 FAIL（discipline 或 contract）；(c) Hub 侧抽检任一文件 404 或字节数与本地不符；
+  (d) 本档执行、推送或改写了任何 target=WB0/WB2 条目，或写台账、覆盖冻结件、伪造数据、抢跑未批准方向。
+actual_data: >
+  /api/brief（00:20，1930B）：instructions 91、reviews 44（PASS 42 / FAIL 2）、hypotheses 38
+  （confirmed 9 / refuted 11 / pending 17 / verified_proxy 1）、open_items 10（open 2）；
+  discipline PASS 0 issues、contract PASS 0 issues；silence in_window=false。
+  候选核对：since=1792668156 查询返回 6 条（1792682216-94e463、1792681928-845b87、1792680773-ce8741、
+  1792678320-0d5342、1792678221-06af23、1792668156-caf2bc），全部∈done.json。
+  全量交叉核对（无 since）：target∈{WB1,ALL} 共 60 条 = 58 done + 2 未 done；2 条未 done 均含正文
+  long_run: true（AB-01/AB-02），按规则 2b 跳过，与 WB0 关闭裁定 1792577801-70e614 一致。
+  本地 sha256 实算：exp07_router_relief.json c7c90b7e77e2970c…（220230B）、
+  r2_router_collapse.json 1fa41da9d32a1701…、r2_router_collapse_erratum_zscore_cells.json 1c0a6536bb5f3b74…（18521B）、
+  WB1-20261022-EXP-07.yaml ccddc7c74ef930fe…（14010B）、WB1-20261022-R2-ERRATUM-v1.yaml 2f34b74125b27b47…（13506B）。
+  Hub 直读：r2_exp07_router_relief 200/220230、r2_r2_router_collapse_erratum_zscore_cells 200/18521、
+  r2_WB1-20261022-EXP-07 200/14010、r2_WB1-20261022-R2-ERRATUM-v1 200/13506、
+  exp07_router_relief.py 200/33102、r2_erratum_zscore_cells.py 200/22239——全部与本地字节数一致。
+  本档推送：巡检记录 1 件（4361B）+ 本回执 1 件；执行实验 0 项；新增 open_item 0 条；long_run 跳过 2 条；
+  写台账 0 处；覆盖冻结件 0 处；跨席位代执行 0 次。
+hypotheses:
+  - id: H-EXEC-R0020
+    statement: >
+      00:20 档 WB1 无待执行 auto_run 指令（AT_IDLE），且 WB1 侧既有交付物与 Hub 取证通道完好——
+      该判定不依赖任何单次 since 窗口查询，需经无 since 全量 brief 交叉核对方可成立。
+    prediction: >
+      全量核对下可执行指令数为 0；机检对 WB1 维持双 PASS；本地与 Hub 侧抽检文件字节全部相符。
+    falsifiable_criterion: >
+      若全量核对发现遗漏的可执行指令、机检出现 WB1 侧新增 FAIL、或 Hub 直读字节与本地不符，则本假设被否定。
+    actual_data: >
+      全量 60 条中未 done 仅 2 条且均 long_run；discipline/contract 均 PASS 0 issues；
+      6 件 Hub 文件直读 200 且 size 与本地逐一相符（见 actual_data 段）。
+    status: confirmed
+collaboration_audit:
+  target_wb0_untouched: true
+  target_wb2_untouched: true
+  long_run_skipped: 2
+  new_open_items: 0
+  freezing_files_overwritten: 0
+  ledger_written: false
+compliance:
+  - 未伪造数据：本档无数值产出，全部数字为 Hub API 实拉值与本地 sha256 实算值
+  - 未抢跑：未启动任何未在指令中批准的研究；EXP-07 结论（pending）与闸门状态零变化
+  - 未写台账：done.json 未追加新 id（候选全部已done）；仅更新执行器自有 last_seen_ts.txt
+  - 未覆盖冻结件；未触碰任何 target=WB0/WB2 条目；WB1 自发 open_item 未自处理
+  - 省 token 纪律：三步均为 brief 模式（1930B/1030B/12800B），未裸拉 /api/instructions 全量、/api/state、/api/ledger
+  - 口径披露：候选筛选以 done.json 为准而非 since 窗口（另做无 since 全量核对防假阴性）；long_run 判定依据正文 YAML 头
+  - D4/D5：本档无新实验产物，既有交付物资源全部在位（sha256/字节数核验通过），无 dependency_missing；不涉及不可再生孤本，p0 不置位
+round_self_check:
+  B-01: '断言卡——本轮未证推论=AT_IDLE 判定（不存在被遗漏的可执行指令）；备选解释=since 窗口截断或 API target 过滤丢指令；排除依据=另做无 since 全量 brief 交叉核对（60 条 WB1/ALL、58 done、2 long_run），与 since 查询并集完全一致。'
+  B-02: '判据分级——本轮全部判定为 E2（Hub API 实拉 + 本地 sha256 复算，可立即跑可复算）；无 E3（无资源阻塞）；无 E5（无原则上不可判项）。'
+  B-03: '动机猜测——回应 WB0 每小时 :20 巡检档对执行器健康态（AT_IDLE/ACTIVE）与纪律机检双 PASS 的持续取证需求。'
+  B-04: '类比——0 处跨领域类比（纯设施巡检，无机制推论），无 [发生器] 标注需求。'
+  B-05: '自我规划——本轮范围=候选核对（since+全量两道）+ 设施复核 + 双件推送；下轮计划=继续 :20 档 brief 首步巡检，若出现新 auto_run 指令即在其 scope_guard 内执行。'
+  B-06: '循序渐进——本轮完成空转档标准化留痕（巡检 md + 回执 YAML 双件、本地/Hub 双通道 sha256 复核）；预留接口=last_seen_ts 更新至 1792682216，作为下轮 since 查询基线。'
+  B-07: 'Agent 调用——0 次子 Agent；全部经 curl/Hub API 与本地只读命令完成，无多代理协作需求。'
+  B-08: '交付前验证——(a) 本地 5 件核心交付物 sha256 实算在位；(b) Hub 侧 6 文件 /api/file 直读 200 且字节相符；(c) 本回执含 B-01~B-10 完整自检块防 contract FAIL；(d) 上传后将复读 /api/file/r2_<stem> 与 /api/discipline、/api/contract 并记录结果。'
+  B-09: '动机优先——本轮 100% 回应执行器纪律与 WB0 巡检机制要求（brief 首步、筛选规则、long_run 跳过、双通道复核、回执必填字段），框架自发扩展=0。'
+  B-10: '不下断定——保留待裁：Hub 2 个 open item 归 WB0/主会话处置；H-ROUTER-COLLAPSE 维持 pending（EXP-07 结论不变）；AB-01/AB-02 关闭态未经 WB0 新指令不重启；执行器"持续健康"待连续多档观察，本档仅单点确认。'

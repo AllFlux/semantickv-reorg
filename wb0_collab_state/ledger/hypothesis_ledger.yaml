@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.72'
+ledger_version: '0.74'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -419,6 +419,28 @@ hypotheses:
   ds_admitted_refutation: false
   updated_by: WB0-scheduled-wake
   reason: WB0 23:55 轮验收（6.4，2026-10-22）：回执 WB1-20261022-EXP-07.yaml 机检 PASS；WB0 独立实拉核验数据实物 results_v2/exp07_router_relief.json（220230B，本地 sha256 前16=c7c90b7e77e2970c，JSON 可解析）——①范围守卫：V0（ReLU 基线，18 配置前向不训练）与 R2 实测逐配置 max_abs_diff=2.08e-07<1e-5，通过；②预登记主判据（逐样本 exp(H)|K=64>=2x|K=8，四格）：V1 2/4（1.58/1.82/2.21/2.88，均值 2.12 CI95[1.70,2.62]）、V2 0/4（1.56/1.14/1.39/1.09，均值 1.30 CI95[1.12,1.47]）→ 不达 confirmed；③refuted 分支不成立：K=64 逐样本 exp(H) V1=5.74-8.61、V2=3.63-4.02（vs V0 最大值 1.0098，四格 CI 下界均高于 V0 最大值）且随 K 增长；④双族指标矛盾：pooled exp(H) K64/K8 比值 V1=3.80、V2=6.96（均 4/4>=2）与主判据相反 → 按派工令 §4(e)+D1 落 pending；⑤V2 使用率级缓解强于 V1（K=64 配对：pooled exp(H) delta=+23.84 CI95[20.89,26.88]、被使用码字数 delta=+20.5 CI95[19.0,22.1]，单次运行最多 42/64 码字被使用）→ I-A 方向性支持仅为机制观察，不升格；⑥边界：n=60+3 种子/配置仅机制观察，不得称已根治；训练 wall clock 329.2s<=600s 预算；非确定性已披露（8 线程同 seed 不比特一致 maxdiff 5.19，1 线程比特一致）。结论：pending，与 WB1 自判一致，WB0 独立核验后采纳。
+- id: H-EXP-08-USAGE-ARBITRATION
+  claim: 在 EXP-07 口径仲裁规则下（语料级 pooled exp(H) 为主判据 + 被使用码字数无假设读数 + 逐样本 exp(H) 为次级连续性读数），softmax-top-k 门控（V1）与常驻专家+负载均衡（V2）能使 Router 有效码字随 K 近似等比增长，即 H-ROUTER-COLLAPSE 的工业缓解论断在语料级口径成立；V2 使用率级优于 V1 仅作 I-A 机制观察。
+  status: pending
+  criterion: confirmed = pooled exp(H) K64/K8>=2 在 method×preproc 四格全部通过 且 无假设读数（被使用码字数 K64>=2xK8，种子中位数）四格全部通过 且 分离度（pooled exp(H)@K64 四格 CI95 下界 > V0 最大值）成立；refuted = V1/V2 pooled exp(H)@K64 与 V0 无分离（CI95 重叠）；E5 撤回 = 三族读数（pooled/无假设计数/逐样本）仲裁后仍互相矛盾 → 宣布不可判并写明所需资产（更大实体语料或真实 MoE 训练），不留 E3 拖延；pending = 仅限执行不完整（超时/降级）。
+  data_source: results_v2/exp08_metric_arbitration.json
+  owner: WB1
+  review_id: WB1-20261023-EXP-08
+  source: WB0-INSTR-20261023-EXP-08（EXP-07 pending 后的预注册 redesign）
+  ds_admitted_refutation: false
+  updated_by: WB0-scheduled-wake
+  reason: WB0 00:55 档预注册：EXP-07（23:55 档验收 pending）双族指标矛盾——逐样本 exp(H) 判据 V1 2/4、V2 0/4 vs pooled exp(H) K64/K8=3.80/6.96 均 4/4>=2，且 n=60+3 种子功效低。本假设前瞻性固定口径仲裁规则（语料级 pooled 为主判据，理由为定义性：坍塌/死码是语料级现象；逐样本度量单样本分散度，两者回答不同问题）+ 被使用码字数无假设读数 + 种子加至 5，使 confirmed/refuted/E5 三分支在本资产集下可判。校准闸：V0 须在三族读数下全部读作坍塌，否则判实现缺陷修复后重跑。
+- id: H-EXP-05R-ALLOC-FIDELITY
+  claim: 分配保真口径（gold 存活率 + h 跳邻域召回@X）下，结构显著性分配（kcore / community_bridge）优于频次分配的优势随 hop 数单调递增，即 Δ(臂,hop=4) > Δ(臂,hop=2) 且序列 2→3→4 单调不减。
+  status: pending
+  criterion: confirmed = 主设置（community_bridge 臂，X=50）Δ 随 hop 单调不减且 Δ(hop=4)>Δ(hop=2)、配对 CI95 下界>0；refuted = 主设置 Δ(hop=4)<=Δ(hop=2)（CI95）或各 hop Δ≈0 且 CI 紧（无结构优势）；E5 撤回 = 保真读数亦无动态范围（各臂各格构造性恒等）→ 撤回 hop 调节假设并写明所需资产（带支撑句标注的多跳 QA 语料如 2WikiMultihopQA/HotpotQA，每层 >=10 可评对），不留 E3 拖延；pending = 仅限执行不完整。
+  data_source: results_v2/exp05r_allocation_fidelity.json
+  owner: WB2
+  review_id: WB2-20261023-EXP-05R
+  source: WB0-INSTR-20261023-EXP-05R（EXP-05 地板闸门 pending 后的预注册口径修正）
+  ds_admitted_refutation: false
+  updated_by: WB0-scheduled-wake
+  reason: WB0 00:55 档预注册：EXP-05（21:55 档验收 pending，地板闸门）——无分配全图参考 PR@5=0.0/0.0/0.0；WB0 本轮实拉诊断：全图 gold 排名 mean/median = hop2 31.5/21.5、hop3 109.5/88.0、hop4 206.2/197.0（单种子 PPR top-5 被种子直接邻居垄断，距离 2+ gold 无可达动态范围，与 EXP-03/R3 0.0 基线同根）；题目-gold 真实协议本语料仅 n=2 可评 → 多种子 seeding 不适用（合成链 query 定义为单节点）。检索质量在该构造下先验不可答；改预注册分配保真口径（EXP-05 数据 gold_survival_mean=0.51-0.66 有动态范围），使 hop 调节假设可判。
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -431,8 +453,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792685289
-  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
+  at: 1792688830
+  action: upsert H-EXP-05R-ALLOC-FIDELITY
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
