@@ -570,6 +570,79 @@ def brief():
     }
 
 
+@app.get("/api/audit")
+def audit():
+    """预聚合视野补偿：brief 化后丢失的"顺带审计"能力，用确定性检查补回。
+    只读，不修改任何数据。WB0 每轮巡检调用一次（返回 <1KB）。
+    覆盖：brief 自一致 / 索引指向实物 / 空回执 / 非法 target / 重复正文 / 回执索引缺失。"""
+    issues = []
+    files_all = _collect_files()
+    reviews_all = _load_manifest("reviews") or []
+    instrs_all = _load_manifest("instructions") or []
+    led = _load_ledger() if LEDGER.exists() else {}
+    hyps = led.get("hypotheses", []) or []
+
+    # A1 brief 计数与实际是否一致（防"我改 brief 时漏字段"导致全员静默失明）
+    try:
+        b = brief()
+        actual = {"files": len(files_all), "reviews": len(reviews_all),
+                  "instructions": len(instrs_all), "hypotheses": len(hyps)}
+        for k, v in actual.items():
+            bv = (b.get("counts") or {}).get(k)
+            if bv != v:
+                issues.append({"rule": "A1", "detail": f"brief.{k}={bv} 但实际={v}"})
+    except Exception as e:
+        issues.append({"rule": "A1", "detail": f"brief 不可用: {str(e)[:100]}"})
+
+    # A2 索引条目指向的实物是否存在（正向校验；反向枚举受沙箱限制）
+    miss = []
+    for e in (_load_manifest("files") or []):
+        rel = e.get("relpath") or ""
+        if e.get("tree") == "results_v2" and rel and not (Path(CHECK_ROOT) / rel).exists():
+            miss.append(rel)
+    if miss:
+        issues.append({"rule": "A2", "detail": f"{len(miss)} 个 files 索引指向的文件不存在", "items": miss[:8]})
+    miss_rv = [e.get("name") for e in reviews_all if not (RV / str(e.get("name") or "")).exists()]
+    if miss_rv:
+        issues.append({"rule": "A2", "detail": f"{len(miss_rv)} 个 reviews 索引指向的文件不存在", "items": miss_rv[:8]})
+
+    # A3 空/超小回执、缺 hypotheses 段（顺带审计的核心：全量扫过才看得见）
+    for e in reviews_all:
+        p = RV / str(e.get("name") or "")
+        try:
+            txt = p.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        if len(txt) < 200:
+            issues.append({"rule": "A3", "detail": f"回执过小 {e.get('name')} ({len(txt)}B)"})
+        elif "hypotheses:" not in txt:
+            issues.append({"rule": "A3", "detail": f"回执缺 hypotheses 段 {e.get('name')}"})
+
+    # A4 非法 target（会导致执行器永远取不到或全取）
+    valid = {"WB0", "WB1", "WB2", "ALL"}
+    for i in instrs_all:
+        t = str(i.get("target") or "")
+        if t and t.upper() not in valid:
+            issues.append({"rule": "A4", "detail": f"非法 target='{t}' @ {i.get('id')}"})
+
+    # A6 重复正文（乱码重发/同一事实二次发布的先兆）
+    from collections import defaultdict as _dd
+    seen = _dd(list)
+    for i in instrs_all:
+        bd = (i.get("body") or "").strip()
+        if len(bd) > 100:
+            seen[hashlib.sha256(bd.encode()).hexdigest()[:12]].append(i.get("id"))
+    for h, ids in seen.items():
+        if len(ids) > 1:
+            issues.append({"rule": "A6", "detail": f"重复正文 {len(ids)} 条（{h}）", "items": ids[:4]})
+
+    return {"status": "PASS" if not issues else "FAIL", "total": len(issues),
+            "counts": {"files": len(files_all), "reviews": len(reviews_all),
+                       "instructions": len(instrs_all), "hypotheses": len(hyps)},
+            "issues": issues[:30],
+            "note": "A1=brief自一致 A2=索引指向实物 A3=空回执/缺段 A4=非法target A6=重复正文"}
+
+
 @app.get("/api/silence")
 def silence_status():
     """静默期可观测性：当前是否在静默窗口 + 今日静默期内的写操作清单。
