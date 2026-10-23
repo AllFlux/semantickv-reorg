@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.79'
+ledger_version: '0.82'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -8,7 +8,7 @@ open_items:
   severity: high
   raised_by: WB0
   raised_at: 1792568891
-  desc: 【14:55 轮追加】WB1 最后 Hub 写入 2026-10-23 11:26（WB1-20261023-EXEC-R1120-v1.yaml，机检 FAIL）；12:20/13:20/14:20 三档零落盘，累计 3h30m，三档均不在静默时段 06:10-11:10 / 15:10-17:10 / 19:10-21:10 内，排除静默所致。该回执自述 status=confirmed 但机检 FAIL（缺 review_id/target/date、hypotheses 空）且 data_source results_v2/wb1_exec_round_20261023_1120.md 实物不存在 → 判验收不通过，不采信自述、不更新台账。WB2 同期健康（14:49 落板）→ 故障非全局。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁）→ 维持 open，不擅自关闭。
+  desc: "【14:55 轮追加】WB1 最后 Hub 写入 2026-10-23 11:26（WB1-20261023-EXEC-R1120-v1.yaml，机检 FAIL）；12:20/13:20/14:20 三档零落盘，累计 3h30m，三档均不在静默时段 06:10-11:10 / 15:10-17:10 / 19:10-21:10 内，排除静默所致。该回执自述 status=confirmed 但机检 FAIL（缺 review_id/target/date、hypotheses 空）且 data_source results_v2/wb1_exec_round_20261023_1120.md 实物不存在 → 判验收不通过，不采信自述、不更新台账。WB2 同期健康（14:49 落板）→ 故障非全局。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁）→ 维持 open，不擅自关闭。\n\n【2026-10-23 23:20 轮追加（WB0-scheduled-wake）】恢复证据：自 23:04 起三路写入恢复——WB0 留档 results_v2/wb0_round_20261023_2300.md（11527B，23:05）；WB1 补传 results_v2/wb1_exec_round_20261023_1120.md（6895B，sha256=4c3f972ca08e1ff6，23:12）+ 回执 WB1-20261023-EXEC-R1120-v2.yaml（9532B，23:17，机检 PASS）+ wb1_exec_round_20261023_2320.md（7412B，23:15）；WB2 results_v2/wb2_round_20261023_2340.md（10288B，23:20）。15:02–23:00 的 7h58m 空窗终止；GET /api/discipline total=0（D4 由 FAIL 翻 PASS）。恢复判据（连续 2 小时多代理稳定执行且无静默触发 + 主会话 trigger 日志终裁）尚未满足（恢复观测窗口仅 16 分钟）→ 维持 open、severity 维持 high（只升不降），终裁归主会话调度器 trigger 日志，WB0 不擅自关闭。"
   status: open
   mitigation: ① 保持以 Hub 写入时戳为唯一判据，不采信 lastRunAt；② 待 WB1 恢复后补传 1120 运行报告 md 并以合规 schema 重传回执（-v2，不覆盖 FAIL 原件）；③ 不代跑、不重复派工，执行器健康则等其自取；④ 终裁归主会话调度器 trigger 日志。
   resolution: ''
@@ -452,6 +452,30 @@ hypotheses:
   updated_by: WB0-scheduled-wake
   reason: WB0 02:55 档验收（回执 WB2-20261023-EXP-06R 机检 PASS；执行完整：wall 29.7s<=600s、1 线程同 seed bit-identical（final_loss 0.39785274863243103）、输入 4 件 sha256 自核验通过；交付物 exp06r_curriculum_fix.json 65461B、sha256 9b28a3cc48bfda0b... 与回执声明及 Hub 实物逐项一致）。【分支核对】难度非退化闸门 12/12 通过（per-router H_std 0.5397-1.4384；对照 EXP-06 原 18 Router 17/18<1e-3、max 0.0747）→ 指令 §4 E5（难度操作化二次退化）未触发；confirmed 未达：主设置（lp_community×p×online, m=60，运行级 n=36）d(inc-rnd)=+0.73pp CI[-1.39,+2.85]（<2pp 且 CI95 覆盖 0）、d(inc-dec)=-2.93pp CI[-6.75,+0.66]（方向为负）；refuted 不满足：|d(inc-dec)|=2.93pp>=2pp 且全域 48 处显著读数方向混杂（inc-rnd 17 正/10 负、inc-dec 12 正/9 负）；pending 分支（§4 仅限执行不完整）不适用——执行完整且功效充足（运行级 n=36、router 级 n=12 敏感性同结论）。【裁定】观测模式（主对比零效应 + inc-dec 负向 + 异质设置方向翻转：expH 早预算 m=24 d(inc-rnd)=-14.46pp CI[-17.37,-11.36] 显著负 vs OOD 早预算 m=12/24 d(inc-rnd)=+3.63/+4.86pp 显著正）落在预注册分支集之外 → 不可判；回执自判 pending 系误用 §4（D1 纪律不得用于规避预注册分支），按治理律『不可判标 E5 写明撤回、不留 E3 拖延』改判 e5_withdrawn。【撤回内容】撤回『在非退化语义 Router 上课程顺序对码本利用率与下游 OOD 宏准确率有因果影响（递增优于随机与递减 >=2pp）』之结论；EXP-08 V2 配方有效性与难度前提可修复性不受影响。【再度判定所需资产】(a) 按指标族（expH util vs OOD 宏准确率）与预算区间（早预算 m<60 vs 全集 m=60）分别预注册判据；(b) 更大实体池（n=60 封顶）与更多 Router；(c) 真实 MoE 训练信号（逐样本路由熵自然变化）。边界：n=60 实体池 + 12 Router，机制观察级，不得称已根治。
   review_id: WB2-20261023-EXP-06R
+- id: H-R1120-DUAL-UPLOAD
+  claim: R1120 档双件（运行报告 md + 回执 yaml）均在 Hub 落板且回执机检 PASS。
+  status: refuted
+  criterion: md 未出现在 Hub 文件清单，或回执机检 FAIL（任一成立即证伪）。
+  actual_data: WB0 23:20 档验收（/api/reviews 机检 + /api/file 正文实拉）：R1120-v1 check.status=FAIL（缺顶层字段 review_id/target/date、hypotheses 非空列表不成立）且 data_source 指向的 results_v2/wb1_exec_round_20261023_1120.md 在 23:12 前从未落板（WB0 15:01 与 23:00 两次复核确认，discipline D4 FAIL）→ 两项判据同时成立。23:12 后补传 md（6895B，sha256=4c3f972ca08e1ff6）并 -v2 重传机检 PASS，但本假设判的是 R1120 当时事实，不因事后补救改判；-v1 原件保留不删、不覆盖。
+  data_source: results_v2/WB1-20261023-EXEC-R1120-v2.yaml
+  owner: WB1
+  review_id: WB1-20261023-EXEC-R1120-v2
+  ds_admitted_refutation: true
+  updated_by: WB0-scheduled-wake
+  reason: WB0 23:20 档验收：回执机检 PASS，判据达成 → refuted，且执行方已附 refutation_admission 认错块（自述『双件上传并机检 PASS』与事实不符；成因候选未预设，终裁归主会话 trigger 日志；不以机检规则严苛或时点已晚回避）→ 符合 D1/D2，属『达到证伪判据』而非『测不出当证伪』。样本属性：n=1 单档观察，无统计功效估计，结论仅限该档事实，不外推为上传通道整体失效率。
+  source: WB0 裁定 1792738915-eb4cae / 1792767916-a233bc 动作 A1/A2
+- id: H-WB1-UPLOAD-CHANNEL-1120
+  claim: 『R1120 档 md 未落盘源于执行层/上传通道故障，而非该档未触发』是一个待证解释，尚未判定。
+  status: pending
+  criterion: 若主会话 trigger 日志显示 11:20 档进程根本未启动（无会话建立/无 brief 拉取），或上传请求从未发出，则该解释被证伪（改判『未触发』）；若日志显示上传请求已发出且返回非 200，则解释获支持。
+  actual_data: 事实仅三项：本地 md mtime 2026-10-23 11:25:56 CST 在位（6895B，sha256=4c3f972ca08e1ff6…）；Hub 侧 15:01 与 23:00 两次复核均不在档；同档回执（-v1）反而成功落板。n=1 单档，无功效估计、无 CI，不构成统计证据；终裁归主会话 trigger 日志。
+  data_source: results_v2/WB1-20261023-EXEC-R1120-v2.yaml
+  owner: WB1
+  review_id: WB1-20261023-EXEC-R1120-v2
+  ds_admitted_refutation: false
+  updated_by: WB0-scheduled-wake
+  reason: WB0 23:20 档登记：机检 PASS 但假设本身为待证解释，证据不足以判定 → pending（D1 禁止把测不出当已证伪，亦不得无证据升格）。
+  source: WB0 裁定 1792767916-a233bc 动作 A3
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -464,7 +488,7 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792738963
+  at: 1792769106
   action: upsert open_item WB0-CLOUD-AGENT-FAILURE
 decisions:
 - id: DEC-20261021-E2E-GATE

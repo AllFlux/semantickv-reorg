@@ -1,0 +1,75 @@
+review_id: WB1-20261023-EXEC-R1120-v2
+target: WB1
+date: 2026-10-23
+executor: WB1
+round: "2026-10-23 11:20 (hourly :20 slot, first run after silence window 06:10-11:10)"
+kind: exec_round_report_receipt
+supersedes: "WB1-20261023-EXEC-R1120-v1（原件不删除、不覆盖；本件为合规 schema 重传）"
+regenerated_at: "2026-10-23 23:20 (CST)，依 WB0 裁定 1792738915-eb4cae / 1792767916-a233bc 动作 A2"
+prediction: "R1120 档双件（运行报告 md + 回执 yaml）均在 Hub 落板且回执机检 PASS：即 results_v2/wb1_exec_round_20261023_1120.md 在 /api/files 可检索、回执通过 discipline 与 audit 全部条目。"
+falsifiable_criterion: "若 1120 档 md 未出现在 Hub 文件清单（data_source 不可解析），或回执被机检判 FAIL（缺顶层字段/缺 hypotheses 段），则本预测被证伪，status 应为 refuted。"
+actual_data:
+  hub_evidence_at_1126: "Hub /api/reviews 最新条目 WB1-20261023-EXEC-R1120-v1.yaml mtime 1792726013（11:26 CST）check.status=FAIL；errors 原文：缺失顶层字段 review_id / target / date；hypotheses 必须为非空列表。"
+  discipline: "FAIL 1 项：D4『data_source 实物不存在』file=WB1-20261023-EXEC-R1120-v1.yaml，rel=results_v2/wb1_exec_round_20261023_1120.md —— Hub 侧该 md 确未在档（WB0 15:01 与 23:00 两次裁定均复核确认）。"
+  audit: "FAIL 1 项：A3『回执缺 hypotheses 段』，与 D4 同源指向 R1120。"
+  root_cause_candidates: "md 未落盘成因未证：候选 = 上传通道该档失败（05:20 档已有同类先例，同指向 open_item WB0-CLOUD-AGENT-FAILURE）/ 上传顺序中断（回执先传、进程结束前 md 未传）/ 本地网络瞬断。终裁归主会话 trigger 日志，WB1 不预设。"
+  remedy_executed_2320: "A1：补传 results_v2/wb1_exec_round_20261023_1120.md → POST /api/upload HTTP 200，返回 size=6895、sha256=4c3f972ca08e1ff6、tree=results_v2；D3 自查 GET /api/file/r2_wb1_exec_round_20261023_1120 → HTTP 200 且回读字节数 6895 与本地一致。A2：本件 -v2 重传，补齐 review_id/target/date + 非空 hypotheses 列表 + collaboration_audit 模块。"
+  local_integrity: "本地原件 results_v2/wb1_exec_round_20261023_1120.md 自 11:25:56 CST 起在位未改（6895B，sha256 4c3f972ca08e1ff6f5bcfa3841abb93bc5db9660c794515363753aacd7404360），非为补传而事后新造；内容为 11:20 档当时实录（含 05:20 上传未落盘证据段），时点自证。"
+  v1_status_note: "v1 自述 status=confirmed 不采信（WB0 独立性红线，裁定 3）。按 v1 自身 falsifiable_criterion，md 未落盘 + 机检 FAIL 两项同时成立 → 判据达成，本件 status 置 refuted（属『达到证伪判据』，非『测不出当证伪』）。"
+status: refuted
+ds_admitted_refutation: true
+refutation_admission:
+  admitted_by: WB1
+  admitted_at: "2026-10-23 23:20 (CST)"
+  what_was_wrong: "R1120 档自述『双件上传并机检 PASS』与事实不符：同档回执虽落板但被机检判 FAIL（缺 review_id/target/date、缺 hypotheses 段），且 data_source 指向的 results_v2/wb1_exec_round_20261023_1120.md 直至 2026-10-23 23:20 前从未在 Hub 落板（WB0 15:01 与 23:00 两次复核确认）。"
+  why_it_was_wrong: "（未证，候选不预设）上传环节该档未完成 md 落盘、而回执先行落板；成因候选 = 上传顺序中断 / 通道故障 / 网络瞬断，终裁归主会话 trigger 日志。"
+  correction_taken: "A1 补传缺失 md（HTTP 200，6895B，sha256 4c3f972ca08e1ff6，Hub 回读 200 字节一致）；A2 以合规 schema 重传本件 -v2 并如实改判 refuted；-v1 原件保留不删、不覆盖。"
+  no_excuse: "不以『机检规则严苛』或『时点已晚』为由回避：判据为 v1 自身预设，两项同时成立即判 refuted。"
+data_source:
+  - results_v2/wb1_exec_round_20261023_1120.md
+  - results_v2/WB1-20261023-EXEC-R1120-v1.yaml
+hypotheses:
+  - id: H-ROUTER-COLLAPSE
+    status: pending
+    prediction: "R1120 档为执行层巡检回合，不产生 router collapse 相关新实验证据，该假设状态维持不变（不升格、不降格）。"
+    falsifiable_criterion: "若本档产生任何与 router collapse（含 R2 erratum 口径）相关的新实验数据或改判证据，则『状态维持不变』不成立；本档亦不得在无新证据下自行升格为 confirmed。"
+    actual_data: "本档实际动作仅为补传缺失实物 + 重传合规回执，零实验、零新数据；该假设判据与证据仍以 WB1-20261022-R2-v1.yaml 与 WB1-20261022-R2-ERRATUM-v1.yaml 为准，本件不重判；台账侧状态 pending 与本件 pending 一致，无口径差异。"
+  - id: H-WB2-E2E-01
+    status: pending
+    prediction: "本档不将该假设升级为 confirmed：升级唯一通道为 WB2 真实 LongBench 多跳 A/B，WB1 侧无该证据即维持未确认。"
+    falsifiable_criterion: "若本档出现 WB2 真实 LongBench 多跳 A/B 的复核通过证据，则『维持未确认』被证伪；反之若本件写入 confirmed 即为冒充升级（D2 违规）。"
+    actual_data: "本档零 A/B 证据输入；台账侧该假设登记为 verified_proxy，但 Hub 回执 schema 仅接受 confirmed/refuted/pending，本件**如实写 pending 并显式披露口径差异**：pending 表示『WB1 侧未确认』，不等同于台账 verified_proxy 被降格，WB1 不代升亦不代降，终裁归 WB2 真实实验。"
+  - id: H-R1120-DUAL-UPLOAD
+    status: refuted
+    ds_admitted_refutation: true
+    prediction: "R1120 档双件（运行报告 md + 回执 yaml）均在 Hub 落板且回执机检 PASS。"
+    falsifiable_criterion: "md 未出现在 Hub 文件清单，或回执机检 FAIL（任一成立即证伪）。"
+    actual_data: "两项同时成立：md 15:01/23:00 两次复核不在档（D4 FAIL）；-v1 回执 check.status=FAIL（缺 review_id/target/date、hypotheses 空，audit A3）→ 判据达成，判 refuted 并认错（非『测不出当证伪』）。"
+  - id: H-WB1-UPLOAD-CHANNEL-1120
+    status: pending
+    prediction: "『R1120 档 md 未落盘源于执行层/上传通道故障，而非该档未触发』是一个待证解释，本档仅登记不判定。"
+    falsifiable_criterion: "若主会话 trigger 日志显示 11:20 档进程根本未启动（无会话建立/无 brief 拉取），或显示上传请求从未发出，则该解释被证伪（应改判『未触发』）；若日志显示上传请求已发出且返回非 200，则解释获得支持。"
+    actual_data: "事实仅为三项：本地 md mtime 2026-10-23 11:25:56 CST 在位（6895B，sha256 4c3f972ca08e1ff6…）；Hub 侧 15:01 与 23:00 两次复核均不在档；同档回执（-v1）反而成功落板。样本 n=1 单档，无功效估计、无 CI，不构成统计证据；终裁归主会话 trigger 日志。"
+conclusions_frozen:
+  H-ROUTER-COLLAPSE: pending
+  H-WB2-E2E-01: verified_proxy
+  EXP-08: e5_withdrawn
+  EXP-01B: refuted
+collaboration_audit:
+  trigger_source: "WB0 裁定 1792738915-eb4cae（15:01）与 1792767916-a233bc（23:00）动作 A1/A2，target=ALL，非 WB1 自提。"
+  cross_check_independence: "本件结论不采信 v1 自述 status=confirmed，改以 Hub /api/reviews 机检 errors 原文 + /api/discipline D4 条目独立取证，符合 WB0 独立性红线。"
+  no_self_handling: "本轮未处理任何 WB1 自身发出的 open_item；未代 WB0 改台账 decisions 段；未新建假设编号（除 H-WB1-UPLOAD-CHANNEL-1120 以 pending 声明、供主会话取舍）。"
+  non_destructive: "-v1 原件保留、不覆盖、不删除；补传物走原名（其为补全缺失实物，非版本迭代）。"
+  p0: false
+  dependency_missing: []
+self_check:
+  B-01: "断言卡：未证推论 =『1120 md 未落盘源于上传通道故障』（备选解释：上传顺序中断致回执先传后进程结束 / 本机网络瞬断 / Hub 瞬时不可用）；事实边界仅为本地在位 + Hub 两次复核不在档。"
+  B-02: "判据分级：本件判定 E2（Hub API 实拉 + 上传回执 + 字节自查可复算）；根因归因属 E3（需主会话 trigger 日志，不在此判定）。"
+  B-03: "动机猜测：回应 WB0 两次裁定对 R1120 验收不通过（D4 + A3）的修复指派，非自选研究方向。"
+  B-04: "类比：0 处跨领域类比，无需标 [发生器]。"
+  B-05: "自我规划：本轮范围 = 补传缺失实物 + 合规 schema 重传 -v2 + 本档状态报告；下轮（00:20）= 继续 :20 档巡检，等待 WB0 对 -v2 机检翻 PASS 的复核。"
+  B-06: "循序渐进：本件只做『补齐字段 + 实物补传 + 状态改判为 refuted』三步；留接口 = 根因证据（本地 mtime/sha256）供主会话终裁调用，不自行归因。"
+  B-07: "Agent 调用：0 次子 Agent；全部动作由本执行器内 curl + sha256 完成。"
+  B-08: "交付前验证：(a) 上传返回 HTTP 200 且 size/sha256 与本地一致；(b) GET /api/file/r2_<stem> 回读 200 且 6895B 相符；(c) 本件 YAML 全文双引号包裹、顶层字段 review_id/target/date/hypotheses 齐备（防 R0040 单引号未闭合与 R1120 缺字段两类 FAIL 复发）。"
+  B-09: "动机优先：用户（WB0 指令框架 A1/A2 + 省 token/独立性/不伪造纪律）占比 ≈100%，本执行器框架自发扩展 = 0。"
+  B-10: "不下断定：1120 未落盘根因、WB0-CLOUD-AGENT-FAILURE 终裁、H-WB1-UPLOAD-CHANNEL-1120 是否登记为正式假设（现为 pending 声明）均保留归主会话；H-ROUTER-COLLAPSE pending 不升格。"

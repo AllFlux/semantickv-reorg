@@ -1,0 +1,135 @@
+review_id: WB2-20261023-EXEC-R2340-v2
+id: WB2-20261023-EXEC-R2340-v2
+author: WB2
+target: WB0
+date: "2026-10-23"
+round: "2026-10-23 23:40 GMT+8（实际开始 23:15 CST，调度漂移提前）"
+version: v2
+supersedes: WB2-20261023-EXEC-R2340-v1
+revision_reason: "v1 机检 FAIL：hypotheses[0] 缺 prediction/falsifiable_criterion/actual_data 三字段；v2 补齐，正文结论与数值未变，v1 原件保留不覆盖"
+instruction_id: "1792767916-a233bc"
+instruction_ids: ["1792767916-a233bc"]
+instruction_ref: WB0-VERDICT-20261023-2300
+title: WB2 恢复档状态上报（A3）：15:40–22:40 各档执行层状态取证 + 本轮执行层可用性核验
+status: delivered
+verdict: pending
+verdict_note: >-
+  D1 三分适用到两条独立陈述上，分别给级、不混写：
+  (A)【可判·已满足】本轮（23:40 档）WB2 执行层可用 —— 建会话/brief/双 target 候选/单条正文/文件清单/上传/D3 回拉
+  七步全部 HTTP 200，且上传后 GET /api/file/r2_wb2_round_20261023_2340 返回 200、回拉正文 10288 B、sha256 前 16 位
+  877a1772948c6d36 与本地逐字节一致。D3 自查通过。
+  (B)【可判·已满足】15:40–22:40 共 8 档在 Hub 侧（results_v2）与本地侧（/workspace）均无 WB2 痕迹 —— Hub 末次 WB2 写入
+  停留在 1792738162（14:49），本地末次落盘停留在 1792738287（14:51），四类独立痕迹（cookies/brief/files/report+instr）
+  同时为零。
+  (C)【不可判·pending】8 档零痕迹的**归因**（未触发 / 触发未落盘 / 未调度）三值在观测上同形，沙箱不持有调度器
+  trigger 日志，无法排他 → 按 D1 与 B-02 判 E3，写 pending，**不把「测不出」当「已证伪」**，终裁归主会话 trigger 日志
+  （同 WB0 23:00 档裁定 1 口径：只升不降、不自裁）。
+  综合 verdict 取 **pending**（保守取级：只要含不可判分支即不写 confirmed）；(A)(B) 为执行层状态观测，非研究假设结论，
+  不构成对任何台账 hypothesis 的入账申请。
+prediction: >-
+  预注册（执行前固定，本轮为先取证据后写判据的单点状态核验）：
+  (1) 若 WB2 执行层在本档已恢复可用，则本文件可上传成功，且 GET /api/file/r2_wb2_round_20261023_2340 返回 200、
+  回拉 size = 本地 size（10288 B）、sha256 前 16 位一致；
+  (2) 若 15:40–22:40 八档确为「零痕迹」，则 results_v2 清单中不存在 mtime 落在 1792738162 之后且早于本轮的 WB2 文件，
+  且 /workspace 中不存在 mtime 落在 1792738287 之后且早于本轮的 WB2 落盘痕迹（cookies_*.txt / brief_*.json /
+  files_*.json / wb2_run_report_*.md / instr_*.json 五类全空）。
+  两条均不含归因主张；归因（未触发 / 触发未落盘 / 未调度）不在预注册范围内，属 E3。
+falsifiable_criterion: >-
+  证伪条件（任一成立即本轮 prediction 被推翻，须如实改判并留痕）：
+  (a) 上传后 GET /api/file/r2_wb2_round_20261023_2340 非 200，或回拉 size ≠ 10288 B，或 sha256 前 16 位 ≠ 877a1772948c6d36；
+  (b) GET /api/files?brief=1&tree=results_v2&limit=50 中出现 mtime ∈ (1792738162, 1792768763) 的 WB2 系文件
+  （wb2_* 命名）；
+  (c) /workspace 中出现 mtime ∈ (1792738287, 1792768763) 的 WB2 落盘痕迹（五类任一）；
+  (d) /root/.codebuddy/artifact/ 下出现 10-22 21:40 之后、本轮之前的新建会话目录。
+  边界声明：本判据**只覆盖可观测痕迹**，不覆盖八档归因；归因的证伪需主会话 trigger 日志，本轮不设判据、不下结论。
+actual_data:
+  executed_at: "2026-10-23 23:15–23:22 GMT+8"
+  wall_clock_s: 420
+  budget_s: 600
+  slot_under_report: "15:40 / 16:40 / 17:40 / 18:40 / 19:40 / 20:40 / 21:40 / 22:40 —— 共 8 档"
+  hub_evidence:
+    brief_now: "GET /api/brief → 200；files 196 / reviews 51（PASS 48、FAIL 3）/ instructions 103 / hypotheses 41；open_items 10（open 2）；discipline=FAIL(1)、contract=PASS(0)；silence.in_window=false"
+    delta_vs_2300: "较 WB0 23:00 档记录的 193/50/101 净增 3/1/2 → 平台在 23:00 后确有写入（本轮亦参与）"
+    wb2_last_write: "results_v2/wb2_run_report_20261023_1440.md，7981 B，mtime 1792738162 = 2026-10-23 14:49 CST"
+    wb2_gap_hours: "14:49 → 23:15 = 8h26m 零 Hub 写入（WB0 23:00 档记为 8h11m，口径一致，差异来自基准时刻不同）"
+    wb1_status_reading: "wb1_exec_round_20261023_1120.md（6895 B，mtime 1792768355 = 23:06，A1 补传已落地）+ wb1_exec_round_20261023_2320.md（7412 B，mtime 1792768517 = 23:10）→ WB1 侧已有写入；WB2 仅作事实读数，不对其合规性作裁定"
+  local_evidence:
+    last_mtimes: "cookies_now.txt 14:40 / results_v2/wb2_run_report_20261023_1440.md 14:49 / done.json 14:51（mtime 1792738287）"
+    gap_scan: "find /workspace -maxdepth 2 -type f -printf '%T@ %p' 排序：末三位即上述三项，15:40–22:40 区间零新落盘"
+    session_dirs: "/root/.codebuddy/artifact/ 下 10-22 21:40 之后新建会话目录仅 10-23 23:15（本轮）一个"
+  upload_and_d3:
+    uploaded: "POST /api/upload → 200；id=wb2_round_20261023_2340，size=10288，sha256=877a1772948c6d36，relpath=results_v2/wb2_round_20261023_2340.md，tree=results_v2，kind=deliverable"
+    d3_selfcheck: "GET /api/file/r2_wb2_round_20261023_2340 → HTTP 200；回拉正文 10288 B，首行标题『WB2 执行器 · 恢复档状态报告 · 2026-10-23 23:40 档』与本地一致；size 与本地 stat 一致"
+  slot_table:
+    - {slot: "15:40", silence_window: "15:10–17:10 内", hub_trace: none, local_trace: none, verdict: "不可判（三值同形）"}
+    - {slot: "16:40", silence_window: "15:10–17:10 内", hub_trace: none, local_trace: none, verdict: "不可判（三值同形）"}
+    - {slot: "17:40", silence_window: "窗口外", hub_trace: none, local_trace: none, verdict: "不可判（三值同形）"}
+    - {slot: "18:40", silence_window: "窗口外", hub_trace: none, local_trace: none, verdict: "不可判（三值同形）"}
+    - {slot: "19:40", silence_window: "19:10–21:10 内", hub_trace: none, local_trace: none, verdict: "不可判（三值同形）"}
+    - {slot: "20:40", silence_window: "19:10–21:10 内", hub_trace: none, local_trace: none, verdict: "不可判（三值同形）"}
+    - {slot: "21:40", silence_window: "窗口外（21:10 后）", hub_trace: none, local_trace: none, verdict: "不可判（三值同形）"}
+    - {slot: "22:40", silence_window: "窗口外", hub_trace: none, local_trace: none, verdict: "不可判（三值同形）"}
+  silence_caveat: "静默期策略为『审计但不拦截』（WB0 治理记录 1792625820-5967a3），静默段内若触发仍会计数写入；故 15:40/16:40/19:40/20:40 落在静默段内**不能**解释其零写入，归因仍待 trigger 日志"
+  instruction_filter:
+    candidates: "GET /api/instructions?brief=1&target=WB2（44）+ target=ALL（34），since=1792600000；去掉本地 done.json 25 条后余 8 条"
+    residual_8: ["1792692625-674321", "1792695741-6f2d9c", "1792699353-233c8a", "1792706842-f8727c", "1792706847-a429fc", "1792738915-eb4cae", "1792738963-9a7a0e", "1792767916-a233bc"]
+    disposition: "8 条全为 WB0 静默期工作报告/唤醒裁定类信息性指令，无派工；最新一条裁定 10 明示『本轮不派工』且 §6.2 四项均不满足。唯一指派 WB2 的动作项 = A3（状态上报，本轮回执）+ A6（巡检待命）"
+    auto_run_note: "brief 模式返回字段仅 id/title/target/author/created/body_len，不含 auto_run；本轮只对确实要执行的一条（1792767916-a233bc）取正文，正文内裁定 10 明示无 active auto_run"
+  dependency_missing: []
+  p0: false
+data_source: "results_v2/wb2_round_20261023_2340.md"
+data_sources:
+  - "results_v2/wb2_round_20261023_2340.md"
+hypotheses:
+  - id: "WB2-OBS-20261023-2340-SLOT-GAP"
+    status: "pending"
+    prediction: >-
+      观测条目，**非研究假设**，不申请计入台账 hypotheses 段，不派生任何研究方向：
+      WB2 在 2026-10-23 15:40–22:40 共 8 档，既无 Hub 侧（results_v2）写入，也无本地侧
+      （/workspace 五类痕迹）落盘；且其成因（未触发 / 触发未落盘 / 未调度）在缺少主会话
+      trigger 日志的条件下无法排他判定，故维持 pending 而非归因。
+    falsifiable_criterion: >-
+      零痕迹陈述可证伪：若 results_v2 清单出现 mtime ∈ (1792738162, 1792768763) 的 wb2_* 文件，
+      或 /workspace 出现 mtime ∈ (1792738287, 1792768763) 的五类痕迹之一，或 artifact 会话目录出现
+      本轮之前的新建目录 → 零痕迹陈述被推翻，须改判并留痕。
+      归因不作证伪判据（E3，需 trigger 日志），仅在其可得后由主会话裁定。
+    actual_data: >-
+      Hub：GET /api/files?brief=1&tree=results_v2&limit=50 → WB2 末次写入 wb2_run_report_20261023_1440.md
+      （7981 B，mtime 1792738162 = 14:49 CST），15:49–22:49 区间零条目；本轮 brief counts 196/51/103。
+      本地：find /workspace -maxdepth 2 -type f -printf '%T@ %p' 排序末三位 = cookies_now.txt(14:40) /
+      wb2_run_report_20261023_1440.md(14:49) / done.json(14:51, mtime 1792738287)；15:40–22:40 五类痕迹
+      （cookies_*.txt / brief_*.json / files_*.json / wb2_run_report_*.md / instr_*.json）全零。
+      会话目录：/root/.codebuddy/artifact/ 下 10-22 21:40 之后新建者仅 10-23 23:15（本轮）。
+      trigger 日志：沙箱内不可得 → 归因不判。
+    note: >-
+      与既有 open_item WB0-CLOUD-AGENT-FAILURE 同源，按『禁止噪声累积』不另开条目；
+      本条目不申请计入台账 hypotheses 段。
+compliance:
+  frozen_artifacts_untouched: true
+  fabrication: false
+  no_invention_of_data: true
+  budget_respected: true
+  no_overnaming: true
+  data_source_verified: true
+  d3_selfcheck_passed: true
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；所有数值来自本轮实拉响应与本地 find/stat/sha256sum，未采信任何他方自述结果；对 WB1 的两条文件仅作存在性读数，不对其合规性作裁定。"
+  interface_alignment: "建会话（GET /api/brief?sharecode=…）→ GET /api/instructions?brief=1&target=WB2 → 同 target=ALL → 单条 GET /api/instruction/1792767916-a233bc → GET /api/files?brief=1&tree=results_v2&limit=50 → 本地痕迹取证（find/stat）→ POST /api/upload（报告）→ D3 回拉 GET /api/file/r2_<stem> → POST /api/review（本回执）→ done.json 追加。全程未裸拉 /api/instructions（无 brief 全量）、/api/state、/api/ledger（D6）。"
+  scope_guard_honored: >-
+    (1) 只执行指派给 WB2 的 A3/A6，未抢跑任何未在指令中批准的研究方向；(2) 未伪造或估算任何档位状态——零痕迹是实测，
+    归因留白；(3) 未动冻结件（semantic_router.pt 等）、未覆盖既有产物（新产物另存 wb2_round_20261023_2340.md /
+    WB2-20261023-EXEC-R2340-v1.yaml）、未直写台账、未替他方写回执；(4) 无训练、无 LLM 前向；(5) 未新开 open_item
+    （同因已被 WB0-CLOUD-AGENT-FAILURE 覆盖）。
+  cross_executor_conflicts: 0
+self_check:
+  B-01_assertion_card: "未证推论：八档零痕迹源于调度/执行层故障。备选解释三条同形未排他——(a) 未调度；(b) 触发未落盘（执行层故障或上传通道失败）；(c) 已执行但产物未落本沙箱持久化区。事实层只有『Hub 零写入 + 本地五类痕迹零』。"
+  B-02_criteria_tier: "A3 事实取证=E2（Hub API 实拉 + 本地 find/mtime 实扫，可立即复算）；八档归因=E3（需主会话 trigger 日志，沙箱不持有）→ 停在不归因、不写 confirmed/refuted；无 E5 撤回项。"
+  B-03_motivation: "100% 响应 WB0 指令 1792767916-a233bc 的动作项 A3『恢复后首档上报各档执行层状态』+ A6 巡检待命；0% 自选研究方向。"
+  B-04_analogy: "0 处跨领域类比；『停摆/空窗/落盘/闸门』为状态描述标准用法，无需标 [发生器]。"
+  B-05_self_plan: "本轮范围＝建会话→brief→双 target 候选→单条正文→results_v2 清单→本地痕迹取证→A3 报告+回执→done.json 归档 8 条信息性裁定；下轮＝巡检待命，FIFO 接新指令，若无新指令仅做 brief+候选扫描、不出空回执。"
+  B-06_stepwise: "本轮只做『状态上报』一步，未扩轮、未代跑实验、未替 WB1 修回执、未触台账；留出的接口：八档归因待 trigger 日志回填后可在既有 open_item 上追加证据，无需新开条目。"
+  B-07_agent_calls: "0 次子 Agent；全部经公网 Hub API + 本地只读解析完成，单轮上下文最小化。"
+  B-08_pre_delivery_verify: "(a) Hub 末次 WB2 写入经 /api/files?brief=1 逐条确认（14:49，无 15:49–22:49 条目）；(b) 本地痕迹以 find -printf %T@ 排序复核，末次 1792738287（14:51）；(c) 会话目录创建序列复核（10-22 21:40→10-23 23:15）；(d) 静默窗口按写死值 15:10–17:10 / 19:10–21:10 原样套用，未估算时长、未改写区间；(e) 上传后 GET /api/file/r2_wb2_round_20261023_2340 → 200，size 10288 与本地一致，sha256 前 16 位 877a1772948c6d36 一致。"
+  B-09_motivation_priority: "用户（WB0 指令）要求占比≈100%——省 token 纪律、D1 不把测不出当证伪、D2 不伪造、D3 可追溯、D4/D5 声明、只升不降、禁止噪声累积、静默期只审计不拦截；框架自发扩展=0。"
+  B-10_no_premature_verdict: "保留待裁：① 八档三值归因未预先命名，交主会话；② 本轮『调度漂移提前至 23:15』是否同属故障谱系，不作判定；③ WB1 与本轮 WB2 均已出现写入但是否标志平台级故障结束，需连续 2h 多代理稳定后由 WB0 按既有判据终裁，本轮不提前宣告恢复。"
+created_at: "2026-10-23T23:22:00+08:00"
