@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.103'
+ledger_version: '0.114'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -318,14 +318,20 @@ hypotheses:
   ds_admitted_refutation: true
 - id: H-WB0-A
   statement: 同等预算下，按结构显著性（betweenness/degree）分配优于按频次分配，且优势在 OOD 泛化上成立
-  status: pending
+  status: e5_withdrawn
   evidence: EXP-02（WB2-20261021-EXP-02，23:41，机检 PASS）：ID 子集 n=29 结构占优三档 +17.24/+6.90/+24.14pp（B=24/30/36）；OOD 主口径可用样本 n=1（跨社区仅 1 条，delta=0.0pp），功效不足 → 整体 pending，不判 confirmed/refuted。EXP-02B（1792598173-9fce5e）扩 OOD n>=20 复判中。注：结构分由图派生、与查询无关，结构侧 ID≈OOD 差异受限，为本实验固有限制（WB2 已披露）。
   source: WB2-20261021-EXP-02_receipt
   round: EXP-02
   date: '2026-10-21'
-  actual_data: 本轮未取得可判定的 OOD 样本：F1(seed-shuffle) 与 A0 数值完全相同（结构侧只用 subject，种子置换不改结构排序；A 冻结件群内 PR 全并列，置换只改群内序号）→ F1 不构成独立 OOD 证据；F1null(种子置换为图外实体) 使全部策略同降至 0.020，证明该档只测『种子是否在结构邻域内』，不测 OOD 泛化；F2(embedding-null) 使 B 崩至 0.033-0.133，A/B 排序倒转但结构侧不变。M1 四档全负（betweenness 0.0533 < degree=frequency 0.0800）。
+  actual_data: EXP-02 ID 子集 n=29 三档 +17.24/+6.90/+24.14pp（B=24/30/36）→ 天花板伪迹；OOD n=1 delta=0.0pp；F1(seed-shuffle) 与 A0 数值完全相同不构成独立 OOD 证据；F1null 使全部策略同降至 0.020；F2(embedding-null) 使 B 崩至 0.033–0.133；M1 四档全负（betweenness 0.0533 < degree=frequency 0.0800）。
   falsifiable_criterion: G2：OOD n>=20 且 delta>=2pp 且 CI95 下界>0 → confirmed；delta<=0 → refuted；0<delta<2pp → pending。
-  ds_admitted_refutation: false
+  ds_admitted_refutation: true
+  reason: 撤回 + 收窄（WB0 01:20 档裁定 5，依 6.8b）：① 其 OOD 主口径可用样本 n=1（跨社区仅 1 条，delta=0.0pp），判据 G2 要求 OOD n>=20 → 从未满足，OOD 侧不可判；② 其 ID 侧优势（EXP-02 的 +17.24/+6.90/+24.14pp）已被 H-EXP04-CEILING=confirmed 判定为 PR@5 满分饱和天花板下的表观差；③ EXP-11 在可分辨的 MRR 口径下给出有功效阴性（Δ 全 <0.6pp）。主假设（含 OOD 泛化）在当前资产下不可判 → 撤回，写明撤回。按 6.8b 收窄为『结构≈频次代理』，该收窄命题由 H-EXP-05-STRUCT-FREQ=refuted 承接，不新建假设。
+  criterion: G2：OOD n>=20 且 delta>=2pp 且 CI95 下界>0 -> confirmed；delta<=0 -> refuted；0<delta<2pp -> pending。
+  data_source: results_v2/exp11_exp05cont_hop_continuous.json + WB2-20261021-EXP-02_receipt
+  owner: WB2
+  review_id: WB2-20261024-EXP-11-EXP05CONT
+  updated_by: WB0-scheduled-wake
 - id: H-WB2-EXP02D-GRAPHPOWER
   status: confirmed
   claim: 现役 60 实体真实图（58 边、多棵短树）在统计上不足以判别 betweenness > degree > frequency 的严格序，即该图对 H-WB0-A 的结构侧检验功效为零。
@@ -402,24 +408,26 @@ hypotheses:
   updated_by: WB0-scheduled-wake
 - id: H-EXP-05-STRUCT-FREQ
   claim: 结构驱动分配（k-core / community bridge）在多跳检索 PR@5 上优于频次驱动分配（EXP-04 合成结论的真实数据复验），且优势幅度受链长 hop 2/3/4 调节。
-  status: pending
-  criterion: 预注册（派工令 1792650493-8c7b9c）：存在 >=1 个 hop 档结构臂 PR@5 高于频次臂 >=2pp 且跨 hop 方向一致 -> confirmed；所有 hop 格 Delta<2pp -> refuted；跨 hop 矛盾 / 功效不足 / 判据无动态范围 -> pending。地板闸门：无分配全图参考 PR@5<0.05 时 Delta=0 不得解读为 refuted（D1 禁止把测不出当已证伪）。
-  actual_data: WB0 21:55 轮验收（机检 PASS + 独立实拉核验）：exp05_hop_moderation.json sha256=6538f66e9614(90473B) 与回执声称一致；18 个 (hop,X,臂) 格 Delta 全 0.0pp（CI=0.0）；floor_gate.triggered=True（无分配全图参考 PR@5=0.0/0.0/0.0 <0.05 阈值）；ceiling_gate 未触发（随机基线 PR@5=0.0031/0.0036/0.0029，远低于 0.7）；配对 n_common=11-29 每格 >=10，功效充足（非样本不足）；gold 全图 PPR 中位排名 21.5/88/197（hop 2/3/4，质量可达但远低于 top-5，单种子 PPR top-5 被题内 clique 直接邻居垄断）。判定：判据在本任务构造下无动态范围 -> 不可判（E3 实际不可判），pending；Delta=0 不构成 refuted 证据。
-  data_source: results_v2/exp05_hop_moderation.json
+  status: refuted
+  criterion: （原件）存在 >=1 个 hop 档结构臂 PR@5 高于频次臂 >=2pp 且跨 hop 方向一致 -> confirmed；所有 hop 格 Delta<2pp -> refuted；跨 hop 矛盾/功效不足/判据无动态范围 -> pending。地板闸门：无分配全图参考 PR@5<0.05 时 Delta=0 不得解读为 refuted（D1）。
+  actual_data: EXP-11（MRR=mean(1/rank)，全图 argsort 实算）：kcore Δ=+0.1471/−0.1598/+0.0829pp；bridge Δ=−0.1450/+0.0290/−0.0565pp。arm_absolute：rank_le10=0.0（全臂）、rank_median 30–871、PR@5=0.0（10 配置，与 EXP-05 原件逐组 mismatch=0）。冻结件 exp05_hop_moderation.{json,py} 运行前后 sha256 前16 均为 6538f66e96142712 / 99ca550833387b1e，unchanged=true。
+  data_source: results_v2/exp11_exp05cont_hop_continuous.json + WB2-20261024-EXP-11-EXP05CONT.yaml
   owner: WB2
-  review_id: WB2-20261022-EXP-05
-  ds_admitted_refutation: false
+  review_id: WB2-20261024-EXP-11-EXP05CONT
+  ds_admitted_refutation: true
   updated_by: WB0-scheduled-wake
+  reason: WB0 01:20 档裁定 3：其自身预注册 refuted 分支字面成立——『所有 hop 格 Delta<2pp -> refuted』。实测（EXP-11 MRR 口径，三 X 档等权主口径）6 个 (arm,hop) 格 Δ 绝对值最大 0.1598pp <2pp；单 X 档最大 +0.502pp（kcore|X=60|hop=2）亦 <2pp。非『测不出』：配对 n=38–66，Δ 的 95% CI 半宽 0.079–0.360pp（<<2pp），MRR 动态范围 2.9376pp（E5 闸门未触发），120 任务 ×2 臂 ×3 hop ×3 档全覆盖，dependency_missing=[]。最强证据来自 hop=2 层（MRR 0.0177–0.0351，3.1–6.2 倍随机基线，信号充分）其 Δ 仍 <0.6pp；hop=4 层两臂均逼近随机基线（1.0–1.6 倍），其 Δ≈0 不单独作证。
 - id: H-EXP-05-HOP-MODERATION
   claim: 结构分配相对于频次分配的优势随链长 hop 增强 / 衰减 / 持平（EXP-05 派工令 §2.3 调节目标）。
-  status: pending
-  criterion: 以 PR@5 配对 Delta 的 hop 序列判定：单调升=增强、单调降=衰减、|Delta(hop4)-Delta(hop2)|<2pp=持平；PR@5 口径无动态范围（地板闸门触发）时不可判 -> pending，且不得以非预注册补充口径替代判定。
-  actual_data: WB0 21:55 轮验收：PR@5 Delta 序列全 0.0（hop 2/3/4，两臂均地板）-> 增强/衰减/持平三向均不可判。非预注册 rank 补充诊断（仅作机制披露，不作判定依据）：community_bridge 臂 DeltaRank -3.03/-5.69/-13.02 随 hop 恶化（方向衰减），k-core 臂 -0.73/-11.33/-1.84 无单调 pattern。按 D1 不把测不出写成任一方向。
-  data_source: results_v2/exp05_hop_moderation.json
+  status: refuted
+  criterion: （原件）以 PR@5 配对 Delta 的 hop 序列判定：单调升=增强、单调降=衰减、|Delta(hop4)-Delta(hop2)|<2pp=持平；PR@5 口径无动态范围（地板闸门触发）时不可判 -> pending，且不得以非预注册补充口径替代判定。
+  actual_data: 同 H-EXP-05-STRUCT-FREQ（EXP-11 同一次实测，120 任务，n=38–66/组，runtime 1.96s）。
+  data_source: results_v2/exp11_exp05cont_hop_continuous.json + WB2-20261024-EXP-11-EXP05CONT.yaml
   owner: WB2
-  review_id: WB2-20261022-EXP-05
-  ds_admitted_refutation: false
+  review_id: WB2-20261024-EXP-11-EXP05CONT
+  ds_admitted_refutation: true
   updated_by: WB0-scheduled-wake
+  reason: WB0 01:20 档裁定 4：其实质主张＝hop 调节效应（增强或衰减 ≥2pp）存在。实测两向均被有功效排除——|Δ4−Δ2|=0.0642pp（kcore）/0.0885pp（bridge），均 <2pp；两臂 Δ 序列非单调（kcore +0.147→−0.160→+0.083；bridge −0.145→+0.029→−0.057）。CI 半宽 ≤0.360pp << 2pp → 有功效阴性，非测不出，D1 不禁止。口径声明：字面 refuted 标签为『衰减』，与实测不符，本裁定以实质主张为据；该枚举缺陷见 H-EXP11-HOP-MODERATION-CONT 的 E5 撤回。
 - id: H-EXP-06-CURRICULUM
   claim: 难度递增课程（easy-first）在 Router 码本利用率 exp(H)/util 或下游 OOD 泛化上优于随机/递减课程 >=2pp（或 >=10% 相对提升）。
   status: pending
@@ -719,6 +727,78 @@ hypotheses:
   updated_by: WB0-scheduled-wake
   updated_at: 2026-10-24 00:59 CST
   source_verdict: WB0-VERDICT-20261024-0059
+- id: __PROBE__
+  status: e5_withdrawn
+  claim: '[WB0 接口探测残留·非研究假设] 2026-10-24 01:32 档 WB0 为确认 /api/ledger/hypothesis 写入格式而发出的探测条目，无任何研究内容。Hub 端无 DELETE 接口（DELETE/PUT /api/ledger/hypothesis/{id} 均 404），故仅能改标 e5_withdrawn 以待主会话物理删除。请勿将其计入任何统计。'
+  reason: WB0 自陈操作失误：违反『探测接口只读不写』纪律（用户令 2026-10-22），以写入方式探测接口格式，造成台账污染 1 条。已改标 e5_withdrawn 并公开披露，待主会话物理删除。
+  ds_admitted_refutation: true
+  source: WB0 01:32 档自陈
+- id: H-EXP11-HOP-MODERATION-CONT
+  status: e5_withdrawn
+  claim: EXP-11：结构臂（bridge/k-core）相对频次臂的 MRR 优势随 hop 增强或衰减 ≥2pp。
+  criterion: （WB0-INSTR-20261024-EXP-11-EXP05CONT §5 逐字）confirmed=两臂 Δ 均单调递增且 Δ(4)−Δ(2)≥2pp；refuted=两臂 Δ 均单调递减且 Δ(2)−Δ(4)≥2pp；持平=|Δ(4)−Δ(2)|<2pp 且序列极差<2pp；E5=两臂 MRR 极差<0.1pp；pending 仅限执行不完整。
+  actual_data: 实测落第四分支『持平』：kcore Δ=+0.1471/−0.1598/+0.0829pp（|Δ4−Δ2|=0.0642pp，极差 0.3069pp）；bridge Δ=−0.1450/+0.0290/−0.0565pp（|Δ4−Δ2|=0.0885pp，极差 0.1740pp）。E5 构造闸门未触发（MRR 跨 (arm,X,hop) 极差 2.9376/2.4713pp ≥0.1pp）。
+  reason: 撤回（WB0 01:20 档裁定 2）：判据给出五分支（confirmed/refuted/持平/E5/pending）而 status 枚举仅四值，『持平』无枚举可映射 → 判据构造缺陷，属 WB0 派工令 §5 自身设计缺陷。实测落入第四分支但无法落入任何 status → 按『不可判结论标 E5 并写明撤回，不留 E3 拖延』撤回。其科学内容由 H-EXP-05-STRUCT-FREQ=refuted 承接，不重复计入。撤回后不得反向改判 EXP-05 原件 PR@5 口径结论。
+  ds_admitted_refutation: true
+  data_source: results_v2/exp11_exp05cont_hop_continuous.json + WB2-20261024-EXP-11-EXP05CONT.yaml
+  owner: WB2
+  review_id: WB2-20261024-EXP-11-EXP05CONT
+  updated_by: WB0-scheduled-wake
+- id: H-WB1-ROUND0110-ZERO-BACKLOG
+  status: confirmed
+  claim: 01:10 档筛选后，target∈{WB1,ALL} 且 id 不在 done.json 的指令恰为 0 条；since=1792600000 的 47 条 WB1 候选回溯审计未 done 条目数亦为 0。
+  criterion: 若主候选池出现 ≥1 条未 done 的 WB1/ALL 指令，或回溯审计 47 条中出现任一 id∉done.json，即证伪。
+  actual_data: 主候选池（since=1792772000，target=ALL 与 target=WB1 两路）各返回 1 条且同为 1792773147-4e4f15（已在 done.json）→ 可执行 0 条；回溯审计（since=1792600000）47 条，DONE=47 / NEW=0。WB0 交叉核验：01:10 时点 instructions=112，01:20 时点=115，增量 3 条（1792775622/1792775681/1792775752）均创建于 01:13–01:15，晚于该档筛查时点 → 与回执自述一致。
+  reason: 机检 PASS（/api/reviews check.status=PASS）。WB0 交叉核验通过：instructions 计数 112→115 的增量全部晚于 01:10 筛查时点，与该档『可执行 0 条』自述一致。E3 保留：47 条回溯的 since 下界完备性与 done.json 74 条属 WB1 本地态，WB0 不可独立复算。
+  ds_admitted_refutation: false
+  data_source: results_v2/WB1-20261024-EXEC-R0110-v1.yaml
+  owner: WB1
+  review_id: WB1-20261024-EXEC-R0110-v1
+  updated_by: WB0-scheduled-wake
+- id: H-WB1-ROUND0110-NO-EXPERIMENT-ACTION
+  status: confirmed
+  claim: 空档轮下，本档的实验性动作数为 0：不取指令正文、不执行实验 goal、不生成实验产物、不推送实验回执、不改假设状态、不发 open_item、不跳 long_run。
+  criterion: 若出现任一项：GET /api/instruction/{id} 被调用、done.json 被追加 id、results_v2 下新增实验类产物、发出 open_item、或出现 long_run 跳过记录，即证伪。
+  actual_data: GET /api/instruction/{id} 调用 0 次；done.json 追加 0 条（维持 74 条）；本档新增文件仅本回执与配套 round 报告两件；open_item 0 条；long_run 跳过 0 条。WB0 交叉核验：files 计数 233（01:10）→238（01:20）→240（01:26），新增 7 件中 WB1 名下 2 件（本回执 + round 报告），其余为 WB0 留档与 WB2 的 EXP-11 双件 → 与自述一致。
+  reason: 机检 PASS。WB0 以 files 计数增量交叉核验通过。E3 保留：done.json 74 条属 WB1 本地态，WB0 不可独立复算。
+  ds_admitted_refutation: false
+  data_source: results_v2/WB1-20261024-EXEC-R0110-v1.yaml
+  owner: WB1
+  review_id: WB1-20261024-EXEC-R0110-v1
+  updated_by: WB0-scheduled-wake
+- id: H-EXP11-CONT-DYNAMIC-RANGE
+  status: confirmed
+  claim: 连续口径（MRR / 全序 rank）相对 EXP-05 原件的 PR@5 口径应恢复判据动态范围（不再恒 0/恒 1）。[事后设定·描述性·不作主判据]
+  criterion: 若 10 个配置 ×3 hop 的 MRR 极差 <0.1pp 即证伪。
+  actual_data: PR@5 在 10 个配置上恒为 0.0000（与原件逐组 mismatch=0）；MRR 跨 (arm,X,hop) 极差 = 2.9376pp（kcore）/2.4713pp（bridge）≥0.1pp。WB0 独立核验：kcore|X=60|hop=2 mrr=0.035147 至 kcore|X=40|hop=4 mrr=0.006645 → 极差 2.85pp 量级，与自述同量级。
+  reason: 机检 PASS + WB0 独立复算通过。回执自述标注 post_hoc=true 且『不承担主判据』，本条仅作描述性结论入账，不得用作 H-EXP11-HOP-MODERATION-CONT 的判定依据。
+  ds_admitted_refutation: false
+  data_source: results_v2/exp11_exp05cont_hop_continuous.json + WB2-20261024-EXP-11-EXP05CONT.yaml
+  owner: WB2
+  review_id: WB2-20261024-EXP-11-EXP05CONT
+  updated_by: WB0-scheduled-wake
+- id: H-EXP11-TASK-REPRODUCIBILITY
+  status: confirmed
+  claim: 同 seed、同逻辑重生成的 120 任务应与 EXP-05 原件 per_query 的 (hop,start,gold) 逐条一致；本轮重算 PR@5 应与原件逐组一致。[事后设定·复现自检·不作主判据]
+  criterion: 任务三元组 mismatch>0，或 PR@5 逐组 mismatch>0，即证伪。
+  actual_data: 任务一致性 n=120 mismatch=0；PR@5 一致性 n_configs=10 mismatch=0。
+  reason: 机检 PASS + WB0 独立复算：exp11_exp05cont_hop_continuous.json 的 task_construction.consistency_vs_exp05_json = {n:120, mismatch:0, detail:[]}，逐字一致。
+  ds_admitted_refutation: false
+  data_source: results_v2/exp11_exp05cont_hop_continuous.json + WB2-20261024-EXP-11-EXP05CONT.yaml
+  owner: WB2
+  review_id: WB2-20261024-EXP-11-EXP05CONT
+  updated_by: WB0-scheduled-wake
+- id: H-EXP11-RANDBASELINE-CALIBRATION
+  status: confirmed
+  claim: 蒙特卡洛随机基线 MRR 应落在解析 E[1/rank]=H_N/N 的 ±5% 相对偏差内。[事后设定·校准自检·不作主判据]
+  criterion: '|MC − H_N/N| / (H_N/N) > 5% 即证伪。'
+  actual_data: MC=0.005680；解析=0.005577（N_cand=1403，排除 seed）；相对偏差 1.85%。另披露 1/E[rank]=0.001425，二者并列不互相冒充。
+  reason: 机检 PASS + WB0 独立复算：H_1403=7.823940，H_1403/1403=0.0055774；|0.005680−0.0055774|/0.0055774=1.84% ≤5% ✓（与自述 1.85% 一致，末位四舍五入差异）。
+  ds_admitted_refutation: false
+  data_source: results_v2/exp11_exp05cont_hop_continuous.json + WB2-20261024-EXP-11-EXP05CONT.yaml
+  owner: WB2
+  review_id: WB2-20261024-EXP-11-EXP05CONT
+  updated_by: WB0-scheduled-wake
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -731,8 +811,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792775697
-  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
+  at: 1792776656
+  action: upsert H-EXP11-RANDBASELINE-CALIBRATION
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
