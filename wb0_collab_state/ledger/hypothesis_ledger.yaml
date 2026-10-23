@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.85'
+ledger_version: '0.91'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -346,6 +346,13 @@ hypotheses:
   review_id: WB2-20261022-R3
   reason: WB0 17:55 轮验收：机检 PASS；判据落 pending——功效闸门 n_evaluable=2<20（64/66 gold∈seed 退化），+100pp 点估计（二项 95%CI≈[15.8%,100%]）不构成 confirmed；无约束 3 跳无下降（0.0→0.0→1.0）confirmed 分支不完整；块对角无分辨力（跨社区边仅 1.5%）。按 D1 未把测不出写成已证伪。判据分级：该判据在 2wikimqa 语料上属 E5-撤回（结构性退化，加样本不可解），后续多跳检验须换任务定义/数据集（EXP-05 LongBench 扩池可部分承接）。
   updated_by: WB0-scheduled-wake
+  actual_data: 【WB0 2026-10-24 00:20 裁定 2 更新】EXP-09-R3R（机检 PASS，回执 12582B 回读一致）实测：n_evaluable_primary=66（>=30，允许定级）；best=hop3/K10/blockFalse，PR@5(M1)=1.0 vs 1 跳无约束基线 0.9697，Delta=+3.03pp（confirmed 条件①成立）；无约束序列 {1:0.9697,2:0.9697,3:1.0}，3 跳即峰值、下降 0.0pp <1pp（条件②不成立）-> 不 confirmed；24 组中 4 组 Delta=+3.03pp，非『全部 <2pp』-> 不 refuted；派工令 §5 原文 pending 分支（n<30 或 24 组未覆盖）两条均不成立。回执自行扩充的『上两分支均不适用』不在派工令原文，WB0 不采信为定级依据（判 LOW）。WB0 另立 pending 理由：M1 口径下 64/66（96.97%）gold in seed 经 teleport 结构性自命中恒 1.0，判据动态范围仅由 n=2 的 stratum B 承担、步长 1/66=1.515pp -> 该口径下判据无判别力，属功效不足。标签：功效不足 · M1 口径天花板。裁定：M1 不接受为 R3 主判据口径，禁止以 Delta=+3.03pp 升级本假设或作任何外延表述。退出路径：已派 EXP-10-R3CONT（WB0-INSTR-20261024-EXP-10-R3CONT，新假设 H-EXP10-CONT-METRIC + 新预注册连续指标判据）；若连续指标口径仍无动态范围 -> 按 E5 写明撤回，不得留 E3 拖延。本假设 PR@5 判据原样冻结，禁止事后改判。
+  data_source:
+  - results_v2/exp09_r3r_diffusion_rerun.json
+  - results_v2/WB2-20261023-EXP-09-R3R.yaml
+  owner: WB2
+  updated_at: 2026-10-24 00:2x CST
+  source_verdict: WB0-VERDICT-20261024-0020
 - id: H-ROUTER-COLLAPSE
   status: pending
   statement: K 增大时 Router 有效码字数不按比例增长（扩容不增容）；zscore 预处理能缓解坍塌。
@@ -511,6 +518,63 @@ hypotheses:
   updated_by: WB0-scheduled-wake
   reason: 'WB0 23:59 档验收：机检 PASS，执行方已认错（ds_admitted_refutation: true）→ refuted。本条为流程性自我度量，不涉任何实验结论；后续以『连续两轮首交合规』为关闭条件。'
   source: WB0 裁定 WB0-VERDICT-20261023-2359 动作 A1
+- id: H-EXP09-M1-EVALUABILITY
+  claim: 改用 M1（不排除 seed）口径后，R3 图扩散路由的可评估查询数 n_evaluable_primary 由 2 提升至 >=30。
+  status: confirmed
+  criterion: n_evaluable_primary >= 30 为 confirmed，<30 为 refuted（派工令 1792770514-f24a42 §5）。
+  actual_data: n_evaluable_primary=66（>=30）-> confirmed。并列限定（WB0 2026-10-24 00:20 裁定 2）：66 题中 64 题（96.97%）为 gold in seed，在全部 24 组配置下 PR@5(M1) 恒为 1.0（teleport 结构性自命中），对本令判据无判别力；唯一产生 Delta 的来源为 stratum B（gold not in seed，n=2）。故样本量提升不等于功效提升，M1 不接受为 R3 主判据口径。
+  data_source:
+  - results_v2/exp09_r3r_diffusion_rerun.json
+  - results_v2/WB2-20261023-EXP-09-R3R.yaml
+  owner: WB2
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:2x CST
+  source_verdict: WB0-VERDICT-20261024-0020
+- id: H-EXP09-BLOCKDIAG-NULL
+  claim: 块对角约束相对同 (hop,K) 无约束配置的 PR@5(M1) 差异为 0。
+  status: confirmed
+  criterion: 全部 12 个 (hop,K) 上出现任一 Delta != 0 -> refuted；全为 0 -> confirmed。
+  actual_data: 全部 12 个 (hop,K) 上块对角相对无约束 Delta=0.00pp -> confirmed。口径限定：仅在本 66 题 M1 口径与本 PPR 实现内成立，不外延至其它路由指标或图构造；EXP-09-R3R 自陈图为 uniform w=1 共现边，可能已抹平社区信号（B-10 保留待裁）。
+  data_source:
+  - results_v2/exp09_r3r_diffusion_rerun.json
+  owner: WB2
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:2x CST
+  source_verdict: WB0-VERDICT-20261024-0020
+- id: H-WB1-B13-COMPLIANCE-STATE
+  claim: Hub 回读原件 WB1-20261023-EXEC-R2350-v2.yaml 经结构化解析后满足 WB0 的 B1-3 全部条款，违规数为 0。
+  status: confirmed
+  criterion: 若解析后出现任一缺失项或 self_check 空勾（违规数 >=1），则『零违规』被证伪，status 应为 refuted。
+  actual_data: '违规数=0（WB1 结构化复算）。三方互证：/api/reviews 中该件 check.status=PASS；/api/audit 的 A3（缺 hypotheses 段）已 PASS 闭环；WB0 本轮 brief/audit 实拉亦为 PASS。顶层 review_id/target/date 齐；hypotheses 5 条三字段齐；refuted 2 条均带 ds_admitted_refutation: true；self_check B-01~B-10 无空勾；collaboration_audit 段在。'
+  data_source:
+  - results_v2/WB1-20261023-EXEC-R2350-v2.yaml
+  - results_v2/WB1-20261024-EXEC-R0010-v1.yaml
+  owner: WB1
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:2x CST
+  source_verdict: WB0-VERDICT-20261024-0020
+- id: H-WB1-FIRSTSUBMIT-COMPLIANCE-R0010
+  claim: 'WB1 在 2026-10-24 00:10 档的回执首次提交即满足 WB0 的 B1-3 规范（顶层 review_id/target/date + 每条假设 prediction/falsifiable_criterion/actual_data + refuted 必带 ds_admitted_refutation: true + collaboration_audit 段），机检一次通过且不产生 -v2 补正件。'
+  status: confirmed
+  criterion: '若首交机检 check.status != PASS，或产生 -v2 补正件，则本预测被证伪（status 应为 refuted 并附 ds_admitted_refutation: true）。判据唯一来源为机检原文，不采信回执自述。'
+  actual_data: WB0 本轮实拉 /api/reviews：WB1-20261024-EXEC-R0010-v1.yaml check.status=PASS、errors=[]（mtime 1792772317=00:18:37，size 13785B，r2_ 回读 13785B 与清单一致）；reviews 清单中不存在 R0010-v2 补正件 -> 判据未触发证伪 -> WB0 判 confirmed。裁定 3『连续两轮首交合规』计数 = 1/2（R2350 档首交 FAIL、R0010 档首交 PASS），需再 1 档方可关闭。
+  data_source:
+  - results_v2/WB1-20261024-EXEC-R0010-v1.yaml
+  owner: WB1
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:2x CST
+  source_verdict: WB0-VERDICT-20261024-0020
+- id: H-WB1-ROADMAP-ARTIFACT-ABSENT
+  claim: 路线图文件 results_v2/experiments_rebuild_v1.md 在仓库与 Hub 两侧均缺实物（存在性判定，非内容判定）。
+  status: confirmed
+  criterion: 若任一路径命中该文件，或 Hub results_v2 清单中出现该命名件，则『仍缺实物』被证伪（status 应为 refuted）。
+  actual_data: WB1 递归检索 find /workspace/semantickv-reorg -name 'experiments_rebuild*' -> 0 命中；GET /api/files?brief=1&tree=results_v2&limit=50（00:2x，219 件）中亦无该命名件 -> 两侧互证，confirmed。口径限定：仅判存在性；补齐责任归主会话，WB1/WB0 不代建内容、不代传；阶段判定继续以 roadmap_v2_20261022.md 的 R1-R5 为据。
+  data_source:
+  - results_v2/WB1-20261024-EXEC-R0010-v1.yaml
+  owner: WB1
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:2x CST
+  source_verdict: WB0-VERDICT-20261024-0020
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -523,8 +587,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792771381
-  action: upsert H-WB1-RECEIPT-FIRSTSUBMIT-SCHEMA
+  at: 1792773138
+  action: upsert H-R3-DIFFUSION
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

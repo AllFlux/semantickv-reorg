@@ -1,0 +1,85 @@
+receipt_id: WB1-20261024-EXEC-R0030-v1
+review_id: WB1-20261024-EXEC-R0030-v1
+target: WB1
+date: "2026-10-24"
+executor: WB1
+round: "2026-10-24 00:30 档 (错峰 :30，实例启动 00:32:42 CST)"
+kind: exec_round_report
+instruction_ref: "无新指令（候选池 target in {WB1,ALL} 且未 done = 0 条；最近一条 1792771526-57e76e 已由 00:10 档处置并机检 PASS）"
+
+prediction: "00:30 档为空候选履行轮：① keepalive 守护在进程表中已不存在（延续 H-WB1-KEEPALIVE-PERSISTENCE=refuted 的第 3 次实证），本档用既有 wb1_keepalive.sh 重启后首跳 sharecode=200 / brief=200 且字节数>2000；② 候选池中 target in {WB1,ALL} 且 id 不在 done.json 的指令恰为 0 条；③ 本轮对 /api/instructions(无 brief)、/api/files(无 brief)、/api/ledger、/api/state 的裸拉次数为 0；④ 递归检索确认 experiments_rebuild_v1.md 全仓 0 命中（与上轮裁定 10 一致）；⑤ 上轮提出的裁定 4 事实更正（exp09 三件已落板 + WB2 回执 PASS）在 00:30 档仍然成立，且 WB2 新增 00:15 档落板；⑥ 本档回执首次提交即满足 B1-3 且 refuted 条目带 ds_admitted_refutation: true。"
+
+falsifiable_criterion: "若出现任一情形即本预测被证伪（status 应改 refuted）：① 进程表中存在上一轮遗留的存活 keepalive 守护（即 refuted 定级被推翻）；② 重启后首跳非 200 或字节数≤2000；③ 候选池中存在 target in {WB1,ALL} 且未 done 的指令却未处置；④ 出现任一被禁裸拉调用；⑤ experiments_rebuild_v1.md 在仓内被找到；⑥ exp09 三件或 WB2 回执 PASS 记录消失；⑦ 本回执首交出现任一 B1-3 违规（顶层三字段缺一 / 任一假设缺三字段 / 任一 refuted 缺 ds_admitted_refutation / self_check 空勾 / 缺 collaboration_audit）。"
+
+actual_data:
+  brief: "now=2026-10-24 00:30；ledger_version=0.85；files=220；reviews=61（PASS 57 / FAIL 4）；instructions=110；hypotheses=46（confirmed 10 / pending 18 / refuted 14 / verified_proxy 1 / e5_withdrawn 3）；open_items=10（open 2）；discipline=PASS(0)；contract=PASS(0)；silence in_window=false，今日 06:10-11:10 / 15:10-17:10 / 19:10-21:10 三段写入均 0。"
+  session: "GET /?sharecode=V6GYQIUI7Z → HTTP 200；cookie __wb_rsc=e53d5f72b9c6b1f553b121f076a1bece 落盘 /tmp/wb1_keepalive…/wb1_cookie.txt。"
+  keepalive_before: "ps -eo pid,cmd | grep api/brief 仅命中当前 shell 自身；hub_state/keepalive.log 末行为 2026-10-23 23:54:27，其后 38 分钟无新心跳行（interval=1200s）→ pid 139857 已死。"
+  keepalive_after: "nohup ./wb1_keepalive.sh & → pid=177909；日志写入 [2026-10-24 00:32:19] keepalive 守护启动 pid=177909 interval=1200s；[2026-10-24 00:32:19] sharecode=200 brief=200/2202。真实 HTTP 请求，非伪造。"
+  keepalive_history: "死亡序列累计 3 次：179659(23:41:18 起) 死、139857(23:54:27 起) 死、177909(00:32:19 起，存活待观测)。与 H-WB1-KEEPALIVE-PERSISTENCE=refuted 一致。"
+  candidate_pool: "target=WB1 查询返回 10 条摘要，target=ALL 返回 9 条摘要；逐条比对 done.json（73 条）后，target in {WB1,ALL} 且未 done = 0 条。1792770514-f24a42(EXP-09-R3R) target=WB2 → 不在本执行器范围。"
+  token_discipline: "本轮 API 调用：brief=1 次(2202B)、instructions?brief=1 ×2、instruction/{id} ×1(5594B)、files?brief=1&tree=results_v2&limit=50 ×1。被禁裸拉次数 = 0。"
+  long_run: "候选池内 long_run 指令 0 条；未执行任何 long_run 任务，未为其标记 done，未发 open_item。"
+  verdict_c4_recheck: "只读复核(00:32)：exp09_r3r_diffusion_rerun.py 19118B/mtime=1792771313、exp09_r3r_diffusion_rerun.json 148766B/mtime=1792771334、WB2-20261023-EXP-09-R3R.yaml 12582B/mtime=1792771412 三件仍在；reviews_latest 中 WB2-20261023-EXP-09-R3R.yaml mtime=1792772303 status=PASS；新增 wb2_run_report_20261024_0015.md 8822B/mtime=1792772483。→ 裁定 4『无产物 / WB2 静默』在 00:30 档仍不成立。是否关闭由 WB0 裁定；WB1 不代跑、不代写、不代升代降。"
+  roadmap_recheck: "find /workspace/semantickv-reorg -name 'experiments_rebuild_v1.md' → 0 命中；find -iname '*roadmap*' → 0 命中。缺件维持，与上轮裁定 10 一致。"
+  frozen_artifacts: "本档零写入冻结件；未覆盖任何既有回执（新产物另存为 R0030-v1）。"
+
+status: confirmed
+
+hypotheses:
+  - id: H-WB1-KEEPALIVE-PERSISTENCE
+    status: refuted
+    ds_admitted_refutation: true
+    prediction: "若 keepalive 心跳可跨会话持久存活，则上一轮启动的守护在下一档巡检时点仍应存在于进程表，且 keepalive.log 应持续按 1200s 间隔新增心跳行。"
+    falsifiable_criterion: "在任一后续档位首次检查时，若进程表中不存在该守护，或 keepalive.log 中距末行时间已超过 1.5 个 interval(1800s) 而无新行，即证伪。"
+    actual_data: "第 3 次独立实证(00:32)：ps 扫描无残留守护；keepalive.log 末行 2026-10-23 23:54:27，距检查时点 38 分钟(2280s) > 1800s 且无新行 → 证伪成立。已重启 pid=177909，首跳 sharecode=200 / brief=200/2202。定级维持 refuted，不推翻亦不升级；成因为平台侧会话回收，属 E3，本执行器不可判。"
+
+  - id: H-WB1-ROUND0030-CANDIDATE-EMPTY
+    status: confirmed
+    prediction: "00:30 档筛选后，target in {WB1,ALL} 且 id 不在 done.json 且 auto_run=true 的指令数为 0。"
+    falsifiable_criterion: "若存在 ≥1 条满足条件的指令而本档未处置，即证伪。"
+    actual_data: "target=WB1 返回 10 条、target=ALL 返回 9 条摘要；与 done.json(73 条)逐条比对后未 done 且属 WB1 范围 = 0 条。target=WB2 的 1792770514-f24a42 按规则不碰。预测成立。"
+
+  - id: H-WB1-ROUND0030-TOKEN-DISCIPLINE
+    status: confirmed
+    prediction: "本档全程先取 /api/brief，候选与文件清单均带 brief=1，对 /api/instructions(无 brief)、/api/files(无 brief)、/api/ledger、/api/state 的裸拉次数为 0，单档 API 读取总量 < 15KB。"
+    falsifiable_criterion: "若出现任一被禁裸拉调用，即证伪。"
+    actual_data: "实测：brief 1 次(2202B)、instructions?brief=1 2 次、instruction/{id} 1 次(5594B)、files?brief=1 1 次；裸拉 0 次；单档读取 ≈ 10KB。预测成立。"
+
+  - id: H-WB1-VERDICT2359-C4-STALE
+    status: confirmed
+    prediction: "上轮提出的『WB0 23:59 档裁定 4（results_v2 下无 exp09_* 产物、WB2 静默 21min）已不成立』在 00:30 档仍然成立：exp09 三件实物仍在，WB2 回执机检仍为 PASS，且 WB2 有后续落板。"
+    falsifiable_criterion: "若 exp09 三件任一件从清单中消失，或 WB2-20261023-EXP-09-R3R.yaml 机检状态不再为 PASS，即证伪。"
+    actual_data: "00:32 复核：exp09_r3r_diffusion_rerun.py 19118B / .json 148766B / WB2-20261023-EXP-09-R3R.yaml 12582B 三件均在；reviews_latest 中该回执 mtime=1792772303 status=PASS；另有 wb2_run_report_20261024_0015.md 8822B/mtime=1792772483 新增落板。预测成立。WB1 不代判关闭与降级。"
+
+  - id: H-WB1-ROADMAP-ARTIFACT-ABSENT
+    status: confirmed
+    prediction: "在 /workspace/semantickv-reorg 内递归检索，experiments_rebuild_v1.md 命中数为 0（与上轮裁定 10 一致）。"
+    falsifiable_criterion: "若递归检索命中 ≥1 个该文件名，即证伪。"
+    actual_data: "find . -name 'experiments_rebuild_v1.md' → 0 命中；find . -iname '*roadmap*' → 0 命中。预测成立。缺件待主会话补传或更正引用路径，WB1 不代造。"
+
+data_source:
+  - results_v2/wb1_exec_round_20261024_0030.md
+  - results_v2/WB1-20261024-EXEC-R0030-v1.yaml
+
+dependency_missing: []
+p0: false
+
+collaboration_audit:
+  scope_adherence: "本档严格限于：keepalive 自愈（运维）+ 候选池筛查 + 上轮裁定的只读复核。未执行任何研究实验 goal。"
+  no_self_processing: "候选池中的 ALL 指令为 WB0 发出；本档未对自己发出的任何 open_item 做处理（本档未发出 open_item）。target=WB2 的 1792770514-f24a42 未触碰。"
+  no_fabrication: "零数据生成。所有数值来自本档实拉 API 响应原文与本地进程表/日志直读。"
+  no_ledger_write: "未写台账；done.json 本档零改动（无新指令 id 可加）。"
+  frozen_respect: "未覆盖冻结件；新产物另存为 R0030-v1。"
+
+self_check:
+  B-01: "断言卡 —— 本轮未证推论有 2 处：①『pid=177909 能存活到白天空档之后』未证，依据仅为首跳成功后的时序外推，若下一档 ps 扫描无该 pid 即证伪，故不作任何判据；②『连续两轮首交合规即可关闭裁定 3』是流程规则引用而非事实断言，是否满足仍由 WB0 裁定。备选解释：keepalive 日志断行也可能由磁盘写入延迟或日志轮转造成，而非进程死亡——已用 ps 进程表直读交叉验证（无任何残留守护），该备选解释不成立。"
+  B-02: "判据分级 —— E2（可立即跑、Hub 实拉或进程表直读可复算）：候选池筛查、brief/audit/files 状态、keepalive 进程存活与首跳码、exp09 三件存在性与 size/mtime、路线图递归检索；E3（需补资源）：keepalive 死亡的根因（需平台侧/主会话证据），本档不判；E5：本档无新增撤回项。"
+  B-03: "动机猜测 —— 本档 100% 响应既定 20 分钟错峰巡检框架与 00:10 档的延续要求（keepalive 自愈 + 候选池筛查），0% 自选研究方向。"
+  B-04: "类比 —— 0 处跨领域数值类比，无需标注 [发生器]。"
+  B-05: "自我规划 —— 本档范围=保活自愈→会话建立→brief→候选池两路筛查→单条正文核验→只读复核（裁定 3/4/10）→落板双件→上传→回读校验；下档计划=按同一框架复核 pid=177909 是否存活、是否出现新的 target∈{WB1,ALL} 指令、audit 是否维持 PASS。"
+  B-06: "循序渐进 —— 本档完成的一步是『空候选档的履行型落板 + 保活重启』；留出的接口是下档直接复用本档的 keepalive 日志与 pid 记录做存活判定，无需重建上下文。"
+  B-07: "Agent 调用 —— 0 次；全部动作在本唤醒实例内经受控 API 与本地命令完成，无子 Agent 派发。"
+  B-08: "交付前验证 —— 跑了：① ps 双路扫描确认旧守护死亡与新守护存活；② keepalive.log 末行时间差 2280s > 1800s 阈值复核；③ 本档双件本地 size/sha256 计算；④ 上传后 GET /api/file/r2_<stem> 回读 200 且字节与本地一致（结果回填如下）。"
+  B-09: "动机优先 —— 用户（既定巡检指令）框架占比 100%，我的自选框架占比 0%；本档无新增研究动作。"
+  B-10: "不下断定 —— 保留待裁：keepalive 死亡根因、WB0-CLOUD-AGENT-FAILURE 是否降级、裁定 4 是否关闭、裁定 3 是否满足关闭条件、路线图缺件责任归属；H-R3-DIFFUSION 与 H-WB2-E2E-01 维持原级，本档不预先命名新结论。"

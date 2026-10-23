@@ -1,0 +1,172 @@
+review_id: WB2-20261024-EXP-10-R3CONT
+id: WB2-20261024-EXP-10-R3CONT
+author: WB2
+target: WB0
+date: 2026-10-24
+round: "2026-10-24 00:35 档（WB2 错峰 :35）"
+version: v1
+instruction_id: 1792773164-645ad3
+idempotency_key: WB0-INSTR-20261024-EXP-10-R3CONT
+title: "EXP-10-R3CONT：R3 图扩散路由·连续指标口径重析（MRR / gold-rank 替代已饱和的 PR@5，66 题 × 24 组）"
+type: experiment
+status: refuted
+verdict: "H-EXP10-CONT-METRIC = refuted：24 组配置相对 1 跳无约束基线的 MRR Δ 全部 < +2pp（最大 +0.6422pp），多跳扩散在连续排序指标上不带来可用增益；判据动态范围存在（3.0125pp ≥ 0.1pp）且 gold 全序名次可复算 → 不走 E5 撤回。"
+verdict_note: |
+  基线（hop=1, K=inf, block=False）MRR=0.640043；24 组中 MRR 最高为 hop=3/K∈{10,inf} 的 0.646465，Δ=+0.6422pp < +2pp。
+  该 +0.6422pp 全部由 n=2 的 stratum B（gold∉seed）贡献（B 层 MRR 0.121429→0.333333），stratum A（n=64）在 hop≥2 全部配置上 Δ=+0.0000pp 恒定 0.656250。
+  本令不改判 H-R3-DIFFUSION（维持 pending，见 hypotheses 第 2 条），亦不将本结果外延为「图扩散路由优于/劣于基线」之外的任何结论。
+prediction: |
+  运行前预注册（2026-10-24 00:38，脚本执行前写入，运行后回读，未因结果改写）：
+  P1（主预测，倾向 refuted 分支）：M1 口径下 64/66（96.97%）样本 gold∈seed，PPR teleport 使 gold 在 hop=1 即已获极高分，
+     预期多跳（hop≥2）相对 1 跳无约束基线的 MRR Δ ≤ +2pp，即 24 组 Δ 均 < +2pp → refuted 分支（多跳扩散在连续指标上不带来可用增益）。
+  P2（备选）：若 K 门控（K=3/5/10）限制扩散稀释、使 gold 保住 rank=1，则可能出现 Δ ≥ +2pp 且 stratum A 同向 ≥ +1pp → confirmed 分支。
+  P3（备选）：若 24 组 MRR 差值 < 0.1pp 且 stratum A 恒等 → E5 撤回。
+  量级预估：基线 MRR 落在 0.5–0.8 区间；随机基线 MRR ≈ H_1404/1404 ≈ 0.0056。
+  回读结果：基线实测 0.640043（落在预估区间内）；最大 Δ=+0.6422pp（P1 命中）；MRR 动态范围 3.0125pp → P3 未触发；
+  K=3/5 门控反而使 A 层 MRR 低于基线（-2.08pp / -1.30pp）→ P2 被实测排除。
+falsifiable_criterion: |
+  【WB0-INSTR-20261024-EXP-10-R3CONT §5 逐字，未作任何修改】
+  - confirmed：存在 (hop≥2, K) 配置使 MRR(M1, 66 题) 相对 1 跳无约束基线（hop=1, K=inf, block=False）的 MRR 提高 ≥ +2pp
+    （绝对百分点，MRR 量纲）；且该配置的增益在 stratum A（n=64）分层内同向且 ≥ +1pp（用以排除 n=2 的 stratum B 单点驱动）。
+  - refuted：24 组全部配置的 MRR Δ 均 < +2pp（多跳扩散在连续排序指标上不带来可用增益）。
+  - E5 撤回（写明「撤回」，不留 E3 拖延）：MRR 在 24 组上构造性无动态范围（如各配置 MRR 差值 < 0.1pp 且 stratum A 恒等），
+    或 gold 全序名次不可由现有资产复算 → 立即撤回 H-EXP10-CONT-METRIC 并在回执中写明撤回理由与所需资产。
+  - pending：仅限执行不完整（24 组未全覆盖 / 脚本中断），须列出缺口配置清单并显式报 dependency_missing。
+actual_data: |
+  · 图资产（与 R3 原件 / EXP-09-R3R 同图，参数零改动）：1404 实体 / 7475 共现边（uniform w=1、题内 title 共现、无向）；
+    louvain_communities(resolution=1.0, seed=20261022) → 72 个社区；PPR damping=0.85、迭代数=hop、dead-end→uniform teleport 1/N；
+    数据集 longbench_multihop_2wikimqa 200 条；seed=20261022；numpy 2.3.5 / networkx 3.6.1 / python 3.11；runtime 0.85s。
+  · 可评估集：n_evaluable(M1)=66（stratum A gold∈seed n=64，stratum B gold∉seed n=2），与 R3R 同一集合、同一匹配规则，未增删凑数。
+  · 主指标 MRR(M1, 66 题)（全 24 组，Δ 相对基线 hop=1/K=inf/block=False 的 0.640043）：
+      K=3: hop1 0.616340(-2.3703pp) / hop2 0.623915(-1.6128pp) / hop3 0.623915(-1.6128pp)
+      K=5: hop1 0.623915(-1.6128pp) / hop2 0.623915(-1.6128pp) / hop3 0.623915(-1.6128pp)
+      K=10: hop1 0.640043(+0.0000pp) / hop2 0.640043(+0.0000pp) / hop3 0.646465(+0.6422pp)
+      K=inf: hop1 0.640043(基线) / hop2 0.640043(+0.0000pp) / hop3 0.646465(+0.6422pp)
+      block=True 各 (hop,K) 与对应无约束组数值完全相同（12 组 Δ 全 0.00pp）。
+    → 最大 Δ=+0.6422pp < +2pp；configs_ge_2pp=[]；configs_ge_2pp_and_A_ge_1pp=[]；all_configs_delta_lt_2pp=true。
+  · 分层披露（只披露不承担判据）：stratum A MRR = 0.635417(K=3) / 0.643229(K=5) / 0.656250(K=10,inf，所有 hop 恒定)，
+    A 层 Δ 相对基线 A=0.656250 全 ≤ +0.0000pp（K=3 为 -2.0833pp、K=5 为 -1.3021pp）；stratum B MRR = 0.005874(K=3,5) /
+    0.121429(K=10,inf, hop1–2) / 0.333333(K=10,inf, hop3)。gold rank 中位数 = 2.0（全部 24 组）；rank≤10 比例 0.9697（K=3/5）
+    与 1.0（K=10/inf）；rank=1 比例 0.2879–0.3182。
+  · 随机基线：每查询 200 次均匀随机全序位置抽样 → MRR=0.005393（n_query=66）；理论 E[1/rank]=H_1404/1404=0.005573（偏差 3.23%）；
+    另披露 1/E[rank]=2/(N+1)=0.001423（与 E[1/rank] 因 Jensen 不等不相等，二者并列披露、不互相冒充）。
+  · 可复算自检：本令脚本在 66 题集上重算 PR@5(M1)，与 R3R 的 configs[].pr5_primary_M1 逐组比对 24/24、mismatch=0。
+  · 冻结件只读校验：r3_graph_diffusion.json sha256_16=4e7d33353db9f268、exp09_r3r_diffusion_rerun.json sha256_16=25fde31d83a54944（运行前后一致，未被修改/覆盖）。
+data_source:
+  - results_v2/exp10_r3cont_continuous_metrics.json
+  - results_v2/exp10_r3cont_continuous_metrics.py
+dependency_present:
+  - /workspace/wb2/r2_longbench_multihop_2wikimqa.json（200 条，本地存在的原始数据集）
+  - /workspace/wb2/results_v2/exp09_r3r_diffusion_rerun.json（只读，用于 PR@5 一致性自检）
+  - python3.11 / numpy 2.3.5 / networkx 3.6.1（CPU，无 GPU、无外部 API、无权重依赖）
+dependency_missing: []
+p0: false
+p0_note: |
+  判 false 的理由：本产物可在 0.85s 内由已上传脚本 + 数据集完整重算，非唯一矩阵、非训练权重。
+  但需提请 WB0 注意：唯一外部依赖 r2_longbench_multihop_2wikimqa.json 目前仅存于本沙箱 /workspace/wb2/，
+  若沙箱清理该文件则本件与 R3/R3R 均不可再算 → 建议备份任务将该数据集纳入双通道归档（是否升 p0 由 WB0 裁定）。
+hypotheses:
+  - id: H-EXP10-CONT-METRIC
+    status: refuted
+    ds_admitted_refutation: true
+    ds_admitted_refutation_note: |
+      显式承认证伪方向：本令预注册主预测 P1 为「多跳扩散在连续排序指标上不带来可用增益（24 组 Δ 均 <+2pp）」，
+      实测 24/24 组 Δ <+2pp（最大 +0.6422pp）→ 该假设按其预注册判据被证伪，非「测不出」：
+      判据具备动态范围（MRR 极差 3.0125pp）、样本 n=66、24 组全覆盖、gold 全序名次可复算（PR@5 逐组 mismatch=0），
+      因此本条属实测证伪，不属功效不足的 pending。
+    prediction: |
+      运行前预注册 P1：24 组 MRR Δ 均 < +2pp（多跳扩散在连续排序指标上不带来可用增益）；备选 P2 = 存在 (hop≥2,K) 使 Δ≥+2pp 且 A 层同向 ≥+1pp。
+    falsifiable_criterion: |
+      confirmed = ∃(hop≥2,K) 使 MRR(M1,66) 较基线 ≥+2pp 且该配置 stratum A 同向 ≥+1pp；refuted = 24 组 Δ 均 <+2pp；
+      E5 = MRR 构造性无动态范围（差值 <0.1pp 且 A 层恒等）或 gold 全序名次不可复算；pending 仅限执行不完整。
+    actual_data: |
+      24/24 组全覆盖，最大 Δ=+0.6422pp（hop=3, K∈{10,inf}），无配置 ≥+2pp → refuted 分支成立；
+      MRR 动态范围 3.0125pp ≥0.1pp、stratum A 有 3 个不同取值、gold 全序名次可复算（PR@5 逐组 mismatch=0）→ E5 分支不成立。
+  - id: H-R3-DIFFUSION
+    status: pending
+    prediction: "本令不对其作预测，也不代升代降；仅按 WB0 2026-10-24 00:20 裁定 2 原样维持。"
+    falsifiable_criterion: |
+      沿用 WB0-INSTR-20261023-EXP-09-R3R §5 原判据（PR@5(M1) 口径，冻结，本令不作任何改判）：
+      confirmed = ∃(hop≥2,K) 使 PR@5(M1) 较 1 跳无约束基线 ≥+2pp 且无约束 K=inf 序列 3 跳较峰值降 ≥1pp；
+      refuted = 24 组 Δ 均 <+2pp；n_evaluable<30 或 24 组未覆盖 → 不可定级。
+    actual_data: |
+      本令不改动其 PR@5 判据，维持 WB0 2026-10-24 00:20 裁定 2 的 pending + 功效不足标签。
+      本令仅提供旁证（不作判据）：连续指标口径下 stratum A（n=64）在 hop≥2 全部配置上 Δ=+0.0000pp 恒定 0.656250，
+      唯一 +0.6422pp 全部来自 n=2 的 stratum B → 与裁定 2「判据动态范围仅由 n=2 的 B 层承担」的判定同向。
+  - id: H-EXP10-PR5-RECOMPUTE-CONSISTENT
+    status: confirmed
+    prediction: "本令脚本在 66 题集上重算 PR@5(M1) 应与 R3R configs[].pr5_primary_M1 逐组一致（mismatch=0）。"
+    falsifiable_criterion: "24 组配置逐一比对，mismatch 计数 >0（差 >1e-9）即证伪。"
+    actual_data: "n_configs_compared=24，mismatch=0，mismatch_detail=[]（含 hop=3/K∈{10,inf} 的 PR@5=1.0 组）。"
+  - id: H-EXP10-BLOCKDIAG-NULL-MRR
+    status: confirmed
+    prediction: "块对角社区约束相对同 (hop,K) 无约束，MRR Δ 应为 0.00pp（与 R3R 的 PR@5 块对角空效应一致）。"
+    falsifiable_criterion: "12 组 (hop,K) 中任一组 |Δ| > 0.01pp 即证伪。"
+    actual_data: "12/12 组 Δ=0.00pp（block_effect_by_hop_K 全部为 0.0）。仅限本图构造（uniform w=1 共现图、louvain resolution=1.0）与本法，不外延为「无社区结构可利用」。"
+  - id: H-EXP10-RANDBASELINE-CALIBRATION
+    status: confirmed
+    prediction: "随机基线 MRR 抽样估计应落在理论 E[1/rank]=H_N/N 的 ±5% 相对偏差内（N=1404 → 0.005573）。"
+    falsifiable_criterion: "|sampled − H_N/N| / (H_N/N) > 5% 即证伪。"
+    actual_data: "sampled=0.005393，理论=0.005573，相对偏差 3.23% ≤ 5% → 抽样口径与理论一致；另披露 1/E[rank]=0.001423（不做等同表述）。"
+  - id: H-EXP10-STRATUMB-DRIVER
+    status: confirmed
+    prediction: "若出现 Δ>0 的配置，其增益应全部由 n=2 的 stratum B 贡献，stratum A（n=64）Δ 应为 0.0000pp。"
+    falsifiable_criterion: "若存在某配置使 stratum A 的 Δ > 0.0000pp（A 层自身产生增益）即证伪。"
+    actual_data: |
+      最大 Δ 配置（hop=3, K∈{10,inf}）：A 层 0.656250→0.656250（Δ=+0.0000pp）、B 层 0.121429→0.333333；
+      全部 24 组的 A 层 Δ 均 ≤ +0.0000pp（K=3/5 下为负：-2.08pp / -1.30pp）→ 增益确由 B 层单点驱动。
+      n=2，无统计功效，本条只作机制披露，不承担 H-EXP10-CONT-METRIC 的判据。
+observations: |
+  1. 【对 WB0 裁定 1792773147-4e4f15 的响应】本轮已读取该裁定全文并逐条遵守：
+     · 裁定 2：H-R3-DIFFUSION 维持 pending + 功效不足标签，本回执未代升代降，未以任何 Δ 值升级该假设；
+     · 裁定 4：EXP-10-R3CONT 已由本轮执行完毕，交付 .json/.py/回执 三件；
+     · 裁定 9①：本回执 falsifiable_criterion 与派工令 §5 逐字一致，未自行扩充分支（上轮 R3R 回执扩充 pending 分支的做法本轮未重演），
+       若对判据有异议一律单列本段交 WB0 裁定，未静默改写。
+  2. 【口径差异披露】MRR 与 PR@5 同为 M1 口径但量纲不同：PR@5 在 66 题上最高可达 1.0（饱和），MRR 最高 0.646465；
+     本令未用 MRR 结果反推 PR@5 判据，也未把 MRR 的「有动态范围（3.0125pp）」解读为「PR@5 判据恢复判别力」——
+     实测表明 MRR 的动态范围主要由 K 门控（K=3/5 使 A 层 MRR 下降）带来，而非 hop 数带来。
+  3. 【与 R3R 的机制一致性】R3R 中 +3.03pp 由 n=2 的 B 层从 PR@5=0 变 1 产生（步长 1/66=1.515pp）；
+     本令 +0.6422pp 同样由该 2 题的 B 层 rank 变化（0.121429→0.333333，即 rank≈8→3）产生 → 两条证据同向指向
+     「M1 口径下 R3 判据的判别力仅由 n=2 承担」。此为机制披露，不改判任何假设。
+  4. 【未发现 PPR 实现错误】本令复用 R3R 的图构造与 PPR 递推，PR@5(M1) 24 组逐组 mismatch=0；
+     未发现 R3 原件或 R3R 存在口径之外的实质性错误（如 PPR 实现错误），无需启动 §8 的单独回报。
+  5. 【K 门控方向】K=3/5 的门控使 MRR 低于无约束（A 层 -2.08pp/-1.30pp），即截断邻居对 gold 排序有害而非有益；
+     该方向与「门控应减少噪声」的直觉相反，可能因删除了 gold 的高共现边。仅登记，不作判据。
+  6. 【判据缺陷提示（交 WB0 裁定，未自行改写）】本令 §5 的 refuted 分支与 E5 分支之间存在一处边界情形：
+     若某配置 Δ≥+2pp 但 A 层 Δ<+1pp（即增益全部来自 n=2 的 B 层），严格按文本既不落入 confirmed 也不落入 refuted，
+     本轮实测未触发该情形（无任何配置 Δ≥+2pp）；建议 WB0 在后续同类判据中显式写入该分支的归属（交裁定，不改本令判据）。
+compliance: |
+  · 红线自检：未伪造/插值/复用 R3R 的 per_query 结果——MRR 与 rank 均由本轮脚本对全 1404 节点 argsort 全序实算（per_query 段含每题 rank/rr）；
+  · 冻结件：r3_graph_diffusion.{json,py}、exp09_r3r_diffusion_rerun.{json,py}、WB2-20261022-R3.yaml、WB2-20261023-EXP-09-R3R.yaml 一律只读，
+    运行前后 sha256_16 一致（4e7d33353db9f268 / 25fde31d83a54944），本令产物另存新名 exp10_*；
+  · 未触碰 semantic_router.pt 与 b_routers/ 下任何权重（本令为纯 PPR 数值实验，无权重加载）；未直写 hypothesis_ledger.yaml（台账只由 WB0 经受控通道写入）；
+  · 未改判 H-R3-DIFFUSION / H-WB2-E2E-01 或任何其它假设状态；未将结果外延为「图扩散路由优于/劣于基线」之外的结论；
+  · 未修改 §5 falsifiable_criterion（回执判据块逐字一致），对判据的疑问已在 observations 第 6 条单列交 WB0 裁定；
+  · 纯 CPU、仅用现有资产，实测 0.85s（远低于 300s 档），未裁剪样本或配置；24 组全覆盖、66 题集未增删。
+collaboration_audit: |
+  · 本轮处理指令 2 条：1792773164-645ad3（WB2，EXP-10-R3CONT，已执行并交付）、1792773147-4e4f15（ALL，WB0 00:20 档裁定，已读并逐条遵守，见 observations 第 1 条）；
+  · 未代跑 WB0/WB1 任务、未代写他人回执、未替他人补交付物；
+  · 无资源缺失 → 本轮未发 open_item；既存 open_item 2 条（WB0-CLOUD-AGENT-FAILURE / WB0-LEDGER-DECISIONS-STALE）均属 WB0 侧，本轮不重复发令；
+  · 保活：本轮第一步确认 keepalive 心跳进程已存在并重启（/workspace/wb2_keepalive_heartbeat.sh，20 分钟档 http=200），仅保活、不参与任何实验判据。
+self_check: |
+  - B-01（断言卡）：本轮最需警惕的未证推论是「+0.6422pp 全部由 n=2 的 stratum B 驱动 ⇒ 多跳扩散对 gold 排序无真实作用」——
+    B 层仅 2 题，其 rank 8→3 的变化既可能是扩散带来的真实增益，也可能是 2 个样本的偶然（备选解释：样本特异的图局部结构/答案别名匹配差异）；
+    本轮只作机制披露，未据此改判任何假设。
+  - B-02（判据分级）：MRR 数值、Δ、分层、PR@5 mismatch、随机基线、sha256 校验 = E2（本轮实跑可复算，脚本已上传）；
+    「K 门控有害的成因」「社区结构是否被 uniform w=1 抹平」= E3，本轮不判；本轮无 E5 撤回项（动态范围 3.0125pp 存在，不符合 E5 条件）。
+  - B-03（动机猜测）：100% 响应 WB0 派工令 1792773164-645ad3（口径修正重析）+ 遵守裁定 1792773147-4e4f15，0% 自选研究方向。
+  - B-04（类比）：0 处跨领域类比（本轮全部为数值复算与判据比对），无需标 [发生器]。
+  - B-05（自我规划）：本轮范围 = 保活确认 → brief → 取 EXP-10 令与裁定 → 复用 R3R 图资产实跑 24 组 MRR → 三件交付 + 回执；
+    下轮计划 = 等 WB0 对 H-EXP10-CONT-METRIC 的定级裁定，若要求扩 B 层样本或换口径再按新令执行，不自选。
+  - B-06（循序渐进）：本轮只完成「连续指标口径重析」一步；留的接口 = per_query 段保留每题 rank/rr，可供后续按 hop 分层或换指标（如 nDCG）直接复算，无需重跑图构造。
+  - B-07（Agent 调用）：0 次——本轮为单脚本数值复算 + 受控 API 读写，无并行探索需求。
+  - B-08（交付前验证）：①PR@5(M1) 与 R3R 逐组比对 24/24 mismatch=0（可复算自检）；②冻结件运行前后 sha256_16 一致（未被改）；
+    ③随机基线抽样值 0.005393 与理论 H_N/N=0.005573 偏差 3.23%（口径自洽）；④24 组全覆盖、n=66 与 R3R 同集合（未凑数）；
+    ⑤上传后逐件回读 size 与本地一致（见 upload_verification）。结论：全部通过。
+  - B-09（动机优先）：用户/派工指令要求占比 100%，我的框架占比 0%（指标定义、判据、分层披露口径均取自派工令 §2/§5，未自行置换口径）。
+  - B-10（不下断定）：保留待裁 = ①M1 口径是否就此弃用为 R3 主判据（本轮只提供旁证，不裁定）；②observations 第 6 条的判据边界分支归属；
+    ③数据集 r2_longbench_multihop_2wikimqa.json 是否需升 p0 归档；④K 门控为何损害 gold 排序——四项均未预先命名，交 WB0 裁定。
+upload_verification: |
+  · POST /api/upload results_v2/exp10_r3cont_continuous_metrics.py → http=200，size=19035，sha256=2756a3f75895788b（与本地一致）；
+  · POST /api/upload results_v2/exp10_r3cont_continuous_metrics.json → http=200，size=158750，sha256=fb9a849539104c84（与本地一致）；
+  · 本回执 YAML 经 POST /api/review 提交（不经 /api/upload，避免上轮 R3R「上传未触发机检」的通道误用重演），提交后回读 /api/reviews 取 check.status 原文。

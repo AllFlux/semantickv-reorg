@@ -1,0 +1,8851 @@
+{
+ "schema": "exp10_r3cont_continuous_metrics/v1",
+ "created_at": "2026-10-24 00:39:35",
+ "instruction_id": "1792773164-645ad3",
+ "idempotency_key": "WB0-INSTR-20261024-EXP-10-R3CONT",
+ "author": "WB2",
+ "graph_construction": {
+  "dataset": "longbench_multihop_2wikimqa",
+  "n_records": 200,
+  "edge_rule": "题内 title 共现，无向，uniform w=1（与 R3 原件/R3R 同图）",
+  "n_entities": 1404,
+  "n_edges": 7475,
+  "n_dead_end_raw": 0,
+  "community": "louvain_communities(resolution=1.0, seed=20261022)",
+  "n_communities": 72,
+  "community_sizes_top10": [
+   125,
+   94,
+   61,
+   52,
+   52,
+   48,
+   47,
+   46,
+   44,
+   39
+  ],
+  "ppr": {
+   "damping": 0.85,
+   "iterations_eq_hop": true,
+   "dead_end": "uniform teleport 1/N",
+   "tie_break": "共现次数降序、节点 id 升序",
+   "order": "np.argsort(-p, kind='stable')"
+  },
+  "seed": 20261022
+ },
+ "eval_protocol": {
+  "metric_primary": "MRR = mean(1/rank_gold)，rank_gold 为 gold 在 PPR 全 N 节点全序中的 1-based 名次（不截断、无 top-K 天花板）",
+  "metric_secondary": [
+   "gold_rank_median",
+   "frac_rank_le_10",
+   "PR@5(M1，仅用于与 R3R 可复算一致性核验)"
+  ],
+  "gating": "M1（不排除 seed；gold 按答案别名归一化匹配全局 title 节点即计入）",
+  "n_evaluable": 66,
+  "n_gold_title_matched": 66,
+  "n_gold_in_seed": 64,
+  "strata": {
+   "A_gold_in_seed": 64,
+   "B_gold_not_in_seed": 2
+  },
+  "note": "PR@5(M1) 已饱和（gold∈seed 占比 96.97%，teleport 结构性自命中），本令以连续指标替代；本令不改判 H-R3-DIFFUSION 的 PR@5 判据"
+ },
+ "configs": [
+  {
+   "hop": 1,
+   "K": 3,
+   "block_diagonal": false,
+   "mrr_M1": 0.61634,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.909,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.2879,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.635417,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -2.3703,
+   "delta_mrr_stratumA_vs_baseline_pp": -2.0833
+  },
+  {
+   "hop": 2,
+   "K": 3,
+   "block_diagonal": false,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 3,
+   "K": 3,
+   "block_diagonal": false,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 1,
+   "K": 3,
+   "block_diagonal": true,
+   "mrr_M1": 0.61634,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.909,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.2879,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.635417,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -2.3703,
+   "delta_mrr_stratumA_vs_baseline_pp": -2.0833
+  },
+  {
+   "hop": 2,
+   "K": 3,
+   "block_diagonal": true,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 3,
+   "K": 3,
+   "block_diagonal": true,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 1,
+   "K": 5,
+   "block_diagonal": false,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 2,
+   "K": 5,
+   "block_diagonal": false,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 3,
+   "K": 5,
+   "block_diagonal": false,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 1,
+   "K": 5,
+   "block_diagonal": true,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 2,
+   "K": 5,
+   "block_diagonal": true,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 3,
+   "K": 5,
+   "block_diagonal": true,
+   "mrr_M1": 0.623915,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 7.894,
+   "frac_rank_le_10_M1": 0.9697,
+   "frac_rank_eq_1_M1": 0.303,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.643229,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.005874,
+   "gold_rank_median_stratumB": 204.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": -1.6128,
+   "delta_mrr_stratumA_vs_baseline_pp": -1.3021
+  },
+  {
+   "hop": 1,
+   "K": 10,
+   "block_diagonal": false,
+   "mrr_M1": 0.640043,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.924,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.121429,
+   "gold_rank_median_stratumB": 8.5,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.0,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 2,
+   "K": 10,
+   "block_diagonal": false,
+   "mrr_M1": 0.640043,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.924,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.121429,
+   "gold_rank_median_stratumB": 8.5,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.0,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 3,
+   "K": 10,
+   "block_diagonal": false,
+   "mrr_M1": 0.646465,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.758,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 1.0,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.333333,
+   "gold_rank_median_stratumB": 3.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.6422,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 1,
+   "K": 10,
+   "block_diagonal": true,
+   "mrr_M1": 0.640043,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.924,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.121429,
+   "gold_rank_median_stratumB": 8.5,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.0,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 2,
+   "K": 10,
+   "block_diagonal": true,
+   "mrr_M1": 0.640043,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.924,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.121429,
+   "gold_rank_median_stratumB": 8.5,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.0,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 3,
+   "K": 10,
+   "block_diagonal": true,
+   "mrr_M1": 0.646465,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.758,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 1.0,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.333333,
+   "gold_rank_median_stratumB": 3.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.6422,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 1,
+   "K": "inf",
+   "block_diagonal": false,
+   "mrr_M1": 0.640043,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.924,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.121429,
+   "gold_rank_median_stratumB": 8.5,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.0,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 2,
+   "K": "inf",
+   "block_diagonal": false,
+   "mrr_M1": 0.640043,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.924,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.121429,
+   "gold_rank_median_stratumB": 8.5,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.0,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 3,
+   "K": "inf",
+   "block_diagonal": false,
+   "mrr_M1": 0.646465,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.758,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 1.0,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.333333,
+   "gold_rank_median_stratumB": 3.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.6422,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 1,
+   "K": "inf",
+   "block_diagonal": true,
+   "mrr_M1": 0.640043,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.924,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.121429,
+   "gold_rank_median_stratumB": 8.5,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.0,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 2,
+   "K": "inf",
+   "block_diagonal": true,
+   "mrr_M1": 0.640043,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.924,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 0.9697,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.121429,
+   "gold_rank_median_stratumB": 8.5,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.0,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  },
+  {
+   "hop": 3,
+   "K": "inf",
+   "block_diagonal": true,
+   "mrr_M1": 0.646465,
+   "gold_rank_median_M1": 2.0,
+   "gold_rank_mean_M1": 1.758,
+   "frac_rank_le_10_M1": 1.0,
+   "frac_rank_eq_1_M1": 0.3182,
+   "pr5_M1_recomputed": 1.0,
+   "mrr_stratumA": 0.65625,
+   "gold_rank_median_stratumA": 2.0,
+   "mrr_stratumB": 0.333333,
+   "gold_rank_median_stratumB": 3.0,
+   "n_M1": 66,
+   "n_stratumA": 64,
+   "n_stratumB": 2,
+   "delta_mrr_vs_1hop_baseline_pp": 0.6422,
+   "delta_mrr_stratumA_vs_baseline_pp": 0.0
+  }
+ ],
+ "qids_evaluated": [
+  10,
+  12,
+  16,
+  22,
+  23,
+  24,
+  25,
+  26,
+  30,
+  34,
+  35,
+  36,
+  38,
+  41,
+  43,
+  48,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  62,
+  65,
+  68,
+  79,
+  81,
+  82,
+  84,
+  89,
+  90,
+  96,
+  98,
+  107,
+  109,
+  110,
+  111,
+  112,
+  115,
+  117,
+  118,
+  121,
+  123,
+  124,
+  125,
+  126,
+  128,
+  129,
+  132,
+  134,
+  138,
+  139,
+  143,
+  147,
+  162,
+  164,
+  167,
+  172,
+  176,
+  183,
+  185,
+  186,
+  187,
+  190,
+  195,
+  197
+ ],
+ "per_query": {
+  "10": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "12": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 121,
+    "rr": 0.008264,
+    "pr5_m1": 0
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 7,
+    "rr": 0.142857,
+    "pr5_m1": 0
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 7,
+    "rr": 0.142857,
+    "pr5_m1": 0
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 7,
+    "rr": 0.142857,
+    "pr5_m1": 0
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 7,
+    "rr": 0.142857,
+    "pr5_m1": 0
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 7,
+    "rr": 0.142857,
+    "pr5_m1": 0
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 7,
+    "rr": 0.142857,
+    "pr5_m1": 0
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 7,
+    "rr": 0.142857,
+    "pr5_m1": 0
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 7,
+    "rr": 0.142857,
+    "pr5_m1": 0
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   }
+  },
+  "16": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   }
+  },
+  "22": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "23": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "24": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "25": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "26": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "30": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 287,
+    "rr": 0.003484,
+    "pr5_m1": 0
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 10,
+    "rr": 0.1,
+    "pr5_m1": 0
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 10,
+    "rr": 0.1,
+    "pr5_m1": 0
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 10,
+    "rr": 0.1,
+    "pr5_m1": 0
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 10,
+    "rr": 0.1,
+    "pr5_m1": 0
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 10,
+    "rr": 0.1,
+    "pr5_m1": 0
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 10,
+    "rr": 0.1,
+    "pr5_m1": 0
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 10,
+    "rr": 0.1,
+    "pr5_m1": 0
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 10,
+    "rr": 0.1,
+    "pr5_m1": 0
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   }
+  },
+  "34": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "35": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "36": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "38": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "41": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "43": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "48": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "53": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "54": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   }
+  },
+  "55": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "56": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "57": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "58": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "62": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "65": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "68": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "79": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "81": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "82": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "84": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "89": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "90": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "96": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "98": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "107": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "109": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "110": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "111": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "112": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "115": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "117": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "118": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "121": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "123": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "124": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "125": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "126": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "128": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "129": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "132": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "134": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "138": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "139": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "143": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "147": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "162": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "164": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "167": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "172": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "176": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "183": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "185": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "186": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "187": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  },
+  "190": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 3,
+    "rr": 0.333333,
+    "pr5_m1": 1
+   }
+  },
+  "195": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 1,
+    "rr": 1.0,
+    "pr5_m1": 1
+   }
+  },
+  "197": {
+   "K=3,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=3,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=5,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=10,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=False,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=1": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=2": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   },
+   "K=inf,block=True,hop=3": {
+    "rank_gold": 2,
+    "rr": 0.5,
+    "pr5_m1": 1
+   }
+  }
+ },
+ "random_baseline": {
+  "method": "每查询 200 次均匀随机全序位置抽样（与 R3R 同法 200 draws/query）",
+  "mrr_sampled": 0.005393,
+  "theory_E_inv_rank_HN_over_N": 0.005573,
+  "naive_inv_expected_rank_2_over_N_plus_1": 0.001423,
+  "note": "E[1/rank]=H_N/N 与 1/E[rank]=2/(N+1) 因 Jensen 不等不相等，二者均披露，不互相冒充"
+ },
+ "unconstrained_series": {
+  "mrr_by_hop_K_inf": {
+   "1": 0.640043,
+   "2": 0.640043,
+   "3": 0.646465
+  },
+  "peak_hop": 3,
+  "delta_3hop_vs_peak_pp": 0.0
+ },
+ "inflections_by_config": {
+  "K=3,block=False": {
+   "series_mrr": [
+    0.61634,
+    0.623915,
+    0.623915
+   ],
+   "peak_hop": 2,
+   "decline_after_peak": false,
+   "delta_3hop_vs_peak_pp": 0.0
+  },
+  "K=3,block=True": {
+   "series_mrr": [
+    0.61634,
+    0.623915,
+    0.623915
+   ],
+   "peak_hop": 2,
+   "decline_after_peak": false,
+   "delta_3hop_vs_peak_pp": 0.0
+  },
+  "K=5,block=False": {
+   "series_mrr": [
+    0.623915,
+    0.623915,
+    0.623915
+   ],
+   "peak_hop": 1,
+   "decline_after_peak": false,
+   "delta_3hop_vs_peak_pp": 0.0
+  },
+  "K=5,block=True": {
+   "series_mrr": [
+    0.623915,
+    0.623915,
+    0.623915
+   ],
+   "peak_hop": 1,
+   "decline_after_peak": false,
+   "delta_3hop_vs_peak_pp": 0.0
+  },
+  "K=10,block=False": {
+   "series_mrr": [
+    0.640043,
+    0.640043,
+    0.646465
+   ],
+   "peak_hop": 3,
+   "decline_after_peak": false,
+   "delta_3hop_vs_peak_pp": 0.0
+  },
+  "K=10,block=True": {
+   "series_mrr": [
+    0.640043,
+    0.640043,
+    0.646465
+   ],
+   "peak_hop": 3,
+   "decline_after_peak": false,
+   "delta_3hop_vs_peak_pp": 0.0
+  },
+  "K=inf,block=False": {
+   "series_mrr": [
+    0.640043,
+    0.640043,
+    0.646465
+   ],
+   "peak_hop": 3,
+   "decline_after_peak": false,
+   "delta_3hop_vs_peak_pp": 0.0
+  },
+  "K=inf,block=True": {
+   "series_mrr": [
+    0.640043,
+    0.640043,
+    0.646465
+   ],
+   "peak_hop": 3,
+   "decline_after_peak": false,
+   "delta_3hop_vs_peak_pp": 0.0
+  }
+ },
+ "block_diagonal_effect_by_hop_K": {
+  "hop=1,K=3": {
+   "unconstrained": 0.61634,
+   "block_diagonal": 0.61634,
+   "delta_pp": 0.0
+  },
+  "hop=1,K=5": {
+   "unconstrained": 0.623915,
+   "block_diagonal": 0.623915,
+   "delta_pp": 0.0
+  },
+  "hop=1,K=10": {
+   "unconstrained": 0.640043,
+   "block_diagonal": 0.640043,
+   "delta_pp": 0.0
+  },
+  "hop=1,K=inf": {
+   "unconstrained": 0.640043,
+   "block_diagonal": 0.640043,
+   "delta_pp": 0.0
+  },
+  "hop=2,K=3": {
+   "unconstrained": 0.623915,
+   "block_diagonal": 0.623915,
+   "delta_pp": 0.0
+  },
+  "hop=2,K=5": {
+   "unconstrained": 0.623915,
+   "block_diagonal": 0.623915,
+   "delta_pp": 0.0
+  },
+  "hop=2,K=10": {
+   "unconstrained": 0.640043,
+   "block_diagonal": 0.640043,
+   "delta_pp": 0.0
+  },
+  "hop=2,K=inf": {
+   "unconstrained": 0.640043,
+   "block_diagonal": 0.640043,
+   "delta_pp": 0.0
+  },
+  "hop=3,K=3": {
+   "unconstrained": 0.623915,
+   "block_diagonal": 0.623915,
+   "delta_pp": 0.0
+  },
+  "hop=3,K=5": {
+   "unconstrained": 0.623915,
+   "block_diagonal": 0.623915,
+   "delta_pp": 0.0
+  },
+  "hop=3,K=10": {
+   "unconstrained": 0.646465,
+   "block_diagonal": 0.646465,
+   "delta_pp": 0.0
+  },
+  "hop=3,K=inf": {
+   "unconstrained": 0.646465,
+   "block_diagonal": 0.646465,
+   "delta_pp": 0.0
+  }
+ },
+ "criteria_check": {
+  "criterion_source": "WB0-INSTR-20261024-EXP-10-R3CONT §5（逐字，未修改）",
+  "baseline": {
+   "hop": 1,
+   "K": "inf",
+   "block_diagonal": false,
+   "mrr_M1": 0.640043,
+   "mrr_stratumA": 0.65625
+  },
+  "n_configs": 24,
+  "n_candidates_hop_ge_2": 16,
+  "max_delta_mrr_pp": 0.6422,
+  "max_delta_mrr_stratumA_pp": -1.3021,
+  "configs_ge_2pp": [],
+  "configs_ge_2pp_and_A_ge_1pp": [],
+  "all_configs_delta_lt_2pp": true,
+  "mrr_dynamic_range_pp": 3.0125,
+  "stratumA_mrr_distinct_values": 3,
+  "e5_no_dynamic_range": false,
+  "auto_verdict": "refuted"
+ },
+ "recompute_selfcheck": {
+  "compared_with": "results_v2/exp09_r3r_diffusion_rerun.json::configs[].pr5_primary_M1",
+  "n_configs_compared": 24,
+  "mismatch": 0,
+  "mismatch_detail": []
+ },
+ "frozen_assets_readonly": {
+  "r3_graph_diffusion.json_sha256_16": "4e7d33353db9f268",
+  "exp09_r3r_diffusion_rerun.json_sha256_16": "25fde31d83a54944",
+  "note": "原件与 R3R 产物在本令中只读（仅用于 PR@5 一致性自检），未被修改或覆盖"
+ },
+ "runtime_sec": 0.85
+}
