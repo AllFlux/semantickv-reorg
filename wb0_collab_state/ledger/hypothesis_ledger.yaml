@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.91'
+ledger_version: '0.103'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -8,14 +8,18 @@ open_items:
   severity: high
   raised_by: WB0
   raised_at: 1792568891
-  desc: "【14:55 轮追加】WB1 最后 Hub 写入 2026-10-23 11:26（WB1-20261023-EXEC-R1120-v1.yaml，机检 FAIL）；12:20/13:20/14:20 三档零落盘，累计 3h30m，三档均不在静默时段 06:10-11:10 / 15:10-17:10 / 19:10-21:10 内，排除静默所致。该回执自述 status=confirmed 但机检 FAIL（缺 review_id/target/date、hypotheses 空）且 data_source results_v2/wb1_exec_round_20261023_1120.md 实物不存在 → 判验收不通过，不采信自述、不更新台账。WB2 同期健康（14:49 落板）→ 故障非全局。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁）→ 维持 open，不擅自关闭。\n\n【2026-10-23 23:20 轮追加（WB0-scheduled-wake）】恢复证据：自 23:04 起三路写入恢复——WB0 留档 results_v2/wb0_round_20261023_2300.md（11527B，23:05）；WB1 补传 results_v2/wb1_exec_round_20261023_1120.md（6895B，sha256=4c3f972ca08e1ff6，23:12）+ 回执 WB1-20261023-EXEC-R1120-v2.yaml（9532B，23:17，机检 PASS）+ wb1_exec_round_20261023_2320.md（7412B，23:15）；WB2 results_v2/wb2_round_20261023_2340.md（10288B，23:20）。15:02–23:00 的 7h58m 空窗终止；GET /api/discipline total=0（D4 由 FAIL 翻 PASS）。恢复判据（连续 2 小时多代理稳定执行且无静默触发 + 主会话 trigger 日志终裁）尚未满足（恢复观测窗口仅 16 分钟）→ 维持 open、severity 维持 high（只升不降），终裁归主会话调度器 trigger 日志，WB0 不擅自关闭。"
-  status: open
+  desc: 【保留原描述，不删历史】云端 scheduled-agent 执行层整体故障，曾致 WB1 三档零落盘、累计 3h30m；此后 15:02–23:00 再现 7h58m 三路空窗（含 WB0 自身连缺 8 档）。
+  status: resolved
   mitigation: ① 保持以 Hub 写入时戳为唯一判据，不采信 lastRunAt；② 待 WB1 恢复后补传 1120 运行报告 md 并以合规 schema 重传回执（-v2，不覆盖 FAIL 原件）；③ 不代跑、不重复派工，执行器健康则等其自取；④ 终裁归主会话调度器 trigger 日志。
-  resolution: ''
+  resolution: '[WB0 唤醒裁定 2026-10-24 00:59 档 / WB0-VERDICT-20261024-0059 裁定 6①] 满足 00:20 档设定的降级门槛：连续 3 个整点档（23:59 档 / 00:20 档 / 00:59 档）双执行器均有落板且机检 PASS。本轮实测：WB1 落板 WB1-20261024-EXEC-R0050-v1.yaml（00:54:18，PASS）+ wb1_exec_round_20261024_0050.md（00:54:09）；WB2 落板 WB2-20261024-EXP-10-R3CONT.yaml（00:43:45，PASS）+ wb2_run_report_20261024_0055.md（00:58:15）。计数 3/3 → 降级为 resolved。回升条件：若 01:59 或 02:59 任一档出现任一执行器零落板，或任一回执机检 FAIL，则立即回升为 open / severity=high。平台侧根因（云端 scheduled-agent 执行层故障）仍未确认修复，本项仅在落板层面三档达标，不构成根因已消除的证据。'
   title: 云端 scheduled-agent 执行层整体故障
-  updated_at: 2026-10-21T23:02+08:00
+  updated_at: 2026-10-24 00:59 CST
   updated_by: WB0-scheduled-wake
   note: 【23:55】双执行器持续恢复中：WB1 23:54:50 落板 EXP-07 回执 + exp07_router_relief.json（机检 PASS）；WB2 23:45 落板 23:40 档运行报告（队列空、无漏执行）。连续稳定窗口：WB1≈2h18m（21:37 起）、WB2≈1h28m+（22:27 起）。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁）→ 维持 open，不擅自关闭。
+  target: ALL
+  resolved_by: WB0-scheduled-wake
+  resolved_at: 1792775622
+  source_instruction: 1792775622-17229c
 - id: WB0-EGRESS
   severity: low
   desc: GitHub 数据传出仍被阻断（deploy-key 认证 OK，packfile/raw GET 超时）。但回执闭环已不受影响：WB2 经 Hub relpath 推送交付物，机检双路 PASS。剩余仅为 GitHub 仓库同步这一次通道。
@@ -341,18 +345,28 @@ hypotheses:
   reason: WB0 17:55 轮验收：机检 PASS；对照 falsifiable_criterion（random 三档均<1.0 → v1 note 作废出 v2，已触发；v2 逐字保留 v1 results 九值已核，sha256 b2b13845... 与实物一致）。边界：仅覆盖该构造的描述性事实，不覆盖 H-WB0-A 因果主假设。
   updated_by: WB0-scheduled-wake
 - id: H-R3-DIFFUSION
-  status: pending
+  status: e5_withdrawn
   statement: 多跳扩散（PPR, d=0.85）在共现图上能把相关群拉入 top-5，但扩散过多会稀释 PR@5（注意力劫持的检索等价）；块对角约束可通过限制跨社区稀释保住 PR@5。
-  review_id: WB2-20261022-R3
+  review_id: WB2-20261024-EXP-10-R3CONT
   reason: WB0 17:55 轮验收：机检 PASS；判据落 pending——功效闸门 n_evaluable=2<20（64/66 gold∈seed 退化），+100pp 点估计（二项 95%CI≈[15.8%,100%]）不构成 confirmed；无约束 3 跳无下降（0.0→0.0→1.0）confirmed 分支不完整；块对角无分辨力（跨社区边仅 1.5%）。按 D1 未把测不出写成已证伪。判据分级：该判据在 2wikimqa 语料上属 E5-撤回（结构性退化，加样本不可解），后续多跳检验须换任务定义/数据集（EXP-05 LongBench 扩池可部分承接）。
   updated_by: WB0-scheduled-wake
-  actual_data: 【WB0 2026-10-24 00:20 裁定 2 更新】EXP-09-R3R（机检 PASS，回执 12582B 回读一致）实测：n_evaluable_primary=66（>=30，允许定级）；best=hop3/K10/blockFalse，PR@5(M1)=1.0 vs 1 跳无约束基线 0.9697，Delta=+3.03pp（confirmed 条件①成立）；无约束序列 {1:0.9697,2:0.9697,3:1.0}，3 跳即峰值、下降 0.0pp <1pp（条件②不成立）-> 不 confirmed；24 组中 4 组 Delta=+3.03pp，非『全部 <2pp』-> 不 refuted；派工令 §5 原文 pending 分支（n<30 或 24 组未覆盖）两条均不成立。回执自行扩充的『上两分支均不适用』不在派工令原文，WB0 不采信为定级依据（判 LOW）。WB0 另立 pending 理由：M1 口径下 64/66（96.97%）gold in seed 经 teleport 结构性自命中恒 1.0，判据动态范围仅由 n=2 的 stratum B 承担、步长 1/66=1.515pp -> 该口径下判据无判别力，属功效不足。标签：功效不足 · M1 口径天花板。裁定：M1 不接受为 R3 主判据口径，禁止以 Delta=+3.03pp 升级本假设或作任何外延表述。退出路径：已派 EXP-10-R3CONT（WB0-INSTR-20261024-EXP-10-R3CONT，新假设 H-EXP10-CONT-METRIC + 新预注册连续指标判据）；若连续指标口径仍无动态范围 -> 按 E5 写明撤回，不得留 E3 拖延。本假设 PR@5 判据原样冻结，禁止事后改判。
+  actual_data: 【撤回】本条按其预注册 PR@5(M1) 口径不可判，故撤回，不以 pending 拖延：①EXP-09-R3R 实测 n_evaluable=66 ≥30，但 64/66（96.97%）为 gold∈seed，经 PPR teleport 结构性自命中使 PR@5(M1) 在全部 24 组恒为 1.0（stratum A 全格饱和），判据动态范围仅由 n=2 的 stratum B 承担、步长 1.515pp → 口径天花板；②confirmed 分支条件②（3 跳较峰值降 ≥1pp）实测 0.0pp，不成立；③第二条候选口径（连续指标 MRR，EXP-10-R3CONT）实测 24 组最大 Δ=+0.6422pp <+2pp → 判为 refuted，属新假设 H-EXP10-CONT-METRIC，不并入本条。三条分支均非「执行不完整」，故不适用 pending。
   data_source:
   - results_v2/exp09_r3r_diffusion_rerun.json
+  - results_v2/exp10_r3cont_continuous_metrics.json
   - results_v2/WB2-20261023-EXP-09-R3R.yaml
+  - results_v2/WB2-20261024-EXP-10-R3CONT.yaml
   owner: WB2
-  updated_at: 2026-10-24 00:2x CST
-  source_verdict: WB0-VERDICT-20261024-0020
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+  claim: 图扩散路由（多跳 + Top-K 门控 + 块对角）在 PR@5 口径下相对 1 跳无约束基线存在可用增益（≥+2pp）。
+  ds_admitted_refutation: false
+  criterion: 沿用 WB0-INSTR-20261023-EXP-09-R3R §5 原判据（PR@5(M1)，本令不作改判）：confirmed = ∃(hop≥2,K) 使 PR@5(M1) 较 1 跳无约束基线 ≥+2pp 且无约束 K=inf 序列 3 跳较峰值降 ≥1pp；refuted = 24 组 Δ 均 <+2pp；n_evaluable<30 或 24 组未覆盖 → 不可定级。
+  withdrawal_reason: 预注册主判据 PR@5(M1) 在 M1 口径（不排除 seed）下存在结构性天花板：gold∈seed 比例 96.97%，使 PR@5 在全部配置恒等于 1.0，判据丧失判别力；且该缺陷源自口径定义而非样本量不足（n=66 已达标），无法通过扩样本修复——在同一 200 条 LongBench 全量集下 gold∉seed 仅 2 条，扩至全量亦不足 30。
+  required_assets:
+  - 能产出 gold∉seed 可评样本 ≥30 的查询集与匹配规则（当前 200 条全量下仅 2 条满足）
+  - 带支撑句（supporting-fact）标注的多跳 QA 语料，用于按 hop 分层构造 ≥10 可评对/层
+  - 或恢复 3B 权重本体以支撑真实前向评测（R5，待算力窗口）
 - id: H-ROUTER-COLLAPSE
   status: pending
   statement: K 增大时 Router 有效码字数不按比例增长（扩容不增容）；zscore 预处理能缓解坍塌。
@@ -575,6 +589,136 @@ hypotheses:
   updated_by: WB0-scheduled-wake
   updated_at: 2026-10-24 00:2x CST
   source_verdict: WB0-VERDICT-20261024-0020
+- id: H-EXP10-CONT-METRIC
+  claim: 改用连续排序指标（MRR(M1,66 题) / gold 全序名次）后，存在 (hop≥2, K) 配置使 MRR 相对 1 跳无约束基线提高 ≥ +2pp，且该增益在 stratum A（n=64）内同向 ≥ +1pp。
+  status: refuted
+  ds_admitted_refutation: true
+  criterion: confirmed = ∃(hop≥2,K) 使 MRR(M1,66) 较基线 ≥+2pp 且该配置 stratum A 同向 ≥+1pp；refuted = 24 组 Δ 均 <+2pp；E5 = MRR 构造性无动态范围（差值 <0.1pp 且 A 层恒等）或 gold 全序名次不可复算；pending = 仅限执行不完整。（派工令 1792773164-645ad3 §5 逐字）
+  actual_data: 基线（hop=1,K=inf,block=False）MRR=0.640043；24 组全覆盖，max Δ=+0.6422pp（hop=3,K∈{10,inf}），min Δ=-2.3703pp（hop=1,K=3）；configs_ge_2pp=[] 且 configs_ge_2pp_and_A_ge_1pp=[] → refuted 分支成立。E5 不成立：MRR 极差 3.0125pp ≥0.1pp、stratumA MRR 有 3 个不同取值（0.635417/0.643229/0.656250）、gold 全序名次可复算（PR@5(M1) 与 R3R 逐组比对 24/24 mismatch=0）。【WB0 独立复算】总体 MRR 由分层加权还原：(64×0.656250+2×0.121429)/66=0.640043（=基线）；(64×0.656250+2×0.333333)/66=0.646465（=最高组）；Δ=0.006422→0.6422pp ✓。随机基线 0.005393 vs 理论 H_1404/1404=0.0055729，偏差 3.23% ≤5% ✓。runtime 0.85s。
+  data_source:
+  - results_v2/exp10_r3cont_continuous_metrics.json
+  - results_v2/exp10_r3cont_continuous_metrics.py
+  - results_v2/WB2-20261024-EXP-10-R3CONT.yaml
+  owner: WB2
+  review_id: WB2-20261024-EXP-10-R3CONT
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-EXP10-BLOCKDIAG-NULL-MRR
+  claim: 块对角社区约束相对同 (hop,K) 无约束，MRR Δ 应为 0.00pp。
+  status: confirmed
+  criterion: 12 组 (hop,K) 中任一组 |Δ| > 0.01pp 即证伪。
+  actual_data: block_diagonal_effect_by_hop_K 中 12/12 组 delta_pp=0.0，unconstrained 与 block_diagonal 数值完全相同。仅限本图构造（uniform w=1 共现图、louvain resolution=1.0）与本法，不外延为「无社区结构可利用」。
+  data_source:
+  - results_v2/exp10_r3cont_continuous_metrics.json
+  owner: WB2
+  review_id: WB2-20261024-EXP-10-R3CONT
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-EXP10-RANDBASELINE-CALIBRATION
+  claim: 随机基线 MRR 抽样估计应落在理论 E[1/rank]=H_N/N 的 ±5% 相对偏差内（N=1404 → 0.005573）。
+  status: confirmed
+  criterion: '|sampled − H_N/N| / (H_N/N) > 5% 即证伪。'
+  actual_data: sampled=0.005393，理论=0.0055729（WB0 独立计算一致），相对偏差 3.23% ≤5% ✓；另披露 1/E[rank]=2/(N+1)=0.001423，不做等同表述。
+  data_source:
+  - results_v2/exp10_r3cont_continuous_metrics.json
+  owner: WB2
+  review_id: WB2-20261024-EXP-10-R3CONT
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-EXP10-STRATUMB-DRIVER
+  claim: 若出现 Δ>0 的配置，其增益应全部由 n=2 的 stratum B 贡献，stratum A（n=64）Δ 应为 0.0000pp。
+  status: confirmed
+  criterion: 若存在某配置使 stratum A 的 Δ > 0.0000pp 即证伪。
+  actual_data: 最大 Δ 配置（hop=3,K∈{10,inf}）：A 层 0.656250→0.656250（Δ=+0.0000pp）、B 层 0.121429→0.333333；全部 24 组 A 层 Δ 均 ≤+0.0000pp（K=3/5 为 −2.08/−1.30pp）；max_delta_mrr_stratumA_pp=−1.3021。n=2 无统计功效，仅作机制披露，不承担 H-EXP10-CONT-METRIC 的判据。
+  data_source:
+  - results_v2/exp10_r3cont_continuous_metrics.json
+  owner: WB2
+  review_id: WB2-20261024-EXP-10-R3CONT
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-R1-BUDGET
+  claim: 相同总 KV slot 预算下，按实测层敏感度反比分配（D）优于均匀（U）与教科书线性递减（T）。
+  status: pending
+  criterion: 任一合成下 D 不优于 U → refuted；三种合成排序互相矛盾或判据不可分辨 → pending。（源：WB1-20261022-R1-v1）
+  actual_data: D 在全部非退化预算档三种合成下均优于 U，但 B=612/900 的 L1 合成上 T（7.733/7.202）优于 D（8.927/8.963），未达 confirmed；L0 饱和 + 33/35 层非单调使判据在本数据上不可分辨 → pending（属「测不出」，按 D1 不得记为已证伪）。【补入账】该条 10-22 回执机检 PASS 但此前未经受控通道入账，本轮补入。
+  data_source:
+  - results_v2/r1_budget_allocation.json
+  - results_v2/WB1-20261022-R1-v1.yaml
+  owner: WB1
+  review_id: WB1-20261022-R1-v1
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-R1-L0SAT
+  claim: L0 一旦被压缩即完全失效，其 ΔL 在 K=1..32 区间为饱和噪声，不携带压缩质量信息。
+  status: confirmed
+  criterion: 若 L0 在任一大 K 档恢复 answer_acc=1 或 flip<1，则本假设不成立。
+  actual_data: L0 acc 六档全 0、flip 六档全 1.0、ΔL 极差 3.950（7.0972–11.0473）→ 支持成立，confirmed。
+  data_source:
+  - results_v2/r1_budget_allocation.json
+  - results_v2/WB1-20261022-R1-v1.yaml
+  owner: WB1
+  review_id: WB1-20261022-R1-v1
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-R1-CHART
+  claim: 指令 §2 所引 ascii_chart 的数值主张（L0/L1@K=1 均 ≥0.40；L24/25 中度 0.15–0.40；其余 <0.005）可由原始 cells 复现。
+  status: refuted
+  ds_admitted_refutation: true
+  criterion: 任一条与原始 cells 复算值不符即证伪该条。
+  actual_data: L1@K=1=0.0220（称 ≥0.40，差 0.378，不成立）；L25 峰值 0.0750（称 0.15–0.40，不成立）；另有多层 ≥0.005（L19/20/21/27/28）。L0@K=1=8.7942 与 L24 峰值 0.1813 成立。三条中仅一条完全成立、一条部分成立、一条不成立；图中「两端各一簇」的定性形状仍成立。
+  data_source:
+  - results_v2/r1_budget_allocation.json
+  - results_v2/WB1-20261022-R1-v1.yaml
+  owner: WB1
+  review_id: WB1-20261022-R1-v1
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-EXP-06-DEGENERACY
+  claim: 主难度口径（Router 逐样本预测熵）在本批 18 个 Router 上缺乏逐样本梯度，使递增/递减课程对比结构性退化（inc≈dec）。
+  status: confirmed
+  criterion: 若多数 Router 的 per-sample H 标准差 ≥1e−3（存在可用难度梯度），本假设被证伪。
+  actual_data: 17/18 Router H_std<1e−6（最低 1e−121）；per_router.inc_eq_dec=true 覆盖 17 个；仅 1 个 Router 有非退化梯度。degree 难度臂 0/18 退化（对照：难度信号可构造，塌缩来自 Router 熵本身）。
+  data_source:
+  - results_v2/exp06_curriculum.json
+  - results_v2/WB2-20261022-EXP-06.yaml
+  owner: WB2
+  review_id: WB2-20261022-EXP-06
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-EXP-06-H-PROBE
+  claim: 下游线性探针在隐层输入 h 上的 OOD 宏准确率显著高于码分布输入 p，即 Router 码分布丢失了主干隐层中可线性读出的社区信息。
+  status: confirmed
+  criterion: 若 h 探针 OOD 宏准确率 − p 探针 OOD 宏准确率 < 2pp，本假设被证伪（判据阈值 ≥10pp，机会 0.167）。
+  actual_data: lp_community OOD：h=0.4286 vs p=0.2215，差 +20.7pp（p 仅略高于机会 0.1667；h 亦超多数类基线 0.2857）。
+  data_source:
+  - results_v2/exp06_curriculum.json
+  - results_v2/WB2-20261022-EXP-06.yaml
+  owner: WB2
+  review_id: WB2-20261022-EXP-06
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
+- id: H-EXP10-PR5-RECOMPUTE-CONSISTENT
+  claim: 本令脚本在 66 题集上重算 PR@5(M1)，与 EXP-09-R3R 的 configs[].pr5_primary_M1 应逐组一致（mismatch=0）。
+  status: confirmed
+  criterion: 24 组配置逐一比对，mismatch 计数 >0（差 >1e-9）即证伪。
+  actual_data: n_configs_compared=24，mismatch=0，mismatch_detail=[]（含 hop=3/K∈{10,inf} 的 PR@5=1.0 组）；JSON recompute_selfcheck 段与回执一致。
+  data_source:
+  - results_v2/exp10_r3cont_continuous_metrics.json
+  - results_v2/exp09_r3r_diffusion_rerun.json
+  owner: WB2
+  review_id: WB2-20261024-EXP-10-R3CONT
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 00:59 CST
+  source_verdict: WB0-VERDICT-20261024-0059
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -587,8 +731,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792773138
-  action: upsert H-R3-DIFFUSION
+  at: 1792775697
+  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

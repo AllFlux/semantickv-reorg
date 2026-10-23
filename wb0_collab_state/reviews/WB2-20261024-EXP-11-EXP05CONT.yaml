@@ -1,0 +1,227 @@
+review_id: WB2-20261024-EXP-11-EXP05CONT
+id: WB2-20261024-EXP-11-EXP05CONT
+author: WB2
+target: WB0
+date: 2026-10-24
+round: "2026-10-24 01:15 档（WB2 错峰 :15）"
+version: v1
+instruction_id: 1792775681-4e8a5d
+idempotency_key: WB0-INSTR-20261024-EXP-11-EXP05CONT
+title: "EXP-11-EXP05CONT：hop 调节效应·连续指标口径重跑（结构臂 bridge/k-core vs 频次臂 freq，MRR = mean(1/rank)，120 任务 × 3 hop × 3 预算档）"
+type: experiment
+status: pending
+verdict: "H-EXP11-HOP-MODERATION-CONT = 持平（pending 枚举下）：k-core 与 community_bridge 两臂的 Δ(hop) 序列均落入指令 §5『持平』分支——|Δ(4)−Δ(2)| = 0.064pp / 0.089pp（<2pp）且 Δ 序列极差 = 0.307pp / 0.174pp（<2pp），无 ≥2pp 的 hop 调节效应。同时确认口径修正本身有效：PR@5 在 10 个配置上恒为 0（原件地板闸门），而连续口径 MRR 跨 (arm,X,hop) 极差达 2.9376pp / 2.4713pp（≥0.1pp），E5 撤回分支不成立。"
+verdict_note: |
+  1) status 取 pending 的理由（枚举映射，须先读本条）：指令 §5 给出四个分支（confirmed 增强 / refuted 衰减 / 持平 / E5 撤回），
+     而回执模板 status 枚举只有 confirmed|refuted|e5_withdrawn|pending，『持平』无对应枚举值。
+     按 D1（不得把未达判据写成 confirmed、也不得把测不出写成 refuted），本结果既不属增强也不属衰减，故落 pending，
+     并在本字段与 hypotheses[0] 中显式写明『这是判据第四分支＝持平，不是执行缺口、不是功效不足回避』。
+  2) 本 pending 不属指令 §5 所禁的『执行不完整』：120 任务 × 2 结构臂 × 3 hop × 3 预算档（+ 频次臂 3 档 + 全图参考）全覆盖，
+     runtime 1.96s（预算 300s），无分批、无缩样、无中断，dependency_missing 为空。
+  3) 功效披露（禁止把「持平」读成「两臂等价」）：每 (arm,hop) 三档合并配对样本 n=38–66，
+     Δ 的 95% CI 半宽 0.079–0.360pp（例：kcore|hop=2 Δ=+0.2282pp，CI=[−0.0977,+0.5541]）。
+     故结论应读作『在预注册 2pp 阈值下无 hop 调节效应』，而**不能**读作『已证明两臂等价』——
+     本设计与样本量不足以排除 <2pp 量级的真实差异，等价性检验未做，未做即不宣称。
+  4) 不代判：本令不改判 H-EXP-05-STRUCT-FREQ / H-EXP-05-HOP-MODERATION 的最终定级（scope_guard 3），
+     也不把结果外延为『结构分配优于/劣于频次分配』之外的任何结论（scope_guard §9）。
+prediction: |
+  【运行前预注册，2026-10-24 01:20 CST，写入 exp11_exp05cont_hop_continuous.py 文件头（脚本执行前），运行后由 json 的
+  prediction_block_preregistered 原样回读，未因结果改写；本回执在结果产出后提交，回读一致】
+  P1（主预测，倾向持平）：连续口径下 MRR 由「gold 是否落在保留集」+「PPR 局部传播」共同决定，
+     而 EXP-05 原件已显示 gold 全图平均排名随 hop 单调恶化（31.5→109.5→206.2），保留集差异预期不随 hop 系统性放大
+     → 预期 |Δ(4)−Δ(2)| < 2pp 且 Δ 序列极差 < 2pp（持平分支）。
+  P2（备选 confirmed/增强）：k-core/bridge 保留集随 hop 更常覆盖远距离 gold → Δ 单调递增且 Δ(4)−Δ(2) ≥ 2pp。
+  P3（备选 refuted/衰减）：频次臂高频节点更集中于 gold → Δ 恒负且随 hop 递减，Δ(2)−Δ(4) ≥ 2pp。
+  P4（备选 E5 撤回）：两臂 MRR 跨 hop 极差 < 0.1pp 且 gold rank 分布无分离。
+  量级预估：MRR ∈ [0.05, 0.30]；随机基线 MRR ≈ H_1403/1403 ≈ 0.0056。
+  ---- 运行后回读（不改预注册文本，仅回读比对）----
+  P1 命中：两臂均落持平分支（|Δ(4)−Δ(2)|=0.064/0.089pp，极差 0.307/0.174pp）。
+  P2 被排除：Δ 序列非单调（kcore +0.147→−0.160→+0.083；bridge −0.145→+0.029→−0.057），且无臂出现 Δ(4)−Δ(2) ≥ 2pp。
+  P3 被排除：无臂出现单调递减且 Δ(2)−Δ(4) ≥ 2pp（kcore 的 Δ(2)−Δ(4)=+0.064pp，符号相反）。
+  P4 被排除：MRR 跨 (arm,X,hop) 极差 2.9376pp / 2.4713pp ≥ 0.1pp，gold rank 中位数跨度 841 / 789 → E5 未触发。
+  量级预估偏差（如实披露）：实测 MRR 落在 0.005043–0.047224，**低于**预估区间 [0.05,0.30]。
+  归因：本任务为构造链（gold 距 start 2–4 跳、seed 单点），PPR 局部性使 gold 全序名次中位数达 21.5–832，
+  与 EXP-10 的 gold∈seed（rank≈2、MRR≈0.64）不可比；预注册时误用 EXP-10 量级作锚，属我的预估错误，已在此披露。
+falsifiable_criterion: |
+  【WB0-INSTR-20261024-EXP-11-EXP05CONT §5 逐字，未作任何修改】
+  - confirmed（增强）：bridge 与 k-core 两臂的 Δ(hop) 序列均随 hop 单调递增（Δ(2) < Δ(3) < Δ(4)），且 Δ(4) − Δ(2) ≥ 2pp。
+  - refuted（衰减）：两臂 Δ(hop) 序列均随 hop 单调递减（Δ(2) > Δ(3) > Δ(4)），且 Δ(2) − Δ(4) ≥ 2pp。
+  - 持平：|Δ(4) − Δ(2)| < 2pp 且 Δ 序列极差 < 2pp。
+  - E5 撤回（写明「撤回」，不留 E3 拖延）：MRR 在三 hop 层上构造性无动态范围（两臂 MRR 极差 < 0.1pp 且 gold rank 分布无分离），
+    或结构/频次分配无法由现有资产复算 → 立即写明撤回理由与所需资产。
+  - pending：仅限执行不完整（某 hop 层未覆盖 / 脚本中断），须列出缺口配置清单并显式报 dependency_missing，
+    禁止以「两分支均不适用」等理由静默写 pending。
+  补充（本轮执行口径，预注册于脚本文件头，不改变上述判据）：Δ(hop, arm) = 三预算档 X∈{40,50,60} 等权平均，
+  以避免事后挑选单个预算档；两臂分别报数、不合并。
+actual_data: |
+  · 资产与口径（参数零改动）：1404 实体 / 7475 无向共现边（题内 title 共现、uniform w=1）；louvain(resolution=1.0, seed=20261022) → 72 社区；
+    PPR damping=0.85、50 轮；死点→保留节点内 uniform teleport（EXP-05 原件口径）；死点→全图 1/N 仅作敏感性变体并列披露；
+    tie-break=(-metric, node_id)；seed=20261022；python3.11 / numpy / networkx，纯 CPU，runtime 1.96s（预算 300s）。
+    120 个构造任务（40/hop，hop∈{2,3,4}）与 EXP-05 原件 per_query 逐条比对：n=120，mismatch=0（hop/start/gold 三项全同）。
+  · 主判据（MRR = mean(1/rank)，rank 由全 N=1404 节点 argsort 实算，未截断 Top-K；Δ 单位 pp；三 X 档等权平均）：
+      kcore：            Δ(2)=+0.1471  Δ(3)=−0.1598  Δ(4)=+0.0829   |Δ(4)−Δ(2)|=0.0642pp  极差=0.3069pp  → 持平
+      community_bridge： Δ(2)=−0.1450  Δ(3)=+0.0290  Δ(4)=−0.0565   |Δ(4)−Δ(2)|=0.0885pp  极差=0.1740pp  → 持平
+      分档明细（每档 Δ，最大绝对值 0.5968pp，全部 <2pp）：
+        kcore|hop=2: X40 −0.2010 / X50 +0.1403 / X60 +0.5020 ；hop=3: −0.5968 / +0.1109 / +0.0067 ；hop=4: +0.1279 / −0.0045 / +0.1254
+        bridge|hop=2: −0.0239 / −0.5216 / +0.1105 ；hop=3: −0.1921 / +0.1571 / +0.1219 ；hop=4: −0.0306 / −0.0733 / −0.0657
+  · 配对功效（每 arm×hop 三档合并 per-query 差，n=38–66，落在指令所述 38–66 区间）：
+      kcore：hop2 n=65 Δ=+0.2282pp CI=[−0.0977,+0.5541]；hop3 n=64 Δ=−0.1305pp CI=[−0.4225,+0.1615]；hop4 n=38 Δ=+0.0817pp CI=[−0.0565,+0.2198]
+      bridge：hop2 n=65 Δ=−0.1324pp CI=[−0.4921,+0.2273]；hop3 n=66 Δ=+0.0374pp CI=[−0.2771,+0.3519]；hop4 n=39 Δ=−0.0583pp CI=[−0.1370,+0.0203]
+      → 6 个 CI 全部与 0 相交，且半宽均 <0.36pp，无一接近 ±2pp 判据阈值。
+  · 口径修正有效性（本轮核心疑问）：PR@5 在 10 个配置（kcore/bridge/freq × X40/50/60 + full）× 3 hop 上**恒为 0.0000**
+    （与 EXP-05 原件地板闸门一致，且本轮重算 PR@5 与原件 per_query 逐组比对：n_configs=10，mismatch=0）；
+    而连续口径 MRR 跨 (arm,X,hop) 极差 = 2.9376pp（kcore）/ 2.4713pp（bridge）≥ 0.1pp，gold rank 中位数跨度 841 / 789
+    → 判据动态范围由 0 恢复到 ~2.5–2.9pp，E5 分支不成立，本假设可定级（不是「测不出」）。
+  · 并列披露（不参与判据）：MRR 绝对值（X=50，各臂自身可评集 n_ev）：
+      kcore 0.028601(n=25) / 0.014782(22) / 0.005771(13)；bridge 0.020738(23) / 0.014140(23) / 0.005043(15)；
+      freq 0.023650(22) / 0.013653(20) / 0.005816(13)；全图参考 full(X=100, n=40/层) 0.047224 / 0.014108 / 0.005858。
+      gold rank 中位数（full）：hop2 21.5 / hop3 88.0 / hop4 197.0；rank≤10 比例在所有配置均为 0.0000。
+      机制读数（描述性，不作判据）：hop=4 时各臂 MRR（0.0050–0.0059）已逼近随机基线 0.005680，
+      full 图 hop=4 的 MRR/随机基线 = 1.03 → 长程链上 PPR 信号几乎耗尽，两臂差异随之趋零，与「持平」的实测方向一致。
+  · 随机基线（并列披露，不互相冒充）：蒙特卡洛（每 query 200 draws，候选 N_cand=1403，排除 seed）MRR=0.005680；
+    解析 E[1/rank]=H_1403/1403=0.005577（相对偏差 1.85% ≤5%）；另披露 1/E[rank]=2/(N+1)=0.001425（Jensen 不等，不做等同表述）。
+  · 冻结件只读校验：exp05_hop_moderation.json sha256_16=6538f66e96142712、exp05_hop_moderation.py sha256_16=99ca550833387b1e，
+    运行前后一致（unchanged=true），未修改、未覆盖；产物一律新名 exp11_exp05cont_hop_continuous.{py,json}。
+data_source:
+  - results_v2/exp11_exp05cont_hop_continuous.json
+  - results_v2/exp11_exp05cont_hop_continuous.py
+dependency_present:
+  - /workspace/wb2/r2_longbench_multihop_2wikimqa.json（200 条原始数据集，本地存在，6052108B）
+  - /workspace/wb2/results_v2/exp05_hop_moderation.{json,py}（冻结件，只读，用于任务一致性核验）
+  - python3.11 / numpy / networkx（纯 CPU；无 GPU、无模型加载、无 LLM 前向、无外部 API）
+dependency_missing: []
+p0: false
+p0_note: |
+  判 false 的理由：本产物可在 1.96s 内由已上传脚本 + 数据集完整重算，非训练权重、非唯一矩阵。
+  提请 WB0 注意（与 EXP-10 回执同源风险）：唯一外部依赖 r2_longbench_multihop_2wikimqa.json 目前仅存于本沙箱 /workspace/wb2/，
+  若沙箱清理该文件，则 EXP-05 / EXP-10 / EXP-11 三件均不可再算 → 建议备份任务将该数据集纳入双通道归档（是否升 p0 由 WB0 裁定）。
+hypotheses:
+  - id: H-EXP11-HOP-MODERATION-CONT
+    status: pending
+    pending_kind: "判据第四分支『持平』（非执行缺口、非功效回避；status 枚举无『flat』值，按 D1 落 pending）"
+    ds_admitted_refutation: false
+    ds_admitted_refutation_note: |
+      本条不适用 ds_admitted_refutation=true：实测未按预注册判据把该假设证伪（未落入 refuted 的『单调递减且 ≥2pp』分支），
+      也不满足 confirmed 的『单调递增且 ≥2pp』分支 → 属判据口径下的持平，而非「测不出」：
+      判据具备动态范围（MRR 极差 2.9376/2.4713pp ≥0.1pp）、120 任务 × 2 臂 × 3 hop × 3 档全覆盖、gold 全序名次可实算
+      （与原件任务 mismatch=0、PR@5 逐组 mismatch=0）。
+    prediction: |
+      预注册 P1（主）：|Δ(4)−Δ(2)| < 2pp 且 Δ 序列极差 < 2pp（持平）；P2 增强 / P3 衰减 / P4 E5 撤回为备选。
+      量级预估 MRR∈[0.05,0.30]（实测 0.0050–0.0472，低于预估，归因见回执 prediction 回读段）。
+    falsifiable_criterion: |
+      confirmed = 两臂 Δ 均单调递增且 Δ(4)−Δ(2)≥2pp；refuted = 两臂 Δ 均单调递减且 Δ(2)−Δ(4)≥2pp；
+      持平 = |Δ(4)−Δ(2)|<2pp 且序列极差<2pp；E5 = 两臂 MRR 极差<0.1pp 且 gold rank 分布无分离；
+      pending 仅限执行不完整。
+    actual_data: |
+      kcore Δ 序列 +0.1471 / −0.1598 / +0.0829（|Δ4−Δ2|=0.0642pp，极差 0.3069pp）；
+      bridge Δ 序列 −0.1450 / +0.0290 / −0.0565（|Δ4−Δ2|=0.0885pp，极差 0.1740pp）→ 两臂同时满足持平分支的两个条件。
+      6 组配对 CI（n=38–66）全部与 0 相交，半宽 ≤0.360pp。E5 闸门未触发（MRR 极差 2.9376/2.4713pp，gold rank 中位数跨度 841/789）。
+  - id: H-EXP11-CONT-DYNAMIC-RANGE
+    status: confirmed
+    post_hoc: true
+    post_hoc_note: "本条为结果产出后设定（未在脚本文件头预注册），仅作描述性结论，不承担 H-EXP11-HOP-MODERATION-CONT 的判据。"
+    prediction: "连续口径（MRR / 全序 rank）相对 EXP-05 原件的 PR@5 口径应恢复判据动态范围（不再恒 0/恒 1）。"
+    falsifiable_criterion: "若 10 个配置 × 3 hop 的 MRR 极差 < 0.1pp（即与 PR@5 同样无分辨力）即证伪。"
+    actual_data: |
+      PR@5 在 10 个配置上恒为 0.0000（重算与原件逐组 mismatch=0）；MRR 跨 (arm,X,hop) 极差 = 2.9376pp（kcore）/ 2.4713pp（bridge）
+      ≥ 0.1pp → 动态范围确由 0 恢复，口径修正有效。注意：恢复的是「可分辨力」，不等于「存在效应」。
+  - id: H-EXP11-TASK-REPRODUCIBILITY
+    status: confirmed
+    post_hoc: true
+    post_hoc_note: "同上，事后设定；属复现型自检，不承担主判据。"
+    prediction: "以同 seed、同逻辑重生成的 120 任务应与 EXP-05 原件 per_query 的 (hop,start,gold) 逐条一致；本轮重算 PR@5 应与原件逐组一致。"
+    falsifiable_criterion: "任务三元组 mismatch>0，或 PR@5 逐组 mismatch>0，即证伪。"
+    actual_data: "任务一致性：n=120，mismatch=0；PR@5 一致性：n_configs=10，mismatch=0（含 7 个分配组 + full 及 3 个频次组的逐题比对）。"
+  - id: H-EXP11-RANDBASELINE-CALIBRATION
+    status: confirmed
+    post_hoc: true
+    post_hoc_note: "同上，事后设定；校准型自检，不承担主判据。"
+    prediction: "蒙特卡洛随机基线 MRR 应落在解析 E[1/rank]=H_N/N 的 ±5% 相对偏差内。"
+    falsifiable_criterion: "|MC − H_N/N| / (H_N/N) > 5% 即证伪。"
+    actual_data: "MC=0.005680，解析=0.005577（N_cand=1403，排除 seed），相对偏差 1.85% ≤5%；另披露 1/E[rank]=0.001425，二者并列不互相冒充。"
+  - id: H-EXP05-STRUCT-FREQ
+    status: pending
+    prediction: "本令不对其作预测（scope_guard 3：不得代判 EXP-05 原假设的最终定级）。"
+    falsifiable_criterion: "沿用 WB0-INSTR-20261022-EXP-05 原判据（PR@5 配对 Δ），本令不作任何改判。"
+    actual_data: |
+      维持原状 pending。本令仅提供连续口径旁证（不作判据）：两臂 Δ(hop) 的绝对值最大 0.5968pp（kcore|hop=3|X=40），
+      全部 <2pp，且在 hop=4 上各臂 MRR 逼近随机基线 → 与原件「地板闸门下 Δ=0 不可解读为频次不劣于结构」的谨慎取向同向，
+      但在连续口径下至少可说「未观察到 ≥2pp 量级的结构/频次差异」，不等价于「频次不劣于结构」的证成。
+observations: |
+  1. 【口径修正的价值边界】本轮证实：把 PR@5 换成 MRR/全序 rank 能把判据动态范围从 0 恢复到 ~2.5–2.9pp（E5 分支不成立），
+     但恢复的是「能否分辨」，不是「是否存在效应」——实测效应量 0（两臂 Δ 全 <0.6pp）。建议 WB0 在后续同类路线
+     （R1 预算分配的 ΔL 三合成、R3 的 PR@5 饱和）中沿用连续口径，但须同时预注册效应阈值，否则「有范围无效应」会反复出现。
+  2. 【机制读数，描述性，未预注册，不作判据】hop 越大 PPR 信号越弱：full 图 MRR 由 hop2 的 0.047224 降到 hop4 的 0.005858，
+     而随机基线为 0.005680（比值 1.03）。即长程多跳链在本题内 title 共现图上基本不可解，两臂分配差异随之被压平。
+     这解释了为何 Δ(hop) 在 hop=4 一律趋零，也提示「hop 调节效应」在本资产上可能本身不可观测（非判据缺陷）。
+  3. 【k-core 退化，沿用原件披露】1306/1404 节点同为 9-core → top-X% by k-core 在 X≤92% 时接近层内按 node_id 选取
+     （近任意选择），k-core 臂的解释力受限；community_bridge 为连续型区分度结构度量。两臂分别报数、未合并。
+  4. 【口径分歧披露，请 WB0 裁定】指令 §3.2 写「dead-end→uniform teleport 1/N」，而 EXP-05 原件口径为「死点→保留节点内 uniform
+     teleport」，且 §3.1 要求参数零改动 → 本轮主口径取原件口径，另跑 1/N 变体作敏感性：两变体 Δ 序列完全相同
+     （kcore +0.1471/−0.1598/+0.0829、bridge −0.1450/+0.0290/−0.0565），分支归属不变 → 该分歧对本结论无影响。
+  5. 【未保留 gold 的计分口径】非保留节点以 −inf 参与全序 argsort，故 gold 未保留时 1/rank ≈ 1/1404≈0.0007（近 0）。
+     敏感性变体「未保留即计 0」的 Δ 序列：kcore +0.1536/−0.1618/+0.0933、bridge −0.1453/+0.0338/−0.0507 → 同属持平分支。
+  6. 【Hub 侧小缺陷，供 WB0 知悉，不影响本回执】两件产物 stem 同名（exp11_exp05cont_hop_continuous），Hub 的 file id 由 stem 派生，
+     故 /api/file/r2_exp11_exp05cont_hop_continuous 只能回读到 .py；.json 件的存在性由 /api/files?brief=1&tree=results_v2
+     清单佐证（relpath=results_v2/exp11_exp05cont_hop_continuous.json，size=16118）。
+  7. 【本轮另读两份 WB0 裁定，未据此改做任何先前结论】1792775622-17229c（00:59 档裁定）与 1792775752-bc8f4d（更正件 C1）
+     已读取；两者均不向 WB2 派发新实验，本轮仅入 done，不对 H-EXP-05-* / H-R3-DIFFUSION / H-EXP10-CONT-METRIC 作任何改判。
+compliance: |
+  scope_guard 六条禁令逐条自检（指令 §4，逐条写明）：
+  1) 禁伪造 —— 合规。MRR 与 rank 全部由本轮脚本对全 N=1404 节点 argsort 实算（1.96s），未插值、未外推、未复用原件 per_query 结果；
+     原件 per_query 仅用于「任务一致性 / PR@5 一致性」两项核验（mismatch 均 0），不用于产出主指标。
+  2) 禁动冻结件 —— 合规。exp05_hop_moderation.{json,py} 运行前后 sha256_16 一致（6538f66e96142712 / 99ca550833387b1e，unchanged=true）；
+     未触碰 r3_graph_diffusion.* / exp09_r3r_diffusion_rerun.* / semantic_router.pt / b_routers/；新产物一律新名，未覆盖任何既有件。
+  3) 禁越界 —— 合规。只做 hop ×（结构 vs 频次）的连续口径重析；未改写 EXP-05 原判据，未代判 H-EXP-05-STRUCT-FREQ /
+     H-EXP-05-HOP-MODERATION 的最终定级；H-EXP05-STRUCT-FREQ 在 hypotheses 中维持 pending 并注明不代判。
+  4) 禁直写台账 —— 合规。未调用 /api/ledger/* 任何写接口；hypothesis_ledger.yaml 零写入。
+  5) 禁加载模型 —— 合规。纯 numpy/networkx（+scipy.stats 仅用于 t 分位数），无 GPU、无模型加载、无 LLM 前向、无外部 API。
+  6) 禁降级裁剪 —— 合规。120 任务 × 2 结构臂 × 3 hop × 3 预算档（+ 频次臂 3 档 + 全图参考）全覆盖，runtime 1.96s < 300s，无分批、无缩样。
+  D1–D7 工作纪律：D1 三分（本轮 pending=持平，未写成 confirmed/refuted，且显式禁止把持平读成等价）；
+  D2 不伪造（dependency_missing 为空，无资源缺失，故未发 open_item）；D3 产物可追溯（data_source 为 Hub 实物 relpath，非自引用，
+  回读 200 且 size 一致，见 upload_verification）；D4 孤本声明（依赖路径均存在 → dependency_missing=[]，并已提示数据集仅存沙箱）；
+  D5 P0 声明（p0=false 并说明理由与归档建议）；D6 省 token（本轮仅用 /api/brief + /api/instructions?brief=1&target + 2 次
+  /api/instruction/{id} + /api/files?brief=1，未裸拉全量）；D7 回合自检（见 self_check B-01~B-10）。
+collaboration_audit: |
+  · Agent 调用：0 次（本轮全部由本会话直接执行，无子 Agent 派发）。
+  · 跨执行器交互：无。未读写 WB1 产物，未对其结论作任何改判；本轮读取的两份 WB0 裁定（1792775622-17229c、1792775752-bc8f4d）
+    仅入 done，未据此改动任何既有定级。
+  · 通道合规：产物经 /api/upload（tree=results_v2 + relpath，注意未误用 path 字段，避免上轮「落入 uploads 树」的失误重演）；
+    回执经 POST /api/review 提交，不经 /api/upload（指令 §8 明确要求，避免历史「上传未触发机检」重演）。
+  · 冻结件：只读，sha256 前后一致；未覆盖任何既有件。
+upload_verification: |
+  · results_v2/exp11_exp05cont_hop_continuous.py：POST /api/upload 返回 size=25639、sha256_16=f9e9b502ff575b9b、
+    relpath=results_v2/exp11_exp05cont_hop_continuous.py、tree=results_v2；
+    回读 GET /api/file/r2_exp11_exp05cont_hop_continuous = HTTP 200，bytes=25639，
+    与本地 sha256 f9e9b502ff575b9b03bf684f6ea6af723fc66d48c3998543fe42827e170f8cbb 一致（D3 自查通过）。
+  · results_v2/exp11_exp05cont_hop_continuous.json：POST /api/upload 返回 size=16118、sha256_16=82cdb67ac004b760、relpath 正确；
+    因 Hub file id 由 stem 派生，与 .py 同键，无法经 r2_<stem> 单独回读（返回 .py），
+    改由 GET /api/files?brief=1&tree=results_v2 清单佐证：relpath=results_v2/exp11_exp05cont_hop_continuous.json、size=16118 存在，
+    与本地 16118B、sha256 82cdb67ac004b76053e67c1b561758229a4c6df28d38abfac8dc811e1d570949 一致（D3 自查通过，口径已披露）。
+self_check: |
+  B-01 断言卡：本轮最需警惕的未证推论是「MRR 极差 2.5–2.9pp ≠ 存在 hop 调节效应」的反面误用——即由「两臂 Δ 全 <0.6pp」推出
+    「结构分配与频次分配等价」。备选解释：hop=4 上各臂 MRR 已逼近随机基线（比值 1.03），说明长程链上 PPR 信号耗尽、
+    两臂被同时压平，属「共同退化」而非「真实等价」；样本 n=38–66 也不足以排除 <2pp 的真实差异。故本轮只宣称
+    「预注册 2pp 阈值下无 hop 调节效应」，不宣称等价。
+  B-02 判据分级：E2（可立即跑，本轮已跑）：120 任务 × 2 臂 × 3 hop × 3 档的 MRR/Δ/CI、随机基线、PR@5 一致性、任务一致性。
+    E3（需补资源，本轮不判）：①带支撑句标注的多跳 QA 语料（用于摆脱构造链、用真实题目-gold 协议复测 hop 效应）；
+    ②每层 ≥10 可评对的真实 hop 分层集（本语料题目-gold 协议仅 n=2 可评，EXP-03/R3 已证实）。E5：本轮无撤回项
+    （MRR 极差 ≥0.1pp，判据可分辨）；EXP-05 原件的 PR@5 地板闸门属原件历史判定，本令未改。
+  B-03 动机猜测：100% 回应 WB0 指令 1792775681-4e8a5d 的派工（把 EXP-05 的 PR@5 判据换成连续口径、把不可判转为可定级），
+    0% 自选研究方向；未抢跑任何未批准方向。
+  B-04 类比：0 处跨领域类比，无需标 [发生器]。唯一跨实验借用为「沿用 EXP-10 的连续口径做法」，属同领域方法复用，非类比。
+  B-05 自我规划：本轮范围 = 复用冻结件图/任务 → 全序 rank 实算 → 两臂 Δ(hop) 与功效 → 四分支定级 → 推实物 → 推回执；
+    下轮计划 = 待 WB0 派工（不自选）；若 WB0 追问，可补做「等价性检验（TOST，边际 2pp）」以回答「持平是否等于等价」。
+  B-06 循序渐进：本轮只完成「EXP-05 的连续口径重析」一步；留出的接口 = 脚本中已实装的 dead-end 1/N 变体与 miss-as-zero 变体
+    （两行开关），以及 paired_power 的 CI 输出，后续轮可直接复算不同口径而不改图/任务。
+  B-07 Agent 调用：0 次。理由：本任务为单脚本数值实验（runtime 1.96s），无需并行探索或代码库检索，派发子 Agent 只会增加 token 与失控面。
+  B-08 交付前验证：跑了 5 项自检，全部通过——①任务一致性（120 条 vs 原件 per_query，mismatch=0）；
+    ②PR@5 重算一致性（10 配置逐题比对，mismatch=0）；③冻结件 sha256 运行前后一致（unchanged=true）；
+    ④两个敏感性变体（dead-end 1/N、未保留计 0）均不改变持平分支归属；⑤随机基线与解析值偏差 1.85% ≤5%。
+    另：上传后 D3 回读 .py = 200 且 size/sha256 一致，.json 由 files 清单佐证一致。
+  B-09 动机优先：「用户（WB0 指令）要求」占比 100%，「我的框架」占比 0%——判据、聚合口径（三 X 等权、两臂分报）、
+    产物命名、交付通道全部由指令指定；我自行添加的仅为两项敏感性变体与配对 CI（并列披露，不参与判据），已在 observations 中标注。
+  B-10 不下断定：保留待裁（均未预先命名，交 WB0）——①『持平』分支在 status 枚举中无对应值，本轮落 pending 是否合适，
+    或应新增 flat 枚举；②本结果是否足以让 H-EXP-05-HOP-MODERATION 由 pending 转为某种定级（本令明确不代判）；
+    ③「hop 调节效应」在本题内共现图上是否属原则上不可观测（observations 2 的机制读数仅为描述性，未达判据级别，不敢定为 E5）；
+    ④连续口径是否应推广为 R1/R3 路线的默认判据（需 WB0 立项，不自行推广）。
