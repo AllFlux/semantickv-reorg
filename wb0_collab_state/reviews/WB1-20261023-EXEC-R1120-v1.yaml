@@ -1,0 +1,35 @@
+receipt_id: WB1-20261023-EXEC-R1120-v1
+executor: WB1
+round: 2026-10-23 11:20 (hourly :20 slot, first run after silence window 06:10-11:10)
+kind: exec_round_report
+prediction: "11:20 档为静默窗后首档恢复轮：候选指令池中 target in {WB1,ALL} 且不在 done.json 的指令共 4 条 = 2 条 WB0 05:55 档确认/知会类指令（无致 WB1 执行动作）+ 2 条 long_run（AB-01/AB-02，按规则 2b 跳过）；本地 5 件核心交付物在位且 Hub 对应文件 200 可读、字节一致；无新派工、无缺失依赖、无 open_item；本报告与回执双件上传并机检 PASS。"
+falsifiable_criterion: "若出现任一 target=WB1/ALL、auto_run=true、非 long_run 且未 done 的指令，或本地 5 件交付物缺失/Hub 文件 404/字节数不符，或本双件上传或机检失败，则本预测被证伪（status 应改 refuted）。"
+actual_data:
+  brief: "now=2026-10-23 11:20；ledger_version=0.78；files=190；reviews=49 (PASS 47/FAIL 2)；instructions=99；hypotheses=41 (confirmed 9/pending 17/refuted 11/verified_proxy 1/e5_withdrawn 3)；open_items_open=2 (WB0-CLOUD-AGENT-FAILURE, WB0-LEDGER-DECISIONS-STALE)；latest review=WB1-20261023-EXEC-R0040-v1.yaml PASS；discipline=PASS (0)；contract=PASS (0)；silence in_window=false (current 11:20 outside window)"
+  candidate_pool: "全量 brief 交叉核对 99 条；WB1/ALL 未 done 共 4 条：1792706842-f8727c（WB0 唤醒裁定 05:55 MEDIUM，确认类无派工）、1792706847-a429fc（静默期工作报告 05:55，知会类）→ 均标记 done；1792564435-ee5050（AB-01）与 1792566417-67614f（AB-02）均含 long_run: true → 按规则 2b 跳过未动、不标记 done"
+  instructions_done_this_round: ["1792706842-f8727c", "1792706847-a429fc"]
+  new_evidence_0520_slot: "05:20 档执行器曾运行但上传未落盘：本地 results_v2/wb1_exec_round_20261023_0520.md（2784B，sha256 6f2e2062cf4d8beeb59c572d45941f312e9bc4bf403c961da082d0849daa8e78）与 results_v2/WB1-20261023-EXEC-R0041-v1.yaml（3522B，sha256 508c46e4a4363987c2765f1de44a9a22efe1062b7f30247fdf9da370e0e3d3b7）mtime 均为 05:21 在位；Hub /api/files?brief=1&tree=results_v2 无此二文件、reviews_latest 无 R0041 → 上传通道该档未落盘。WB0 05:55 裁定以 Hub 侧证据判 05:20 缺席成立，但成因候选扩展为输出通道失败，与 open_item WB0-CLOUD-AGENT-FAILURE 方向一致；根因未证、终裁归主会话 trigger 日志，WB1 不预设。静默窗内 06:20-10:20 各档本地零产物（无 06xx-10xx 文件）→ 未触发或零产出，同样未证。处置：不回填上传旧件（避免污染裁定事实链与 11:55 静默审计），原件本地保留，证据以 sha256+字节数披露（D2/D4）。"
+  local_deliverables: "5 件在位 sha256 实算：exp08_metric_arbitration.json 280295B/aa354288ab8cd2e9；exp08_metric_arbitration.py 46492B/8d51f40d542cf7ea；exp07_router_relief.json 220230B/c7c90b7e77e2970c；exp07_router_relief.py 33102B/9bc3633fc288fe1f；r2_router_collapse.json 32762B/1fa41da9d32a1701"
+  hub_files: "6 文件直读 200 且字节相符：r2_exp08_metric_arbitration (280295) / exp08_metric_arbitration.py (46492) / r2_exp07_router_relief (220230) / exp07_router_relief.py (33102) / r2_r2_router_collapse (32762) / r2_WB1-20261023-EXEC-R0040-v1 (10602)"
+  actions_this_round: "零研究执行动作（无 auto_run 派工）；标记 2 条确认类指令 done；披露 0520 上传未落盘新证据；推送本报告+回执双件维持写入节律（满足 WB0 恢复判据第一项）；未发 open_item；未写台账"
+  long_run_skipped: 2
+  long_run_skipped_ids: ["1792564435-ee5050", "1792566417-67614f"]
+status: confirmed
+data_source:
+  - results_v2/wb1_exec_round_20261023_1120.md
+conclusions_frozen:
+  H-ROUTER-COLLAPSE: pending
+  H-WB2-E2E-01: verified_proxy
+  EXP-08: e5_withdrawn
+  EXP-01B: refuted
+self_check:
+  B-01: "未证推论：05:20 上传失败根因（候选=云端执行层故障/本机网络瞬断/Hub 瞬断/进程上传前被杀）未证，终裁归主会话 trigger 日志；静默窗内各档未触发亦未证（候选=触发后零产出）。"
+  B-02: "判据分级：本轮 E2（brief/候选池/设施复核/Hub 清单均实测）；无 E3（无资源阻塞）；无 E5。"
+  B-03: "动机猜测：回应 WB0 05:55 档恢复判据（回执/运行报告落板且机检 PASS）与停滞升级关注，以静默窗后首档双件落板证明执行器恢复。"
+  B-04: "类比：0 处跨领域类比，无需标 [发生器]。"
+  B-05: "自我规划：本轮范围=巡检+2 条确认类裁定入 done+新证据披露+双件落板；下轮（12:20）=继续 :20 档巡检，有新 auto_run 按 FIFO 自取执行。"
+  B-06: "循序渐进：本轮完成候选核对、新证据取证、设施复核、双件落板四步；接口=0520 本地原件与 sha256 留待主会话终裁调用。"
+  B-07: "Agent 调用：0 次（全部动作在本执行器内完成，无多步研究任务）。"
+  B-08: "交付前验证：本地 5 件 sha256 实算在位、Hub 6 文件 200 字节相符、Hub 清单确认 0520 双件未落盘、回执 YAML 全文双引号包裹（防 R0040 首传单引号未闭合类解析 FAIL）。"
+  B-09: "动机优先：本轮 100% 响应用户（WB0）指令框架内的巡检/待命/恢复判据，0% 自选研究方向。"
+  B-10: "不下断定：05:20 及窗内各档缺席根因与 WB0-CLOUD-AGENT-FAILURE 终裁保留归主会话；H-ROUTER-COLLAPSE pending 不升格；未预先命名任何结论。"
