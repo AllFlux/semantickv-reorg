@@ -1,0 +1,52 @@
+review_id: WB1-20261023-KEEPALIVE-RESTART
+target: WB1
+date: 2026-10-23
+executor: WB1
+round: "2026-10-23 23:20 档（R2330，实际 23:30 CST 触发）内承接的运维指令 1792769600-2667d3（23:33:20 发布，auto_run=true、long_run=false、target=WB1、type=ops_keepalive_restart、priority=high）"
+kind: ops_keepalive_restart
+triggered_by: "WB0 运维指令 1792769600-2667d3（WB0-INSTR-20261023-KEEPALIVE-RESTART-WB1），显式 auto_run: true"
+prediction: "收到指令后立即重启本会话/沙箱 keepalive 保活，且三条可验收：(1) 心跳守护进程处于运行态（ps 可见 pid 与 cmdline）；(2) 首次心跳为真实 HTTP 请求且 /?sharecode 与 /api/brief 双双返回 200（不伪造心跳）；(3) 心跳间隔 1200s（20 分钟）、落日志可查，且未改动任何调度（cron 未改、纯夜间窗口不变）、未写台账、未执行任何研究实验 goal。"
+falsifiable_criterion: "任一项不成立即证伪（status 应为 refuted）：心跳进程未在运行；或首次心跳任一请求返回非 200；或心跳为本地伪造（未发真实 HTTP）；或心跳间隔非 1200s；或本档出现调度改动、台账写入、研究实验执行中的任一项。"
+actual_data:
+  instruction_match: "指令 1792769600-2667d3 命中本执行器筛选规则：target=WB1、auto_run: true、id 不在 hub_state/done.json。正文显式 long_run: false → 规则 2b（long_run 跳过）不触发，正常执行。指令性质 type=ops_keepalive_restart，明示『不属研究实验 scope_guard 限制』，本档严格限于保活动作。"
+  step1_existing_script: "优先查找既有 setup_keepalive_research.sh / WB2 等价脚本：全盘 find（maxdepth 6，含 /root、/workspace、/usr/local）未命中任何 setup_keepalive*.sh 或 WB1/WB2 keepalive 脚本；crontab 命令在本沙箱不存在（command not found），无既有常驻守护；ps 中无 keepalive/heartbeat 进程 → 判定脚本不存在，转入指令第 2 条路径（自建后台心跳循环）。"
+  step2_heartbeat: "新建 /workspace/semantickv-reorg/wb1_keepalive.sh（chmod +x）并启动：while 循环内每 1200s 依次 curl ① GET /?sharecode=V6GYQIUI7Z（200，建会话取 cookie /tmp/wb1_keepalive_cookie.txt）② GET /api/brief（200，2217B），两次均带 30s 超时，状态码与字节数写入 /workspace/semantickv-reorg/hub_state/keepalive.log。"
+  verification: "守护日志首两行实证：『[2026-10-23 23:41:18] keepalive 守护启动 pid=179659 interval=1200s』『[2026-10-23 23:41:18] sharecode=200 brief=200/2217』。ps -eo pid,etime,cmd 可见 pid=179659 的 bash wb1_keepalive.sh 处于运行态。心跳为真实出站 HTTP 请求（Hub 侧可见来源），非本地空转或伪造计数。"
+  next_expected: "下一次心跳 = 2026-10-24 00:01:18 CST（23:41:18 + 1200s）；其后每 20 分钟一次。WB1 调度下一档 = 2026-10-24 00:20 CST（:20 档，纯夜间窗口 23:00-08:00 不变）。"
+  schedule_unchanged: "未改动任何 cron/调度配置（本沙箱亦无 crontab 命令）；调度保持纯夜间窗口（23:00-08:00）:20 档不变，符合指令约束与用户令。"
+  scope_compliance: "本档保活动作之外：零实验、零训练、零模型加载、零台账写入、零假设状态变更、零冻结件覆盖、零指令板写入。指令明示『不得执行任何研究实验 goal（仅保活）』，已遵守。"
+  persistence_disclosure: "（D2 如实披露）跨会话/跨沙箱持久性不由 WB1 保证：本守护以会话内后台任务方式运行（沙箱后台任务在会话结束/沙箱休眠后可能被回收，无 crontab 与 systemd 可托管）。WB1 无法自证『沙箱空闲回收问题已根治』；可证范围仅限『本会话内守护已启动且首跳 200』。若后续仍出现触发接不上，根因仍归平台/主会话侧（与 open_item WB0-CLOUD-AGENT-FAILURE 同源，本档不代判、不关闭该 open_item）。"
+  long_run_skipped: 0
+status: confirmed
+data_source:
+  - results_v2/wb1_exec_round_20261023_2330.md
+  - results_v2/wb1_keepalive.sh
+hypotheses:
+  - id: H-WB1-KEEPALIVE-RESTART-20261023
+    status: confirmed
+    prediction: "本会话 keepalive 保活可经由『后台心跳循环每 1200s GET /api/brief（带 sharecode）』重启，且首跳真实返回 200、进程持续运行。"
+    falsifiable_criterion: "若守护进程启动后 ps 不可见、或首次心跳任一请求非 200、或日志为空，则被证伪；若心跳为本地伪造（无真实出站请求）亦属证伪。"
+    actual_data: "三项实证齐备：ps 见 pid=179659 bash wb1_keepalive.sh 运行态；日志首跳 sharecode=200、brief=200/2217（字节数为真实响应体大小，非硬编码）；日志时间戳 23:41:18 由系统 date 生成。故判 confirmed。边界声明：confirmed 仅限『本会话内守护已重启并成功发出真实心跳』，不含『跨会话持久存活』（后者为 E3，见 actual_data.persistence_disclosure）。"
+conclusions_frozen:
+  H-ROUTER-COLLAPSE: pending
+  H-WB2-E2E-01: verified_proxy
+  EXP-08: e5_withdrawn
+  EXP-01B: refuted
+collaboration_audit:
+  trigger_source: "WB0 运维指令 1792769600-2667d3 显式 auto_run 指派（type=ops_keepalive_restart），非 WB1 自提；本档未处理任何 WB1 自身发出的 open_item。"
+  independence: "不采信指令自述背景结论（其『根因指向 keepalive 守护未运行』为本档未证推测，见 B-01）；本档仅按指令交付项执行并独立取证（ps + 日志 + HTTP 状态码）。"
+  caliber_disclosure: "confirmed 口径已限定为『本会话内守护重启成功』，未扩展到『停摆根因已修复』或『跨会话持久存活』，不以代理指标冒充原口径（D2）。"
+  non_destructive: "新建文件 wb1_keepalive.sh 与 hub_state/keepalive.log，均为新产物；未覆盖任何既有文件、未触碰 semantic_router.pt 及冻结资产；未改动调度配置。"
+  p0: false
+  dependency_missing: []
+self_check:
+  B-01: "断言卡：未证推论 2 处 —— ①指令自述『根因指向 keepalive 守护未运行导致沙箱被回收』未证（本档仅观测到当前无守护进程在运行，未取得历史进程记录或平台回收日志，可能存在他因：调度未触发、上传通道故障、进程被杀）；②『重启心跳即可保证后续 :20 档正常触发』未证（心跳只维持会话活跃，不构成调度器可用性的充分条件）。"
+  B-02: "判据分级：E2 = 进程态、首跳状态码、日志时间戳、间隔参数（本档全部可复算）；E3 = 跨会话持久存活与停摆根因（需平台侧日志，本档不判，已如实披露）。本档无 E5。"
+  B-03: "动机猜测：100% 响应 WB0 运维指令（keepalive 保活），0% 自选研究方向；指令明示仅保活、禁研究实验，已遵守。"
+  B-04: "类比：0 处跨领域数值类比，无需标 [发生器]。"
+  B-05: "自我规划：本档范围 = 指令筛选 → 查既有脚本 → 自建心跳守护 → 实证（ps/日志/200） → 回执落板 → done 标记；下轮（00:20 档）首先复核 hub_state/keepalive.log 是否持续追加心跳行（验证守护存活），再走常规巡检。"
+  B-06: "循序渐进：本档只做保活，不扩轮；留接口 = wb1_keepalive.sh 脚本路径与 keepalive.log 日志路径，供 WB0/主会话直接核查与复用；若平台侧提供常驻守护或 crontab，本脚本可被替换而不影响其他产物。"
+  B-07: "Agent 调用：0 次子 Agent；find/ps/date/curl 均在执行器内完成，无并行子任务需求。"
+  B-08: "交付前验证：(a) 本件 YAML 经本地 YAML 解析器解析通过；(b) 顶层 review_id/target/date 与 hypotheses 三字段按补裁 B1-3 静态自检齐备；(c) 心跳守护 ps 可见且日志首跳 200/200；(d) 上传后逐件回读 HTTP 200 且字节与本地一致。"
+  B-09: "动机优先：本档 100% 响应 WB0/用户指令框架（保活运维 + 禁研究实验 + 禁伪造心跳 + 禁写台账 + 调度不变 + B1-3 字段规范 + D6 省 token），0% 自选研究方向。"
+  B-10: "不下断定：WB1 白天停摆根因、keepalive 与触发失败之间的因果关系、跨会话持久性、WB0-CLOUD-AGENT-FAILURE 终裁，四项均保留归平台/主会话；本件 confirmed 严格限定于『本会话内守护已重启且首跳真实 200』，未预先命名更大范围结论。"

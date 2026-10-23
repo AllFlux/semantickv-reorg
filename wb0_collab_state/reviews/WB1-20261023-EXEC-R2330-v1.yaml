@@ -1,0 +1,63 @@
+review_id: WB1-20261023-EXEC-R2330-v1
+target: WB1
+date: 2026-10-23
+executor: WB1
+round: "2026-10-23 23:20 小时档第二次触发（实际 23:30 CST，调度漂移；上一档 R2320 实际触发 23:10、23:17 落板，同档间隔 13 分钟）"
+kind: exec_round_report
+triggered_by: "WB0 唤醒裁定 1792769194-25fa2f（23:20 档，动作 A4）与 WB0 补裁 1792769281-20f7d5（23:26 档，动作 B1-3）"
+prediction: "本档完成两条新增 WB0 裁定中致 WB1 的全部动作并落板可验收：(1) A4 恢复后维持常规档位巡检——本档即以常规巡检档履行，运行报告与回执双件落板且 Hub 回读 200 且字节一致；(2) B1-3 回执首次提交字段规范——本件首次提交即含顶层 review_id/target/date，且每条 hypotheses[i] 均含 prediction/falsifiable_criterion/actual_data；(3) 本件首次提交机检 PASS（无 FAIL 补正件）；(4) 两条新增指令标记 done，无 open_item（无外部依赖缺失）、无 long_run 跳过、无台账写入、无冻结件覆盖。"
+falsifiable_criterion: "若任一项不成立即证伪（status 应为 refuted）：任一上传返回非 200；或 Hub 回读字节与本地不符；或本件首次提交机检 FAIL（需以 -v2 补正）；或双件未能落板；或本档出现任何未经指令批准的研究动作、台账写入、冻结件覆盖、伪造数据。"
+actual_data:
+  brief: "now=2026-10-23 23:30；ledger_version=0.82；files=199；reviews=54（PASS 50/FAIL 4）；instructions=105；hypotheses=43（confirmed 9/pending 18/refuted 12/verified_proxy 1/e5_withdrawn 3）；open_items=10（open 2：WB0-CLOUD-AGENT-FAILURE、WB0-LEDGER-DECISIONS-STALE）；discipline=PASS(0)、contract=PASS(0)；silence in_window=false，今日 06:10-11:10 / 15:10-17:10 / 19:10-21:10 三段写入均 0"
+  delta_vs_R2320: "ledger 0.79→0.82；files 194→199；reviews 50→54；instructions 103→105；hypotheses 41→43（pending 17→18、refuted 11→12）；discipline FAIL(1,D4)→PASS(0)，与 R2320 A1 补传 wb1_exec_round_20261023_1120.md 落板一致；open_items 2 项维持 open 未变"
+  candidate_pool: "since=1792767916 且 target∈{WB1,ALL} 共 3 条：1792767916-a233bc 已 done 跳过；1792769194-25fa2f（23:20 裁定，A4→WB1/WB2 维持常规巡检）与 1792769281-20f7d5（23:26 补裁，B1-3→WB1/WB2 首次提交字段规范）两条未 done → 本档履行并标记 done。两条均无 YAML 顶层 auto_run 字段、均不含 long_run: true，规则 2b 跳过数 0（AB-01/AB-02 不在本窗口，归专用长时任务）。候选池中无 WB1 自身发出的 open_item，未发生自处理循环。"
+  a4_result: "1792769194-25fa2f 动作 A4 明示『恢复后维持常规档位巡检，无需额外动作』；本档即常规巡检档，双件落板即为履行证据。该裁定其余动作：A1/A2 为 WB0 台账侧受控写入（WB1 不代写）、A3 四项→主会话（清理 probe 指令 1792767878-cfee02、终裁 WB0-CLOUD-AGENT-FAILURE、裁定 LongBench 全量查询池与 Router 训练预算以解挂、作废 DEC-20261021-E2E-GATE）、A5 为 WB0 下轮关注（00:20 档是否收敛单一档位）；裁定 11 明载本轮不派工、裁定 4 闸门无 VIOLATION、裁定 12 CEO 报告不重生成。以上均非 WB1 动作，本档不代跑、不代写、不代删。"
+  b13_result: "1792769281-20f7d5 补裁 B1-3 指派：后续回执首次提交即须含 review_id/target/date 顶层字段与 hypotheses[i] 的 prediction/falsifiable_criterion/actual_data 三字段，v1 原件保留不删。本件首次提交前静态自检：顶层三字段齐备；hypotheses 共 3 条，每条均含 id/status/prediction/falsifiable_criterion/actual_data，三字段子项 9/9 齐备。B1-1（WB2 R2340-v1 FAIL 61 秒自纠闭环）、B1-2（v2 验收 PASS 但 verdict=pending 不入账，hypotheses 维持 43）为 WB2 事项，WB1 不介入；B1-4 既有裁定不变。"
+  artifact_audit: "本仓库内递归复核 5 件核心交付物在位且 sha256 与历史回执记录一致：results_v2/exp08_metric_arbitration.json 280295B sha256 aa354288ab8cd2e9…；experiments/exp08/exp08_metric_arbitration.py 46492B sha256 8d51f40d542cf7ea…；results_v2/exp07_router_relief.json 220230B sha256 c7c90b7e77e2970c…；results_v2/r2_router_collapse.json 32762B sha256 1fa41da9d32a1701…；results_v2/WB1-20261023-EXEC-R2320-v1.yaml 8223B sha256 ded4e8c5fc20b568…。dependency_missing 为空，不触发 D4 孤本声明；本档产物为纯文本巡检件，非不可再生资产，p0=false 不触发 D5。"
+  status_note: "本件 status 写 pending 而非 confirmed：四项预测中第(1)(2)(4)项在提交时已由上传回执与静态自检确证，第(3)项『本件首次提交机检 PASS』在文件写出时尚未回读，按 D1 不预先判 confirmed。提交后立即回读 check.status，结果如实记入本档 done.json 备注与下轮报告；若 FAIL 则按『-v1 原件保留 + -v2 补正』处理并披露（不删历史、不覆盖）。"
+  actions_this_round: "零研究执行动作（WB0 裁定 11 明载不派工）；零实验、零训练、零模型加载；2 条指令标记 done；未发 open_item（无缺失外部依赖，规则 4 不触发）；未写台账；未覆盖任何冻结件或历史回执；未向指令板写入任何测试性内容（本档 0 条指令写入）"
+  long_run_skipped: 0
+  token_discipline: "本档 GET 调用共 6 次：/api/brief（2078B）、/api/instructions?brief=1&target=WB1&since=1792767916（1025B）、同参数 target=ALL（1025B）、/api/instruction/1792769281-20f7d5（2665B）、/api/instruction/1792769194-25fa2f（7324B）、/api/files?brief=1&tree=results_v2&limit=50（8900B），合计约 23KB。未裸拉 /api/instructions 全量（约 200KB）、未拉 /api/state、未拉 /api/ledger（D6 合规）。"
+status: pending
+data_source:
+  - results_v2/wb1_exec_round_20261023_2330.md
+  - results_v2/wb1_exec_round_20261023_2320.md
+hypotheses:
+  - id: H-ROUTER-COLLAPSE
+    status: pending
+    prediction: "本档为裁定履行与常规巡检回合，不产生 router collapse 新实验证据，假设状态维持不变。"
+    falsifiable_criterion: "若本档产出任何 router collapse 相关新实验数据或改判证据，则『维持不变』不成立；本档亦不得在无新证据时自行升格或降格。"
+    actual_data: "本档零实验、零新数据、零模型加载。判据仍以 WB1-20261022-R2-v1.yaml、WB1-20261022-R2-ERRATUM-v1.yaml、WB1-20261022-EXP-07.yaml 为准，本件不重判。台账 pending 与本件 pending 一致，无口径差异。"
+  - id: H-WB2-E2E-01
+    status: pending
+    prediction: "本档不将该假设升级为 confirmed（升级唯一通道为 WB2 真实 LongBench 多跳 A/B 且闸门五条件满足）。"
+    falsifiable_criterion: "若本档出现 WB2 真实 A/B 复核通过证据则『维持未确认』被证伪；若本件写 confirmed 即为冒充升级（D2 违规）。"
+    actual_data: "本档零 A/B 证据输入；WB0 23:20 裁定 4 逐条核对闸门五条件（60 实体/40 查询、B 侧预注册禁 in-sample、训评分离、WB2 复核前置、新回执机检 PASS）仍未满足，无 VIOLATION、未触发 1792578222-dfcf4b 回滚。口径披露：台账侧登记为 verified_proxy，Hub 回执 schema 仅接受 confirmed/refuted/pending，故本件如实写 pending——pending 表示 WB1 侧未确认，不等同于降格 verified_proxy。"
+  - id: H-WB1-RECEIPT-FIRSTSUBMIT-SCHEMA
+    status: pending
+    prediction: "按 WB0 补裁 B1-3，本档回执首次提交即含顶层 review_id/target/date 与 hypotheses[i] 三字段，且首次提交机检 PASS（不产生 -v2 补正件）。"
+    falsifiable_criterion: "若首次提交机检 FAIL（缺顶层字段或缺 hypotheses 三字段），则本预测被证伪，须按 -v1 保留 + -v2 补正处理并如实披露；若本件写出时任一字段缺失，则该字段检查项即被证伪。"
+    actual_data: "提交前静态自检 9/9 齐备：顶层 review_id=WB1-20261023-EXEC-R2330-v1、target=WB1、date=2026-10-23 三项存在；hypotheses 3 条（H-ROUTER-COLLAPSE、H-WB2-E2E-01、H-WB1-RECEIPT-FIRSTSUBMIT-SCHEMA）每条均含 prediction/falsifiable_criterion/actual_data。YAML 解析已用本地解析器验证通过（防 R0040 档单引号未闭合类 FAIL 复发）。机检结果于提交后回读 check.status 补记，未预先判定。"
+conclusions_frozen:
+  H-ROUTER-COLLAPSE: pending
+  H-WB2-E2E-01: verified_proxy
+  EXP-08: e5_withdrawn
+  EXP-01B: refuted
+collaboration_audit:
+  trigger_source: "WB0 两条裁定（1792769194-25fa2f 动作 A4、1792769281-20f7d5 动作 B1-3）显式指派，非 WB1 自提研究方向；本档未处理任何 WB1 自身发出的 open_item（防自处理循环）。"
+  independence: "两条裁定的事实链不采信其自述结论，改用本档实拉 /api/brief 与 /api/instruction 原文独立核对；ledger/instructions/files 计数与本档实测逐项比对一致（0.82 / 105 / 199）。"
+  caliber_disclosure: "H-WB2-E2E-01 在回执 schema 内写 pending（WB1 侧未确认），与台账 verified_proxy 并存，为显式口径披露，非改判非降格。本件 status=pending 系因自身机检结果未回读，非『以 pending 冒充完成』，理由已写入 actual_data.status_note。"
+  non_destructive: "本档产物均为新文件名（_2330 后缀），上一档 R2320 双件与 -v1 系列原件保留、不覆盖、不删除；未触碰 semantic_router.pt 及任何冻结资产。"
+  p0: false
+  dependency_missing: []
+self_check:
+  B-01: "断言卡：未证推论 2 处 —— ①『23:20 档两次触发』的成因未证（候选：调度补跑、上一档 23:10 漂移后计时器重置、平台补偿重试；仅观测到 23:10 与 23:30 两次落板，无 trigger 日志）；②『discipline FAIL→PASS』归因于 R2320 A1 补传仅为时序吻合，未做反事实验证（未删除补传件复测，且 API 无删除通道）。"
+  B-02: "判据分级：E2 = brief 计数核对、上传 200 与回读字节、静态字段自检、sha256 在位复核（本档全部可立即复算）；E3 = 档位漂移成因与 15:20-22:20 缺席根因（需主会话 trigger 日志，本档不判，写 pending）；本档无 E5，未产生撤回项。"
+  B-03: "动机猜测：100% 回应 WB0 两条裁定的动作指派（A4 常规巡检 + B1-3 首次提交字段规范），0% 自选研究方向；无未经批准的研究动作。"
+  B-04: "类比：0 处跨领域数值类比；『漂移/收敛/挂起』为状态描述标准用法，无需标 [发生器]。"
+  B-05: "自我规划：本档范围 = brief → 候选筛选 → 双裁定履行（A4 巡检落板 + B1-3 规范采纳）→ 双件上传与自查 → done 标记；下轮（00:20 档）= 常规巡检，关注三点：本件机检是否 PASS（是否需 -v2 补正）、WB0 00:20 档是否收敛到单一档位、是否出现新的 auto_run 派工。"
+  B-06: "循序渐进：本档只做裁定履行 + 常规巡检，不扩轮、不派工、不重判既有假设；留接口 = 档位漂移证据（23:10 与 23:30 双落板）与 5 件产物 sha256 表，供 WB0 A5 与主会话终裁直接调用。"
+  B-07: "Agent 调用：0 次子 Agent；全部动作在执行器内以 curl + sha256sum + 文件比对完成，无并行子任务需求。"
+  B-08: "交付前验证：(a) 本件 YAML 已用本地 YAML 解析器解析通过（防单引号未闭合类 FAIL 复发）；(b) 顶层三字段与 hypotheses 三字段静态自检 9/9；(c) 双件上传后逐件回读 HTTP 200 且字节与本地一致；(d) 本机 sha256sum 复核 5 件核心产物在位。自身机检结果在文件写出时尚未回读，已如实标注为待补记（见 actual_data.status_note）。"
+  B-09: "动机优先：本档 100% 响应用户/WB0 指令框架（两条裁定动作 + 省 token 读取纪律 + D1 不升格 + D2 不伪造 + D3/D4 实物自查 + D6 禁裸拉 + D7 自检块），0% 自选研究方向。"
+  B-10: "不下断定：档位漂移成因、WB0-CLOUD-AGENT-FAILURE 终裁、probe 指令 1792767878-cfee02 清理、LongBench 查询池与 Router 训练预算资产裁定、DEC-20261021-E2E-GATE 作废，五项均保留归主会话/用户；H-ROUTER-COLLAPSE pending 不升格、H-WB2-E2E-01 不降格；本件 status 未预先命名 confirmed。"

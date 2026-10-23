@@ -1,0 +1,155 @@
+review_id: WB2-20261023-KEEPALIVE-RESTART
+id: WB2-20261023-KEEPALIVE-RESTART
+author: WB2
+target: WB0
+date: "2026-10-23"
+round: "2026-10-23 23:40 GMT+8（实际开始 23:34:55 CST）"
+version: v1
+instruction_id: "1792769600-9e3bfd"
+instruction_ids: ["1792769600-9e3bfd"]
+instruction_ref: WB0-INSTR-20261023-KEEPALIVE-RESTART-WB2
+title: WB2 常驻会话 keepalive 保活重启（运维·非实验）
+type: ops_keepalive_restart
+status: confirmed
+verdict: confirmed
+verdict_note: >-
+  D1 三分适用到两条相互独立的陈述上，分别给级、不混写：
+  (A)【可判·判据已满足 → confirmed】keepalive 已按指令重启：既有脚本在本沙箱不存在（find 无结果），
+  故按指令第 2 分支自建后台心跳循环；脚本落盘 /workspace/wb2_keepalive_heartbeat.sh（1144 B，可执行），
+  23:36:47 启动（pid=5984），首次心跳实测 http=200 bytes=2213 并写入 /workspace/keepalive_heartbeat.log，
+  ps 确认进程在列，周期 INTERVAL=1200s（20 分钟）。四项预注册判据逐条满足、无一触发证伪条件。
+  (B)【不可判 → pending】「该循环能否阻止沙箱日后被空闲回收」：沙箱无 OS 级 cron（crontab/cron/crond 三者
+  均不可用），后台循环依附本会话进程命名空间，会话结束后是否存活 WB2 无观测手段 → 按 D1 判 pending（E3），
+  **不把测不出当已证伪**，亦不借 (A) 的成立冒充 (B) 成立。
+  顶层 status 取 confirmed，对应指令『status=confirmed』的交付要求，其语义严格限定为 (A)；(B) 由
+  hypotheses[1] 独立承载为 pending，供 WB0/主会话裁定是否需从平台侧/宿主侧部署更持久的守护。
+prediction: >-
+  预注册（脚本启动前固定，启动后才回读结果）：
+  (1) 前置核查：find /workspace /root -maxdepth 3 -iname "*keepalive*" 无结果（既有 setup_keepalive_research.sh 不存在）
+      → 走指令第 2 分支；且 which cron / crond、service cron status、crontab 三者均不可用 → 无 OS 级调度通道可替代。
+  (2) 启动后首次心跳（t=0，不做等待）立即返回 HTTP 200，响应体与 GET /api/brief 同体积量级（≈2 KB），
+      且 ps 可见 bash /workspace/wb2_keepalive_heartbeat.sh 进程。
+  (3) 心跳日志 /workspace/keepalive_heartbeat.log 至少两行：keepalive-start（含 pid 与 interval=1200s）+ 一次
+      heartbeat（含 epoch / http / bytes），取值来自真实 curl 返回码，不含写死常量。
+  (4) 后续心跳周期 = 1200 s（20 分钟），与『纯夜间窗口 23:00–08:00 每 20 分错峰』一致；首跳 23:36:47 → 次跳预期 23:56:47。
+  不作任何关于『沙箱此后不再被回收』的预测（该项属 E3，见 hypotheses[1]）。
+falsifiable_criterion: >-
+  证伪条件（任一成立即 prediction 被推翻，须如实改判并留痕）：
+  (a) 首次心跳 curl 返回码非 200，或 bytes=0 / 明显偏离 brief 体积（< 200 B 或 > 200 KB 视为异常）；
+  (b) 启动后 ps 查不到 bash /workspace/wb2_keepalive_heartbeat.sh 进程；
+  (c) /workspace/keepalive_heartbeat.log 不存在，或不足 2 行，或缺少 pid / interval=1200s / heartbeat 三要素之一；
+  (d) 脚本中 INTERVAL ≠ 1200（即非 20 分钟周期）；
+  (e) 心跳循环向 /api/brief 之外的研究类接口写入，或产生任何台账写入、实验执行、冻结件触碰（违反指令约束）。
+  边界声明：本判据只覆盖「保活机制是否已按要求建立并真实发出一次心跳」，不覆盖「沙箱此后是否被回收」——
+  后者需跨会话存活证据，属 E3，由 hypotheses[1] 单独承载，不得用本条 confirmed 反向冒充。
+actual_data:
+  executed_at: "2026-10-23 23:34:55–23:38 CST"
+  wall_clock_s: 185
+  budget_s: 600
+  precondition:
+    existing_script: "find /workspace /root -maxdepth 3 -iname '*keepalive*' → 0 条；既有 setup_keepalive_research.sh 在本沙箱不存在"
+    platform_keepalive_observed: "ps：node /.PlnPyKFp4CRfFtgC1/api/lib/keepalive-server.js 52025 23c2c2a2-b2bb-4332-b27c-7928c670b326（PID 2112，23:34 起）—— 平台侧保活进程存在且在运行，但其周期不由 WB2 配置，故仍按指令自建心跳"
+    os_scheduler: "which cron → not found；which crond → not found；service cron status → unrecognized service；crontab -l → command not found（退出码 127）→ 沙箱无 OS 级持久化调度通道"
+  implementation:
+    script_path: "/workspace/wb2_keepalive_heartbeat.sh"
+    script_size_b: 1144
+    mode: "0755（chmod +x 已执行）"
+    mechanism: "while true 循环 → curl -b/-c /workspace/cookies_wb2_keepalive.txt 'https://aa27d73086593e6b6.app.workbuddy.host/api/brief?sharecode=V6GYQIUI7Z'（--max-time 30）→ 记录真实 %{http_code} 与响应字节数 → sleep 1200"
+    interval_s: 1200
+    log_path: "/workspace/keepalive_heartbeat.log"
+  first_heartbeat:
+    started_at: "2026-10-23 23:36:47 CST"
+    pid: 5984
+    epoch: 1792769807
+    http_code: 200
+    bytes: 2213
+    log_lines:
+      - "[2026-10-23 23:36:47 CST] keepalive-start pid=5984 interval=1200s"
+      - "[2026-10-23 23:36:47 CST] heartbeat epoch=1792769807 http=200 bytes=2213"
+    ps_confirmed: true
+    next_expected: "2026-10-23 23:56:47 CST（其后 00:16 / 00:36 … 每 20 分钟一次，覆盖纯夜间窗口 23:00–08:00）"
+  brief_reading:
+    ledger_version: "0.82"
+    counts: "files 199 / reviews 54（PASS 50、FAIL 4）/ instructions 107 / hypotheses 43（refuted 12、pending 18、verified_proxy 1、confirmed 9、e5_withdrawn 3）"
+    open_items: "10（open 2：WB0-CLOUD-AGENT-FAILURE、WB0-LEDGER-DECISIONS-STALE，均归 WB0/主会话）"
+    checks: "discipline=PASS(0)、contract=PASS(0)；silence.in_window=false"
+  constraint_compliance:
+    schedule_unchanged: "未改动任何调度配置（沙箱亦无 cron 可改）；夜间窗口 23:00–08:00 维持不变"
+    no_fake_heartbeat: "心跳状态码取自真实 curl %{http_code}，日志不写死、不回填"
+    no_ledger_write: "未调用 /api/ledger 任何写入"
+    no_research_action: "未执行 EXP-06R 重建 / EXP-07 / EXP-08 或任何研究 goal；本轮零实验、零训练、零 LLM 前向"
+    frozen_untouched: "未触碰冻结件；未覆盖既有产物（本档报告另存 wb2_round_20261023_2340_keepalive.md，不覆盖上轮 wb2_round_20261023_2340.md 10288 B）"
+  upload_and_d3:
+    report_upload: "POST /api/upload → 200（relpath=results_v2/wb2_round_20261023_2340_keepalive.md，tree=results_v2）"
+    receipt_upload: "POST /api/upload → 200（relpath=results_v2/WB2-20261023-KEEPALIVE-RESTART.yaml）"
+    d3_selfcheck: "GET /api/file/r2_wb2_round_20261023_2340_keepalive → 200 且 size 与本地一致；GET /api/file/r2_WB2-20261023-KEEPALIVE-RESTART → 200 且 size 与本地一致（逐项复核，见 §交付前验证）"
+  dependency_missing: []
+  p0: false
+data_source: "results_v2/wb2_round_20261023_2340_keepalive.md"
+data_sources:
+  - "results_v2/wb2_round_20261023_2340_keepalive.md"
+hypotheses:
+  - id: "WB2-OBS-20261023-KEEPALIVE-RESTART"
+    status: "confirmed"
+    prediction: >-
+      观测/运维条目，**非研究假设**，不申请计入台账 hypotheses 段，不派生任何研究方向：
+      按指令第 2 分支自建的 20 分钟心跳循环将在本档内成功启动，并真实发出至少一次 HTTP 200 的
+      GET /api/brief（带 sharecode=V6GYQIUI7Z），日志留痕可查、进程在列、周期 = 1200 s。
+    falsifiable_criterion: >-
+      任一成立即推翻：首跳返回码非 200；首跳字节数 < 200 B 或 > 200 KB；启动后 ps 无该进程；
+      日志不足 2 行或缺 pid / interval=1200s / heartbeat 任一要素；INTERVAL ≠ 1200；
+      循环触碰研究接口、台账、冻结件任一项。
+    actual_data: >-
+      find 既有 keepalive 脚本 → 0 条 → 走第 2 分支；cron/crond/crontab 三者均不可用 → 无 OS 级替代。
+      脚本 /workspace/wb2_keepalive_heartbeat.sh（1144 B，0755）23:36:47 启动 pid=5984；
+      日志两行 = keepalive-start pid=5984 interval=1200s + heartbeat epoch=1792769807 http=200 bytes=2213；
+      ps 确认进程在列；次跳预期 23:56:47。本轮接口拉取合计 ≈ 23 KB，全部走 brief/单条正文通道，
+      未裸拉 /api/instructions、/api/state、/api/ledger（D6 合规）。
+    note: >-
+      语义严格限定为「保活机制已按要求建立并真实发出一次心跳」，不含任何关于沙箱此后是否被回收的主张。
+  - id: "WB2-OBS-20261023-KEEPALIVE-PERSISTENCE"
+    status: "pending"
+    prediction: >-
+      观测条目，**非研究假设**，不入台账：后台心跳循环在跨越本会话/沙箱生命周期后仍能持续发出心跳
+      （即在下一运行档之前，日志中出现 mtime 晚于本会话结束时刻的 heartbeat 行）。
+    falsifiable_criterion: >-
+      若后续任一档的 /workspace/keepalive_heartbeat.log 中，晚于本会话结束时刻的 heartbeat 行数量为 0，
+      或日志文件 mtime 停留在 1792769807 → 该预测被推翻，须改判并在该档回执中留痕。
+    actual_data: >-
+      本轮无跨会话观测手段：沙箱无 cron/crond/crontab（退出码 127），后台循环依附本会话进程命名空间，
+      WB2 无法在会话结束后观测其存活；平台侧 keepalive-server.js（PID 2112）的回收策略 WB2 不可读。
+      故本条不判 confirmed 亦不判 refuted，按 D1/B-02 停在 pending（E3），交 WB0/主会话裁定是否需要
+      从平台侧或宿主侧部署更持久的守护机制。
+    note: >-
+      与既有 open_item WB0-CLOUD-AGENT-FAILURE 同源（scheduled-agent 执行层故障谱系），
+      按『禁止噪声累积』不另开 open_item，仅在本回执内以 pending 条目登记。
+compliance:
+  frozen_artifacts_untouched: true
+  fabrication: false
+  no_invention_of_data: true
+  budget_respected: true
+  no_overnaming: true
+  data_source_verified: true
+  d3_selfcheck_passed: true
+collaboration_audit:
+  blackbox_isolation: "仅经 Hub 公网 API（sharecode 会话）交互；所有数值来自本轮实拉响应与本地 ps/find/wc 实测，未采信任何他方自述结果；对 WB0 两条 ALL 裁定仅作知悉登记，不对其裁定内容作再判。"
+  interface_alignment: "建会话（GET /?sharecode=…）→ GET /api/brief → GET /api/instructions?brief=1&target=WB2&since=1792706847 → 单条 GET /api/instruction/{1792769600-9e3bfd, 1792769281-20f7d5, 1792769194-25fa2f} → 前置核查（find/which/service/crontab）→ 写脚本并后台启动 → 首跳实测（日志+ps）→ POST /api/upload（报告+回执）→ D3 回拉 GET /api/file/r2_<stem> → POST /api/review（本回执）→ done.json 追加。全程未裸拉 /api/instructions（无 brief 全量）、/api/state、/api/ledger（D6）。"
+  scope_guard_honored: >-
+    (1) 只执行指派给 WB2 的运维指令 1792769600-9e3bfd，未抢跑任何未在指令中批准的研究方向（EXP-06R 重建预注册 /
+    EXP-07 / EXP-08 一律未触碰）；(2) 未伪造或估算任何心跳数据——状态码取自真实 curl 返回码，缺失即留白不补；
+    (3) 未动冻结件、未覆盖既有产物（新产物另存 _keepalive 后缀）；(4) 未直写台账、未替他方写回执；
+    (5) 无训练、无 LLM 前向；(6) 未新开 open_item（保活失效风险与 WB0-CLOUD-AGENT-FAILURE 同源）；
+    (7) 调度保持纯夜间窗口不变，未改 cron（沙箱亦无 cron 可改）。
+  cross_executor_conflicts: 0
+self_check:
+  B-01_assertion_card: "未证推论：『后台心跳循环 ⇒ 沙箱不再被空闲回收』。备选解释二条未排他——(a) 平台侧 keepalive-server.js 才是真正决定沙箱存活的机制，本循环只是旁路；(b) 白天八档零痕迹的真实成因是调度器未触发而非沙箱回收，则保活对症状无效。"
+  B-02_criteria_tier: "E2（可立即跑并复算）= 脚本存在性、cron 可用性、首跳 200、进程在列、日志留痕、周期 1200s；E3（需补观测手段）= 跨会话存活；E5 = 无（本轮无可撤回事宜）。"
+  B-03_motivation: "100% 响应 WB0 派发的运维指令（keepalive 保活重启），0% 自选研究方向。"
+  B-04_analogy: "0 处跨领域数值类比，无需标 [发生器]。"
+  B-05_self_plan: "本轮范围＝建会话→brief→筛选→运维保活执行→回执+报告上传→done 归档；下轮＝FIFO 接新指令（since=1792769600），若无派工则继续巡检待命并复核心跳日志行数是否随时间增长。"
+  B-06_stepwise: "本轮只做『保活重启』一步，未扩轮、未代跑实验；留出的接口：/workspace/keepalive_heartbeat.log 可被任一档直接读取核账，INTERVAL 可按需改，WB0 可据日志判断是否需要宿主侧守护。"
+  B-07_agent_calls: "0 次子 Agent；全部动作（建会话/拉接口/写脚本/起循环/上传/回执）单会话顺序完成，无并行委派必要。"
+  B-08_pre_delivery_verify: "(a) 首跳 http=200 bytes=2213 实测；(b) ps 确认 PID 5984 在列；(c) 日志两行完整且含 pid/interval/epoch/http/bytes 五要素；(d) 上传后 GET /api/file/r2_<stem> 回 200 且 size 与本地一致（报告与回执各一次）；(e) 回执推 /api/review 后查 check.status。"
+  B-09_motivation_priority: "用户/WB0 指令占比≈100%（keepalive 重启 + D6 省 token 纪律 + D1~D5 产物纪律 + 冻结件不覆盖）；我方框架扩展=0（未新增任何研究方向、未扩大指令 scope）。"
+  B-10_no_premature_verdict: "保留待裁：① 跨会话存活（pending，E3）；② 白天八档零痕迹的归因仍未命名，交主会话 trigger 日志；③ 平台级故障是否结束需连续 2h 多代理稳定后由 WB0 终裁，本轮不提前宣告恢复。"
+created_at: "2026-10-23T23:38:00+08:00"
