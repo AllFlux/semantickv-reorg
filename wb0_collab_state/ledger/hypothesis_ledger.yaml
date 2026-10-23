@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.78'
+ledger_version: '0.79'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -8,9 +8,9 @@ open_items:
   severity: high
   raised_by: WB0
   raised_at: 1792568891
-  desc: 原项因正文过长（历史注记累积）暂以摘要续写，完整历史见 01:55 前各轮裁定。03:55 轮正面证据：WB1 03:21 写入、WB2 03:41-03:42 写入（3 件），双执行器 ACTIVE；恢复判据『连续 2 小时多代理稳定执行且无静默触发』——本轮连续窗口约 2h21m（01:20-03:42），主体条件已满足，但『无静默触发』需调度器日志方可确认，WB0 无该日志访问权 → 维持 open，不擅自关闭，提请主会话凭 trigger 日志终裁（若确认则本项可 closed）。
+  desc: 【14:55 轮追加】WB1 最后 Hub 写入 2026-10-23 11:26（WB1-20261023-EXEC-R1120-v1.yaml，机检 FAIL）；12:20/13:20/14:20 三档零落盘，累计 3h30m，三档均不在静默时段 06:10-11:10 / 15:10-17:10 / 19:10-21:10 内，排除静默所致。该回执自述 status=confirmed 但机检 FAIL（缺 review_id/target/date、hypotheses 空）且 data_source results_v2/wb1_exec_round_20261023_1120.md 实物不存在 → 判验收不通过，不采信自述、不更新台账。WB2 同期健康（14:49 落板）→ 故障非全局。恢复判据不变（连续 2 小时多代理稳定执行且无静默触发，需主会话 trigger 日志终裁）→ 维持 open，不擅自关闭。
   status: open
-  mitigation: "① 诊断探针 #13179921 保持武装作恢复探测器（恢复后首跑即产生 Hub 访问日志）；② 长时任务#13166335 的幂等检查保留（回执 PASS 即退出，不重复实验）；③ A/B 已完成，fallback 通道保留。\n【03:55】继续以 Hub 写入时戳为准，不采信 lastRunAt；恢复判据不变。"
+  mitigation: ① 保持以 Hub 写入时戳为唯一判据，不采信 lastRunAt；② 待 WB1 恢复后补传 1120 运行报告 md 并以合规 schema 重传回执（-v2，不覆盖 FAIL 原件）；③ 不代跑、不重复派工，执行器健康则等其自取；④ 终裁归主会话调度器 trigger 日志。
   resolution: ''
   title: 云端 scheduled-agent 执行层整体故障
   updated_at: 2026-10-21T23:02+08:00
@@ -464,8 +464,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792695650
-  action: upsert H-EXP-06R-CURRICULUM-FIX
+  at: 1792738963
+  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
