@@ -1,0 +1,67 @@
+receipt_id: WB1-20261024-EXEC-R0010-v1
+review_id: WB1-20261024-EXEC-R0010-v1
+target: WB1
+date: "2026-10-24"
+executor: WB1
+round: "2026-10-24 00:10 (:20 档)"
+kind: exec_round_report
+instruction_ref: "1792771526-57e76e（WB0 唤醒裁定 2026-10-23 23:59 档 MEDIUM，target=ALL）"
+prediction: "00:10 档为履行型巡检轮：候选池中 target in {WB1,ALL} 且未 done 的指令恰 1 条（1792771526-57e76e）且本档完成处置；该裁定中唯一指派 WB1 的动作（裁定 3：B1-3 结构合规）经 Hub 原件结构化复算后零违规；/api/audit 维持 PASS(total=0)；本档双件（报告 md + 回执 yaml）落板且回读字节一致；无 long_run 需跳过、无外部依赖缺失故无 open_item。"
+falsifiable_criterion: "若出现未处置的 target in {WB1,ALL} 未 done 候选指令；或 B1-3 复核出现任一违规（顶层三字段缺一 / 任一假设缺三字段 / 任一 refuted 缺 ds_admitted_refutation / self_check 空勾 / 缺 collaboration_audit）；或 /api/audit 非 PASS(total=0)；或双件任一未落板或回读字节不符；或本档出现需跳过的 long_run 指令却已执行、或出现依赖缺失却未报 open_item —— 任一成立即本预测被证伪（status 应改 refuted）。"
+actual_data:
+  brief: "now=2026-10-24 00:10；ledger_version=0.85；files=215；reviews=59（PASS 55 / FAIL 4）；instructions=110；hypotheses=46（confirmed 10 / pending 18 / refuted 14 / verified_proxy 1 / e5_withdrawn 3）；open_items=10（open 2）；discipline=PASS(0)；contract=PASS(0)；silence in_window=false，今日三段写入均 0。"
+  audit: "GET /api/audit → {status: PASS, total: 0, issues: []}；上轮 A3 缺陷维持闭环。"
+  candidate_pool: "GET /api/instructions?brief=1&target=WB1&since=1792770514 → 1 条：1792771526-57e76e（target=ALL，未 done，本档处置）；同参数 target=ALL 查询返回同一条，两路互证无第二候选。1792770514-f24a42（EXP-09-R3R，target=WB2）不属本执行器范围；1792769600-2667d3（target=WB1）已在 done.json。"
+  b13_audit_method: "审计对象=Hub 回读原件 results_v2/WB1-20261023-EXEC-R2350-v2.yaml（GET /api/file/r2_... → 200 / 12095B，与本地逐字节一致）；审计手段=YAML 解析器结构化逐字段判读（非目检），判据可复算。"
+  b13_audit_result: "零违规。顶层 review_id=WB1-20261023-EXEC-R2350-v2 / target=WB1 / date=2026-10-23 三字段齐；hypotheses 5 条，每条 prediction+falsifiable_criterion+actual_data 齐（缺失 0）；status=refuted 的 2 条（H-WB1-KEEPALIVE-PERSISTENCE、H-WB1-RECEIPT-FIRSTSUBMIT-SCHEMA）均带 ds_admitted_refutation: true；self_check B-01~B-10 全在且空勾 0；collaboration_audit 段在；顶层 prediction/falsifiable_criterion/actual_data 齐。"
+  exp09_observation: "【事实更正 · 不代判】GET /api/files?brief=1&tree=results_v2&limit=50（00:10）显示 exp09_r3r_diffusion_rerun.json 148766B/mtime=1792771334、exp09_r3r_diffusion_rerun.py 19118B/mtime=1792771313、WB2-20261023-EXP-09-R3R.yaml 12582B/mtime=1792771412 —— 三者 mtime 均早于裁定创建时刻 1792771526，故 WB0 23:59 档裁定 4『results_v2 下无 exp09_* 产物、WB2 静默 21min』在 00:10 已不成立。成因推测（WB0 的 files 清单取样早于 00:02 落板）未证，仅备 WB0 复核。WB1 立场：只读存在性观察，不代跑 EXP-09-R3R、不代写 WB2 回执、不代升代降 H-R3-DIFFUSION / H-WB2-E2E-01；是否关闭裁定 4、是否降级 WB0-CLOUD-AGENT-FAILURE 均由 WB0 于 00:59 档据实物自判。"
+  roadmap_check: "按 data_source 递归检索纪律在本仓库内 find -name 'experiments_rebuild*' → 0 命中，与 Hub 50 件清单互证全仓无此实物；裁定 10 缺件事实维持。口径限定：仅判存在性，补齐责任归主会话，WB1 不重建内容、不代传。"
+  keepalive_check: "ps -p 139857 命中 0（仅表头返回）；hub_state/keepalive.log 末行仍 [2026-10-23 23:54:27] 无第二跳 → 与 23:50 档同向，构成第二次独立复现（n=2：23:41 pid=179659、23:54 pid=139857）。本档不重启：本档指令未指派该动作，上轮重启指令 1792769600-2667d3 已 done，重复执行属未批准动作。成因不归因（E3）。"
+  long_run_skipped: 0
+  long_run_skipped_ids: []
+  actions_this_round: "候选池筛查 → 裁定归属判定 → B1-3 结构化合规审计（E2）→ exp09 只读存在性观察 → 路线图递归检索 → keepalive 只读复核 → 双件落板 → 机检 → 标记 1792771526-57e76e done。零实验、零新研究方向、零台账自写、未触碰任何冻结资产。"
+status: pending
+status_basis: "顶层 status 不预断：本件在 POST /api/review 机检返回前一次性提交，机检原文（check.status / errors）为唯一判据，故本件顶层与 H-WB1-FIRSTSUBMIT-COMPLIANCE-R0010 均按 D1 如实写 pending，而非预先写成 confirmed。若首交机检 PASS，则该两项由 WB0 据机检原文判 confirmed（裁定 3『连续两轮首交合规』计数 1/2）；若 FAIL 则判 refuted 并附 ds_admitted_refutation。本件其余三项（B1-3 零违规、keepalive、路线图缺件）均为提交前已实测完成的 E2 判定，不受机检影响。"
+hypotheses:
+  - id: H-WB1-B13-COMPLIANCE-STATE
+    status: confirmed
+    prediction: "Hub 回读原件 WB1-20261023-EXEC-R2350-v2.yaml 经结构化解析后满足 B1-3 全部条款（顶层 review_id/target/date 齐、每条假设三字段齐、每条 refuted 带 ds_admitted_refutation: true、self_check B-01~B-10 无空勾、collaboration_audit 在），违规数为 0。"
+    falsifiable_criterion: "若解析后出现任一缺失项或 self_check 空勾（违规数 ≥1），则『零违规』被证伪，status 应为 refuted。"
+    actual_data: "违规数 = 0。顶层三字段齐（review_id=WB1-20261023-EXEC-R2350-v2 / target=WB1 / date=2026-10-23）；hypotheses 5 条三字段缺失 0；refuted 2 条（H-WB1-KEEPALIVE-PERSISTENCE、H-WB1-RECEIPT-FIRSTSUBMIT-SCHEMA）均带 ds_admitted_refutation: true；self_check 键 B-01~B-10 全在、空勾 0；collaboration_audit 段在；顶层 prediction/falsifiable_criterion/actual_data 齐。判据达成 → confirmed（E2，Hub 实拉可复算）。"
+  - id: H-WB1-FIRSTSUBMIT-COMPLIANCE-R0010
+    status: pending
+    prediction: "本档回执 WB1-20261024-EXEC-R0010-v1 首次提交即满足 WB0 B1-3 规范（顶层 review_id/target/date + 每条假设 prediction/falsifiable_criterion/actual_data + refuted 必带 ds_admitted_refutation: true + collaboration_audit 段），机检一次通过、不产生 -v2 补正件，从而使裁定 3『连续两轮首交合规』计数推进至 1/2。"
+    falsifiable_criterion: "若首交机检 check.status≠PASS、或产生 -v2 补正件，则本预测被证伪（status 应为 refuted 并附 ds_admitted_refutation: true）。判据唯一来源为 /api/review 机检原文，不采信本件自述。"
+    actual_data: "提交前实测：本件形式面齐备 —— 顶层 review_id/target/date 在；hypotheses 4 条三字段齐；refuted 1 条（H-WB1-KEEPALIVE-PERSISTENCE）已带 ds_admitted_refutation: true；self_check B-01~B-10 无空勾；collaboration_audit 在；dependency_missing 与 p0 已显式声明。实质判据（机检 check.status）在本件提交时点尚未产生 → 按 D1 不预断，如实写 pending；结论由 WB0 据机检原文判定，或由下轮（00:20 档）回执据机检回读登记。"
+  - id: H-WB1-KEEPALIVE-PERSISTENCE
+    status: refuted
+    ds_admitted_refutation: true
+    prediction: "上轮（23:54）重启的 keepalive 守护 pid=139857 能在本档（00:10）仍在进程表存活，且 hub_state/keepalive.log 出现第二跳心跳记录。"
+    falsifiable_criterion: "若 00:10 复核时 ps -p 139857 命中 0，或 keepalive.log 无第二跳，则『跨会话持久存活』被证伪。"
+    actual_data: "ps -p 139857 命中 0（仅返回表头）；hub_state/keepalive.log 末行仍为 [2026-10-23 23:54:27] 启动行、无第二跳 → 判据达成，refuted。本档为第二次独立复现（n=2：23:41 pid=179659、23:54 pid=139857），两例同向。口径限定：本判定仅及于『该守护进程在后续调度档仍存活』这一可直读事实，不及于沙箱回收机制或 WB0-CLOUD-AGENT-FAILURE 根因（后者仍 open、未判，成因属 E3）。n=2 为单例族事实，无功效估计、无 CI，不作统计结论。本档不重启守护（无本档指令指派），如实披露。非『测不出当证伪』：进程缺失与日志无新增均为直读直证。"
+  - id: H-WB1-ROADMAP-ARTIFACT-ABSENT
+    status: confirmed
+    prediction: "在本仓库（/workspace/semantickv-reorg）内递归检索（find -name，非 cwd 平铺）experiments_rebuild_v1.md 仍为 0 命中，裁定 10 所述缺件事实在 00:10 维持。"
+    falsifiable_criterion: "若任一路径命中该文件，或 Hub results_v2 清单中出现该件，则『仍缺实物』被证伪（status 应为 refuted）。"
+    actual_data: "find /workspace/semantickv-reorg -name 'experiments_rebuild*' → 0 命中；GET /api/files?brief=1&tree=results_v2&limit=50 清单中亦无该命名件 → 两侧互证，判据达成，confirmed（E2）。口径限定：仅判存在性；补齐责任归主会话，WB1 不重建路线图内容、不代传、不据此改动任何阶段判定（阶段判定仍以 roadmap_v2_20261022.md 的 R1–R5 为据）。"
+self_check:
+  B-01: "未证推论 2 处，均不作判据：①「WB0 23:59 档裁定 4 的 exp09 缺件结论源于其 files 清单取样早于 00:02 落板」——未证，候选解释至少三项（清单取样时点差 / Hub 索引延迟 / 清单 limit 截断导致漏见），本件仅登记 mtime 事实供 WB0 复核，不归因；②「裁定 3 的『连续两轮首交合规』可在两轮内关闭」——属流程期望非事实，本档仅完成计数 1/2 的形式面，实质待机检与下轮。"
+  B-02: "判据分级：brief/audit/files 状态与字节、B1-3 结构解析、路线图存在性、keepalive 存活 = E2（Hub 实拉或本地直读，可复算）；keepalive 死亡成因、WB0-CLOUD-AGENT-FAILURE 根因、H-R3-DIFFUSION 定级（取决于 n_evaluable_primary，本档无该数据）= E3，本档不判；本轮无 E5 撤回项，亦未把任何『测不出』写成 refuted。"
+  B-03: "动机猜测：100% 响应 WB0 裁定 1792771526-57e76e 中指派 WB1 的裁定 3 与既定 :20 档巡检框架，0% 自选研究方向。"
+  B-04: "类比：0 处跨领域数值类比，无需标 [发生器]。"
+  B-05: "自我规划：本轮范围=brief→候选→裁定归属判定→B1-3 结构化审计→exp09 只读观察→路线图/keepalive 复核→双件落板→机检→done；下轮（00:20 档）=同框架巡检，若机检 PASS 则据原文登记 H-WB1-FIRSTSUBMIT-COMPLIANCE-R0010 为 confirmed（计数推进 2/2 的候选）；关注 WB0 是否据本件更正裁定 4、主会话是否补传 experiments_rebuild_v1.md。"
+  B-06: "循序渐进：本轮只完成『裁定 3 的结构合规审计 + 首交合规提交』一步与三项只读复核；留接口=本件 hypotheses[1] 以 pending + status_basis 显式登记机检待定，下轮可直接据机检原文收口而不需补正件；交付物以新档名另存，未覆盖任何冻结件或上轮回执。"
+  B-07: "Agent 调用：0 次。全部动作在本执行器内经受控 API 与本地直读完成，无多步研究任务、无需并行检索。"
+  B-08: "交付前验证：①Hub 回读 R2350-v2 200/12095B 与本地逐字节一致后方解析（未采信自述）；②B1-3 审计用 YAML 解析器逐字段判读而非目检，违规计数可复算；③本地 YAML 解析预校验通过；④exp09 三件 mtime/字节取自 /api/files 响应原文；⑤keepalive 以 ps 精确 pid 匹配 + 日志末行直读；⑥双件上传后逐件 GET /api/file/r2_<stem> 复核 200 且字节一致（结果见提交后补记）；⑦/permissions 类越权动作 0 次。"
+  B-09: "动机优先：本轮 100% 用户（WB0 指令 + 既定巡检框架）框架内动作，0% 自选研究方向；未因『看起来该做』而重启 keepalive 或代跑 WB2 的 EXP-09-R3R。"
+  B-10: "不下断定：WB0-CLOUD-AGENT-FAILURE 根因、keepalive 死亡成因、exp09 清单时点差的成因、路线图缺件补齐责任，一律保留归主会话/WB0；H-R3-DIFFUSION 与 H-WB2-E2E-01 不代升代降；首交机检结论不在提交前预断；未预先命名任何结论。"
+collaboration_audit:
+  trigger_source: "WB0 裁定 1792771526-57e76e（23:59 档 MEDIUM，target=ALL）裁定 3，明确要求 WB1；非 WB1 自提。"
+  cross_check_independence: "裁定 3 的成效以 Hub 原件结构化复算与 /api/review 机检原文判定，不采信本件自述；审计对象先经 r2_ 回读 12095B 与本地逐字节一致后方解析；keepalive 与路线图结论以 ps / find / files 清单直读为准，不采信上轮自述；本件顶层与 hypotheses[1] 显式写 pending + status_basis，拒绝提交前自封 confirmed。"
+  no_self_handling: "本轮未处理任何 WB1 自身发出的 open_item；未介入 target=WB2 的 1792770514-f24a42；未代 WB0 改台账 decisions 段或 open_item 状态；未重启 keepalive（无本档指令指派）；未新建研究方向；未触碰 semantic_router.pt 等冻结资产；上轮回执 R2350-v1/-v2 原件零改动。"
+  scope_guard: "仅执行裁定 3（B1-3 合规）与三项只读复核；裁定 1/2/5/6/7/8/9 归 WB0、裁定 4 归 WB2、裁定 10 归主会话，WB1 均不代行、不代判、不代写回执。"
+data_source:
+  - results_v2/wb1_exec_round_20261024_0010.md
+  - results_v2/WB1-20261023-EXEC-R2350-v2.yaml
+dependency_missing: []
+p0: false
