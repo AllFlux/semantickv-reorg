@@ -1,0 +1,138 @@
+review_id: WB2-20261023-EXP-09-R3R
+id: WB2-20261023-EXP-09-R3R
+author: WB2
+target: WB0
+date: "2026-10-23"
+round: "2026-10-23 23:40 档（WB2 自取，实际执行 23:55–00:0x）"
+version: v1
+instruction_id: 1792770514-f24a42
+idempotency_key: WB0-INSTR-20261023-EXP-09-R3R
+title: "EXP-09-R3R：图扩散路由可评估样本扩容重跑（gold-in-seed 口径修正 + hop×K×块对角 PR@5 重测）"
+type: experiment
+status: pending
+verdict: pending
+verdict_note: >
+  M1 主口径下 n_evaluable_primary=66 ≥ 30（门槛满足），且最佳配置 hop=3/K=10/无约束
+  PR@5(M1)=1.0 相对 1 跳无约束基线 0.9697 的 Δ=+3.03pp ≥ 2pp（判据条件①成立）；
+  但无约束 K=inf 序列为 {1跳:0.9697, 2跳:0.9697, 3跳:1.0}，3 跳即序列峰值，相对峰值下降 0.0pp < 1pp
+  （判据条件②不成立，注意力劫持证据缺失）。两条件须同时成立方可 confirmed，故按 D1 三分法记 pending，
+  既不因条件①成立而升级为 confirmed，也不因条件②不成立而降为 refuted（refuted 要求 24 组 Δ 全部 <2pp，
+  实测存在 Δ=+3.03pp 的配置，该分支不适用）。
+  关键限定（如实披露，供 WB0 裁定）：M1 的 66 题中 64 题（96.97%）为 gold∈seed（stratum A），
+  其 gold 由 teleport 直接赋分 0.85/|seeds|，在 top-5 中结构性自命中，全部 24 组配置下 stratum A 恒为 1.0，
+  无判别力；唯一产生 Δ 的来源是 stratum B（gold∉seed，n=2）在 hop=3 且 K∈{10,inf} 时由 0 变 1（2 题同时）。
+  即：本令的样本量提升（2→66）在数值上达成，但判别力仍由 n=2 的子集承担，
+  PR@5 步长由 50pp 降至 1.515pp 只是把「2 题即可跨过 2pp 门槛」变成新的脆弱点，并非功效的真实改善。
+  附加读数：块对角约束在全部 12 个 (hop,K) 上与无约束 Δ 均为 0.00pp（本口径下块对角对 PR@5 无影响）；
+  M2 对照口径在 66 题集合上为 0.0（hop∈{1,2} 全 K）/ 0.0303（hop=3 且 K∈{10,inf}），与 R3 原件
+  pr5_goldtitle66 逐组一致；随机基线 PR@5(M1)=0.0040（1404 节点候选，每查询 200 次抽 5）。
+prediction:
+  registered_before_run: true
+  registered_at: "2026-10-23 23:57 GMT+8（读令后、脚本运行前；运行 23:59）"
+  items:
+    - id: P1
+      text: "M1 口径（不排除 seed）下 n_evaluable_primary 将落在 60–70（门槛 30 满足）"
+      outcome: hit
+      actual: "n_evaluable_primary=66"
+    - id: P2
+      text: "64/66 题 gold∈seed 将造成 M1 水平饱和至 0.94–1.0（天花板效应）"
+      outcome: hit
+      actual: "全部 24 组 M1 落在 [0.9697, 1.0]"
+    - id: P3
+      text: "在上述饱和下，多跳增益 Δ≥2pp 难以达成（预期最大 Δ<2pp）"
+      outcome: miss
+      actual: "Δmax=+3.03pp（hop=3,K∈{10,inf}），来源为 n=2 的 stratum B 两题由 0 变 1"
+      miss_reason: "低估了 stratum B 两题可被同一配置同时命中、而 1/66=1.515pp 步长使 2 题即跨过 2pp 门槛"
+    - id: P4
+      text: "无约束 3 跳相对峰值下降 ≥1pp 不会成立（预期 0.0pp）"
+      outcome: hit
+      actual: "3 跳为序列峰值，下降 0.0pp"
+falsifiable_criterion:
+ 口径: "主口径 M1（不排除 seed；gold 别名归一化匹配全局 title 节点即计入；命中=gold 进入 PPR top-5）"
+ confirmed: "存在 (hop≥2,K) 配置使 PR@5(M1) 相对 1 跳无约束基线(M1) 提高 ≥+2pp，且无约束 K=inf 序列在 3 跳相对其峰值下降 ≥1pp"
+ refuted: "M1 下全部 24 组配置的 Δ 均 <+2pp"
+ pending: "n_evaluable_primary<30，或 24 组未完整覆盖，或上两分支均不适用"
+ 本轮落点: "条件①成立、条件②不成立 → 落入 pending（非 confirmed 亦非 refuted）"
+ 步长: "1/66 = 1.515pp（stratum B 单层为 50pp）"
+actual_data:
+  n_total: 200
+  n_gold_title: 66
+  n_gold_in_seed: 64
+  n_evaluable_primary_M1: 66
+  n_stratum_A_gold_in_seed: 64
+  n_stratum_B_gold_not_in_seed: 2
+  baseline_1hop_unconstrained_pr5_M1: 0.9697
+  best_config: "hop=3, K=10, block=False（同值并列：K=inf 无约束、K=10 块对角、K=inf 块对角）"
+  best_pr5_M1: 1.0
+  best_delta_pp: 3.03
+  unconstrained_series_M1: {1: 0.9697, 2: 0.9697, 3: 1.0}
+  unconstrained_3hop_decline_pp: 0.0
+  criteria_check: {n_evaluable_primary_ge30: true, multi_hop_gain_ge2pp: true, unconstrained_3hop_decline_ge1pp: false}
+  configs_full_24:
+    - "hop=1/2, K∈{3,5,10,inf}×block{F,T} 全部 16 组：M1=0.9697（Δ=0.00pp）"
+    - "hop=3, K∈{3,5}×block{F,T} 全部 4 组：M1=0.9697（Δ=0.00pp）"
+    - "hop=3, K∈{10,inf}×block{F,T} 全部 4 组：M1=1.0（Δ=+3.03pp）"
+  block_diagonal_effect: "全部 12 个 (hop,K) 上 block 相对 unconstrained Δ=0.00pp"
+  M2_legacy_on66: "0.0（hop∈{1,2} 全 K 全 block）；0.0303（hop=3 且 K∈{10,inf}）"
+  M2_legacy_on2: "0.0（20 组）；1.0（4 组：hop=3,K∈{10,inf},block{F,T}）"
+  random_baseline_pr5_M1: 0.0040
+  graph: "1404 实体 / 7475 共现边 / 72 社区（louvain resolution=1.0, seed=20261022）"
+  elapsed_s: 7.23
+  self_sha256: 2514c78e3eac9399
+data_source:
+  - results_v2/exp09_r3r_diffusion_rerun.json
+  - results_v2/exp09_r3r_diffusion_rerun.py
+dependency_present:
+  - "r2_longbench_multihop_2wikimqa.json（200 条 2wikimqa，本地 6.0MB，本轮实读）"
+  - "networkx 3.6.1 / numpy 2.3.5 / python 3.11（纯 CPU）"
+dependency_missing: []
+p0: false
+p0_note: "产物可复算：脚本在库 + 数据集在本地，7.23s 重跑可得同一组数值（确定性 seed=20261022）；仅数据集本体（外部资源）若被沙箱清理则不可再生，故建议纳入常规备份而非 P0 双通道。"
+hypotheses:
+  - id: H-R3-DIFFUSION
+    status: pending
+    prediction: "M1 口径下存在 (hop≥2,K) 使 PR@5 相对 1 跳无约束基线提升 ≥2pp，且无约束 3 跳较峰值下降 ≥1pp"
+    falsifiable_criterion: "两条件同时成立→confirmed；24 组 Δ 均 <2pp→refuted；否则 pending"
+    actual_data: "条件①成立（Δmax=+3.03pp，hop=3/K∈{10,inf}）；条件②不成立（3 跳即峰值，下降 0.0pp）→ pending。维持 R3 原件的 pending 定级不变，不因样本扩容而升级。"
+  - id: H-EXP09-M1-EVALUABILITY
+    status: confirmed
+    prediction: "改用 M1（不排除 seed）口径后 n_evaluable 由 2 提升至 ≥30"
+    falsifiable_criterion: "n_evaluable_primary ≥30 为 confirmed，<30 为 refuted"
+    actual_data: "n_evaluable_primary=66（≥30）→ confirmed。但同为实测：其中 64 题（96.97%）在全部 24 组下恒为 1.0（结构性自命中），对本令判据无判别力 → 样本量提升不等于功效提升，该限定与 confirmed 并列记录，交 WB0 裁定后续口径。"
+  - id: H-EXP09-BLOCKDIAG-NULL
+    status: confirmed
+    prediction: "块对角约束相对同 (hop,K) 无约束的 PR@5(M1) 差异为 0"
+    falsifiable_criterion: "全部 12 个 (hop,K) 上 Δ≠0 任一出现→refuted；全为 0→confirmed"
+    actual_data: "全部 12 个 (hop,K) Δ=0.00pp → confirmed（仅在本 66 题 M1 口径与本法内成立，不外延至其它路由指标）"
+observations:
+  - "R3 原件口径之外未发现 PPR 实现错误：以本脚本在原件 2 题集上重算 M2，24 组与原件 pr5_evaluable 逐组一致（mismatch=0），图规模 n=1404/edges=7475 与原件一致，社区数 72 与原件一致 → 原件差异仅来自可评估性口径，非实现缺陷（按 §8 单列，由 WB0 裁定）。"
+  - "M1 的 Δ 门槛（2pp）与步长（1.515pp）不匹配：2 个 stratum B 样本即可跨过门槛，建议 WB0 后续改用『在 stratum B 上扩样本』或『改用 rank/reciprocal-rank 等连续指标』而非继续扩 A 层样本。"
+compliance:
+  scope_guard: "未伪造/插值/复用原件 per_query 结果；每个数字来自本轮 7.23s 实际运行的产物（per_query 明细 66×24=1584 条随产物留档）"
+  frozen_assets: "未读未写未覆盖 results_v2/r3_graph_diffusion.json/.py 与回执 WB2-20261022-R3.yaml；未触碰 semantic_router.pt 与 b_routers/ 下权重；未直写 hypothesis_ledger.yaml"
+  new_names_only: "产物另存 exp09_r3r_diffusion_rerun.{json,py} 与本回执新名，未覆盖任何原件"
+  no_overclaim: "结论限于『图扩散路由在本 24 组配置与 M1 口径下的 PR@5 表现』，未改判 H-WB2-E2E-01 或其它假设，未下路由优劣的终局结论"
+  resource: "纯 CPU，实测 7.23s（远低于 300s 档），24 组全量覆盖未裁剪"
+  anti_collapse: "未因工作时间临近而提前收尾；24 组网格与 66 题全量逐条实算"
+collaboration_audit:
+  self_generated_data_only: true
+  no_fabrication: true
+  pending_not_refuted: "本轮未把『3 跳下降未达 1pp』写成『已证伪』，亦未把『Δ≥2pp 单项成立』写成 confirmed"
+  metric_change_disclosed: "M1/M2 双口径并列披露，M2 不参与判据；stratum A/B 分层披露天花板效应"
+self_check:
+  - "B-01 断言卡：本轮未证推论 = ①『M1 的 66 题中 64 题 gold∈seed 的恒 1.0 属结构性自命中』——备选解释是 tele 权重 0.85 过高使 seed 永居 top-5，若改 tele 分布（如按 seed 频次加权）该结论可能不成立；②『Δ=+3.03pp 反映多跳扩散真实增益』——备选解释是 n=2 的 stratum B 单次抽样波动（步长 50pp），换一组题即可能反转。"
+  - "B-02 判据分级：n_evaluable/Δ/3 跳序列/块对角 Δ 均为 E2（本轮可复算，7.23s 重跑即得）；『多跳扩散是否优于 1 跳基线』的终局判断为 E5 在本口径下不可判（n=2 有效样本 + 步长 50pp），按 D1 写 pending 而非撤回；无 E3 项（本轮资源齐备，未发 open_item）。"
+  - "B-03 动机猜测：100% 回应 WB0 派发的 EXP-09-R3R（1792770514-f24a42）+ 裁定件 A3 动作项，0% 自选研究方向。"
+  - "B-04 类比：0 处跨领域类比（本轮为数值实验报告，未使用比喻或跨领域映射）。"
+  - "B-05 自我规划：本轮范围 = 单条实验指令（M1/M2 双口径 × 24 组 × 66 题 + 与原件可比性自检 + 回执）；下轮计划 = 待 WB0 裁定口径（是否改在 stratum B 扩样本或换连续指标），不自行发起 R3 第三轮。"
+  - "B-06 循序渐进：本轮完成的步骤 = 口径修正实现 → 24 组全量跑通 → 与原件 24 组逐组对齐 → 回执 pending 落板；留出的接口 = 脚本内 M1/M2 双口径与 stratum 分层读数已参数化，WB0 若要求换指标只需改 ranking/命中判定处，per_query 明细可直接支撑 stratum B 单独分析。"
+  - "B-07 Agent 调用：0 次——本轮为确定性数值实验与回执撰写，无并行探索需求，调用子 agent 只会增加上下文开销与篡改风险。"
+  - "B-08 交付前验证：① 与原件 24 组 M2_on2 逐组复算，mismatch=0；② M2_on66 与原件 pr5_goldtitle66 逐组一致，mismatch=0；③ 图规模 n=1404/edges=7475 与原件一致（graph_identical=true）；④ 随机基线 0.0040 与理论 5/1404=0.0036 同量级（抽样误差内）；⑤ 上传后逐件回拉 GET /api/file/r2_<stem> 校验 200 与 size 一致（结果见下节）。"
+  - "B-09 动机优先：「用户（WB0 指令）要求」占比 100%、「我的框架」占比 0%——判据、网格、口径、交付物命名全部照指令 §2/§3/§4/§5 执行，仅 stratum 分层为支撑 D2 口径披露而加。"
+  - "B-10 不下断定：保留待裁 = ① H-R3-DIFFUSION 是否维持 pending 还是由 WB0 另定口径重派；② M1 口径是否被接受为后续 R3 主口径；③ 块对角 Δ=0 是路由本身无社区结构可利用，还是本图构造（uniform w=1）抹平了社区信号——三项均未预先命名，交 WB0 裁定。"
+upload_verification:
+  - "POST /api/upload（relpath=results_v2/…）三件均返回 200 且 tree=results_v2"
+  - "results_v2/WB2-20261023-EXP-09-R3R.yaml → GET /api/file/r2_WB2-20261023-EXP-09-R3R = 200，size 11782 B = 本地 11782 B（一致）"
+  - "results_v2/exp09_r3r_diffusion_rerun.json → 清单（/api/files?brief=1&tree=results_v2）记录 size 148766 B = 本地 148766 B（一致）；同名 stem r2_exp09_r3r_diffusion_rerun 因 .py 先入库而解析到 .py（19118 B），故 .json 的可下载性以清单逐件核 size 为准，不靠同名 stem 断言"
+  - "results_v2/exp09_r3r_diffusion_rerun.py → 清单 size 19118 B = 本地 19118 B（一致）；GET /api/file/r2_exp09_r3r_diffusion_rerun = 200 / 19118 B"
+  - "data_source 为真实存在、可下载、非自引用的 results_v2 实物（本回执自身不入 data_source）"

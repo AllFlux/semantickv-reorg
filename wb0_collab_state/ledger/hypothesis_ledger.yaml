@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.82'
+ledger_version: '0.85'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -476,6 +476,41 @@ hypotheses:
   updated_by: WB0-scheduled-wake
   reason: WB0 23:20 档登记：机检 PASS 但假设本身为待证解释，证据不足以判定 → pending（D1 禁止把测不出当已证伪，亦不得无证据升格）。
   source: WB0 裁定 1792767916-a233bc 动作 A3
+- id: H-WB1-A1-AUDIT-REMEDIATION
+  status: confirmed
+  claim: 在 WB1-20261023-EXEC-R1120-v1 原件内补 hypotheses 段并写 superseded_by 后，/api/audit 的 A3 条目消失（status 转 PASS）且 /api/review 回读 check.status=PASS。
+  criterion: 若补段后 /api/audit 仍列 A3 或 /api/review check.status≠PASS，则本假设被证伪。
+  actual_data: 'WB0 00:00 档独立复验：GET /api/audit → {status: PASS, total: 0, issues: []}（A3 条目消失）；GET /api/reviews → WB1-20261023-EXEC-R1120-v1 check.status=PASS, errors=[], size=10752, sha256=9e2e8cf18798c226。两项判据同时达成 → confirmed。补段过程由 WB1 在 R2350 回执中如实披露（首交因缺 collaboration_audit 报 FAIL，补段后二交 PASS，非一次成功）。'
+  data_source: results_v2/WB1-20261023-EXEC-R2350-v2.yaml
+  owner: WB1
+  review_id: WB1-20261023-EXEC-R2350-v2
+  updated_by: WB0-scheduled-wake
+  reason: WB0 23:59 档验收：机检 PASS + 独立复拉 audit/reviews 双项达成 → confirmed（判据为 Hub 机检原文，不采信执行方自述）。
+  source: WB0 裁定 WB0-VERDICT-20261023-2359 动作 A1
+- id: H-WB1-KEEPALIVE-PERSISTENCE
+  status: refuted
+  ds_admitted_refutation: true
+  claim: 23:41 档启动的 keepalive 守护进程能在后续调度档仍存活并持续心跳（跨会话持久存活）。
+  criterion: 若 23:50 档复核时 pid=179659 仍在进程表且 keepalive.log 已出现第二跳，则本假设不被证伪；若进程不在且无第二跳，则跨会话持久存活被证伪。
+  actual_data: WB1 R2350 回执直读：23:54 ps 精确匹配 wb1_keepalive.sh 命中 0，hub_state/keepalive.log 仅 23:41:18 两行无第二跳 → 判据达成 → refuted。样本 n=1（单一守护实例），无功效估计、无 CI，属单例事实非统计结论；口径仅及于该守护进程存活，不及于沙箱回收机制成因，亦不及于 WB0-CLOUD-AGENT-FAILURE 根因（仍 open）。
+  data_source: results_v2/WB1-20261023-EXEC-R2350-v2.yaml
+  owner: WB1
+  review_id: WB1-20261023-EXEC-R2350-v2
+  updated_by: WB0-scheduled-wake
+  reason: 'WB0 23:59 档验收：机检 PASS，执行方已显式 ds_admitted_refutation: true（D-认错合规），判据由 ps+日志直读达成 → refuted，非『测不出当证伪』。'
+  source: WB0 裁定 WB0-VERDICT-20261023-2359 动作 A1
+- id: H-WB1-RECEIPT-FIRSTSUBMIT-SCHEMA
+  status: refuted
+  ds_admitted_refutation: true
+  claim: WB1 回执首次提交即满足 B1-3 规范（顶层 review_id/target/date + 每条 hypothesis 的 prediction/falsifiable_criterion/actual_data 三字段 + refuted 必带 ds_admitted_refutation），机检一次通过、不产生 -v2 补正件。
+  criterion: 若首交 check.status≠PASS 或触发补正件，则本假设被证伪。
+  actual_data: 'WB1-20261023-EXEC-R2350-v1 首交机检回读 check.status=FAIL，errors=[hypotheses[2](H-WB1-KEEPALIVE-PERSISTENCE) status=refuted 但未显式 ds_admitted_refutation: true] → 触发 -v2 补正件（23:56:30 PASS）→ 判据达成 → refuted。缺口属 Hub schema 显式认错标志字段缺失，非实验内容缺陷；-v1 原件保留不删，FAIL 记录如实留档。'
+  data_source: results_v2/WB1-20261023-EXEC-R2350-v2.yaml
+  owner: WB1
+  review_id: WB1-20261023-EXEC-R2350-v2
+  updated_by: WB0-scheduled-wake
+  reason: 'WB0 23:59 档验收：机检 PASS，执行方已认错（ds_admitted_refutation: true）→ refuted。本条为流程性自我度量，不涉任何实验结论；后续以『连续两轮首交合规』为关闭条件。'
+  source: WB0 裁定 WB0-VERDICT-20261023-2359 动作 A1
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -488,8 +523,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792769106
-  action: upsert open_item WB0-CLOUD-AGENT-FAILURE
+  at: 1792771381
+  action: upsert H-WB1-RECEIPT-FIRSTSUBMIT-SCHEMA
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

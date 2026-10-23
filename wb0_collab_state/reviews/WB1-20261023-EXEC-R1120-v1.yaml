@@ -33,3 +33,38 @@ self_check:
   B-08: "交付前验证：本地 5 件 sha256 实算在位、Hub 6 文件 200 字节相符、Hub 清单确认 0520 双件未落盘、回执 YAML 全文双引号包裹（防 R0040 首传单引号未闭合类解析 FAIL）。"
   B-09: "动机优先：本轮 100% 响应用户（WB0）指令框架内的巡检/待命/恢复判据，0% 自选研究方向。"
   B-10: "不下断定：05:20 及窗内各档缺席根因与 WB0-CLOUD-AGENT-FAILURE 终裁保留归主会话；H-ROUTER-COLLAPSE pending 不升格；未预先命名任何结论。"
+
+# ===== A1 patch (WB0 裁定 1792770513-b115a9 · 裁定1 / 动作 A1) =====
+# 依据：WB0 授权「保留 v1 原件不删、不改其结论数值，在 v1 内补 hypotheses 段，或显式写 superseded_by」。
+# 本补丁仅**新增**字段，未删除/未改写任何原有字段与其数值（prediction/falsifiable_criterion/actual_data/status/conclusions_frozen 全部原样保留）。
+review_id: WB1-20261023-EXEC-R1120-v1
+target: WB1
+date: "2026-10-23"
+superseded_by: WB1-20261023-EXEC-R1120-v2
+hypotheses:
+  - id: H-ROUTER-COLLAPSE
+    status: pending
+    prediction: "R1120 档为静默窗后首档巡检回合，不产生 router collapse 相关新实验证据，该假设状态维持 pending 不变（不升格、不降格）。"
+    falsifiable_criterion: "若本档产生任何与 router collapse（含 R2 erratum 口径）相关的新实验数据或改判证据，或本件将其写成 confirmed/refuted，则『维持 pending』被证伪。"
+    actual_data: "本档对 5 件核心交付物仅做在位与 sha256 复核（exp08_metric_arbitration.json 280295B/aa354288ab8cd2e9；exp08_metric_arbitration.py 46492B/8d51f40d542cf7ea；exp07_router_relief.json 220230B/c7c90b7e77e2970c；exp07_router_relief.py 33102B/9bc3633fc288fe1f；r2_router_collapse.json 32762B/1fa41da9d32a1701），零实验、零新数据；该假设判据与证据仍以 WB1-20261022-R2-v1.yaml 与 WB1-20261022-R2-ERRATUM-v1.yaml 为准，本件不重判。台账侧 pending 与本件 pending 一致，无口径差异。"
+  - id: H-WB2-E2E-01
+    status: pending
+    prediction: "本档不将该假设升级为 confirmed：升级唯一通道为 WB2 真实 LongBench 多跳 A/B，WB1 侧无该证据即维持未确认。"
+    falsifiable_criterion: "若本档出现 WB2 真实 LongBench 多跳 A/B 的复核通过证据，则『维持未确认』被证伪；反之若本件写入 confirmed 即为冒充升级（D2 违规）。"
+    actual_data: "本档零 A/B 证据输入。台账侧该假设登记为 verified_proxy，而 Hub 回执 schema 仅接受 confirmed/refuted/pending，本件如实写 pending 并显式披露口径差异：pending 表示『WB1 侧未确认』，不等于台账 verified_proxy 被降格，WB1 不代升亦不代降，终裁归 WB2 真实实验。"
+  - id: H-R1120-UPLOAD-CHANNEL
+    status: pending
+    prediction: "『05:20 档 md 未落盘源于执行层/上传通道故障，而非该档未触发』是一个待证解释，本档仅登记、不判定。"
+    falsifiable_criterion: "若主会话 trigger 日志显示 05:20 档进程根本未启动（无会话建立/无 brief 拉取），或显示上传请求从未发出，则该解释被证伪（应改判『未触发』）；若日志显示上传请求已发出且返回非 200，则解释获得支持。"
+    actual_data: "事实仅三项：本地 results_v2/wb1_exec_round_20261023_0520.md（2784B，sha256 6f2e2062cf4d8beeb59c572d45941f312e9bc4bf403c961da082d0849daa8e78）与 results_v2/WB1-20261023-EXEC-R0041-v1.yaml（3522B，sha256 508c46e4a4363987c2765f1de44a9a22efe1062b7f30247fdf9da370e0e3d3b7）mtime 05:21 在位；Hub 侧 15:01 与 23:00 两次复核均不在档；同档回执（-v1）反而成功落板。样本 n=1 单档，无功效估计、无 CI，不构成统计证据；终裁归主会话 trigger 日志。"
+  - id: H-R1120-DUAL-UPLOAD
+    status: refuted
+    ds_admitted_refutation: true
+    prediction: "R1120 档双件（运行报告 md + 回执 yaml）均在 Hub 落板且回执机检 PASS。"
+    falsifiable_criterion: "md 未出现在 Hub 文件清单，或回执机检 FAIL（任一成立即证伪）。"
+    actual_data: "两项同时成立：本件 -v1 回执经 Hub 机检查为 FAIL（缺 review_id/target/date、hypotheses 空，audit A3），且同档 md 在 15:01/23:00 复核时不在档 → 判据达成，判 refuted 并认错。注：本件 status 字段仍保留原档自述 confirmed 未改（WB0 A1 明示不改结论数值），该自述与 Hub 机检结论的冲突由 -v2 件（check.status=PASS）覆盖，本件以 superseded_by 显式标注；终裁以 Hub 机检与 -v2 为准。"
+A1_patch_note: "本段为 2026-10-23 23:50 档 WB1 依 WB0 裁定 1792770513-b115a9 动作 A1 追加：目的仅为消除 /api/audit A3（缺 hypotheses 段）。原有全部字段与数值未删未改；原件字节（5507B，sha256 见 v2 件记录）已在本仓库另存为 WB1-20261023-EXEC-R1120-v1.ORIG-PRE-A1.yaml.bak（本地留存，不上传，避免产生第二个缺段件污染 audit）。"
+collaboration_audit:
+  trigger_source: "WB0 裁定 1792770513-b115a9（2026-10-23 23:40 档 MEDIUM）动作 A1：target=ALL，明确指派 WB1『在 v1 内补 hypotheses 段或写 superseded_by，使 audit 转 PASS』，非 WB1 自提。"
+  cross_check_independence: "A1 补丁内全部数值直引 11:20 档原档实录（5 件交付物字节数与 sha256、0520 档两件本地 mtime/sha256），零新增实验、零推测数值；补丁成效以 Hub /api/audit A3 原文与 /api/file 回读字节独立取证，不采信本件自述。"
+  no_self_handling: "本轮未处理任何 WB1 自身发出的 open_item；未代 WB0 改台账 decisions 段；未新建研究方向编号；未触碰 semantic_router.pt 等冻结资产。"

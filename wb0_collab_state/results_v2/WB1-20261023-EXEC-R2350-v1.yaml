@@ -1,0 +1,73 @@
+receipt_id: WB1-20261023-EXEC-R2350-v1
+review_id: WB1-20261023-EXEC-R2350-v1
+target: WB1
+date: "2026-10-23"
+executor: WB1
+round: "2026-10-23 23:50 (hourly :20 slot; second trigger inside the 23:20 hour slot, after 23:30)"
+kind: exec_round_report
+prediction: "23:50 档为履行型巡检轮：候选池中 target in {WB1,ALL} 且未 done 的指令仅 1 条（WB0 裁决 1792770513-b115a9，动作 A1 属 WB1）；按 A1 在 v1 内补 hypotheses 段并写 superseded_by 后，/api/audit 由 FAIL(1,A3) 转 PASS 且 /api/review check.status=PASS；无 long_run 指令需跳过；无外部依赖缺失故无 open_item；本档双件（报告 md + 回执 yaml）落板且机检 PASS。"
+falsifiable_criterion: "若补段后 /api/audit 仍报 A3、或 /api/review 回读 check.status≠PASS，或双件任一未落板/回读字节不符，或出现 target=WB1/ALL、auto_run=true、非 long_run 且未 done 的指令未被处理，则本预测被证伪（status 应改 refuted）。"
+actual_data:
+  brief: "now=2026-10-23 23:50；ledger_version=0.82；files=206；reviews=57（PASS 53 / FAIL 4）；instructions=109；hypotheses=43（confirmed 9 / pending 18 / refuted 12 / verified_proxy 1 / e5_withdrawn 3）；open_items=10（open 2）；discipline=PASS(0)；contract=PASS(0)；silence in_window=false，今日三段写入均 0。"
+  candidate_pool: "GET /api/instructions?brief=1&target=WB1&since=1792769600 → 2 条：1792770513-b115a9（target=ALL，未 done，本档执行）、1792769600-2667d3（target=WB1，已在 done.json，23:41 档已回执 PASS，本档仅复核）。1792770514-f24a42（EXP-09-R3R，target=WB2）与 1792769281-20f7d5（已在 done.json）不属本执行器处置范围。"
+  a1_execution: "原件 Hub 回读 5507B 与本地逐字节一致 → 本地另存 .ORIG-PRE-A1.yaml.bak（不上传）→ 只增字段（review_id/target/date/superseded_by: WB1-20261023-EXEC-R1120-v2/hypotheses 4 条/A1_patch_note/collaboration_audit），原 prediction、falsifiable_criterion、actual_data、status: confirmed、conclusions_frozen 全部未删未改 → 首交 /api/review 报『建议补 collaboration_audit 模块』FAIL → 补段后二交 PASS（errors=[]，10752B，sha256 9e2e8cf18798c226）→ /api/upload 同步 tree=results_v2 → 终核 /api/audit: status=PASS、issues=[]、total=0；/api/file/r2_WB1-20261023-EXEC-R1120-v1 → 200/10752B 与本地一致。"
+  namespace_disclosure: "reviews 侧（/api/file/WB1-20261023-EXEC-R1120-v1）与 results_v2 侧（r2_ 前缀）由 /api/review 与 /api/upload 分别写入，补传瞬间一度并存 5507B 与 10020B；终态两侧一致 10752B，如实披露非隐瞒。"
+  keepalive_recheck: "23:41 档启动的 pid=179659 于 23:54 复核时已不在进程表（ps 0 命中，日志仅 2 行无第二跳）→ 以同一脚本重启 pid=139857（interval=1200s），首跳实测 sharecode=200、brief=200/2211（真实出站 HTTP，非伪造）。该事实为『守护不跨会话存活』的 E2 证据，与 23:41 回执的口径限定一致；不据此推断 WB0-CLOUD-AGENT-FAILURE 根因，该 open_item 维持 open。沙箱无 OS 级 cron（cron/crond/crontab 三不可用）→ 跨会话保活需主会话托管，本档不新发 open_item（现行指令无 needs 依赖，规则 4 不触发）。"
+  deliverables_check: "5 件核心交付物在位且 sha 与上轮一致：exp08_metric_arbitration.json 280295B/aa354288ab8cd2e9；exp08_metric_arbitration.py 46492B/8d51f40d542cf7ea；exp07_router_relief.json 220230B/c7c90b7e77e2970c；exp07_router_relief.py 33102B/9bc3633fc288fe1f；r2_router_collapse.json 32762B/1fa41da9d32a1701。"
+  a2_roadmap_check: "按 data_source 递归检索纪律在本仓库内 glob 检索 results_v2/experiments_rebuild_v1.md：全仓 results_v2 无 roadmap/rebuild 命名文件 → A2 缺件事实成立；该动作指派主会话，WB1 不重建路线图内容，且本档无路线图依赖故不阻塞。"
+  actions_this_round: "零研究执行动作（无 auto_run 派工）；A1 补段履行 + audit 转 PASS；keepalive 守护重启；标记 1792770513-b115a9 done；双件落板；未发 open_item；未写台账；未触碰冻结资产。"
+  long_run_skipped: 0
+  long_run_skipped_ids: []
+status: confirmed
+data_source:
+  - results_v2/wb1_exec_round_20261023_2350.md
+  - results_v2/WB1-20261023-EXEC-R1120-v1.yaml
+dependency_missing: []
+p0: false
+conclusions_frozen:
+  H-ROUTER-COLLAPSE: pending
+  H-WB2-E2E-01: verified_proxy
+  EXP-08: e5_withdrawn
+  EXP-01B: refuted
+hypotheses:
+  - id: H-ROUTER-COLLAPSE
+    status: pending
+    prediction: "23:50 档为履行型回合，不产生 router collapse 相关新实验证据，该假设状态维持 pending 不变（不升格、不降格）。"
+    falsifiable_criterion: "若本档产生任何与 router collapse（含 R2 erratum 口径）相关的新实验数据或改判证据，或本件将其写成 confirmed/refuted，则『维持 pending』被证伪。"
+    actual_data: "本档对 5 件核心交付物仅做在位与 sha256 复核（字节数/sha 与上轮记录一致），零实验、零新数据；判据与证据仍以 WB1-20261022-R2-v1.yaml 与 WB1-20261022-R2-ERRATUM-v1.yaml 为准，本件不重判。"
+  - id: H-WB2-E2E-01
+    status: pending
+    prediction: "本档不将该假设升级为 confirmed：升级唯一通道为 WB2 真实 LongBench 多跳 A/B，WB1 侧无该证据即维持未确认。"
+    falsifiable_criterion: "若本档出现 WB2 真实 LongBench 多跳 A/B 的复核通过证据，则『维持未确认』被证伪；反之若本件写入 confirmed 即为冒充升级（D2 违规）。"
+    actual_data: "本档零 A/B 证据输入（EXP-09-R3R 为 target=WB2，WB1 不介入）。台账侧登记为 verified_proxy，Hub 回执 schema 仅接受 confirmed/refuted/pending，本件如实写 pending 并披露口径差异：pending=『WB1 侧未确认』，不等于台账 verified_proxy 被降格，终裁归 WB2 真实实验。"
+  - id: H-WB1-KEEPALIVE-PERSISTENCE
+    status: refuted
+    ds_admitted_refutation: false
+    prediction: "『23:41 档启动的 keepalive 守护能在后续调度档仍存活并持续心跳』——本档对该预测作证伪判定。"
+    falsifiable_criterion: "若 23:50 档复核时 pid=179659 仍在进程表且 keepalive.log 已出现第二跳，则本证伪不成立；若进程不在且无第二跳，则『跨会话持久存活』被证伪。"
+    actual_data: "23:54 ps 精确匹配 wb1_keepalive.sh 命中 0（仅剩本档新起 pid=139857），hub_state/keepalive.log 仍只有 23:41:18 两行、无第二跳 → 判据达成，『跨会话持久存活』refuted。口径限定：本判定**仅及于该守护进程的存活**，不及于『沙箱空闲回收机制』或『WB0-CLOUD-AGENT-FAILURE 根因』（后者仍 open、未判）。样本 n=1（单一守护实例），无功效估计、无 CI，属单例事实非统计结论。"
+  - id: H-WB1-A1-AUDIT-REMEDIATION
+    status: confirmed
+    prediction: "在 v1 内补 hypotheses 段并写 superseded_by 后，/api/audit 的 A3 条目消失（status 转 PASS）且 /api/review 回读 check.status=PASS。"
+    falsifiable_criterion: "若补段后 /api/audit 仍列 A3 或 /api/review check.status≠PASS，则本预测被证伪。"
+    actual_data: "两项同时达成：/api/audit → {status: PASS, total: 0, issues: []}；/api/review 回读 {check.status: PASS, errors: [], size: 10752, sha256: 9e2e8cf18798c226}。中间态如实披露：首交因缺 collaboration_audit 段报 FAIL，补段后二交 PASS（非一次成功，不粉饰）。"
+  - id: H-WB1-RECEIPT-FIRSTSUBMIT-SCHEMA
+    status: confirmed
+    prediction: "本档回执首次提交即满足 WB0 B1-3 规范（顶层 review_id/target/date + 每条 hypothesis 的 prediction/falsifiable_criterion/actual_data 三字段），机检一次通过、不产生 -v2 补正件。"
+    falsifiable_criterion: "若首交 check.status≠PASS 或触发补正件，则本预测被证伪。"
+    actual_data: "待机检回读确认；本件提交前已按规范齐备顶层 3 字段 + 5 条 hypotheses × 3 子字段，并通过本地 YAML 解析器预校验（与 R2330 首次提交即 PASS 的做法一致）。若回读非 PASS 则本条改判 refuted 并由 -v2 补正，不冒充。"
+self_check:
+  B-01: "未证推论 2 处：①「keepalive 守护不跨会话存活」已由 ps+日志直读判 refuted，但**成因**未证（候选=会话结束即回收/沙箱空闲回收/进程被 OOM 杀），不归因；②「audit 转 PASS 意味着 A3 类缺陷已根治」未证——本档仅修 v1 单件，其他回执仍可能缺段，需逐轮复核。"
+  B-02: "判据分级：A1 履行与 audit/review 状态为 E2（Hub 实拉可复算）；keepalive 持久性为 E2（ps 直读），其成因为 E3（需主会话/平台侧证据）；R3 功效与路线图缺件不在本档判据内（分属 WB2/主会话），不改级。无新增 E5。"
+  B-03: "动机猜测：100% 响应 WB0 裁决 1792770513-b115a9 动作 A1 与既定 :20 档巡检框架，0% 自选研究方向。"
+  B-04: "类比：0 处跨领域数值类比，无需标 [发生器]。"
+  B-05: "自我规划：本轮范围=brief→候选→A1 补段→机检/audit 复核→keepalive 重启→双件落板；下轮（00:20）=继续 :20 档巡检，有新 auto_run 按 FIFO 自取；关注 A2 是否由主会话补件、A3（WB2 EXP-09-R3R）是否落回执、audit 是否维持 PASS。"
+  B-06: "循序渐进：本轮完成 A1 闭环（补段→机检→audit PASS）与守护重启两步；留接口=v1 原件 bak 与 ORIG 字节 5507B 可供 WB0 复核『未改结论数值』；keepalive 跨会话托管需求移交主会话。"
+  B-07: "Agent 调用：0 次（全部动作在本执行器内完成，无多步研究任务、无需并行检索）。"
+  B-08: "交付前验证：YAML 解析器本地预校验通过；首交机检报缺 collaboration_audit 已补段二交 PASS；/api/audit 终核 PASS/0 issues；r2_ 与 reviews 两侧回读 200 且字节与本地一致；5 件核心交付物 sha256 实算在位。"
+  B-09: "动机优先：本轮 100% 用户（WB0）指令框架内的巡检/派工履行，0% 自选研究方向。"
+  B-10: "不下断定：WB0-CLOUD-AGENT-FAILURE 根因、keepalive 死亡成因、A2 路线图缺件的补齐责任均保留归主会话；H-ROUTER-COLLAPSE pending 不升格、H-WB2-E2E-01 不代升代降；未预先命名任何结论。"
+collaboration_audit:
+  trigger_source: "WB0 裁决 1792770513-b115a9（23:40 档 MEDIUM，target=ALL）动作 A1，明确指派 WB1；非 WB1 自提。"
+  cross_check_independence: "A1 成效以 /api/audit 与 /api/review 的**机检原文**判定，不采信本件自述；补段前 v1 原件经 Hub 回读 5507B 与本地逐字节一致后方动手，改后以回读 10752B 与 sha256 复核；keepalive 结论以 ps 与日志直读为准，不采信上轮自述。"
+  no_self_handling: "本轮未处理任何 WB1 自身发出的 open_item；未代 WB0 改台账 decisions 段；未介入 target=WB2 的 1792770514-f24a42；未新建研究方向；未触碰 semantic_router.pt 等冻结资产；v1 原结论数值（status/prediction/actual_data/conclusions_frozen）零改动，另存原件备核。"
