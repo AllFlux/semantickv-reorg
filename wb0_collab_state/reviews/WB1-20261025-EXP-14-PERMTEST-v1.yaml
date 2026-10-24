@@ -1,0 +1,99 @@
+receipt_id: WB1-20261025-EXP-14-PERMTEST-v1
+review_id: WB1-20261025-EXP-14-PERMTEST-v1
+target: WB1
+date: "2026-10-25"
+executor: WB1
+round: "2026-10-25 00:45 档（错峰 :45，实例启动 00:45:0x CST）"
+kind: experiment
+theme: A
+serves_north_star: true
+serves_north_star_text: "结构可压·事实受限（KV 预算的结构性分配方向 → 压缩质量上限；本轮划定 H-R1-BUDGET-PROPORTIONAL refuted 的机制边界：P 优于 U 究竟是层序匹配有效还是 clamp 稀疏化的算术效应）"
+instruction_ref: "1792859862-9ca4a2（WB0-INSTR-20261025-EXP-14-PERMTEST，target=WB1，auto_run=true，long_run=false，runtime_budget_sec=300，theme=A，stage=E2，parent=WB0-INSTR-20261025-EXP-13-PROPORTIONAL，source_verdict=WB0-VERDICT-20261025-0030）"
+idempotency_key: WB0-INSTR-20261025-EXP-14-PERMTEST
+boundary_ref: "《DS研究纲领与机制规范 v3》主题 A（KV 压缩极限）/ 预算分配机制边界。与已 refuted 的 H-R1-BUDGET（反比）、H-R1-BUDGET-PROPORTIONAL（正比）的差异＝不检验分配方向是否更优，而检验『P 的优势是否可由层序以外的因素（K 多重集的集中程度）解释』；本轮不复活、不改写二者终态。"
+
+prediction: "（机制二分，逐字对应指令 §1 的两种互斥解释）(a) 若 P 的优势来自『K 多重集被正确匹配到高敏感层』（层序携带信息），则在保持 K 多重集不变、随机重排到层的置换分布 R 上，P 的 composite 应显著低于 R 的均值（gap ≥ 0.02 且 z ≤ −2），即落 refuted 分支（H-R1-P-SPARSITY-ARTIFACT 被否证）；(b) 若优势只是 clamp 稀疏化的算术效应（层序无信息），则 P 与自身多重集的随机重排无实质差异（|gap| ≤ 0.01 且 sd(R) ≤ 0.01），即落 confirmed 分支。注：prediction 与判据均在指令 §5 预登记，本轮回执同轮登记，执行前未另立预测文件，不存在事后追认。"
+
+falsifiable_criterion: "（逐字复述指令 §5 四分支，判据对象＝P 臂）【confirmed（算术效应成立，层序无信息）】在 ≥5/6 个可比档（口径 A，B∈{180,324,468,612,900,1188} 中可闭合者）上，三种合成均满足 |gap| ≤ 0.01（1pp）且 sd(R) ≤ 0.01。【refuted（层敏感度排序匹配有效）】在 ≥5/6 可比档上，三合成均满足 gap ≥ 0.02 且 z ≤ −2。【E5 撤回】可用置换次数 n < 100，或 sd(R) > 0.05（置换分布过宽、判据不可分辨），或 ΔL 缺格导致 ≥2 档无法计算 → 须写明撤回理由与所需资产。【pending】仅限执行不完整（缺档、脚本中断、slot 自检超差），须列缺口清单并显式报 dependency_missing；禁止以『两分支均不适用』为由静默写 pending。功效与边界：n=200 置换，报 mean/sd 与 2.5%/97.5% 分位；结论一律定级为『假设级 / 机制观察』，不得表述为该模型或架构的真实层敏感度（3B 权重已蒸发，不可重测）。"
+
+actual_data:
+  head_line: "5 个可比档 × 3 合成 = 15 个判据单元全部落在 E5 分支：sd(R) ∈ [0.0649, 0.2297]，15/15 单元 sd(R) > 0.05 → 置换分布过宽，判据不可分辨（预登记 E5 条件命中）；同时 confirmed 分支 0/5、refuted 分支 0/5（gap ∈ [0.0920, 0.2517] 全部 ≥ 0.02，但 z ∈ [−1.890, −0.735]，无一达 z ≤ −2）。故 H-R1-P-SPARSITY-ARTIFACT 落 e5_withdrawn，不落 confirmed 也不落 refuted。方向性观察（非结论）：15/15 单元 gap > 0 且 z < 0，即 P 的 composite 始终低于自身多重集随机重排的均值，但幅度未达显著。"
+
+  per_budget_perm_table: "P 臂层序置换（n=200，seed=20261025；composite 越小越好；gap = mean(R) − composite(P)，>0 表示 P 优于随机重排）：
+  B=180 [可比] L1 obs=0.1155951306 mean(R)=0.3635631303 sd(R)=0.1580919325 gap=+0.2479680 z=−1.5685 CI95=[0.166830, 0.949257] frac(worse than obs)=1.0000
+              L2 obs=0.0321397542 mean(R)=0.1801385499 sd(R)=0.1172494614 gap=+0.1479988 z=−1.2623 CI95=[0.033861, 0.618845] frac=0.9900
+              L3 obs=0.0483508702 mean(R)=0.2033912854 sd(R)=0.1192226370 gap=+0.1550404 z=−1.3004 CI95=[0.064138, 0.650776] frac=0.9950
+  B=324 [可比] L1 obs=0.0997861179 mean(R)=0.2916982052 sd(R)=0.1015269382 gap=+0.1919121 z=−1.8903 CI95=[0.127361, 0.524139] frac=1.0000
+              L2 obs=0.0435010000 mean(R)=0.1355496346 sd(R)=0.0649274119 gap=+0.0920486 z=−1.4177 CI95=[0.031285, 0.222417] frac=0.8900
+              L3 obs=0.0524686814 mean(R)=0.1586692968 sd(R)=0.0672164122 gap=+0.1062006 z=−1.5800 CI95=[0.051276, 0.293761] frac=0.9700
+  B=468 [可比] L1 obs=0.1011314755 mean(R)=0.3052382897 sd(R)=0.1957035853 gap=+0.2041068 z=−1.0429 CI95=[0.113949, 0.926764] frac=0.9950
+              L2 obs=0.0435010000 mean(R)=0.1763638775 sd(R)=0.1808068847 gap=+0.1328629 z=−0.7348 CI95=[0.029453, 0.772837] frac=0.8800
+              L3 obs=0.0523553617 mean(R)=0.1930216145 sd(R)=0.1772142747 gap=+0.1406663 z=−0.7938 CI95=[0.047027, 0.776296] frac=0.9400
+  B=612 [可比] L1 obs=0.1017594179 mean(R)=0.3534160996 sd(R)=0.2296802072 gap=+0.2516567 z=−1.0957 CI95=[0.097874, 0.861708] frac=0.9550
+              L2 obs=0.0435010000 mean(R)=0.2504933974 sd(R)=0.2186861442 gap=+0.2069924 z=−0.9465 CI95=[0.029420, 0.739941] frac=0.8600
+              L3 obs=0.0524531566 mean(R)=0.2590096080 sd(R)=0.2144340999 gap=+0.2065565 z=−0.9633 CI95=[0.042010, 0.742318] frac=0.9000
+  B=900 [可比] L1 obs=0.1034226876 mean(R)=0.2827476432 sd(R)=0.2169066885 gap=+0.1793250 z=−0.8267 CI95=[0.095474, 0.797764] frac=0.8800
+              L2 obs=0.0435010000 mean(R)=0.1978590274 sd(R)=0.2034715797 gap=+0.1543580 z=−0.7586 CI95=[0.033824, 0.695478] frac=0.7350
+              L3 obs=0.0524708009 mean(R)=0.2066141155 sd(R)=0.1994117964 gap=+0.1541433 z=−0.7730 CI95=[0.044858, 0.697480] frac=0.7850
+  B=1188 [剔除·不可闭合] 35 层 ×(32+1)=1155 < 1188，预算物理不可达（与 EXP-13 同因），不计入分子/分母。"
+
+  branch_counts: "confirmed_arm=0 / refuted_arm=0 / neither=5（分母＝5 个可闭合档；门槛按判据原文 ≥5 档，等价要求全部可闭合档一致）。E5 触发计数：sd(R)>0.05 的单元 15/15（max sd(R)=0.2296802 @612/L1，min sd(R)=0.0649274 @324/L2），n=200 ≥ 100，ΔL 无缺格（35 层 ×6 档全在），不可计算档 1 个（1188，<2）。"
+
+  sparsity_registry: "逐档 f1（K=1 层数占比）/ n_eff=exp(H) / max_K —— 用于把 gap 与『集中程度』关联（解释性，不作判据）：
+  P 臂：B=180 f1=0.7143 n_eff=12.8747 max_K=32（25/35 层压到 K=1，2 层触顶）；B=324 f1=0.2286 n_eff=15.8798（8/6）；B=468 f1=0.0000 n_eff=23.1743（0/7）；B=612 f1=0.0000 n_eff=27.4998（0/10）；B=900 f1=0.0000 n_eff=32.5355（0/14）。
+  U 臂（对照）：全部档 f1=0.0000 n_eff=35.0000（完全均匀）；D 臂：180 f1=0.2857 n_eff=25.8574 / 900 f1=0.0571 n_eff=29.6015；T 臂：各档 f1=0.0286（最顶层 K=1）。
+  读法：P 仅在最低预算档（180）呈现极端稀疏（f1=0.714），中高预算档（468/612/900）f1=0 且 n_eff 反而随预算升高（23.2→27.5→32.5，趋近均匀的 35）→ 『P 的优势随预算升高而趋近均匀』与『优势只来自稀疏化』不相容；但 P 在中高预算档同时有 7/10/14 层触 K=32 上限，即另一种饱和型集中。两种集中形态并存，故稀疏度无法单独解释 gap，与 E5 判据不可分辨一致。"
+
+  slot_parity_check: "逐档逐臂 Σ(K_l+1) − budget（容差 1e-6）：B=180/324/468/612/900 四臂误差均 ≤ 1.1e-13（slot_parity=True，全部计入判据）；B=1188 不可闭合 → 单列剔除。置换不变性自检：每次重排后 Σ(K+1) 的最大值误差 ≤ 1e-9（多重集严格不变，未静默缩样），n=200 次全部通过。"
+
+  recompute_check_vs_exp13: "（复算校验，为本轮可信度锚点）本脚本按 EXP-13 口径重建四臂 K 向量后逐档逐臂逐合成比对 EXP-13 回执报告值：U 臂 15/15 单元精确一致（diff ≤ 1e-12）、T 臂 15/15 精确一致 → 层集、ΔL 表、log2 插值、L1/L2/L3 合成、预算对齐全部与 EXP-13 对齐；P/D 两臂存在小偏差：P 最大 |diff|=9.61e-4（@468/L1）、D 最大 |diff|=1.97e-3（@180/L1），其余单元 ≤ 6e-5，且 P 在 B=180、D 在 B=900 精确一致。已定位偏差仅出现在 clamp 边界层的分配实现细节（EXP-13 产物只落 K_min/K_max/K_mean/n_at_clamp 统计量，未落完整 K 向量，无法逐元素反推其 clamp 后再分配规则；本轮采用『clamp(c·w)+二分对齐 Σ(K+1)=B』的字面实现，slot 严格守恒）。偏差量级（≤2e-3）远小于判据阈值 0.01 与 sd(R)（0.065–0.230），不改变任何分支落点。此项已在产物 recompute_check_vs_exp13 段落逐格留痕。"
+
+  clamp_and_interp_disclosure: "四臂在全部 6 档均 interpolated=true（连续 K 非测量网格点，ΔL 由 log2(K) 线性插值，K 一律 clamp 在已测域 [1,32]，无外推）；置换只重排 K 向量，ΔL 表零改动。"
+
+  sha256_and_runtime: "冻结件 Hub 实拉副本 results_v2/r1_budget_allocation.hub_pull_20261025_WB1.json（86123B）sha256=9fcfd9ef65fa4da2…（运行前后一致，只读）；EXP-13 Hub 实拉副本 results_v2/exp13_r1_proportional.hub_pull_20261025.json（34773B）已落本地（不覆盖 Hub 原件）；产物 results_v2/exp14_perm_test.json（83062B）+ 脚本 results_v2/exp14_perm_test.py；wall_clock=0.05s（≤300s 档，未触发降档，n 实跑 200，未缩档）；格数＝6 档 ×4 臂 ×3 合成 ×200 置换 = 14400 次 composite 计算全跑，无分批、无缩样。"
+
+status: e5_withdrawn
+
+hypotheses:
+  - id: H-R1-P-SPARSITY-ARTIFACT
+    status: pending
+    e5_withdrawn_effective: true
+    status_note: "本条实际落点为指令 §5 的『E5 撤回』分支（判据不可分辨：sd(R)>0.05 于 15/15 单元成立）。Hub 端 /api/review 机检对 hypotheses[].status 仅接受 confirmed/refuted/pending（本轮首交实测报错），故此处填 pending 以满足机检，真实落点以顶层 status: e5_withdrawn 与本条 e5_withdrawn_effective 为准；本 pending 并非『执行不完整』——6 档 ×4 臂 ×3 合成 ×200 置换 = 14400 格全跑、wall_clock=0.05s、无缺档无中断。"
+    prediction: "若 P 的优势只是 clamp 稀疏化的算术效应（层序无信息），则 P 与其自身 K 多重集的随机重排在 composite 上无实质差异：|gap| ≤ 0.01 且 sd(R) ≤ 0.01（≥5/6 可比档 × 三合成）。"
+    falsifiable_criterion: "confirmed＝≥5/6 可比档三合成 |gap|≤0.01 且 sd(R)≤0.01；refuted＝≥5/6 可比档三合成 gap≥0.02 且 z≤−2；E5 撤回＝n<100 或 sd(R)>0.05 或 ≥2 档不可计算；pending＝仅执行不完整。"
+    actual_data: "5 个可闭合档 ×3 合成 = 15 个判据单元：sd(R) ∈ [0.0649, 0.2297]，15/15 > 0.05 → E5 命中（置换分布过宽，判据不可分辨）；confirmed 0/5、refuted 0/5（gap ∈ [0.0920, 0.2517] 均 ≥0.02，但 z ∈ [−1.890, −0.735]，无一 ≤ −2）；方向性观察 15/15 单元 gap>0 且 z<0。"
+    ds_admitted_note: "本撤回属『判据不可分辨』而非『测不出差异』：差异方向一致（P 始终优于重排均值），但置换分布宽度（sd 0.065–0.230）比判据阈值（0.01）大一个量级，n=200 置换不足以把 z 压到 −2 以下。按 D1 不得把该方向性观察写成 confirmed，也不得写成 refuted。"
+    does_not_revive: "H-R1-BUDGET（refuted 终态）、H-R1-BUDGET-PROPORTIONAL（refuted 终态）均不因本轮改变。"
+
+data_source:
+  - "results_v2/exp14_perm_test.json"
+  - "results_v2/exp14_perm_test.py"
+  - "results_v2/r1_budget_allocation.hub_pull_20261025_WB1.json"
+  - "results_v2/exp13_r1_proportional.hub_pull_20261025.json"
+
+dependency_missing:
+  - "/workspace/models/Qwen2.5-3B-Instruct 已蒸发（无 GPU、不可重测）：层敏感度不可重算，本轮沿用冻结件实测 ΔL，仅重排 K 不重测（与 EXP-13 同源声明）"
+  - "冻结件 per-(层,K) 的 ΔL 未附 per-prompt CI（n_boundary n=1），置换分布宽度无法被测量噪声解释或收窄 → 本轮 E5 的直接成因"
+  - "EXP-13 产物未落完整四臂 K 向量（仅统计量），P/D 两臂 clamp 边界分配规则不可逐元素反推 → 复算偏差 ≤2e-3（已披露，不影响分支）"
+
+p0: true
+p0_reason: "依赖已消失资源（3B 权重 / 层敏感度不可重测）的分析，与上游 EXP-13 一致标 p0=true；产物虽可由脚本+冻结件幂等重算（seed=20261025 固定），但底层实测 ΔL 不可再生。"
+
+collaboration_audit:
+  scope_adherence: "严格在指令 scope_guard 内：仅做层序置换对照 + 稀疏度登记（U/T/D/P 四臂同口径，判据对象＝P）；未训练、未下载/加载模型、未新建假设（H-R1-P-SPARSITY-ARTIFACT 为指令给定 id）、未写台账、未碰 target=WB2 指令（EXP-15-KGRID 未介入）、未新创第四种口径。"
+  no_self_processing: "未处理任何 WB1 自己发出的 open_item；本轮无新增 open_item（本指令 needs 无外部依赖缺口：冻结件与 EXP-13 产物均从 Hub 实拉成功，200/86123B 与 200/34773B）。"
+  no_fabrication: "全部 ΔL 取自冻结件实测 cells（Hub 实拉 86123B 副本，只读）；K 向量按 EXP-13 口径重建并通过 U/T 臂 30/30 单元精确复算校验；置换只重排 K，ΔL 零改动；n=200 实跑未降档；无代理指标冒充原口径。"
+  no_ledger_write: "未直写 hypothesis_ledger.yaml；done.json 仅追加指令 id。"
+  frozen_respect: "冻结件只读（Hub 实拉副本与仓库副本 sha16 运行前后均为 9fcfd9ef65fa4da2）；新产物一律另存新名（exp14_perm_test.json/.py + 两份 hub_pull_20261025 副本），未覆盖任何既有件（含 EXP-13 原件与 r1_budget_allocation.json）。"
+
+self_check:
+  B-01: "断言卡：本轮最弱的未证推论＝『sd(R)>0.05 即判据不可分辨，从而撤回』。备选解释：sd(R) 宽可能部分来自 P 的 K 多重集本身极度不均（25/35 层 K=1 时重排方差天然大），即『判据不可分辨』可能部分是我们选的置换空间（P 自身多重集）太宽，而非机制不可知；若改用『同稀疏度但多重集更均衡』的对照族，分辨力可能更高。该备选未测，保留待裁。"
+  B-02: "判据分级：本轮为 E2（纯冻结件 + 重排，可立即跑）→ 已跑完 14400 格；E3（需 3B 权重重测层敏感度 / per-prompt CI）→ 本轮不具备，未做，已写入 dependency_missing；E5 → sd(R)>0.05 在 15/15 单元成立，按预登记条件撤回（写明理由与所需资产，见 dependency_missing 与 assets_required_to_resolve）。"
+  B-03: "动机猜测：本轮在回应 WB0 的归因需求——EXP-13 落 refuted 后残留的『P 在 5/5 档优于 U』到底是层敏感度排序匹配有效，还是 clamp 稀疏化的算术效应。"
+  B-04: "类比：0 处跨领域类比（本轮为纯数值置换检验，未引入外部领域类比）；若把『重排不变性检验』视为统计学的置换检验范式沿用，属方法沿用而非类比，未标 [发生器]（无新增发生器）。"
+  B-05: "自我规划：本轮范围＝EXP-14 单条主线（WIP=1，未并行开跑 EXP-15 或任何自选方向）；下轮计划＝等待 WB0 明文派工，若无可服务北极星的 P0/P1 则回报『无高价值可执行』并 idle，不凑数。"
+  B-06: "循序渐进：本轮完成『层序置换分辨』这一步；留的接口＝幂等脚本（可换 seed / n_perm / 臂 / 层集）+ 产物 JSON 含逐档逐臂逐合成的 observed/mean/sd/分位/gap/z 全表与稀疏度登记，可直接承接『同稀疏度均衡多重集对照族』或『E3 资源到位后重测层敏感度』。"
+  B-07: "Agent 调用：0 次。本轮为纯本地 numpy 置换（0.05s），无跨库检索与并行子任务需求，故未派生子 agent。"
+  B-08: "交付前验证：跑了 5 项自检——①U/T 臂 30/30 单元与 EXP-13 报告值精确复算一致（管道可信）；②逐档逐臂 slot_parity ≤1.1e-13 且置换后多重集不变（200 次全过）；③n=200 实跑、seed=20261025 固定、未降档（脚本 n_perm_actual 字段留痕）；④判据四分支由代码分支自动落定（非人工挑选），E5 优先判定；⑤冻结件 sha16 运行前后一致。上传后 GET /api/file/r2_exp14_perm_test 回读 200 且 size 与本地一致（见交付后自查）。"
+  B-09: "动机优先：『用户（指令）要求』占比 ≈ 92%（goal、方法五步、scope_guard、判据四分支、交付物清单、补传令全部由指令给定）；『我的框架』占比 ≈ 8%（主动补做 U/T/D 三臂置换作为辅助登记、主动做 EXP-13 复算校验并披露 P/D 的 ≤2e-3 偏差、判据分母由 6 折算为 5 的显式披露）。"
+  B-10: "不下断定（保留待裁）：①『P 优于 U』的机制归因仍开放（E5，非 confirmed 亦非 refuted）；②sd(R) 过宽是置换空间固有还是测量噪声所致，未分离；③P/D 复算 ≤2e-3 偏差归因于 clamp 边界实现细节，仅由统计量间接定位，未逐元素复现；④未预先命名任何新假设，未自选开跑，未复活任何已 refuted 假设。"

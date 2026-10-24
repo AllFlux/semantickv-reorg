@@ -1,0 +1,1333 @@
+{
+ "task": "WB0-INSTR-20261025-EXP-13-PROPORTIONAL",
+ "idempotency_key": "WB0-INSTR-20261025-EXP-13-PROPORTIONAL",
+ "generated_at": "2026-10-25T00:17:27+0800",
+ "theme": "A",
+ "serves_north_star": "结构可压·事实受限（KV 预算的结构性分配方向 → 压缩质量上限）",
+ "parent": "WB0-INSTR-20261024-R1-REJUDGE",
+ "frozen_input": {
+  "path": "results_v2/r1_budget_allocation.json",
+  "hub_endpoint": "/api/file/r1_budget_allocation",
+  "size_bytes": 86123,
+  "sha256_16_before": "9fcfd9ef65fa4da2",
+  "sha256_16_after": "9fcfd9ef65fa4da2",
+  "sha_stable": true,
+  "repo_copy_sha256_16_before": "9fcfd9ef65fa4da2",
+  "repo_copy_sha256_16_after": "9fcfd9ef65fa4da2",
+  "repo_copy_stable": true,
+  "hub_pull_copy": "results_v2/r1_budget_allocation.hub_pull_20261025_WB1.json"
+ },
+ "method": {
+  "arms": {
+   "U": "全层同一连续 K（均匀基线）",
+   "T": "底层 K 大高层 K 小线性递减，最顶层 K=1，二分抬升尺度对齐预算（教科书式）",
+   "D": "K_l ∝ mean_sens/sens_l（实测层敏感度【反比】，沿用冻结件定义）",
+   "P": "K_l ∝ sens_l（实测层敏感度【正比】，本轮新增；与 D 仅方向不同，其余口径一致）"
+  },
+  "sens_definition": "sens_l = |max_delta_loss_answer|（每层 6 档 K 上的最大绝对 ΔL_answer，取自冻结件实测 cells）",
+  "interpolation": "log2(K) 线性插值；K 超出 [1,32] 按端点截断，不做曲线外推；未测量 K 标 interpolated=true",
+  "composite": {
+   "L1_linear_sum": "Σ_l ΔL_l",
+   "L2_max": "max_l ΔL_l",
+   "L3_euclid": "sqrt(Σ ΔL_l²)"
+  },
+  "slot_constraint": "Σ_l (K_l+1) = budget；clamp [1,32] 后二分求解，容差 1e-6",
+  "eps_sens": 1e-09,
+  "note": "复合口径族不变（仅改变分配方向），未新创第三种分配口径"
+ },
+ "caliber_A_noL0": {
+  "layer_set": "L1..L35 (35 层，剔除 L0)",
+  "per_budget": {
+   "180": {
+    "degenerate": false,
+    "degenerate_max_abs_diff": {
+     "L1_linear_sum": 0.2554998211376716,
+     "L2_max": 0.14912624578840952,
+     "L3_euclid": 0.15412352905981236
+    },
+    "slot_parity": true,
+    "budget_met": true,
+    "budget_infeasible": false,
+    "capacity_upper_bound": 1155.0,
+    "comparable": true,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 180.0,
+      "slot_error": 0.0,
+      "K_min": 4.142857142857143,
+      "K_max": 4.142857142857143,
+      "K_mean": 4.142857142857143,
+      "n_at_clamp_min": 0,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.25063966229874984,
+       "L2_max": 0.12905108013941452,
+       "L3_euclid": 0.13823622339579902
+      }
+     },
+     "T": {
+      "total_slots_check": 179.99999999999997,
+      "slot_error": -2.842170943040401e-14,
+      "K_min": 1.0,
+      "K_max": 7.285714285714285,
+      "K_mean": 4.142857142857143,
+      "n_at_clamp_min": 1,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.3383950790969786,
+       "L2_max": 0.1647343303076873,
+       "L3_euclid": 0.18606753606424994
+      }
+     },
+     "D": {
+      "total_slots_check": 179.99999999999997,
+      "slot_error": -2.842170943040401e-14,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 4.142857142857142,
+      "n_at_clamp_min": 12,
+      "n_at_clamp_max": 1,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.3710949517771009,
+       "L2_max": 0.181266,
+       "L3_euclid": 0.20247439923405625
+      }
+     },
+     "P": {
+      "total_slots_check": 179.99999999999997,
+      "slot_error": -2.842170943040401e-14,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 4.142857142857142,
+      "n_at_clamp_min": 25,
+      "n_at_clamp_max": 2,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.11559513063942929,
+       "L2_max": 0.032139754211590495,
+       "L3_euclid": 0.048350870174243894
+      }
+     }
+    },
+    "delta": {
+     "L1_linear_sum": {
+      "P_minus_U": -0.13504453165932057,
+      "P_minus_T": -0.2227999484575493,
+      "P_minus_D": -0.2554998211376716,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     },
+     "L2_max": {
+      "P_minus_U": -0.09691132592782403,
+      "P_minus_T": -0.13259457609609682,
+      "P_minus_D": -0.14912624578840952,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     },
+     "L3_euclid": {
+      "P_minus_U": -0.08988535322155514,
+      "P_minus_T": -0.13771666589000606,
+      "P_minus_D": -0.15412352905981236,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     }
+    },
+    "ranking_best_to_worst": {
+     "L1_linear_sum": [
+      "P",
+      "U",
+      "T",
+      "D"
+     ],
+     "L2_max": [
+      "P",
+      "U",
+      "T",
+      "D"
+     ],
+     "L3_euclid": [
+      "P",
+      "U",
+      "T",
+      "D"
+     ]
+    }
+   },
+   "324": {
+    "degenerate": false,
+    "degenerate_max_abs_diff": {
+     "L1_linear_sum": 0.8431271668706957,
+     "L2_max": 0.7621546736105446,
+     "L3_euclid": 0.7558023327317032
+    },
+    "slot_parity": true,
+    "budget_met": true,
+    "budget_infeasible": false,
+    "capacity_upper_bound": 1155.0,
+    "comparable": true,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 324.00000000000006,
+      "slot_error": 5.684341886080802e-14,
+      "K_min": 8.257142857142858,
+      "K_max": 8.257142857142858,
+      "K_mean": 8.257142857142858,
+      "n_at_clamp_min": 0,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.3342707882047607,
+       "L2_max": 0.20097856367769779,
+       "L3_euclid": 0.21132528755463542
+      }
+     },
+     "T": {
+      "total_slots_check": 324.0,
+      "slot_error": 0.0,
+      "K_min": 1.0,
+      "K_max": 15.514285714285712,
+      "K_mean": 8.257142857142858,
+      "n_at_clamp_min": 1,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.9424937489884747,
+       "L2_max": 0.8056556736105446,
+       "L3_euclid": 0.8082480949142954
+      }
+     },
+     "D": {
+      "total_slots_check": 323.99999999999994,
+      "slot_error": -5.684341886080802e-14,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 8.257142857142856,
+      "n_at_clamp_min": 8,
+      "n_at_clamp_max": 3,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.37503526602959264,
+       "L2_max": 0.181266,
+       "L3_euclid": 0.2024655866224622
+      }
+     },
+     "P": {
+      "total_slots_check": 324.0,
+      "slot_error": 0.0,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 8.257142857142858,
+      "n_at_clamp_min": 10,
+      "n_at_clamp_max": 6,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.09936658211777902,
+       "L2_max": 0.043501,
+       "L3_euclid": 0.05244576218259223
+      }
+     }
+    },
+    "delta": {
+     "L1_linear_sum": {
+      "P_minus_U": -0.23490420608698168,
+      "P_minus_T": -0.8431271668706957,
+      "P_minus_D": -0.27566868391181365,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     },
+     "L2_max": {
+      "P_minus_U": -0.15747756367769777,
+      "P_minus_T": -0.7621546736105446,
+      "P_minus_D": -0.13776500000000003,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     },
+     "L3_euclid": {
+      "P_minus_U": -0.1588795253720432,
+      "P_minus_T": -0.7558023327317032,
+      "P_minus_D": -0.15001982443986997,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     }
+    },
+    "ranking_best_to_worst": {
+     "L1_linear_sum": [
+      "P",
+      "U",
+      "D",
+      "T"
+     ],
+     "L2_max": [
+      "P",
+      "D",
+      "U",
+      "T"
+     ],
+     "L3_euclid": [
+      "P",
+      "D",
+      "U",
+      "T"
+     ]
+    }
+   },
+   "468": {
+    "degenerate": false,
+    "degenerate_max_abs_diff": {
+     "L1_linear_sum": 0.5914291844638132,
+     "L2_max": 0.5451172714790321,
+     "L3_euclid": 0.5383501660264117
+    },
+    "slot_parity": true,
+    "budget_met": true,
+    "budget_infeasible": false,
+    "capacity_upper_bound": 1155.0,
+    "comparable": true,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 468.0,
+      "slot_error": 0.0,
+      "K_min": 12.371428571428572,
+      "K_max": 12.371428571428572,
+      "K_mean": 12.371428571428572,
+      "n_at_clamp_min": 0,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.6916000230415009,
+       "L2_max": 0.5886182714790321,
+       "L3_euclid": 0.5907373999761888
+      }
+     },
+     "T": {
+      "total_slots_check": 467.99999999999994,
+      "slot_error": -5.684341886080802e-14,
+      "K_min": 1.0,
+      "K_max": 23.74285714285714,
+      "K_mean": 12.37142857142857,
+      "n_at_clamp_min": 1,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.4810032156460881,
+       "L2_max": 0.3624417033293826,
+       "L3_euclid": 0.366859441819739
+      }
+     },
+     "D": {
+      "total_slots_check": 467.99999999999994,
+      "slot_error": -5.684341886080802e-14,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 12.37142857142857,
+      "n_at_clamp_min": 7,
+      "n_at_clamp_max": 4,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.3724883918473479,
+       "L2_max": 0.181266,
+       "L3_euclid": 0.2024483295769592
+      }
+     },
+     "P": {
+      "total_slots_check": 468.0,
+      "slot_error": 0.0,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 12.371428571428572,
+      "n_at_clamp_min": 3,
+      "n_at_clamp_max": 8,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.10017083857768773,
+       "L2_max": 0.043501,
+       "L3_euclid": 0.052387233949777026
+      }
+     }
+    },
+    "delta": {
+     "L1_linear_sum": {
+      "P_minus_U": -0.5914291844638132,
+      "P_minus_T": -0.3808323770684004,
+      "P_minus_D": -0.2723175532696602,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     },
+     "L2_max": {
+      "P_minus_U": -0.5451172714790321,
+      "P_minus_T": -0.31894070332938257,
+      "P_minus_D": -0.13776500000000003,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     },
+     "L3_euclid": {
+      "P_minus_U": -0.5383501660264117,
+      "P_minus_T": -0.314472207869962,
+      "P_minus_D": -0.15006109562718217,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     }
+    },
+    "ranking_best_to_worst": {
+     "L1_linear_sum": [
+      "P",
+      "D",
+      "T",
+      "U"
+     ],
+     "L2_max": [
+      "P",
+      "D",
+      "T",
+      "U"
+     ],
+     "L3_euclid": [
+      "P",
+      "D",
+      "T",
+      "U"
+     ]
+    }
+   },
+   "612": {
+    "degenerate": false,
+    "degenerate_max_abs_diff": {
+     "L1_linear_sum": 0.7816557453589266,
+     "L2_max": 0.7693180394402087,
+     "L3_euclid": 0.7533919122163353
+    },
+    "slot_parity": true,
+    "budget_met": true,
+    "budget_infeasible": false,
+    "capacity_upper_bound": 1155.0,
+    "comparable": true,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 611.9999999999999,
+      "slot_error": -1.1368683772161603e-13,
+      "K_min": 16.485714285714284,
+      "K_max": 16.485714285714284,
+      "K_mean": 16.485714285714284,
+      "n_at_clamp_min": 0,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.8837806484540376,
+       "L2_max": 0.799390681742763,
+       "L3_euclid": 0.8004590475687461
+      }
+     },
+     "T": {
+      "total_slots_check": 611.9999999999999,
+      "slot_error": -1.1368683772161603e-13,
+      "K_min": 1.0,
+      "K_max": 31.971428571428564,
+      "K_mean": 16.485714285714284,
+      "n_at_clamp_min": 1,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.1058362759043572,
+       "L2_max": 0.03007264230255423,
+       "L3_euclid": 0.047067135352410853
+      }
+     },
+     "D": {
+      "total_slots_check": 611.9999999999999,
+      "slot_error": -1.1368683772161603e-13,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 16.485714285714284,
+      "n_at_clamp_min": 6,
+      "n_at_clamp_max": 9,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.37072943373765127,
+       "L2_max": 0.181266,
+       "L3_euclid": 0.20240189018713245
+      }
+     },
+     "P": {
+      "total_slots_check": 612.0000000000001,
+      "slot_error": 1.1368683772161603e-13,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 16.485714285714288,
+      "n_at_clamp_min": 1,
+      "n_at_clamp_max": 12,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.10212490309511099,
+       "L2_max": 0.043501,
+       "L3_euclid": 0.05245738340208817
+      }
+     }
+    },
+    "delta": {
+     "L1_linear_sum": {
+      "P_minus_U": -0.7816557453589266,
+      "P_minus_T": -0.0037113728092462023,
+      "P_minus_D": -0.2686045306425403,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     },
+     "L2_max": {
+      "P_minus_U": -0.7558896817427629,
+      "P_minus_T": 0.01342835769744577,
+      "P_minus_D": -0.13776500000000003,
+      "P_better_than_U": true,
+      "P_better_than_T": false,
+      "P_better_than_D": true
+     },
+     "L3_euclid": {
+      "P_minus_U": -0.7480016641666579,
+      "P_minus_T": 0.005390248049677318,
+      "P_minus_D": -0.14994450678504428,
+      "P_better_than_U": true,
+      "P_better_than_T": false,
+      "P_better_than_D": true
+     }
+    },
+    "ranking_best_to_worst": {
+     "L1_linear_sum": [
+      "P",
+      "T",
+      "D",
+      "U"
+     ],
+     "L2_max": [
+      "T",
+      "P",
+      "D",
+      "U"
+     ],
+     "L3_euclid": [
+      "T",
+      "P",
+      "D",
+      "U"
+     ]
+    }
+   },
+   "900": {
+    "degenerate": false,
+    "degenerate_max_abs_diff": {
+     "L1_linear_sum": 0.3048317345626529,
+     "L2_max": 0.2716294413949938,
+     "L3_euclid": 0.26549838463233677
+    },
+    "slot_parity": true,
+    "budget_met": true,
+    "budget_infeasible": false,
+    "capacity_upper_bound": 1155.0,
+    "comparable": true,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 899.9999999999999,
+      "slot_error": -1.1368683772161603e-13,
+      "K_min": 24.714285714285715,
+      "K_max": 24.714285714285715,
+      "K_mean": 24.71428571428571,
+      "n_at_clamp_min": 0,
+      "n_at_clamp_max": 0,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.4081409109194781,
+       "L2_max": 0.3144095562166568,
+       "L3_euclid": 0.31797722094771064
+      }
+     },
+     "T": {
+      "total_slots_check": 899.9999999999999,
+      "slot_error": -1.1368683772161603e-13,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 24.71428571428571,
+      "n_at_clamp_min": 1,
+      "n_at_clamp_max": 19,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.10737214452999994,
+       "L2_max": 0.042780114821663016,
+       "L3_euclid": 0.053083289587226135
+      }
+     },
+     "D": {
+      "total_slots_check": 899.9999999999999,
+      "slot_error": -1.1368683772161603e-13,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 24.71428571428571,
+      "n_at_clamp_min": 2,
+      "n_at_clamp_max": 23,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.3392764860467688,
+       "L2_max": 0.181266,
+       "L3_euclid": 0.1931871667380509
+      }
+     },
+     "P": {
+      "total_slots_check": 899.9999999999998,
+      "slot_error": -2.2737367544323206e-13,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 24.71428571428571,
+      "n_at_clamp_min": 1,
+      "n_at_clamp_max": 17,
+      "interpolated": true,
+      "composite": {
+       "L1_linear_sum": 0.10330917635682521,
+       "L2_max": 0.043501,
+       "L3_euclid": 0.052478836315373895
+      }
+     }
+    },
+    "delta": {
+     "L1_linear_sum": {
+      "P_minus_U": -0.3048317345626529,
+      "P_minus_T": -0.004062968173174725,
+      "P_minus_D": -0.2359673096899436,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     },
+     "L2_max": {
+      "P_minus_U": -0.27090855621665677,
+      "P_minus_T": 0.0007208851783369816,
+      "P_minus_D": -0.13776500000000003,
+      "P_better_than_U": true,
+      "P_better_than_T": false,
+      "P_better_than_D": true
+     },
+     "L3_euclid": {
+      "P_minus_U": -0.26549838463233677,
+      "P_minus_T": -0.00060445327185224,
+      "P_minus_D": -0.140708330422677,
+      "P_better_than_U": true,
+      "P_better_than_T": true,
+      "P_better_than_D": true
+     }
+    },
+    "ranking_best_to_worst": {
+     "L1_linear_sum": [
+      "P",
+      "T",
+      "D",
+      "U"
+     ],
+     "L2_max": [
+      "T",
+      "P",
+      "D",
+      "U"
+     ],
+     "L3_euclid": [
+      "P",
+      "T",
+      "D",
+      "U"
+     ]
+    }
+   },
+   "1188": {
+    "degenerate": false,
+    "degenerate_max_abs_diff": {
+     "L1_linear_sum": 0.0005659999999999971,
+     "L2_max": 0.0,
+     "L3_euclid": 1.1743634539491954e-05
+    },
+    "slot_parity": false,
+    "budget_met": false,
+    "budget_infeasible": true,
+    "capacity_upper_bound": 1155.0,
+    "comparable": false,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 1155.0,
+      "slot_error": -33.0,
+      "K_min": 32.0,
+      "K_max": 32.0,
+      "K_mean": 32.0,
+      "n_at_clamp_min": 0,
+      "n_at_clamp_max": 35,
+      "interpolated": false,
+      "composite": {
+       "L1_linear_sum": 0.10463999999999998,
+       "L2_max": 0.043501,
+       "L3_euclid": 0.05247992360893831
+      }
+     },
+     "T": {
+      "total_slots_check": 1124.0,
+      "slot_error": -64.0,
+      "K_min": 1.0,
+      "K_max": 32.0,
+      "K_mean": 31.114285714285714,
+      "n_at_clamp_min": 1,
+      "n_at_clamp_max": 34,
+      "interpolated": false,
+      "composite": {
+       "L1_linear_sum": 0.10407399999999999,
+       "L2_max": 0.043501,
+       "L3_euclid": 0.0524916672434778
+      }
+     },
+     "D": {
+      "total_slots_check": 1155.0,
+      "slot_error": -33.0,
+      "K_min": 32.0,
+      "K_max": 32.0,
+      "K_mean": 32.0,
+      "n_at_clamp_min": 0,
+      "n_at_clamp_max": 35,
+      "interpolated": false,
+      "composite": {
+       "L1_linear_sum": 0.10463999999999998,
+       "L2_max": 0.043501,
+       "L3_euclid": 0.05247992360893831
+      }
+     },
+     "P": {
+      "total_slots_check": 1155.0,
+      "slot_error": -33.0,
+      "K_min": 32.0,
+      "K_max": 32.0,
+      "K_mean": 32.0,
+      "n_at_clamp_min": 0,
+      "n_at_clamp_max": 35,
+      "interpolated": false,
+      "composite": {
+       "L1_linear_sum": 0.10463999999999998,
+       "L2_max": 0.043501,
+       "L3_euclid": 0.05247992360893831
+      }
+     }
+    },
+    "delta": {
+     "L1_linear_sum": {
+      "P_minus_U": 0.0,
+      "P_minus_T": 0.0005659999999999971,
+      "P_minus_D": 0.0,
+      "P_better_than_U": false,
+      "P_better_than_T": false,
+      "P_better_than_D": false
+     },
+     "L2_max": {
+      "P_minus_U": 0.0,
+      "P_minus_T": 0.0,
+      "P_minus_D": 0.0,
+      "P_better_than_U": false,
+      "P_better_than_T": false,
+      "P_better_than_D": false
+     },
+     "L3_euclid": {
+      "P_minus_U": 0.0,
+      "P_minus_T": -1.1743634539491954e-05,
+      "P_minus_D": 0.0,
+      "P_better_than_U": false,
+      "P_better_than_T": true,
+      "P_better_than_D": false
+     }
+    },
+    "ranking_best_to_worst": {
+     "L1_linear_sum": [
+      "T",
+      "U",
+      "D",
+      "P"
+     ],
+     "L2_max": [
+      "U",
+      "T",
+      "D",
+      "P"
+     ],
+     "L3_euclid": [
+      "U",
+      "D",
+      "P",
+      "T"
+     ]
+    }
+   }
+  },
+  "range_A": 0.8431271668706957,
+  "comparable_budgets": [
+   180,
+   324,
+   468,
+   612,
+   900
+  ],
+  "excluded_budgets": [
+   {
+    "budget": 1188,
+    "reason": "K 上限封顶：35 层×K≤32 容量上限 1155 < 预算 1188，四臂实际 slots [1155.0, 1124.0, 1155.0, 1155.0] 不相等，无法构造等预算比较"
+   }
+  ],
+  "direction_signs_per_budget": {
+   "180": {
+    "P_minus_U": [
+     -1.0
+    ],
+    "P_minus_T": [
+     -1.0
+    ]
+   },
+   "324": {
+    "P_minus_U": [
+     -1.0
+    ],
+    "P_minus_T": [
+     -1.0
+    ]
+   },
+   "468": {
+    "P_minus_U": [
+     -1.0
+    ],
+    "P_minus_T": [
+     -1.0
+    ]
+   },
+   "612": {
+    "P_minus_U": [
+     -1.0
+    ],
+    "P_minus_T": [
+     -1.0,
+     1.0
+    ]
+   },
+   "900": {
+    "P_minus_U": [
+     -1.0
+    ],
+    "P_minus_T": [
+     -1.0,
+     1.0
+    ]
+   }
+  }
+ },
+ "caliber_B_all": {
+  "layer_set": "L0..L35 (36 层，管道自检，不参与判据)",
+  "per_budget": {
+   "180": {
+    "degenerate": false,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 180.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 11.105588999999998,
+       "L2_max": 10.857918,
+       "L3_euclid": 10.858770128729542
+      }
+     },
+     "T": {
+      "total_slots_check": 180.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 11.2507984189878,
+       "L2_max": 10.906659631354461,
+       "L3_euclid": 10.908249232404657
+      }
+     },
+     "D": {
+      "total_slots_check": 179.99999999999997,
+      "slot_error": -2.842170943040401e-14,
+      "composite": {
+       "L1_linear_sum": 9.165247241680357,
+       "L2_max": 8.794237,
+       "L3_euclid": 8.796567532253556
+      }
+     },
+     "P": {
+      "total_slots_check": 180.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 7.245493554534024,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.097486959295037
+      }
+     }
+    },
+    "frozen_composite_D_U_T": {
+     "U": {
+      "L1_linear_sum": 11.105589,
+      "L2_max": 10.857918,
+      "L3_euclid": 10.85877
+     },
+     "T": {
+      "L1_linear_sum": 11.287389,
+      "L2_max": 10.910959,
+      "L3_euclid": 10.91283
+     },
+     "D": {
+      "L1_linear_sum": 9.054427,
+      "L2_max": 8.794237,
+      "L3_euclid": 8.795594
+     }
+    }
+   },
+   "324": {
+    "degenerate": false,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 324.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 11.224599999999999,
+       "L2_max": 10.91829,
+       "L3_euclid": 10.91982625263635
+      }
+     },
+     "T": {
+      "total_slots_check": 324.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 11.918513079349735,
+       "L2_max": 11.035306093551366,
+       "L3_euclid": 11.060766535234226
+      }
+     },
+     "D": {
+      "total_slots_check": 324.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 9.169245316045176,
+       "L2_max": 8.794237,
+       "L3_euclid": 8.796567328803922
+      }
+     },
+     "P": {
+      "total_slots_check": 324.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 7.199330858991619,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.097400081023636
+      }
+     }
+    },
+    "frozen_composite_D_U_T": {
+     "U": {
+      "L1_linear_sum": 11.2246,
+      "L2_max": 10.91829,
+      "L3_euclid": 10.919826
+     },
+     "T": {
+      "L1_linear_sum": 11.906914,
+      "L2_max": 11.033661,
+      "L3_euclid": 11.058478
+     },
+     "D": {
+      "L1_linear_sum": 8.95439,
+      "L2_max": 8.794237,
+      "L3_euclid": 8.794527
+     }
+    }
+   },
+   "468": {
+    "degenerate": false,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 468.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 11.658426909334832,
+       "L2_max": 10.99376771146805,
+       "L3_euclid": 11.008108840047058
+      }
+     },
+     "T": {
+      "total_slots_check": 467.9999999999999,
+      "slot_error": -1.1368683772161603e-13,
+      "composite": {
+       "L1_linear_sum": 9.535259413493575,
+       "L2_max": 8.9791895403879,
+       "L3_euclid": 8.989850020140143
+      }
+     },
+     "D": {
+      "total_slots_check": 468.00000000000006,
+      "slot_error": 5.684341886080802e-14,
+      "composite": {
+       "L1_linear_sum": 9.166771057541363,
+       "L2_max": 8.794237,
+       "L3_euclid": 8.796566939081131
+      }
+     },
+     "P": {
+      "total_slots_check": 468.00000000000006,
+      "slot_error": 5.684341886080802e-14,
+      "composite": {
+       "L1_linear_sum": 7.1971250394487045,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.097397161026264
+      }
+     }
+    },
+    "frozen_composite_D_U_T": {
+     "U": {
+      "L1_linear_sum": 11.595416,
+      "L2_max": 10.982805,
+      "L3_euclid": 10.994443
+     },
+     "T": {
+      "L1_linear_sum": 9.745333,
+      "L2_max": 9.149879,
+      "L3_euclid": 9.162143
+     },
+     "D": {
+      "L1_linear_sum": 8.930777,
+      "L2_max": 8.794237,
+      "L3_euclid": 8.794442
+     }
+    }
+   },
+   "612": {
+    "degenerate": false,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 612.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 11.966231999999998,
+       "L2_max": 11.04732,
+       "L3_euclid": 11.078923076989929
+      }
+     },
+     "T": {
+      "total_slots_check": 612.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 7.458211225816594,
+       "L2_max": 7.278133887199839,
+       "L3_euclid": 7.278698978239837
+      }
+     },
+     "D": {
+      "total_slots_check": 611.9999999999999,
+      "slot_error": -1.1368683772161603e-13,
+      "composite": {
+       "L1_linear_sum": 9.164941498542248,
+       "L2_max": 8.794237,
+       "L3_euclid": 8.796565817341651
+      }
+     },
+     "P": {
+      "total_slots_check": 612.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 7.199567704860753,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.097397847799157
+      }
+     }
+    },
+    "frozen_composite_D_U_T": {
+     "U": {
+      "L1_linear_sum": 11.966232,
+      "L2_max": 11.04732,
+      "L3_euclid": 11.078923
+     },
+     "T": {
+      "L1_linear_sum": 7.73275,
+      "L2_max": 7.502632,
+      "L3_euclid": 7.503821
+     },
+     "D": {
+      "L1_linear_sum": 8.927118,
+      "L2_max": 8.794237,
+      "L3_euclid": 8.794456
+     }
+    }
+   },
+   "900": {
+    "degenerate": false,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 900.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 9.17924368111413,
+       "L2_max": 8.73665026650135,
+       "L3_euclid": 8.743765990786613
+      }
+     },
+     "T": {
+      "total_slots_check": 900.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 7.202760301976148,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.097386498493592
+      }
+     },
+     "D": {
+      "total_slots_check": 900.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 9.135301366240308,
+       "L2_max": 8.794237,
+       "L3_euclid": 8.796368182593204
+      }
+     },
+     "P": {
+      "total_slots_check": 900.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 7.200171246428203,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.097398007371498
+      }
+     }
+    },
+    "frozen_composite_D_U_T": {
+     "U": {
+      "L1_linear_sum": 9.584038,
+      "L2_max": 9.072262,
+      "L3_euclid": 9.082099
+     },
+     "T": {
+      "L1_linear_sum": 7.201611,
+      "L2_max": 7.097204,
+      "L3_euclid": 7.097379
+     },
+     "D": {
+      "L1_linear_sum": 8.962775,
+      "L2_max": 8.794237,
+      "L3_euclid": 8.794659
+     }
+    }
+   },
+   "1188": {
+    "degenerate": false,
+    "per_arm": {
+     "U": {
+      "total_slots_check": 1188.0,
+      "slot_error": 0.0,
+      "composite": {
+       "L1_linear_sum": 7.2018439999999995,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.097398027446255
+      }
+     },
+     "T": {
+      "total_slots_check": 1157.0,
+      "slot_error": -31.0,
+      "composite": {
+       "L1_linear_sum": 7.201277999999999,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.0973981142913205
+      }
+     },
+     "D": {
+      "total_slots_check": 1187.9999999999998,
+      "slot_error": -2.2737367544323206e-13,
+      "composite": {
+       "L1_linear_sum": 7.201844000000028,
+       "L2_max": 7.097204000000028,
+       "L3_euclid": 7.097398027446284
+      }
+     },
+     "P": {
+      "total_slots_check": 1187.9999999999998,
+      "slot_error": -2.2737367544323206e-13,
+      "composite": {
+       "L1_linear_sum": 7.2018439999999995,
+       "L2_max": 7.097204,
+       "L3_euclid": 7.097398027446255
+      }
+     }
+    },
+    "frozen_composite_D_U_T": {
+     "U": {
+      "L1_linear_sum": 7.201844,
+      "L2_max": 7.097204,
+      "L3_euclid": 7.097398
+     },
+     "T": {
+      "L1_linear_sum": 7.201844,
+      "L2_max": 7.097204,
+      "L3_euclid": 7.097398
+     },
+     "D": {
+      "L1_linear_sum": 7.201844,
+      "L2_max": 7.097204,
+      "L3_euclid": 7.097398
+     }
+    }
+   }
+  },
+  "attribution_subset": {
+   "definition": "冻结件 U 臂 profile 恰为测量网格点（K=4/8/16/32，无 round/几何近似/外推）的格；逐位复现则管道可信",
+   "cells": {
+    "180|L1_linear_sum|U": 1.7763568394002505e-15,
+    "180|L2_max|U": 0.0,
+    "180|L3_euclid|U": 1.2872954258114078e-07,
+    "324|L1_linear_sum|U": 1.7763568394002505e-15,
+    "324|L2_max|U": 0.0,
+    "324|L3_euclid|U": 2.526363491739403e-07,
+    "612|L1_linear_sum|U": 1.7763568394002505e-15,
+    "612|L2_max|U": 0.0,
+    "612|L3_euclid|U": 7.698992909865865e-08,
+    "1188|L1_linear_sum|U": 8.881784197001252e-16,
+    "1188|L2_max|U": 0.0,
+    "1188|L3_euclid|U": 2.744625504647047e-08
+   },
+   "max_abs_diff": 2.526363491739403e-07,
+   "n_cells": 12
+  },
+  "pipeline_trusted": true
+ },
+ "L0_dominance": {
+  "definition": "1 - composite_A / composite_B",
+  "per_budget": {
+   "180": {
+    "L1_linear_sum|U": 0.9774312139321246,
+    "L1_linear_sum|T": 0.9699225720260106,
+    "L1_linear_sum|D": 0.9595106447222187,
+    "L1_linear_sum|P": 0.984045927338229,
+    "L2_max|U": 0.9881145648604627,
+    "L2_max|T": 0.9848959868671331,
+    "L2_max|D": 0.9793880924519092,
+    "L2_max|P": 0.9954714907149927,
+    "L3_euclid|U": 0.987269624298422,
+    "L3_euclid|T": 0.9829424931444078,
+    "L3_euclid|D": 0.9769825675194714,
+    "L3_euclid|P": 0.9931876070429516
+   },
+   "324": {
+    "L1_linear_sum|U": 0.9702198039836822,
+    "L1_linear_sum|T": 0.9209218681295522,
+    "L1_linear_sum|D": 0.9590985677552631,
+    "L1_linear_sum|P": 0.9861978030925367,
+    "L2_max|U": 0.9815924871314374,
+    "L2_max|T": 0.9269929019838117,
+    "L2_max|D": 0.9793880924519092,
+    "L2_max|P": 0.9938706848499775,
+    "L3_euclid|U": 0.9806475595247117,
+    "L3_euclid|T": 0.9269265749042248,
+    "L3_euclid|D": 0.9769835688110408,
+    "L3_euclid|P": 0.9926105670268164
+   },
+   "468": {
+    "L1_linear_sum|U": 0.9406781010491441,
+    "L1_linear_sum|T": 0.9495553089027228,
+    "L1_linear_sum|D": 0.9593653654586576,
+    "L1_linear_sum|P": 0.9860818260029339,
+    "L2_max|U": 0.9464589131836013,
+    "L2_max|T": 0.9596353655639922,
+    "L2_max|D": 0.9793880924519092,
+    "L2_max|P": 0.9938706848499775,
+    "L3_euclid|U": 0.9463361592295391,
+    "L3_euclid|T": 0.9591918173275575,
+    "L3_euclid|D": 0.9769855295845555,
+    "L3_euclid|P": 0.9926188104228618
+   },
+   "612": {
+    "L1_linear_sum|U": 0.9261437812292092,
+    "L1_linear_sum|T": 0.9858094290038334,
+    "L1_linear_sum|D": 0.9595491761953289,
+    "L1_linear_sum|P": 0.9858151340078153,
+    "L2_max|U": 0.9276394019777862,
+    "L2_max|T": 0.9958680833894189,
+    "L2_max|D": 0.9793880924519092,
+    "L2_max|P": 0.9938706848499775,
+    "L3_euclid|U": 0.9277493812344236,
+    "L3_euclid|T": 0.9935335785291958,
+    "L3_euclid|D": 0.9769908059133583,
+    "L3_euclid|P": 0.9926089273101191
+   },
+   "900": {
+    "L1_linear_sum|U": 0.9555365425411672,
+    "L1_linear_sum|T": 0.9850929171555881,
+    "L1_linear_sum|D": 0.9628609421359023,
+    "L1_linear_sum|P": 0.9856518445435484,
+    "L2_max|U": 0.9640125738554298,
+    "L2_max|T": 0.9939722579734691,
+    "L2_max|D": 0.9793880924519092,
+    "L2_max|P": 0.9938706848499775,
+    "L3_euclid|U": 0.9636338368063868,
+    "L3_euclid|T": 0.9925207272284674,
+    "L3_euclid|D": 0.9780378489476667,
+    "L3_euclid|P": 0.9926059048314794
+   },
+   "1188": {
+    "L1_linear_sum|U": 0.9854703878617754,
+    "L1_linear_sum|T": 0.9855478430356389,
+    "L1_linear_sum|D": 0.9854703878617754,
+    "L1_linear_sum|P": 0.9854703878617754,
+    "L2_max|U": 0.9938706848499775,
+    "L2_max|T": 0.9938706848499775,
+    "L2_max|D": 0.9938706848499775,
+    "L2_max|P": 0.9938706848499775,
+    "L3_euclid|U": 0.992605751656312,
+    "L3_euclid|T": 0.992604097107392,
+    "L3_euclid|D": 0.9926057516563122,
+    "L3_euclid|P": 0.992605751656312
+   }
+  }
+ },
+ "verdict": {
+  "status": "refuted",
+  "branch_text": "refuted：口径 A 下 2/5 个可比档 P 未同时优于 U 与 T；三合成方向矛盾档 [612, 900]",
+  "n_budget_pass": 3,
+  "n_comparable": 5,
+  "budgets_pass": [
+   180,
+   324,
+   468
+  ],
+  "mode_direction_conflict_budgets": [
+   612,
+   900
+  ],
+  "e5_gate": 0.05,
+  "range_A": 0.8431271668706957,
+  "counts": {
+   "budgets": 6,
+   "modes": 3,
+   "arms": 4,
+   "calibers": 2,
+   "cells": 144
+  },
+  "mechanism_boundary_note": "若 refuted：说明『剔除 L0 后失速』并非反比口径特有，而是任何敏感度导向分配（正比/反比）在 L0 支配下均无法摆脱的机制性现象（[发生器] 类比：单一支配分量移除后，剩余分量为低动态范围的平坦谱）。若 confirmed：说明失速归因于反比这一方向本身，正比方向可部分恢复区分度。"
+ },
+ "n_and_power": {
+  "n": 1,
+  "detail": "1 种子 / 1 needle / 8 段落 / 2613 tokens / 1 模型（沿用冻结件 n_boundary）",
+  "power_analysis": "不可做（n=1，无种子/任务/prompt 方差）",
+  "level": "假设级 / 机制观察，不得表述为该模型或架构的真实层敏感度"
+ },
+ "dependency_missing": [
+  "3B 权重本体已蒸发，层敏感度不可重算（沿用冻结件 n_boundary，本轮仅重分配不重测）"
+ ],
+ "p0": true,
+ "wall_clock_sec": 0.042,
+ "scope_guard_selfcheck": {
+  "1_no_fabrication": "所有 ΔL 取自冻结件原始 cells；未测量 K 一律 log2 插值并标 interpolated；未填入任何未实测层敏感度",
+  "2_frozen_untouched": "冻结件只读：运行前后 hub_pull sha256_16 均为 9fcfd9ef65fa4da2；仓库副本 sha16 9fcfd9ef65fa4da2→9fcfd9ef65fa4da2",
+  "3_no_overreach": "仅做四臂同口径重算；未训练、未下载/加载模型、未新建假设、未写台账、未碰 WB2 指令；未改写 H-R1-BUDGET 任何字段",
+  "4_no_ledger_write": "未直写 hypothesis_ledger.yaml",
+  "5_no_model_load": "纯 numpy，无模型下载/加载",
+  "6_no_silent_trim": "6 档×3 合成×4 臂×2 口径=144 格全跑，wall_clock=0.0s≤300s；剔除档已在 caliber_A.excluded_budgets 显式披露（非静默裁剪）"
+ }
+}

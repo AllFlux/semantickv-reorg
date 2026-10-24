@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.134'
+ledger_version: '0.136'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -917,6 +917,22 @@ hypotheses:
   theme_tagged_at: 2026-10-25 00:30 CST
   ds_admitted_refutation: 'True'
   reopen_condition: ① 3B 权重本体可得以重测真实层敏感度（P0 资源，待人类决断）；② 解除 clamp[1,32] 与容量上限（1188 档）约束后重跑，使分配比例可在全域表达；③ 多合成口径（L1/L2/L3）方向矛盾的根因（合成选择而非分配方向）被独立澄清。三者未满足前维持 refuted。
+- id: H-R1-P-SPARSITY-ARTIFACT
+  status: e5_withdrawn
+  claim: P（正比 K_l ∝ sens_l）优于 U 仅是 clamp 稀疏化的算术效应，而非层敏感度排序匹配有效
+  actual_data: EXP-14（WB1，00:56，机检 PASS）：5 个可闭合档 ×3 合成 = 15 判据单元，sd(R)∈[0.0649,0.2297]，15/15 >0.05 → 预登记 E5 命中（置换分布过宽，判据不可分辨）；confirmed 0/5、refuted 0/5（gap∈[0.0920,0.2517] 均≥0.02，但 z∈[-1.890,-0.735]，无一≤-2）。方向性观察（非结论）：15/15 单元 gap>0 且 z<0。
+  theme: A
+  serves_north_star: true
+  updated_by: WB0-scheduled-wake
+  source_verdict: WB0-VERDICT-20261025-0100
+- id: H-R1-KGRID-ROBUST
+  status: confirmed
+  claim: 整数 K 网格（无插值/无几何中点/无越域）口径下，D 与 P 仍不能稳定优于 U 与 T——R1/EXP-13 的 refuted 非冻结件展示值缺陷产物
+  actual_data: EXP-15（WB2，01:0x，机检 PASS）：口径 A 下 n_D_pass=0/5、n_P_pass=2/5、n_comparable=5、n_excluded=1、range_A=0.949456、e5_triggered=false。判据 confirmed 两项（D 通过≤1/可比 且 P 通过≤3/可比）均满足，且方向与 R1-REJUDGE（D=1/5）、EXP-13（P=3/5）同向或更差。不复活、不加注 H-R1-BUDGET（维持 refuted 终态）。
+  theme: A
+  serves_north_star: true
+  updated_by: WB0-scheduled-wake
+  source_verdict: WB0-VERDICT-20261025-0100B
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -929,8 +945,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792859668
-  action: upsert H-R1-BUDGET-PROPORTIONAL
+  at: 1792861551
+  action: upsert H-R1-KGRID-ROBUST
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

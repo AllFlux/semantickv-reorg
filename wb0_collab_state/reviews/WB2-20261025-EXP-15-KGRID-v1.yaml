@@ -1,0 +1,224 @@
+receipt_id: WB2-20261025-EXP-15-KGRID-v1
+review_id: WB2-20261025-EXP-15-KGRID-v1
+target: WB2
+date: "2026-10-25"
+executor: WB2
+round: "2026-10-25 00:30 档"
+kind: experiment
+theme: A
+serves_north_star: true
+north_star_note: "结构可压·事实受限——KV 预算的结构性分配能否抬高压缩质量上限；本轮为 A 主线（KV 压缩）的稳健性检验"
+instruction_ref: "1792859863-64a102"
+idempotency_key: WB0-INSTR-20261025-EXP-15-KGRID
+parent: WB0-INSTR-20261025-EXP-12-FROZENAUDIT
+source_verdict: WB0-VERDICT-20261025-0030
+
+prediction: >
+  执行前登记：EXP-12 已 confirmed 冻结件 r1_budget_allocation.json 的 profile_by_layer 展示值存在三类缺陷
+  （slot 不闭合 14/18 细胞非零、468/900 档 U 取几何中点 11.314/22.627、1188 档 T/D 出现 K=33 越域）。
+  待答问题：R1 与 EXP-13 的 refuted 结论是否只是这套受污染展示值的产物？
+  本轮假设 H-R1-KGRID-ROBUST：在纯整数 K 网格（K∈{1,2,4,8,16,32}，无插值、无几何中点、无越域）口径下，
+  D 与 P 仍不能稳定优于 U 与 T——即原 refuted 结论不由展示值缺陷驱动。
+  预测方向（登记于执行前）：若展示值缺陷仅为显示层噪声，则剥离插值/几何中点/越域后，
+  D 与 P 的通过档数应不高于原口径（D≤1/可比、P≤3/可比），落 confirmed。
+
+falsifiable_criterion: >
+  指令 §5 四分支，逐字复述——
+  confirmed（结论稳健，原 refuted 非缺陷产物）：口径 A 下，网格化后 D 通过档数 ≤ 1/可比档 且 P 通过档数 ≤ 3/可比档
+  （通过＝该档三合成一致严格优于 U 且 T），与 R1-REJUDGE（1/5）及 EXP-13（3/5）同向或更差；
+  refuted（原结论由展示值缺陷驱动）：口径 A 下，网格化后 D 通过档数 ≥ 3/可比档 或 P 通过档数 ≥ 5/可比档
+  （即较原口径实质改善且过半档通过），此时不得复活 H-R1-BUDGET，须落 refuted 并写明
+  「原 refuted 的可信度边界被击穿，待 WB0 裁定加注」；
+  E5 撤回：网格离散导致 ≥4/6 档预算无法闭合（被剔除档过多）或 ΔL 缺网格点 → 判据不可分辨；
+  pending：仅限执行不完整（脚本中断、缺档），须列缺口清单并显式报 dependency_missing，
+  禁止以「两分支均不适用」为由静默写 pending；
+  功效与边界：确定性复算（无需种子，功效 n/a）；n=1 冻结件、无多种子/多任务/prompt 方差，
+  结论一律定级为「假设级 / 机制观察」，不得表述为该模型或架构的真实层敏感度。
+
+hypotheses:
+  - id: H-R1-KGRID-ROBUST
+    status: confirmed
+    prediction: >
+      在纯整数 K 网格（无插值、无几何中点、无越域）口径下，D 与 P 仍不能稳定优于 U 与 T，
+      即原 refuted 结论不由冻结件展示值缺陷驱动。
+    falsifiable_criterion: >
+      口径 A 下 D 通过 ≤1/可比档 且 P 通过 ≤3/可比档 → confirmed；D 通过 ≥3 或 P 通过 ≥5 → refuted；
+      ≥4/6 档预算无法闭合 → E5 撤回。
+    actual_data: >
+      口径 A（L1..L35，35 层）：可比档 [180,324,468,612,900]（1188 因容量上限 35×33=1155<1188 剔除，
+      与 EXP-13 剔除理由一致）。D 通过档数 = 0/5（通过档 []）；P 通过档数 = 2/5（通过档 [180,324]）。
+      逐档 Δ(D−U)/L1_linear_sum = +0.226827 / +0.218488 / +0.263230 / +0.266502 / +0.286104（全为正，D 恒劣于 U）；
+      逐档 Δ(P−U)/L1_linear_sum = −0.035392 / −0.057587 / −0.008546 / −0.003387 / +0.028061。
+      range_A = 0.949456（≥0.05，E5「测不出」闸门未触发）；闭合误差全部为 0.0（整数精确闭合），
+      剔除档数 1/6 < 4 → E5 未触发。与 EXP-13 原口径逐档同向性：P vs U 的 L1 符号 4/5 同向
+      （180/324/468/612 同为负；900 由 −0.304832 翻转为 +0.028061），但 900 档两口径均判「不通过」，
+      结论分支不变；P 通过档由 EXP-13 的 [180,324,468] 变为 [180,324]（减少 1 档，方向为「更差」）。
+      D 通过档由 R1-REJUDGE 的 1/5 变为 0/5（更差）。判据 confirmed 两项（D≤1、P≤3）均满足。
+    ds_admitted_refutation: false
+    admitted_refutation_block: >
+      不适用。本假设落 confirmed，未落 refuted，故不填承认块；显式声明：本轮未触发 refuted 分支，
+      因此不存在「复活 H-R1-BUDGET」的情形——H-R1-BUDGET 维持 refuted 终态，本轮未改动、未加注。
+
+actual_data:
+  head_line: >
+    confirmed——整数 K 网格（无插值/无几何中点/无越域）口径下，D 通过 0/5 可比档、P 通过 2/5 可比档，
+    均不高于原口径（R1-REJUDGE D=1/5、EXP-13 P=3/5），方向「同向或更差」；R1 与 EXP-13 的 refuted
+    结论不由冻结件展示值缺陷驱动。range_A=0.949456，闭合误差全档 0.0，E5 未触发。
+  grid_definition: >
+    K ∈ {1,2,4,8,16,32}（冻结件已测量的 6 个网格点，ΔL 直接查表，零插值）；
+    四臂 U(均匀)/T(线性递减)/D(∝mean_sens/sens_l 反比)/P(∝sens_l 正比)；
+    三合成 L1=ΣΔL / L2=max ΔL / L3=sqrt(ΣΔL²)（越低越好）；
+    两口径 A=L1..L35（判据）/ B=L0..L35（管道自检）；
+    分配＝网格上最小 |log2 K − log2(连续目标)| 畸变 DP，Σ(K_l+1)=budget 整数精确闭合。
+  closure_table_caliber_A:
+    "180": {U_err: 0.0, T_err: 0.0, D_err: 0.0, P_err: 0.0, comparable: true}
+    "324": {U_err: 0.0, T_err: 0.0, D_err: 0.0, P_err: 0.0, comparable: true}
+    "468": {U_err: 0.0, T_err: 0.0, D_err: 0.0, P_err: 0.0, comparable: true}
+    "612": {U_err: 0.0, T_err: 0.0, D_err: 0.0, P_err: 0.0, comparable: true}
+    "900": {U_err: 0.0, T_err: 0.0, D_err: 0.0, P_err: 0.0, comparable: true}
+    "1188": {status: excluded, reason: "容量上限 35×(32+1)=1155 < 预算 1188，四臂均不可行（与 EXP-13 剔除理由一致）"}
+  composite_table_caliber_A:
+    columns: "U_L1 / U_L2 / U_L3 | T_L1 / T_L2 / T_L3 | D_L1 / D_L2 / D_L3 | P_L1 / P_L2 / P_L3"
+    "180": "0.143584 0.031595 0.053891 | 0.416202 0.170646 0.227859 | 0.370411 0.181266 0.202474 | 0.108192 0.025478 0.043718"
+    "324": "0.157529 0.052910 0.070105 | 0.974934 0.835212 0.837915 | 0.376017 0.181266 0.202473 | 0.099942 0.043501 0.052485"
+    "468": "0.108904 0.026702 0.046546 | 0.111384 0.032968 0.049205 | 0.372134 0.181266 0.202451 | 0.100358 0.043501 0.052423"
+    "612": "0.105433 0.026702 0.046503 | 0.102860 0.032968 0.046525 | 0.371935 0.181266 0.202424 | 0.102046 0.043501 0.052463"
+    "900": "0.074526 0.026702 0.033473 | 0.109443 0.043501 0.054378 | 0.360630 0.181266 0.200701 | 0.102587 0.043501 0.052483"
+  delta_table_caliber_A:
+    "180": {D_minus_U_L1: +0.226827, D_minus_T_L1: -0.045791, P_minus_U_L1: -0.035392, P_minus_T_L1: -0.308010, D_pass: false, P_pass: true}
+    "324": {D_minus_U_L1: +0.218488, D_minus_T_L1: -0.598917, P_minus_U_L1: -0.057587, P_minus_T_L1: -0.874992, D_pass: false, P_pass: true}
+    "468": {D_minus_U_L1: +0.263230, D_minus_T_L1: +0.260750, P_minus_U_L1: -0.008546, P_minus_T_L1: -0.011026, D_pass: false, P_pass: false}
+    "612": {D_minus_U_L1: +0.266502, D_minus_T_L1: +0.269075, P_minus_U_L1: -0.003387, P_minus_T_L1: -0.000814, D_pass: false, P_pass: false}
+    "900": {D_minus_U_L1: +0.286104, D_minus_T_L1: +0.251187, P_minus_U_L1: +0.028061, P_minus_T_L1: -0.006856, D_pass: false, P_pass: false}
+    note_900_L2_tie: "900 档 L2_max：P=0.043501 与 T=0.043501 完全相等（Δ=0.0），不满足『严格优于』，故 P 判不通过（已登记，非静默缩样）"
+    note_D_L2_floor: "D 臂 L2_max 在全部 5 档恒为 0.181266（=L24 于 K=1 的 ΔL），D 恒把 L24 压到 K=1，构成 D 的结构性下界"
+    note_P_L2_floor: "P 臂 L2_max 在 324/468/612/900 档恒为 0.043501，而 U 臂可降到 0.026702 → 这是 P 在这些档 L2 口径上劣于 U 的直接原因"
+  caliber_B_all:
+    comparable: [180, 324, 468, 612, 900, 1188]
+    excluded: []
+    pass_counts: {D: 2, P: 2}
+    pass_budgets: {D: [180, 324], P: [180, 324]}
+    note: "含 L0 时 L0 支配（ΔL 量级 7~11）压平四臂差异；1188 档 36×(32+1)=1188 恰为全 K=32，四臂 composite 完全相同（L1=7.201844）。口径 B 仅作管道自检，不参与判据。"
+  comparison_with_exp13_caliber_A:
+    "180": {exp13_P_minus_U: -0.135045, grid_P_minus_U: -0.035392, same_direction: true, exp13_P_pass: true, grid_P_pass: true}
+    "324": {exp13_P_minus_U: -0.234904, grid_P_minus_U: -0.057587, same_direction: true, exp13_P_pass: true, grid_P_pass: true}
+    "468": {exp13_P_minus_U: -0.591429, grid_P_minus_U: -0.008546, same_direction: true, exp13_P_pass: true, grid_P_pass: false}
+    "612": {exp13_P_minus_U: -0.781656, grid_P_minus_U: -0.003387, same_direction: true, exp13_P_pass: false, grid_P_pass: false}
+    "900": {exp13_P_minus_U: -0.304832, grid_P_minus_U: +0.028061, same_direction: false, exp13_P_pass: false, grid_P_pass: false}
+    summary: "P vs U 的 L1 符号 4/5 同向；唯一翻转档 900 在两口径下均判不通过，结论分支不变。P 通过档 3→2、D 通过档 1→0，均为『更差』方向 → 满足 confirmed 的『同向或更差』条款。"
+  contamination_sensitivity_468_900:
+    "468": {frozen_U_K: 11.314, frozen_U_on_integer_grid: false, frozen_U_L1_caliberB: 11.595416, grid_U_L1_caliberB: 11.175710, delta_L1: -0.419706, delta_L2: -0.064515, delta_L3: -0.074743}
+    "900": {frozen_U_K: 22.627, frozen_U_on_integer_grid: false, frozen_U_L1_caliberB: 9.584038, grid_U_L1_caliberB: 11.979996, delta_L1: +2.395958, delta_L2: +1.975058, delta_L3: +1.996872}
+    note: >
+      解释性登记，不作判据。468/900 两档冻结件 U 臂 K 取几何中点（11.314 / 22.627，均非整数网格点），
+      网格化后 U 臂 composite 变化 −0.419706 / +2.395958（L1，口径 B）。差值在 900 档达 2.4 量级，
+      说明展示值缺陷的绝对影响幅度可观；但它不改变任何一档的通过/不通过分支（判据为分支计数，非绝对差），
+      故不足以把原 refuted 结论归因于缺陷。
+  pipeline_reproduction_checks:
+    description: "冻结件 U 臂 profile 恰落在整数网格点上的档，网格化 U 复合值应逐位复现冻结件 composite（本轮独立自检）"
+    "180": {frozen_U: [11.105589, 10.857918, 10.858770], grid_U: [11.105589, 10.857918, 10.858770], max_abs_diff: 1.287e-07}
+    "324": {frozen_U: [11.224600, 10.918290, 10.919826], grid_U: [11.224600, 10.918290, 10.919826], max_abs_diff: 2.526e-07}
+    "612": {frozen_U: [11.966232, 11.047320, 11.078923], grid_U: [11.966232, 11.047320, 11.078923], max_abs_diff: 7.699e-08}
+    "1188": {frozen_U: [7.201844, 7.097204, 7.097398], grid_U: [7.201844, 7.097204, 7.097398], max_abs_diff: 2.745e-08}
+    crosstalk: "324 档 max_abs_diff=2.526363e-07 与 EXP-13 回执 attribution_subset.max_abs_diff=2.526363491739403e-07 逐位一致，构成跨执行器独立印证"
+  verdict_summary: {status: confirmed, n_D_pass: 0, n_P_pass: 2, n_comparable: 5, n_excluded: 1, range_A: 0.949456, e5_triggered: false}
+  wall_clock_sec: 0.339
+  runtime_budget_sec: 300
+
+data_source:
+  - results_v2/exp15_kgrid.json
+  - results_v2/exp15_kgrid.py
+  - results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json
+  - results_v2/exp13_r1_proportional.hub_pull_20261025_WB2.json
+
+dependency_missing:
+  - "原始 3B 权重 /workspace/models/Qwen2.5-3B-Instruct 已蒸发（沿用冻结件 n_boundary.dependency_missing 与 EXP-13 dependency_missing）；本轮未加载任何模型、未下载权重，ΔL 全部取自冻结件已测量网格点，故不影响本轮判据成立"
+
+p0: true
+
+collaboration_audit:
+  scope_adherence: >
+    严格在指令 scope_guard 内：仅做整数 K 网格四臂重算；未训练、未下载/加载模型、未新建假设
+    （H-R1-KGRID-ROBUST 为指令给定 id）、未写台账、未碰 target=WB1 的 EXP-14（1792859862-9ca4a2）；
+    未复活、未改写 H-R1-BUDGET（维持 refuted 终态）；runtime 0.339s ≤ 300s。
+  no_self_processing: >
+    结论只认 Hub 实拉数据与机检结果：冻结件 /api/file/r1_budget_allocation（86123B，sha16=9fcfd9ef65fa4da2）、
+    EXP-13 产物 /api/file/r2_exp13_r1_proportional（34773B，sha16=38d3c4a69ab1cc54）本轮实拉；
+    未采信任何执行方自述作为判据（EXP-13 数值仅用于方向对照，取自其实拉产物正文）。
+  no_fabrication: >
+    ΔL 一律取自冻结件已测量网格点 K∈{1,2,4,8,16,32} 的 delta_loss_answer，零插值、零几何中点、零越域外推；
+    网格点外 K 一律不使用；未填入任何未实测值；未伪造任何档。
+  no_ledger_write: "未直写 hypothesis_ledger.yaml，未调用 /api/ledger/* 写接口（台账动作留给 WB0 裁定）"
+  frozen_respect: >
+    r1_budget_allocation.json 只读：本轮 hub_pull 副本 sha16 前后均 9fcfd9ef65fa4da2，未覆盖/改名/修复/补全；
+    semantic_router.pt、b_routers/ 本轮完全未触碰。
+
+self_check:
+  B-01: >
+    断言卡：本轮最弱的未证推论＝「最小 |log2 K − log2(连续目标)| 畸变 DP 分配，是各臂在整数网格上的忠实代表」。
+    备选解释：DP 的最优解在畸变度量下唯一，但畸变度量本身（对数尺度、L1 范数、以连续目标为参照）是本轮选定而非唯一的；
+    换用 L2 畸变或以预算比例为参照，可能得到不同的层间 K 分布，尤其在 U 臂这类「目标恰在两网格点之间」的档
+    （如 180 档 U 目标 K=4.143，网格解为 32×K4 + 2×K8 + 1×K1）。该不确定性不进入判据（判据为分支计数），
+    但可能移动个别档的 composite 数值，故登记为解释性边界。
+  B-02: >
+    判据分级：E2（可立即跑）。本轮为冻结件确定性复算，纯 CPU、0.339s、零主干权重，已完整跑完并给出四分支判定；
+    E5 闸门未触发（剔除档 1/6 < 4，range_A=0.949456 ≥ 0.05，ΔL 无缺格）；未把「测不出」当「已证伪」，
+    亦未把未达判据写成 confirmed（D≤1 且 P≤3 两条均实测满足）。
+  B-03: >
+    动机猜测：本轮在回应「R1/EXP-13 的 refuted 是否只是受污染展示值的产物」——即冻结件口径缺陷被确认后，
+    上游结论是否仍站得住；答案是站得住（网格化后 D/P 通过档数只减不增）。
+  B-04: >
+    类比清单：本轮 0 处跨领域类比，未使用任何类比作为判据。
+    （附带的结构性描述「L0 支配压平四臂差异」「L2 口径下 P 存在 0.043501 下界」均为实测数值陈述，非类比。）
+  B-05: >
+    反方证据 / 最可能推翻本结论的观测：①若改用 L2 畸变或比例参照的网格分配，P 在 468 档可能重新通过
+    （该档 P−U(L1) 仅 −0.008546，P−T(L1) 仅 −0.011026，边距极薄），使 P 通过档回到 3/5，
+    虽仍 ≤3 不改变 confirmed 分支，但会削弱「更差」的强度；②900 档 P−U 符号已翻转（−0.305→+0.028），
+    若未来档位更密，翻转可能蔓延；③若 WB0 判定 1188 档应以口径 B（36 层，恰可全 K=32）补入可比集，
+    分母由 5 变 6，P 通过仍为 2/6、D 为 0/6，confirmed 分支不变。
+  B-06: >
+    口径变更登记（1 处，指令内预登记，非对既有结论的口径改写）：
+    引入「整数 K 网格（K∈{1,2,4,8,16,32}，无插值/无几何中点/无越域）+ 最小对数畸变 DP 精确闭合分配」这一新口径；
+    该口径仅用于稳健性检验，明确不得复活 H-R1-BUDGET。
+    附加登记：指令 §2 写「216 格」，按 6 档×4 臂×3 合成×2 口径=144 格（与 EXP-13 同定义），
+    本轮实跑 144 格全量并额外输出 144 个逐档 delta，144+72=216 疑为合并计数口径差异，已在产物 method.note_on_cell_count 登记，不作判据。
+  B-07: >
+    n 与 CI：n=1 冻结件（1 种子 / 1 needle 任务 / 8 段落 / 2613 tokens / 1 模型 Qwen2.5-3B-Instruct），
+    确定性复算无方差可估，功效分析不可做（沿用冻结件 n_boundary 与 EXP-13 n_and_power）；
+    结论一律定级「假设级 / 机制观察」，不得表述为该模型或该架构的真实层敏感度。
+    替代功效证据：4 个档位（180/324/612/1188）冻结件 U 臂与网格化 U 臂的复合值逐位复现（max|Δ|≤2.53e-07），
+    属确定性复算的内部一致性证据，非统计功效。
+  B-08: >
+    冻结件 sha16 前后对照：r1_budget_allocation hub_pull 副本运行前 9fcfd9ef65fa4da2、运行后 9fcfd9ef65fa4da2
+    （产物 frozen_input.sha_stable=true），与 EXP-12/EXP-13 双方独立上报一致；
+    semantic_router.pt、b_routers/ 未触碰。产物 sha16：exp15_kgrid.json=b1068b12ffece6d5(61759B)、
+    exp15_kgrid.py=e5cc3a8ffc77166e(19944B)。
+  B-09: >
+    上游指令与判据逐项对钩：①实拉两文件并另存 hub_pull 副本（不覆盖原件）✓；
+    ②K∈{1,2,4,8,16,32} 网格化重算 6 档×4 臂×3 合成×2 口径全量，ΔL 一律实测禁插值 ✓；
+    ③预算闭合逐档记录 Σ(K+1)−budget，全档 0.0，1188 档单列剔除并说明、分母 5/6 相应变化（未静默缩样）✓；
+    ④对照 EXP-13 / R1-REJUDGE 逐档逐臂输出 composite 与 Δ(D−U)/Δ(D−T)/Δ(P−U)/Δ(P−T)，并逐项标注同向性 ✓；
+    ⑤468/900 污染敏感度单独登记 ✓；scope_guard 六条（禁伪造/禁动冻结件/禁越界/资源边界/上传通道 tree+relpath/独立性）全部遵守 ✓。
+  B-10: >
+    可复算性（WB0 独立复算路径）：
+    GET /api/file/r1_budget_allocation + GET /api/file/r2_exp13_r1_proportional
+    → 运行 results_v2/exp15_kgrid.py（纯标准库 python3，无第三方依赖，0.339s，幂等）
+    → 输出 results_v2/exp15_kgrid.json（含逐档 profile_by_layer、K_grid_hist、composite、delta、pass、closure_error）
+    → 对照本回执 actual_data 的 closure_table / composite_table / delta_table 三表；
+    冻结件 U 臂在 180/324/612/1188 档恰为整数网格点，可先行校验管道（期望 max|Δ|≤2.53e-07）。
+
+self_check_d7_supplement:
+  自我规划: "本轮范围＝EXP-15 单条主线（WIP=1），未旁及 EXP-14(WB1)、未处理 ALL 裁定 1792859992 中属 WB1 的 D4 补传令；下轮计划＝待 WB0 裁定或新 auto_run 指令，若 EXP-15 confirmed 被接受，可能的后续为另派 D/P 在整数网格下的层序分辨。"
+  循序渐进: "本轮做了：剥离插值/几何中点/越域后的网格化重算这一步；留下的接口＝产物中 per_budget.per_arm.profile_by_layer 与 K_grid_hist 可被后续层序置换类实验（如 EXP-14 的 WB2 对应版本）直接复用，无需重跑分配求解。"
+  Agent_调用: "0 次。本轮为单条确定性复算脚本，无需子代理并行，未调用任何 Agent。"
+  交付前验证: >
+    跑了三项自检：①管道逐位复现（4 档，max|Δ|≤2.53e-07，其中 324 档 2.526363e-07 与 EXP-13 独立上报值逐位一致）；
+    ②闭合误差全档 0.0 与容量剔除 1188 档的单列核对；③四分支判据逐条代入（D=0≤1、P=2≤3、剔除 1<4、range_A=0.949≥0.05）。
+    上传后将按 D3 逐文件 GET /api/file/r2_<stem> 验证 200 且 size 与本地一致。
+  动机优先: >
+    「用户/WB0 指令要求」占比 ≈ 100%（本轮目标、口径、判据、交付物名全部由指令 1792859863-64a102 给定，
+    含假设 id、四分支判据、回执模板、幂等键）；「我的框架」占比仅在实现细节（DP 畸变度量、网格分配算法）上，已于 B-01/B-06 显式登记。
+  不下断定: >
+    保留待裁、未预先命名的事项：①900 档 P−U 符号翻转的成因（L0 剔除后残余支配 vs 网格离散化）未定性，未命名；
+    ②P 在 468 档边距极薄（|ΔL1|≈0.009）的稳健性未定级，未命名；③是否需为 H-R1-BUDGET 加注额外边界由 WB0 裁定，本轮仅在 refuted 未触发时不自行加注；
+    ④1188 档是否应入口径 B 可比集由 WB0 裁定，本轮未自行扩分母。
