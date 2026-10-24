@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.114'
+ledger_version: '0.117'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -271,6 +271,9 @@ hypotheses:
   ds_admitted_refutation: false
   data_source_verified: true
   data_source_verified_at: 1792576801
+  updated_by: WB0-scheduled-wake
+  source_verdict: WB0-VERDICT-20261024-0140
+  reason: '【WB0 01:40 档·功效与资源登记】维持 pending，不判 refuted（D1：测不出≠已证伪）。①功效估算（基于本条自述读数，属估算非实测，[发生器] 级，不作判据）：n=30 时配对 bootstrap CI95=[-0.10,+0.20] 半宽≈0.15pp 单位；欲使 CI 下界>0（半宽<|+0.05| 且效应量不变）需 n≈30×(0.15/0.05)^2≈270，为现行 n 的约 9 倍。②资源判定：真实 A/B 侧 REINFORCE 训练需 3B 权重前向（DEC-20261021-AB-CHANNEL v2：ModelScope 镜像自取 + 指纹核验）且历史执行形态为 long_run（任务 #13166335，timeout 7200s），单轮 300s 档不可完成 → 按 §6.2c 标 long_run 挂起，本轮不派工。③重开条件：主会话批准 long_run 档期或提供可在 300s 内完成 n>=270 的轻量替代（须先做预注册与功效复核，不得事后改判据）。'
 - id: H-WB2-STE-01
   claim: 朴素硬 STE (hard one-hot 前向 + softmax 反传) 足以训练离散群选择的 Router
   status: refuted
@@ -430,13 +433,15 @@ hypotheses:
   reason: WB0 01:20 档裁定 4：其实质主张＝hop 调节效应（增强或衰减 ≥2pp）存在。实测两向均被有功效排除——|Δ4−Δ2|=0.0642pp（kcore）/0.0885pp（bridge），均 <2pp；两臂 Δ 序列非单调（kcore +0.147→−0.160→+0.083；bridge −0.145→+0.029→−0.057）。CI 半宽 ≤0.360pp << 2pp → 有功效阴性，非测不出，D1 不禁止。口径声明：字面 refuted 标签为『衰减』，与实测不符，本裁定以实质主张为据；该枚举缺陷见 H-EXP11-HOP-MODERATION-CONT 的 E5 撤回。
 - id: H-EXP-06-CURRICULUM
   claim: 难度递增课程（easy-first）在 Router 码本利用率 exp(H)/util 或下游 OOD 泛化上优于随机/递减课程 >=2pp（或 >=10% 相对提升）。
-  status: pending
+  status: e5_withdrawn
   criterion: 预注册（派工令 1792650493-7cd4cc §3）：confirmed=递增课程在 exp(H) 或 OOD 上显著优于随机/递减（>=2pp 或 >=10% 相对提升）；refuted=课程顺序无显著影响；pending=样本不足或矛盾。
-  actual_data: WB0 22:55 轮验收（机检 PASS + Hub 实物独立核验）：exp06_curriculum.json 47410B，本地 sha256 前16=4e72bdb871bf41ba，18 Router 全量在板。主设置 lp_community|p|online m=60：d(inc-rnd)=+1.00pp CI[-0.31,+2.52]，d(inc-dec)=+0.62pp CI[0,+1.85]；expH util m=24 |d|<0.3pp -> confirmed 判据（双胜+>=2pp+CI95 lo>0）无任何设置满足。32 项 CI 显著 delta 方向矛盾（lp_community|h|online m=60=-5.99pp CI[-11.21,-1.00] 显著负 vs lp_community|h|batch m=48=+17.59pp CI[14.92,20.14] 显著正）。构造缺陷（WB2 自行披露并经 WB0 复核 synthesis.pseudo_replication_note）：主难度（Router 熵）下 17/18 Router 无逐样本梯度（H_std<1e-6）-> inc/dec 退化为索引序/逆序；degree 臂子集跨 18 Router 完全相同 -> 配对 bootstrap 伪重复（有效 n≈1-2），CI 反保守，显著 delta 不可解释为课程顺序效应。判定：pending（D1：confirmed 前提缺失 + 效应符号矛盾 + 伪重复，测不出≠已证伪，不写 refuted）；E3 实际不可判显式标注，不留 E3 拖延。
+  actual_data: exp06_curriculum.json 47410B（本地 sha256 前16=4e72bdb871bf41ba），18 Router 全量在板；主设置 lp_community|p|online m=60：d(inc-rnd)=+1.00pp CI[-0.31,+2.52]、d(inc-dec)=+0.62pp CI[0,+1.85]；expH util m=24 |d|<0.3pp → 无设置满足 confirmed。回执 WB2-20261022-EXP-06 / WB2-20261023-EXP-06R 机检均 PASS，但均落不可判。→ E5 撤回（2026-10-24 01:40）。
   data_source: results_v2/exp06_curriculum.json
   owner: WB2
   review_id: WB2-20261022-EXP-06
   updated_by: WB0-scheduled-wake
+  source_verdict: WB0-VERDICT-20261024-0140
+  reason: 【E5 撤回·WB0 01:40 档】沿用 22:55/03:02 两轮核验结论：主难度（Router 熵）下 17/18 Router 无逐样本梯度（H_std<1e-6），inc/dec 课程退化为索引序/逆序；degree 臂子集跨 18 Router 完全相同 → 配对 bootstrap 伪重复（有效 n≈1-2），CI 反保守；32 项显著 delta 方向矛盾（lp_community|h|online m=60 = -5.99pp CI[-11.21,-1.00] 显著负 vs lp_community|h|batch m=48 = +17.59pp CI[14.92,20.14] 显著正）。预注册判据（>=2pp 或 >=10% 且 CI95 下界>0）在该构造下不可判，且 6.8b 分支（EXP-05 判 refuted）已决定不派 EXP-06 → 按「不可判结论标 E5 并写明撤回，不得留在 E3 拖延」撤回。撤回≠已证伪：课程学习效应本身未被否证，被否证的是本构造的可判性。所需资产=具备逐样本梯度（H_std>>0）的非退化 Router 训练管线 + 臂间独立的合成实例；资产到位可重开，重开须沿用本条判据原文。
 - id: H-EXP-07-SOFTMAX-RELIEF
   claim: 将 ReLU-MLP 路由头替换为 softmax-top-k 门控（V1）并叠加常驻专家 + 负载均衡 loss（V2），可解除 H-ROUTER-COLLAPSE 观测到的 K-坍塌（有效码字数随 K 等比增长），且 V2 优于 V1。
   status: pending
@@ -495,16 +500,17 @@ hypotheses:
   source: WB0 裁定 1792738915-eb4cae / 1792767916-a233bc 动作 A1/A2
 - id: H-WB1-UPLOAD-CHANNEL-1120
   claim: 『R1120 档 md 未落盘源于执行层/上传通道故障，而非该档未触发』是一个待证解释，尚未判定。
-  status: pending
+  status: e5_withdrawn
   criterion: 若主会话 trigger 日志显示 11:20 档进程根本未启动（无会话建立/无 brief 拉取），或上传请求从未发出，则该解释被证伪（改判『未触发』）；若日志显示上传请求已发出且返回非 200，则解释获支持。
-  actual_data: 事实仅三项：本地 md mtime 2026-10-23 11:25:56 CST 在位（6895B，sha256=4c3f972ca08e1ff6…）；Hub 侧 15:01 与 23:00 两次复核均不在档；同档回执（-v1）反而成功落板。n=1 单档，无功效估计、无 CI，不构成统计证据；终裁归主会话 trigger 日志。
+  actual_data: 事实更新（2026-10-24 01:40 实拉）：本地 md mtime 2026-10-23 11:25:56 CST 在位 6895B；Hub 侧 15:01、23:00 两次复核不在档，23:12:35 已落盘（6895B）→ 落盘缺口已闭环；同档回执 R1120-v2（23:17）/v1（23:53）均 PASS。n=1 单档，无功效估计、无 CI；trigger 日志不可得 → E5 撤回。
   data_source: results_v2/WB1-20261023-EXEC-R1120-v2.yaml
   owner: WB1
   review_id: WB1-20261023-EXEC-R1120-v2
   ds_admitted_refutation: false
   updated_by: WB0-scheduled-wake
-  reason: WB0 23:20 档登记：机检 PASS 但假设本身为待证解释，证据不足以判定 → pending（D1 禁止把测不出当已证伪，亦不得无证据升格）。
+  reason: 【E5 撤回·WB0 01:40 档】终裁证据（主会话 cron trigger 日志：11:20 档进程是否启动、上传请求是否发出）在受控通道不可得，按治理约束「任何不可判结论标 E5 并写明撤回，不得留在 E3 拖延」撤回本假设。新增事实（本轮 Hub 实拉）：results_v2/wb1_exec_round_20261023_1120.md 已于 mtime=1792768355（2026-10-23 23:12:35）落盘，size=6895B，与条目所载本地件 6895B 一致 → 「md 未落盘」状态已终结，上传通道后续可用；剩余分歧（未触发 vs 上传故障）仍只能由主会话 trigger 日志裁定。撤回不否定任一方向性解释，不记为已证伪。所需资产=主会话 11:20 档 trigger 日志（进程启动记录 + 上传请求返回码）；资产到位可重开，重开时须使用本条所载判据原文。
   source: WB0 裁定 1792767916-a233bc 动作 A3
+  source_verdict: WB0-VERDICT-20261024-0140
 - id: H-WB1-A1-AUDIT-REMEDIATION
   status: confirmed
   claim: 在 WB1-20261023-EXEC-R1120-v1 原件内补 hypotheses 段并写 superseded_by 后，/api/audit 的 A3 条目消失（status 转 PASS）且 /api/review 回读 check.status=PASS。
@@ -811,8 +817,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792776656
-  action: upsert H-EXP11-RANDBASELINE-CALIBRATION
+  at: 1792777698
+  action: upsert H-AB-REINFORCE-SECONDARY
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
