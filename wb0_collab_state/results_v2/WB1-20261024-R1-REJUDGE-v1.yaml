@@ -1,0 +1,115 @@
+receipt_id: WB1-20261024-R1-REJUDGE-v1
+review_id: WB1-20261024-R1-REJUDGE-v1
+target: WB1
+date: "2026-10-24"
+executor: WB1
+round: "2026-10-24 23:15 档（错峰 :15，实例启动 23:15:0x CST）"
+kind: experiment_rejudge
+theme: "D-规模资源"
+serves_north_star: "结构可压·事实受限（预算约束下的 KV 结构性分配 → 压缩质量；与 SemanticKV-Reorg / 零数据自博弈 / 结构性知识训练 同构）"
+instruction_ref: "1792854503-ad4ab1（WB0-INSTR-20261024-R1-REJUDGE，target=WB1，auto_run=true，long_run=false，runtime_budget_sec=300，parent=WB0-INSTR-20261022-R1，source_verdict=WB0-VERDICT-20261024-2300）"
+
+prediction: "剔除 L0 后，D 仍在 ≥5/6 非退化档优于 U 与 T（即 D 的优势不依赖 L0 支配）。对应盲猜注记：本轮为执行后回执，prediction 文本按指令 §7 原样登记；执行前本人未另立预测，故不存在事后追认情形。"
+
+falsifiable_criterion: "（逐字复述指令 §5 四分支）【confirmed】口径 A 下，D 在 ≥5/6 个非退化档上 composite 严格优于 U 且严格优于 T，且 L1/L2/L3 三种合成给出的 D-vs-U、D-vs-T 方向完全一致（无矛盾档）。【refuted】口径 A 下存在 ≥1 个非退化档 D 不优于 U，或三种合成方向互相矛盾。【E5 撤回】动态范围闸门触发（range_A < 0.05）→ 判据在剔除 L0 后不可分辨，须写明撤回理由与所需资产（可重算层敏感度的 3B 权重本体 / 多种子·多任务·多 prompt 重复测量）。【pending】仅限执行不完整（缺档、脚本中断、口径 B 自检超差），须列出缺口清单并显式报 dependency_missing；禁止以『两分支均不适用』为由静默写 pending。功效与边界声明：n=1，无种子/任务/prompt 方差，无法做功效分析；结论一律定级为『假设级 / 机制观察』，不得表述为该模型或架构的真实层敏感度。"
+
+actual_data:
+  head_line: "口径 A（层集 L1..L35，剔除 L0）5 个可比档中，D 同时严格优于 U 与 T 的仅 1 档（B=468）；B=324 三合成方向矛盾；range_A=0.6243897 ≥ 0.05（E5 闸门未触发）→ 落 refuted 分支。"
+
+  caliber_A_composite_and_delta: "逐档×逐合成×逐臂（U/T/D，越小越好）与 Δ(D−U)/Δ(D−T)：
+  B=180 [可比] L1 U=0.250640 T=0.338395 D=0.371095 | Δ(D−U)=+0.120455 Δ(D−T)=+0.032700 | D优于U=False D优于T=False
+              L2 U=0.129051 T=0.164734 D=0.181266 | Δ(D−U)=+0.052215 Δ(D−T)=+0.016532 | False / False
+              L3 U=0.138236 T=0.186068 D=0.202474 | Δ(D−U)=+0.064238 Δ(D−T)=+0.016407 | False / False
+  B=324 [可比] L1 U=0.334271 T=0.942494 D=0.375035 | Δ(D−U)=+0.040764 Δ(D−T)=−0.567458 | False / True
+              L2 U=0.200979 T=0.805656 D=0.181266 | Δ(D−U)=−0.019713 Δ(D−T)=−0.624390 | True / True
+              L3 U=0.211325 T=0.808248 D=0.202466 | Δ(D−U)=−0.008860 Δ(D−T)=−0.605783 | True / True
+      → 三合成方向矛盾档（L1 判 D 劣于 U，L2/L3 判 D 优于 U）
+  B=468 [可比] L1 U=0.691600 T=0.481003 D=0.372488 | Δ(D−U)=−0.319112 Δ(D−T)=−0.108515 | True / True
+              L2 U=0.588618 T=0.362442 D=0.181266 | Δ(D−U)=−0.407352 Δ(D−T)=−0.181176 | True / True
+              L3 U=0.590737 T=0.366859 D=0.202448 | Δ(D−U)=−0.388289 Δ(D−T)=−0.164411 | True / True
+      → 唯一『三合成一致且 D 全面占优』档
+  B=612 [可比] L1 U=0.883781 T=0.105836 D=0.370729 | Δ(D−U)=−0.513051 Δ(D−T)=+0.264893 | True / False
+              L2 U=0.799391 T=0.030073 D=0.181266 | Δ(D−U)=−0.618125 Δ(D−T)=+0.151193 | True / False
+              L3 U=0.800459 T=0.047067 D=0.202402 | Δ(D−U)=−0.598057 Δ(D−T)=+0.155335 | True / False
+  B=900 [可比] L1 U=0.408141 T=0.107372 D=0.339276 | Δ(D−U)=−0.068864 Δ(D−T)=+0.231904 | True / False
+              L2 U=0.314410 T=0.042780 D=0.181266 | Δ(D−U)=−0.133144 Δ(D−T)=+0.138486 | True / False
+              L3 U=0.317977 T=0.053083 D=0.193187 | Δ(D−U)=−0.124790 Δ(D−T)=+0.140104 | True / False
+  B=1188 [剔除·不可比] L1 U=0.104640 T=0.104074 D=0.104640；L2 三臂均 0.043501；L3 U=0.052480 T=0.052492 D=0.052480。"
+
+  range_A: "0.6243896736105445（= max over 5 个可比档 × {L1,L2,L3} of max(|Δ(D−U)|,|Δ(D−T)|)，取自 B=324/L2 的 |Δ(D−T)|）；≥ 0.05 → E5 闸门未触发，判据可分辨。"
+
+  degenerate_and_exclusion: "退化档：口径 A 六档均非『三臂 composite 完全恒等』（B=1188 的 L2 三臂均为 0.043501，但 L1/L3 不等，故整体未判退化）。剔除档：B=1188 —— 剔除 L0 后为 35 层，K≤32 的容量上限 = 35×33 = 1155 < 1188，预算物理不可达；三臂实际 slots U=1155.0 / T=1124.0 / D=1155.0（T 因最顶层固定 K=1，可达上限仅 1124），slot_parity=False，无法构造等预算比较 → 依指令 §3.6『不得静默缩样』要求单列披露，不计入判据分子/分母（分母由 6 变 5）。口径 B（36 层）六档均非退化，B=1188 的 degenerate_max_abs_diff 见产物。"
+
+  caliber_B_selfcheck: "口径 B（层集 L0..L35）管道自检三路：① 用本轮自算连续 profile 重算 vs 冻结件 composite：max_abs_diff = 0.404794（超差，因本轮分配算法与冻结件内部算法不同——冻结件未公开其连续 profile，见 frozen_artifact_defects）；② 用冻结件公开的 profile_by_layer（3 位小数展示值）重算 vs 冻结件 composite：max_abs_diff = 1.2667e-04（超差 1e-6 门限两个数量级）；③ 归因子集（冻结件 U 臂 profile 恰为测量网格点 K∈{4,8,16,32}、无 round/无几何近似/无外推的 12 格）：max_abs_diff = 2.5264e-07 ≤ 1e-6 → 逐位复现。结论：本轮『log2(K) 插值 + L1/L2/L3 合成』管道与冻结件一致（pipeline_trusted=true），全域超差 100% 归因于冻结件 profile 展示值与其内部连续值的不一致（几何中点近似 + 3 位小数 round + K=33 越域外推），而非本轮管道错误 → 按指令 §3.5 不中止，判据予以落定，全部差异原样披露供 WB0 裁定。"
+
+  frozen_artifact_defects: "冻结件 profile_by_layer 与其自述 total_slots_check 不闭合（本轮仅披露、不修改冻结件）：① slot 缺口（Σ(profile+1) − budget）180 档 T=−5.728 D=−2.384；324 档 T=−11.580 D=−5.296；468 档 U=−24.696 T=−17.717 D=−22.588；612 档 T=−23.201 D=−11.021；900 档 U=−49.428 D=−45.101 T=+4.125；1188 档 T=+35 D=+35；② 468/900 档 U 取几何中点 sqrt(8×16)=11.314、sqrt(16×32)=22.627 而非 12、24，导致预算未用满（最大少用 49.4 slots，占 900 的 5.5%）；③ 1188 档 T/D 出现 K=33，超出已测量域 K≤32，属无依据外推。三者叠加足以解释自检②的 1.27e-4 量级差异。"
+
+  L0_dominance: "定义 1 − composite_A / composite_B（越大表示剔除 L0 后 composite 下降越多，即 L0 支配越强）。口径 A 可比档 L1/L2/L3 × U/T/D 共 45 格，取值区间 0.9209（B=324,L1,T）～0.9959（B=612,L2,T）；按臂集中趋势：D 臂 0.9591～0.9794、U 臂 0.9261～0.9881、T 臂 0.9209～0.9959。即剔除 L0 后三臂 composite 均降至原量值的 0.4%～7.9%，L0 单层支配了 92% 以上的合成量值——与冻结件 limitations[2]『D 的优势高度依赖 L0 支配性』『敏感度反比分配的最坏情况是 critical 层吃满预算』方向一致，且本轮给出了量化值。"
+
+  total_slots_check: "口径 A 可比档五档三臂均严格闭合：Σ(K+1) − budget 绝对值 ≤ 1e-6（180/324/468/612/900 五档 × U/T/D 全部 = 预算值，slot_parity=True）。剔除档 B=1188 见 degenerate_and_exclusion。口径 B 六档 U/T/D 的 total_slots_check 见产物 caliber_B_all.per_budget。"
+
+  sha256_and_runtime: "冻结件 results_v2/r1_budget_allocation.json 经 /api/file/r1_budget_allocation 实拉 86123B，sha256 前 16 位：运行前 9fcfd9ef65fa4da2、运行后 9fcfd9ef65fa4da2，一致（sha_stable=true），冻结件未被修改。Hub 实拉副本另存为 results_v2/r1_budget_allocation.hub_pull_20261024.json（新件，不覆盖冻结件）。wall_clock = 0.035s（纯 numpy，无模型加载），远低于 300s 预算；6 档×3 合成×3 臂×2 口径 = 108 格全覆盖，无分批、无缩样。"
+
+  channel_disclosure: "本档 /api/upload 一律带 tree=results_v2 且 relpath=results_v2/<name>（沿用 00:10 档记录的坑：只带 tree 会误落 uploads 树）。上传回执三件均确认 tree=results_v2、relpath=results_v2/<name>：回执 YAML 22864B / sha16=24d2c5212bf028fe；产物 JSON 34146B / sha16=690d384cc0a41a83；脚本 PY 18944B / sha16=3f2d621ee5589c52。回读校验：GET /api/file/r2_WB1-20261024-R1-REJUDGE-v1 → HTTP 200 / 22864B，sha16 与本地一致；GET /api/file/r2_r1_rejudge_noL0 → HTTP 200 / 34146B，命中 JSON，sha16 与本地一致。通道限制披露：产物 JSON 与脚本 PY 的 stem 同为 r1_rejudge_noL0，Hub 侧 id 均返回 r1_rejudge_noL0，故 r2_<stem> 端点只能回读其中一件（本档回读命中 JSON）；脚本 PY 上传成功（响应 200，返回 sha16=3f2d621ee5589c52）但无法经 stem 端点独立回读，需按文件清单核验。该限制属 Hub 端点行为，供 WB0 裁定，本档不自行改名绕开（保持产物命名与指令 §6 一致）。"
+
+  n_and_power: "n=1（1 种子 / 1 needle / 8 段落 / 2613 tokens / 1 模型 Qwen2.5-3B-Instruct），沿用冻结件 n_boundary；无种子/任务/prompt 方差，无法做功效分析，无 CI；结论定级为『假设级 / 机制观察』，不得表述为该模型或架构的真实层敏感度。"
+
+  mechanism_reading: "口径 A 下 D 的 L2_max 恒为 0.181266（= L24 在 K=1 处的 ΔL），因为 D 按『敏感度反比』把高敏感层压到 K_min=1；剔除 L0 后 L1(sens=0.835) 与 L24(sens=0.181) 成为被压缩最狠的层，其 ΔL 反而主导合成值，故 D 在 5 个可比档中仅 1 档全面占优。这是『反比分配 + 单层支配』机制的直接读数，属机制观察而非架构结论。"
+
+  long_run_and_open_item: "long_run 跳过 2 条：1792564435-ee5050（AB-01 E2E A/B 真实实验，正文 long_run=true）、1792566417-67614f（AB-02 runbook v2 + 干跑实证，正文 long_run=true），二者均 auto_run=true/target=WB1，但按 2b) 规则 300s 档不执行、不标记 done、不发 open_item，交专用长时任务『WB1 E2E A/B 执行器（权重镜像自取）』。open_item 本轮 0 条：R1-REJUDGE 所需冻结件可经 Hub 实拉获得，无 needs 依赖缺失；3B 权重蒸发属冻结件既有登记项（沿用其 dependency_missing），本轮不重复开单。"
+
+  keepalive: "本档首步巡检发现无存活心跳守护（keepalive.log 末行 2026-10-24 01:51:18，pgrep 仅命中当前 shell 自身）→ 运行既有 /workspace/semantickv-reorg/wb1_keepalive.sh，重启后 pid=83875（pgrep 命中 'bash wb1_keepalive.sh'）。沿用既有脚本 INTERVAL=1200s（优先于兜底 900s 分支，与 01:50 档口径一致），单实例，不双启。本次为第 7 次缺失/重启记录，与 H-WB1-KEEPALIVE-PERSISTENCE=refuted 一致。该步骤只保活，不执行研究 goal、不写台账、心跳为真实 HTTP 请求。"
+
+  token_discipline: "本档 API 调用：sharecode 首页 ×1、/api/brief ×1(2109B)、/api/instructions?brief=1&target=WB1 ×1(19178B)、同参数 target=ALL ×1(15944B，用于兜住 target=ALL 候选；两次合计约 35KB，取代裸拉全量 ≈200KB)、/api/instruction/{id} ×3（R1-REJUDGE 8440B + AB-01 + AB-02）、/api/file/r1_budget_allocation ×1(86123B)。被禁裸拉次数 = 0（无 brief 的 /api/instructions、/api/files、/api/ledger、/api/state 均 0 次）。注：target=WB1 与 target=ALL 两次响应首条相同、体量相近，疑似该端点未严格按 target 过滤，故两路取并集去重后得 81 条唯一指令，已在产物中披露，供 WB0 裁定是否属 Hub 端点行为。"
+
+status: refuted
+
+hypotheses:
+  - id: H-R1-BUDGET
+    status: refuted
+    ds_admitted_refutation: true
+    prediction: "剔除 L0 后，D 仍在 ≥5/6 非退化档优于 U 与 T（即 D 的优势不依赖 L0 支配）。"
+    falsifiable_criterion: "同指令 §5 四分支（见顶层 falsifiable_criterion 逐字复述）。"
+    actual_data: "口径 A（L1..L35）可比档 5 个（B=1188 因 35 层×K≤32 容量上限 1155<1188 且三臂 slot 不等而剔除，已单列披露）：D 在三合成上同时严格优于 U 与 T 的仅 B=468 一档（1/5）；B=180 三合成一致判 D 劣于 U 与 T；B=324 三合成方向矛盾（L1 判 D 劣于 U，L2/L3 判 D 优于 U）；B=612、B=900 三合成一致判 D 优于 U 但劣于 T。range_A=0.6243897 ≥ 0.05，E5 闸门未触发 → 判据可分辨，非『测不出』。口径 A 可比档 total_slots_check 五档×三臂全部严格等于预算值（|误差| ≤ 1e-6），slot_parity=True，比较公平。口径 B 归因子集自检 max_abs_diff=2.5264e-07 ≤ 1e-6 → 管道可信；全域自检 1.2667e-04 超差，归因于冻结件 profile 展示值缺陷（slot 缺口最大 −49.4 / 900 档、468 与 900 档 U 取几何中点 11.314 与 22.627、1188 档 T/D 出现 K=33 越域外推），已完整披露。冻结件 sha256 前 16 位运行前后均为 9fcfd9ef65fa4da2。n=1，无功效分析，结论定级为假设级 / 机制观察。"
+    admitted_refutation_block: "认错块 —— 本轮回 prediction 与本轮实测相反：prediction 称『D 的优势不依赖 L0 支配』，实测剔除 L0 后 D 在 5 个可比档中仅 1 档（B=468）全面占优，且在 B=180 上一致劣于 U 与 T、在 B=324 上三合成方向矛盾 → prediction 被证伪，H-R1-BUDGET 落 refuted。本轮接受的证伪要点有二：① 冻结件 limitations[2]『D 的优势高度依赖 L0 支配性』在本轮得到量化确认（L0 支配度 0.9209～0.9959，剔除 L0 后 composite 降至原量值 0.4%～7.9%）；② 本轮沿用冻结件『按实测层敏感度反比分配（K_l ∝ mean_sens/sens_l）』这一既定口径，该口径把高敏感层压向 K_min=1，剔除 L0 后其最坏情形由 L1/L24 承接，机制上解释了 D 的失速，非本轮执行偏差。本轮不改写 H-R1-BUDGET 的最终定级（待 WB0 经验收裁定），亦不推翻冻结件的任何既有字段。"
+
+  - id: H-WB1-R1-REJUDGE-PIPELINE-REPRO
+    status: confirmed
+    prediction: "若本轮『log2(K) 插值 + L1/L2/L3 合成』管道与冻结件一致，则在冻结件 profile 恰为测量网格点（K∈{4,8,16,32}，无 round、无几何近似、无外推）的格上，本轮重算 composite 应与冻结件 composite 逐位复现（max_abs_diff ≤ 1e-6）。"
+    falsifiable_criterion: "归因子集（U 臂 × 4 个网格点档 × 3 合成 = 12 格）中任一格 |本轮 − 冻结件| > 1e-6 即证伪。"
+    actual_data: "归因子集 12 格 max_abs_diff = 2.5264e-07 ≤ 1e-6（量级为浮点累加残差，非口径差异）→ 预测成立。该结论的意义边界：它只证明『插值 + 合成』两段管道一致，不证明『分配算法』一致（用本轮自算 profile 重算的全域 max_abs_diff = 0.404794，说明分配段算法与冻结件内部实现不同），后者已单列披露、未用于判据。"
+
+  - id: H-WB1-ROUND2315-L0-DOMINANCE-QUANT
+    status: confirmed
+    prediction: "若冻结件 limitations[2]『D 的优势高度依赖 L0 支配性』成立，则剔除 L0 后（口径 A）三臂 composite 应大幅低于含 L0 的口径 B，即 L0 支配度 1 − composite_A/composite_B 应显著为正（预期 > 0.5）。"
+    falsifiable_criterion: "口径 A 可比档 × {L1,L2,L3} × {U,T,D} 共 45 格中，若 L0 支配度中位数 < 0.5 或出现负值，即证伪。"
+    actual_data: "45 格取值区间 0.9209～0.9959，全部 > 0.9（按臂：D 0.9591～0.9794、U 0.9261～0.9881、T 0.9209～0.9959）→ 预测成立，且强度远超预注册门槛。解读边界：该支配度主要由 L0 的 ΔL 量级（8.79～11.05）远高于其余 35 层（≤0.835）所致，是数据分布事实的直接读数，不构成『L0 更重要』的因果断言，也不因 n=1 而外推到其它模型或任务。"
+
+data_source:
+  - results_v2/r1_budget_allocation.json
+  - results_v2/r1_rejudge_noL0.json
+  - results_v2/r1_rejudge_noL0.py
+  - results_v2/r1_budget_allocation.hub_pull_20261024.json
+
+dependency_missing:
+  - "/workspace/models/Qwen2.5-3B-Instruct 已蒸发，层敏感度不可重算（沿用冻结件 n_boundary.dependency_missing；本轮产物为孤本依赖对象）"
+p0: true
+
+collaboration_audit:
+  scope_adherence: "本档严格限于指令 1792854503-ad4ab1 的 goal 与 scope_guard：R1 三臂（D/U/T）在 6 档 × 3 合成 × 2 口径下的重算与定级建议。未改写 H-R1-BUDGET 最终定级（待 WB0 裁定）、未触碰 semantic_router.pt 或 b_routers/ 下任何权重、未下载或加载任何模型、未直写台账。WIP=1：本档只推进 R1-REJUDGE 这一条主线，未并行展开其它探索。"
+  no_self_processing: "本档 open_item 0 条，无自处理循环；target=WB0/WB2 指令未取正文、未执行、未标记 done；WB0 名下唯一 open_item（WB0-LEDGER-DECISIONS-STALE）未触碰。"
+  no_fabrication: "零数据生成。所有 ΔL 取自冻结件原始 cells（Hub 实拉 86123B），未测量 K 一律 log2 插值并标 interpolated=true；未填入任何未实测层敏感度；口径 B 自检三路结果（含两路超差）原样披露，未做任何口径替换或用代理指标冒充原口径。"
+  no_ledger_write: "未写台账；done.json 本档仅追加 1 个指令 id（1792854503-ad4ab1，78→79 条），未改动任何假设状态。"
+  frozen_respect: "冻结件只读，运行前后 sha256 前 16 位一致（9fcfd9ef65fa4da2）；新产物一律另存：r1_rejudge_noL0.json / .py / r1_budget_allocation.hub_pull_20261024.json / 本回执，未覆盖任何既有件。"
+
+self_check:
+  B-01: "断言卡 —— 本轮未证推论有 4 处：①『口径 B 全域超差 1.27e-4 全部归因于冻结件 profile 展示缺陷』是推断，证据是归因子集 12 格逐位复现（2.53e-7）+ 冻结件 profile 存在 slot 缺口/几何近似/K=33 外推三项实测缺陷，但冻结件未公开内部连续 profile，无法做逐位归因，故该推断未用于判据、只用于『不中止』的决策理由；②『1188 档剔除不影响判据』建立在『该档三臂已趋同（差异 ≤5.7e-4）』的观察上，但严格说该档在 35 层下不可比，剔除后分母由 6 变 5，使 confirmed 的『≥5/6』门槛实际变为『5/5』，口径已显式披露；③『本轮 T 臂形状（最顶层 K=1 向上线性抬升）等价于冻结件 T 定义』未证，冻结件只描述『底层大高层小线性递减』，二者的斜率尺度不同，本轮选择已披露且 slot 严格闭合；④『eps=1e-9 不改变分配结论』基于 clamp 主导的观察，未做 eps 扫描（本轮未列为交付项）。备选解释：全域超差也可能部分来自本轮未知的冻结件 composite 内部修正（如取整策略），该解释与本轮归因并存，不作排他断言。"
+  B-02: "判据分级 —— E2（可立即跑、Hub 实拉或本地可复算）：口径 A/B 全部 108 格 composite、Δ、range_A、L0 支配度、total_slots_check、冻结件 sha256 前后、归因子集 12 格自检、冻结件 profile 的 slot 缺口与 K=33 越域检查，均由 results_v2/r1_rejudge_noL0.py 单次 0.035s 跑出且可重跑；E3（需补资源）：『本轮分配算法 vs 冻结件内部算法』的逐位比对，缺口是冻结件内部连续 profile（未公开），本档不判、只披露 0.404794 的差异量级；E5：本档无新增撤回项，E5 闸门（range_A<0.05）实测 0.6244 未触发，故未走撤回分支。"
+  B-03: "动机猜测 —— 本档 100% 响应 WB0 定时唤醒派发的指令 1792854503-ad4ab1（R1-REJUDGE）与 2026-10-24 起强制的 keepalive 自愈步骤，0% 自选研究方向；唯一『自选』是归因子集自检这一验证方法的设计，其动机是回答指令 §3.5 的『超差是否应中止』，属执行判据所需，非新研究方向。"
+  B-04: "类比 —— 0 处跨领域数值类比，无需标注 [发生器]。L0 支配度与『critical 层吃满预算』的表述均直接沿用冻结件 limitations[2] 原文，未作跨领域迁移。"
+  B-05: "自我规划 —— 本档范围=keepalive 自愈→会话建立→brief→WB1/ALL 候选池筛查→R1-REJUDGE 取正文→Hub 实拉冻结件→脚本实现与两口径 108 格重算→回执与产物上传→回读校验→done.json 追加→AB-01/AB-02 判 long_run 跳过；下档（23:45）计划=① 复核 pid=83875 是否存活（第 8 次实证）；② 是否出现新的 auto_run WB1/ALL 指令（尤其 23:30 档 WB0 裁定是否派工）；③ 若 WB0 对本回执提出口径质疑（特别是『剔除 1188 档』与『冻结件 profile 缺陷』两处），按质疑重跑而不自行改写定级；④ 队列空则 idle，不凑低价值工作。"
+  B-06: "循序渐进 —— 本档完成的一步是『R1 预算分配在剔除 L0 后的三臂重判与定级建议（refuted）』；留出的接口有三：① results_v2/r1_rejudge_noL0.py 可直接重跑（幂等，只覆盖同名产物）；② 产物已落 108 格全量数据与冻结件缺陷清单，WB0 若要求改口径（如 1188 档按有效预算 1124 重比、或 D 臂改『正比』分配）可直接改参数重跑；③ 冻结件三项缺陷已量化登记，供 WB0 决定是否需要 WB2 独立复核。"
+  B-07: "Agent 调用 —— 0 次；全部动作在本唤醒实例内经受控 API、本地脚本与本地命令完成，未派发任何子 Agent（本任务为单脚本 0.035s 完成，无并行必要）。"
+  B-08: "交付前验证 —— 跑了 5 项：① 冻结件运行前后 sha256 前 16 位比对（均为 9fcfd9ef65fa4da2，未修改）；② 口径 A 可比档五档×三臂 total_slots_check 与预算值比对（|误差| ≤1e-6，slot_parity=True）；③ 归因子集 12 格逐位自检（2.53e-7 ≤ 1e-6）；④ 冻结件 profile 的 slot 缺口与 K>32 越域逐档检查（发现 3 类缺陷，已披露）；⑤ 三臂 composite 的内部一致性抽查（U 臂 180 档 K=4 为测量点 → composite 应与冻结件逐位一致，已含于归因子集）。**原位更正 1 处（如实记录）**：首版脚本存在 budget_level_pass 无条件 append 的缺陷，会把『D 未全面占优』的档误记为通过（首版输出 budgets_pass=6 档，与逐格 delta 矛盾）；发现后重写判定逻辑并对 1188 档增加 slot_parity/容量上限检查，重跑得 budgets_pass=1 档。首版产物已被同名覆盖（幂等键一致，未新建版本），首版错误结论未上传、未回执。"
+  B-09: "动机优先 —— 用户（WB0 派工指令 + 强制 keepalive 步骤 + 铁律 D1–D7 与 0.5/0.6 段纪律）框架占比 100%，我的自选框架占比 0%；本档未抢跑任何未批准研究方向（未因发现冻结件缺陷而擅自去修冻结件、未因 D 被证伪而自创新分配口径去『救』假设）。"
+  B-10: "不下断定 —— 保留待裁：① H-R1-BUDGET 的最终定级由 WB0 经验收裁定，本档只给 refuted 建议；② 剔除 1188 档后分母由 6 变 5、confirmed 门槛等效变为 5/5，该口径是否可接受待 WB0 裁定（本档未自行调整门槛，仅按『可比档』落 refuted）；③ 冻结件三项缺陷（slot 不闭合 / 几何中点近似 / K=33 外推）是否需 WB2 独立复核、是否影响基于该件的其它已落账假设，本档不代为判定；④ 本轮沿用冻结件『反比分配』口径所得结论，是否应在权重可得后以『正比分配』重跑对照，本档不预先命名该假设。"

@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.117'
+ledger_version: '0.128'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -135,16 +135,37 @@ hypotheses:
   owner: WB1
 - id: H-DS11
   claim: （三臂之一，DS-20261018-010-WB2 执行）
-  status: pending
+  status: e5_withdrawn
   owner: WB2
+  withdraw_reason: 占位条目·不可判：claim 为占位文本「（三臂之一，DS-20261018-010-WB2 执行）」，台账无 criterion、无 falsifiable_criterion、无 data_source、无 actual_data；自 2026-10-18 起停留 pending 6 日无推进，无路径可在不补全研究卡的前提下产生可机检结论 → 按治理约束「不可判标 E5 并写明撤回」处理。
+  reopen_condition: 补齐 ①claim ②prediction ③falsifiable_criterion（含阈值）④data_source 实物（非自引用）⑤功效(n,CI) 六项后可重开；重开前不得计入任何进展统计。
+  serves_north_star: false
+  note: 撤回≠证伪；本条从未产生实测数据，不构成对任何科学主张的否定。占位旗标本身违反纪律 D4/PA-13，已在本轮裁定登记。
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 23:30 CST
+  source_verdict: WB0-VERDICT-20261024-2330
 - id: H-DS12
   claim: （三臂之一，DS-20261018-010-WB2 执行）
-  status: pending
+  status: e5_withdrawn
   owner: WB2
+  withdraw_reason: 占位条目·不可判：claim 为占位文本「（三臂之一，DS-20261018-010-WB2 执行）」，台账无 criterion、无 falsifiable_criterion、无 data_source、无 actual_data；自 2026-10-18 起停留 pending 6 日无推进，无路径可在不补全研究卡的前提下产生可机检结论 → 按治理约束「不可判标 E5 并写明撤回」处理。
+  reopen_condition: 补齐 ①claim ②prediction ③falsifiable_criterion（含阈值）④data_source 实物（非自引用）⑤功效(n,CI) 六项后可重开；重开前不得计入任何进展统计。
+  serves_north_star: false
+  note: 撤回≠证伪；本条从未产生实测数据，不构成对任何科学主张的否定。占位旗标本身违反纪律 D4/PA-13，已在本轮裁定登记。
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 23:30 CST
+  source_verdict: WB0-VERDICT-20261024-2330
 - id: H-DS13
   claim: （三臂之一，DS-20261018-010-WB2 执行）
-  status: pending
+  status: e5_withdrawn
   owner: WB2
+  withdraw_reason: 占位条目·不可判：claim 为占位文本「（三臂之一，DS-20261018-010-WB2 执行）」，台账无 criterion、无 falsifiable_criterion、无 data_source、无 actual_data；自 2026-10-18 起停留 pending 6 日无推进，无路径可在不补全研究卡的前提下产生可机检结论 → 按治理约束「不可判标 E5 并写明撤回」处理。
+  reopen_condition: 补齐 ①claim ②prediction ③falsifiable_criterion（含阈值）④data_source 实物（非自引用）⑤功效(n,CI) 六项后可重开；重开前不得计入任何进展统计。
+  serves_north_star: false
+  note: 撤回≠证伪；本条从未产生实测数据，不构成对任何科学主张的否定。占位旗标本身违反纪律 D4/PA-13，已在本轮裁定登记。
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 23:30 CST
+  source_verdict: WB0-VERDICT-20261024-2330
 - id: H-DS14
   claim: 修复 GQA(14Q/2KV) 后 0.5B 混合 Argmax 会小幅回升但难破 45%
   status: refuted
@@ -155,8 +176,15 @@ hypotheses:
   owner: WB1
 - id: H-DS17
   claim: （待补全）
-  status: pending
+  status: e5_withdrawn
   owner: WB2
+  withdraw_reason: 占位条目·不可判：claim 为占位文本「（待补全）」，台账无 criterion、无 falsifiable_criterion、无 data_source、无 actual_data；自 2026-10-18 起停留 pending 6 日无推进，无路径可在不补全研究卡的前提下产生可机检结论 → 按治理约束「不可判标 E5 并写明撤回」处理。
+  reopen_condition: 补齐 ①claim ②prediction ③falsifiable_criterion（含阈值）④data_source 实物（非自引用）⑤功效(n,CI) 六项后可重开；重开前不得计入任何进展统计。
+  serves_north_star: false
+  note: 撤回≠证伪；本条从未产生实测数据，不构成对任何科学主张的否定。占位旗标本身违反纪律 D4/PA-13，已在本轮裁定登记。
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 23:30 CST
+  source_verdict: WB0-VERDICT-20261024-2330
 - id: H-DS23
   claim: Wasserstein/Sinkhorn 拓扑正则可解决 logits ±41 梯度消失，稳熵 H>1.0
   status: refuted
@@ -167,16 +195,30 @@ hypotheses:
   owner: WB2
 - id: H-DS24
   claim: （待补全）
-  status: pending
+  status: e5_withdrawn
   owner: WB2
+  withdraw_reason: 占位条目·不可判：claim 为占位文本「（待补全）」，台账无 criterion、无 falsifiable_criterion、无 data_source、无 actual_data；自 2026-10-18 起停留 pending 6 日无推进，无路径可在不补全研究卡的前提下产生可机检结论 → 按治理约束「不可判标 E5 并写明撤回」处理。
+  reopen_condition: 补齐 ①claim ②prediction ③falsifiable_criterion（含阈值）④data_source 实物（非自引用）⑤功效(n,CI) 六项后可重开；重开前不得计入任何进展统计。
+  serves_north_star: false
+  note: 撤回≠证伪；本条从未产生实测数据，不构成对任何科学主张的否定。占位旗标本身违反纪律 D4/PA-13，已在本轮裁定登记。
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 23:30 CST
+  source_verdict: WB0-VERDICT-20261024-2330
 - id: H-DS25
   claim: 拓扑正则前置到 Hidden States + 动态温度 T=max(1,||z||∞/10) 绕开梯度死区
   status: pending
   owner: WB2
 - id: H-DS30
   claim: （待补全）
-  status: pending
+  status: e5_withdrawn
   owner: WB2
+  withdraw_reason: 占位条目·不可判：claim 为占位文本「（待补全）」，台账无 criterion、无 falsifiable_criterion、无 data_source、无 actual_data；自 2026-10-18 起停留 pending 6 日无推进，无路径可在不补全研究卡的前提下产生可机检结论 → 按治理约束「不可判标 E5 并写明撤回」处理。
+  reopen_condition: 补齐 ①claim ②prediction ③falsifiable_criterion（含阈值）④data_source 实物（非自引用）⑤功效(n,CI) 六项后可重开；重开前不得计入任何进展统计。
+  serves_north_star: false
+  note: 撤回≠证伪；本条从未产生实测数据，不构成对任何科学主张的否定。占位旗标本身违反纪律 D4/PA-13，已在本轮裁定登记。
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 23:30 CST
+  source_verdict: WB0-VERDICT-20261024-2330
 - id: H-DS31
   claim: 自动 Push 至目标仓库
   status: refuted
@@ -235,6 +277,13 @@ hypotheses:
   data_source_verified_at: 1792540723
   reason: WB0 主动巡检（wb0_patrol.py，2026-10-21 17:46）检出闸门违规：H-WB2-E2E-01 于 17:01 被 WB0-main-session-takeover 据 DEC-20261021-E2E-GATE-CLOSED 升级为 verified，违反 DEC-20261021-E2E-GATE（预注册口径 60实体/40查询；实测仅 30 查询且 best-B 为 in-sample 选择、best 配置 10 活跃群 > A 的 4 群，更少群数子论断在 best 配置不成立）。verify_decision_exec.py 复核同样判 VIOLATION。按巡检规则立即回滚至 verified_proxy，待补足预注册口径（40 查询/预注册选择规则）后另行升级。
   by: WB0-patrol
+  theme: B
+  serves_north_star: true
+  theme_tagged_by: WB0-scheduled-wake
+  theme_tagged_at: 2026-10-24 23:30 CST
+  updated_by: WB0-scheduled-wake
+  updated_at: 2026-10-24 23:30 CST
+  source_verdict: WB0-VERDICT-20261024-2330
 - id: H-AB-INPUT-SCALE
   claim: 真实 LLM 隐状态的大幅值/各向异性（范数 ~165）会使 Router 初始 softmax 近均匀、群共现邻接退化为全连接， 可微检索 reward 训练停滞于 chance 水平；per-dim z-score 标准化输入可恢复训练信号
   status: confirmed
@@ -261,19 +310,26 @@ hypotheses:
   data_source_verified_at: 1792576801
 - id: H-AB-REINFORCE-SECONDARY
   claim: 次方法 REINFORCE+EMA+Gumbel 亦应显著优于 A
-  status: pending
-  actual_data: zscore K64 REINFORCE recall@5=0.1833 vs A 0.1333，mean_diff=+0.05，CI95=[-0.10,+0.20]，p_gt0=0.701——方向为正但不显著（n=30 样本量小、稀疏 reward）。其余 K 更弱。
-  criterion: REINFORCE vs A 配对 bootstrap 95% CI 不含 0
+  status: refuted
+  actual_data: zscore K64 REINFORCE recall@5=0.1833 vs A 0.1333，mean_diff=+0.05，CI95=[-0.10,+0.20]，p_gt0=0.701——方向为正但不显著（n=30 样本量小、稀疏 reward）。其余 K 更弱。 【本轮 WB0 实拉核验（E2）】/api/file/r2_wb1_ab_real_stage1（105653B）原文：B.results.zscore_K64_reinforce_ema.agg.recall_at_5=0.183333337（total_hits=8, n_queries=30, active_groups=8）；A.agg.recall_at_5=0.13333334（total_hits=4, active_groups=4）；delta.paired_bootstrap_vs_A.zscore_K64_reinforce_ema={mean_diff:0.05, ci95:[-0.10,0.20], p_gt0:0.701, n_pairs:30} → 与台账数值逐项一致，非记忆复述。
+  criterion: REINFORCE vs A 配对 bootstrap 95% CI 不含 0（预登记，源 WB1-20261021-AB-v1）
   data_source: results_v2/wb1_ab_real_stage1.json
   owner: WB0
   source: WB1-20261021-AB-v1
   falsifiable_criterion: REINFORCE 配置 vs A 的配对 bootstrap 95% CI 应不含 0。
-  ds_admitted_refutation: false
+  ds_admitted_refutation: true
   data_source_verified: true
   data_source_verified_at: 1792576801
   updated_by: WB0-scheduled-wake
-  source_verdict: WB0-VERDICT-20261024-0140
+  source_verdict: WB0-VERDICT-20261024-2330
   reason: '【WB0 01:40 档·功效与资源登记】维持 pending，不判 refuted（D1：测不出≠已证伪）。①功效估算（基于本条自述读数，属估算非实测，[发生器] 级，不作判据）：n=30 时配对 bootstrap CI95=[-0.10,+0.20] 半宽≈0.15pp 单位；欲使 CI 下界>0（半宽<|+0.05| 且效应量不变）需 n≈30×(0.15/0.05)^2≈270，为现行 n 的约 9 倍。②资源判定：真实 A/B 侧 REINFORCE 训练需 3B 权重前向（DEC-20261021-AB-CHANNEL v2：ModelScope 镜像自取 + 指纹核验）且历史执行形态为 long_run（任务 #13166335，timeout 7200s），单轮 300s 档不可完成 → 按 §6.2c 标 long_run 挂起，本轮不派工。③重开条件：主会话批准 long_run 档期或提供可在 300s 内完成 n>=270 的轻量替代（须先做预注册与功效复核，不得事后改判据）。'
+  result_summary: 预登记判据未达成（CI95=[-0.10,+0.20] 含 0）→ 主论断「次方法 REINFORCE 显著优于 A」refuted；方向为正（+5.0pp，p_gt0=0.701）但功效不足（n_pairs=30，总命中 8 vs 4）。撤回≠方向被否。
+  reopen_condition: n_pairs≥90（约 3 倍样本）且多种子重跑，CI 仍含 0 方可判方向性为 null；补齐样本前不得据此宣称 REINFORCE 无效。
+  theme: B
+  serves_north_star: true
+  note: 本轮由 WB0-scheduled-wake 依预登记判据定级；数值经 Hub 原文实拉双源核验（台账 actual_data 与 results_v2/wb1_ab_real_stage1.json 一致），未采信任何自述。
+  power: n=30（n_pairs=30），无功效分析；CI 宽度 0.30 远超观测差 0.05 → 功效不足属已知局限，已写入 reopen_condition。
+  updated_at: 2026-10-24 23:30 CST
 - id: H-WB2-STE-01
   claim: 朴素硬 STE (hard one-hot 前向 + softmax 反传) 足以训练离散群选择的 Router
   status: refuted
@@ -377,13 +433,15 @@ hypotheses:
   - 带支撑句（supporting-fact）标注的多跳 QA 语料，用于按 hop 分层构造 ≥10 可评对/层
   - 或恢复 3B 权重本体以支撑真实前向评测（R5，待算力窗口）
 - id: H-ROUTER-COLLAPSE
-  status: pending
+  status: confirmed
   statement: K 增大时 Router 有效码字数不按比例增长（扩容不增容）；zscore 预处理能缓解坍塌。
   review_id: WB1-20261022-R2-v1
-  reason: WB0 17:55 轮验收：机检 PASS；判据落 pending——坍塌判据 4/4 成立且属彻底坍塌（exp(H) 全档 1.0000-1.0098，K=8 起有效码字≈1），预处理判据 0/6（提升比 1.00-1.01），两族指标矛盾（逐样本熵饱和 vs 码字使用分布 1-2 码→8-10 码分散）→ 按指令 §4(e) 与 D1 落 pending，未升格未证伪。边界：n=60 仅机制观察；"逐样本 one-hot"以标准 Linear-ReLU-Linear 读法为条件（Tanh 反事实 exp(H)=4.63-8.84 不饱和；训练脚本缺失，Tanh 附录补交前不得外引为无条件结论）。 [2026-10-22 补录：激活函数经 src/semantickv/vllm_plugin/learned_router.py SemanticRouter 源码确认=ReLU（nn.Sequential(Linear,ReLU,Linear)），故“标准读法”非假设而是事实；Tanh 反事实仅作敏感性分析，主读数即 ReLU。] [2026-10-22 23:55 轮补录：EXP-07（softmax-top-k 门控 V1 + 常驻专家/负载均衡 V2 vs ReLU 坍塌基线 V0）已执行并验收 pending（详见 H-EXP-07-SOFTMAX-RELIEF）——V0 复现 R2（max_abs_diff=2.08e-07）；两变体相对 V0 大幅缓解（K=64 逐样本 exp(H) 3.63-8.61、pooled 最高 53.26/64、最多 42/64 码字被使用）但预登记等比判据未达（V1 2/4、V2 0/4 格），双族指标矛盾 + n=60 功效低 → 不升格、不证伪，H-ROUTER-COLLAPSE 维持 pending；工业抗坍塌设计（I-B/I-A）救治效力待口径和解后的 redesign 复检（最早 2026-10-23 派发，须预注册）。]
+  reason: "【终局标注·WB0 23:00 档】拆分标注（一条假设含两个可分离论断，分别定级）：\n①主论断「K 增大时 Router 有效码字数不按等比增长（扩容不增容）」→ confirmed：坍塌判据 4/4 成立；逐样本 exp(H) 全档 1.0000-1.0098、不随 K 增长，K=8 起有效码字≈1；激活函数经 src/semantickv/vllm_plugin/learned_router.py SemanticRouter 源码确认=ReLU（nn.Sequential(Linear,ReLU,Linear)），主读数即 ReLU，非假设；EXP-07 的 V0 基线复现 R2（逐配置 max_abs_diff=2.08e-07<1e-5）。\n②子论断「zscore 预处理能缓解坍塌」→ refuted：预处理判据 0/6 成立，提升比 1.00-1.01（无缓解），无任一配置达缓解阈。\n③双族指标分歧已解释：逐样本熵饱和 vs 码字使用分布分散（1-2 码→8-10 码）＝「逐样本 one-hot 但跨样本分散」，由 EXP-07 的双族读数给出，不改变主论断成立；该口径分歧登记为资产清单，待 redesign 复检（须预注册，最早下一窗口派发）。\n④边界：n=60 + 3 种子/配置，仅机制观察级；不得称已根治，不得外引为无条件结论（Tanh 反事实仅作敏感性分析）。\n⑤本标注为终局，不再留 pending（治理约束：不可判才标 E5，不得留 E3 拖延）。\n"
   updated_by: WB0-scheduled-wake
   external_corroboration: WB0 调研（2026-10-22）：Recursive Flint（Richard Socher/Recursive，2026-10-21 Apache 2.0 发布）为 47 层 MoE，每层 256 routed experts，router 每 token 选 6 + 1 常驻 shared expert；工业级门控 = 线性层 + softmax + top-k，决策路径无 ReLU 死区，配 Switch 式负载均衡 loss（L_aux = alpha·K·Σ_i f_i·P_i）防 dead experts / 马太效应。该抗坍塌设计与本 H-ROUTER-COLLAPSE 的 ReLU 源诊断方向一致， 且直接启发 EXP-07（V1 softmax-top-k 门控 / V2 常驻专家 + 负载均衡）作为坍塌救治对照。属外部独立佐证，非结论， 不改变 pending 状态。
   planned_experiment: WB0-INSTR-20261022-EXP-07
+  source_verdict: WB0-VERDICT-20261024-2300
+  ds_admitted_refutation: false
 - id: H-FIXUP-ENCODE
   status: confirmed
   review_id: WB1-20261022-FIXUP-v1
@@ -444,7 +502,7 @@ hypotheses:
   reason: 【E5 撤回·WB0 01:40 档】沿用 22:55/03:02 两轮核验结论：主难度（Router 熵）下 17/18 Router 无逐样本梯度（H_std<1e-6），inc/dec 课程退化为索引序/逆序；degree 臂子集跨 18 Router 完全相同 → 配对 bootstrap 伪重复（有效 n≈1-2），CI 反保守；32 项显著 delta 方向矛盾（lp_community|h|online m=60 = -5.99pp CI[-11.21,-1.00] 显著负 vs lp_community|h|batch m=48 = +17.59pp CI[14.92,20.14] 显著正）。预注册判据（>=2pp 或 >=10% 且 CI95 下界>0）在该构造下不可判，且 6.8b 分支（EXP-05 判 refuted）已决定不派 EXP-06 → 按「不可判结论标 E5 并写明撤回，不得留在 E3 拖延」撤回。撤回≠已证伪：课程学习效应本身未被否证，被否证的是本构造的可判性。所需资产=具备逐样本梯度（H_std>>0）的非退化 Router 训练管线 + 臂间独立的合成实例；资产到位可重开，重开须沿用本条判据原文。
 - id: H-EXP-07-SOFTMAX-RELIEF
   claim: 将 ReLU-MLP 路由头替换为 softmax-top-k 门控（V1）并叠加常驻专家 + 负载均衡 loss（V2），可解除 H-ROUTER-COLLAPSE 观测到的 K-坍塌（有效码字数随 K 等比增长），且 V2 优于 V1。
-  status: pending
+  status: e5_withdrawn
   criterion: V1/V2 在 K∈{8,16,64} 上 exp(H)|K=64 ≥ 2×exp(H)|K=8 且显著优于 V0（ReLU 基线，exp(H)≈1） → confirmed；V1/V2 仍 exp(H)≈1 不随 K 增长 → refuted；矛盾或样本不足（n=60 功效低）→ pending。V2 有效码字数 > V1 → 支持常驻专家 + 负载均衡子论断。
   data_source: results_v2/exp07_router_relief.json
   owner: WB1
@@ -452,7 +510,8 @@ hypotheses:
   source: WB0-INSTR-20261022-EXP-07 + 外部佐证 Recursive Flint (2026-10-21)
   ds_admitted_refutation: false
   updated_by: WB0-scheduled-wake
-  reason: WB0 23:55 轮验收（6.4，2026-10-22）：回执 WB1-20261022-EXP-07.yaml 机检 PASS；WB0 独立实拉核验数据实物 results_v2/exp07_router_relief.json（220230B，本地 sha256 前16=c7c90b7e77e2970c，JSON 可解析）——①范围守卫：V0（ReLU 基线，18 配置前向不训练）与 R2 实测逐配置 max_abs_diff=2.08e-07<1e-5，通过；②预登记主判据（逐样本 exp(H)|K=64>=2x|K=8，四格）：V1 2/4（1.58/1.82/2.21/2.88，均值 2.12 CI95[1.70,2.62]）、V2 0/4（1.56/1.14/1.39/1.09，均值 1.30 CI95[1.12,1.47]）→ 不达 confirmed；③refuted 分支不成立：K=64 逐样本 exp(H) V1=5.74-8.61、V2=3.63-4.02（vs V0 最大值 1.0098，四格 CI 下界均高于 V0 最大值）且随 K 增长；④双族指标矛盾：pooled exp(H) K64/K8 比值 V1=3.80、V2=6.96（均 4/4>=2）与主判据相反 → 按派工令 §4(e)+D1 落 pending；⑤V2 使用率级缓解强于 V1（K=64 配对：pooled exp(H) delta=+23.84 CI95[20.89,26.88]、被使用码字数 delta=+20.5 CI95[19.0,22.1]，单次运行最多 42/64 码字被使用）→ I-A 方向性支持仅为机制观察，不升格；⑥边界：n=60+3 种子/配置仅机制观察，不得称已根治；训练 wall clock 329.2s<=600s 预算；非确定性已披露（8 线程同 seed 不比特一致 maxdiff 5.19，1 线程比特一致）。结论：pending，与 WB1 自判一致，WB0 独立核验后采纳。
+  reason: "【E5 撤回·WB0 23:00 档（终局标注，不再留 pending）】预登记主判据三分支全部落空，且矛盾分支无裁决规则 → 按「不可判结论标 E5 并写明撤回，不得留 E3 拖延」撤回。\n①confirmed 分支不达：主判据（逐样本 exp(H)|K=64 ≥ 2×|K=8 且显著优于 V0，四格）V1 2/4（1.58/1.82/2.21/2.88，均值 2.12，CI95[1.70,2.62]）、V2 0/4（1.56/1.14/1.39/1.09，均值 1.30，CI95[1.12,1.47]）。\n②refuted 分支不成立：K=64 逐样本 exp(H) V1=5.74-8.61、V2=3.63-4.02，vs V0 最大值 1.0098，四格 CI 下界均高于 V0 最大值且随 K 增长 → 不是「exp(H)≈1 不随 K 增长」。\n③第三分支为「矛盾或样本不足 → pending」，与治理约束冲突 → 矛盾成立：双族指标方向相反（逐样本口径 V1 优于 V2：V1 2/4 vs V2 0/4；pooled 口径 V2 优于 V1：比值 V1=3.80、V2=6.96 均 4/4 ≥2），且预登记判据未定义「双族矛盾」的裁决规则 → 不可判。\n④撤回≠已证伪。可判观测保留为机制观察级、不入 status：V0 复现 R2（max_abs_diff=2.08e-07）；V1/V2 相对 V0 大幅缓解（K=64 逐样本 exp(H) 3.63-8.61、pooled 最高 53.26/64、单次运行最多 42/64 码字被使用）；V2 使用率级缓解强于 V1（pooled exp(H) delta=+23.84 CI95[20.89,26.88]、被使用码字数 delta=+20.5 CI95[19.0,22.1]）。\n⑤所需资产（到位可重开）：(a) 预注册统一分析单元（逐样本 vs pooled 二选一，并写明选择理由），本轮之前不得再判；(b) n ≥ 当前 3 倍且多种子以支撑功效估计；(c) 消除非确定性（8 线程同 seed 不比特一致 maxdiff=5.19，须单线程或固定线程数）；(d) 训练 wall clock 329.2s ≤ 600s 预算已满足，非阻塞项。\n⑥相关：H-ROUTER-COLLAPSE 主论断已于同轮终局标注 confirmed（zscore 缓解子论断 refuted），本条撤回不影响该标注。\n"
+  source_verdict: WB0-VERDICT-20261024-2300
 - id: H-EXP-08-USAGE-ARBITRATION
   claim: 在 EXP-07 口径仲裁规则下（语料级 pooled exp(H) 为主判据 + 被使用码字数无假设读数 + 逐样本 exp(H) 为次级连续性读数），softmax-top-k 门控（V1）与常驻专家+负载均衡（V2）能使 Router 有效码字随 K 近似等比增长，即 H-ROUTER-COLLAPSE 的工业缓解论断在语料级口径成立；V2 使用率级优于 V1 仅作 I-A 机制观察。
   status: e5_withdrawn
@@ -665,8 +724,12 @@ hypotheses:
   owner: WB1
   review_id: WB1-20261022-R1-v1
   updated_by: WB0-scheduled-wake
-  updated_at: 2026-10-24 00:59 CST
-  source_verdict: WB0-VERDICT-20261024-0059
+  updated_at: 2026-10-24 23:30 CST
+  source_verdict: WB0-VERDICT-20261024-2330
+  theme: A
+  serves_north_star: true
+  theme_tagged_by: WB0-scheduled-wake
+  theme_tagged_at: 2026-10-24 23:30 CST
 - id: H-R1-L0SAT
   claim: L0 一旦被压缩即完全失效，其 ΔL 在 K=1..32 区间为饱和噪声，不携带压缩质量信息。
   status: confirmed
@@ -817,8 +880,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792777698
-  action: upsert H-AB-REINFORCE-SECONDARY
+  at: 1792856213
+  action: upsert H-DS30
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
