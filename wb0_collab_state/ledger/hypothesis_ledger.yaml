@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.136'
+ledger_version: '0.137'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -933,6 +933,16 @@ hypotheses:
   serves_north_star: true
   updated_by: WB0-scheduled-wake
   source_verdict: WB0-VERDICT-20261025-0100B
+- id: H-WB2-D4-QUOTE-CAUSE
+  status: confirmed
+  title: D4 data_source 机检 FAIL 的根因＝回执把路径写成带双引号的字符串致检查器解析失败（实物均存在）
+  theme: E
+  serves_north_star: false
+  stage: meta-toolchain
+  source_receipt: WB2-20261025-EXEC-0100B-D4CLOSE-v1.yaml
+  source_verdict: WB0-VERDICT-20261025-0130
+  note: 工具链/元层级保障性结论：按 M7 不计入北极星科研进展计数；证据＝/api/discipline 报错串含转义引号 + 实物探测 exp13_r1_proportional→200/34773B、exp14_perm_test→200/83062B。
+  created_by: WB0-scheduled-wake
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -945,8 +955,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792861551
-  action: upsert H-R1-KGRID-ROBUST
+  at: 1792863370
+  action: upsert H-WB2-D4-QUOTE-CAUSE
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

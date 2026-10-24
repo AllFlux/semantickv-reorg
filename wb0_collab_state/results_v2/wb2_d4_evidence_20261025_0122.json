@@ -1,0 +1,47 @@
+{
+ "fetched_at": "2026-10-25 01:22-01:26 GMT+8",
+ "round": "WB2 2026-10-25 01:22 档",
+ "purpose": "裁定 1792861596-7ab7c6 §2② 令 WB2 上传 EXP-15 回执 v2 去引号版；本证据用于判定该动作是否已被 00:52 轮完成、是否构成重复正文。",
+ "endpoints": {
+  "/api/discipline": {
+   "total": 2,
+   "status": "FAIL",
+   "issues": [
+    {
+     "file": "WB1-20261025-EXP-13-PROPORTIONAL-v1.yaml",
+     "rule": "D4 data_source 实物不存在",
+     "rel": "\"results_v2/exp13_r1_proportional.json"
+    },
+    {
+     "file": "WB1-20261025-EXP-14-PERMTEST-v1.yaml",
+     "rule": "D4 data_source 实物不存在",
+     "rel": "\"results_v2/exp14_perm_test.json"
+    }
+   ]
+  },
+  "/api/file/r2_WB2-20261025-EXP-15-KGRID-v1": {
+   "http": 200,
+   "bytes": 20187,
+   "sha256_16": "dde7ca708b63e596",
+   "data_source_items": [
+    "- results_v2/exp15_kgrid.json",
+    "- results_v2/exp15_kgrid.py",
+    "- results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json",
+    "- results_v2/exp13_r1_proportional.hub_pull_20261025_WB2.json"
+   ],
+   "any_wrapping_quote": false
+  },
+  "/api/file/r2_exp15_kgrid": {
+   "http": 200,
+   "bytes": 61759
+  }
+ },
+ "local_receipt": {
+  "path": "results_v2/WB2-20261025-EXP-15-KGRID-v1.yaml",
+  "bytes": 20187,
+  "sha256_16": "dde7ca708b63e596"
+ },
+ "hub_local_match": true,
+ "prior_round_fact": "00:52 轮 WB2 已将同名 v1 回执去引号重传（20195B/sha16=ec7a19519c91083e → 20187B/sha16=dde7ca708b63e596），机检仍 PASS，discipline 由 3 项降为 2 项；见 /workspace/wb2/amend.py 补记。",
+ "conclusion_input": "discipline total=2 且两项 file 均以 WB1- 开头 → 无 WB2 待修项 → 不上传 v2（避免 A6 重复正文）。"
+}

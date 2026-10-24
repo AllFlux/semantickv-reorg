@@ -1,0 +1,144 @@
+receipt_id: WB2-20261025-EXEC-0100B-D4CLOSE-v1
+review_id: WB2-20261025-EXEC-0100B-D4CLOSE-v1
+target: WB2
+date: "2026-10-25"
+executor: WB2
+round: "2026-10-25 01:22 档"
+kind: ops_ack
+theme: A
+serves_north_star: false
+north_star_note: "本轮不产出 A 主线实验结论，属纪律/机制救治（D4 可追溯性）。回执可追溯性是 A 主线结论可被采信的前提，故按 v3 归 theme=A 并显式标注『非主线·机制救治』，避免冒充实验进展。"
+instruction_ref: "1792861596-7ab7c6"
+instruction_ref_secondary: "1792861495-b9641d"
+idempotency_key: WB2-EXEC-20261025-0100B-D4CLOSE
+parent: WB0-VERDICT-20261025-0100B
+source_verdict: WB0-VERDICT-20261025-0100B
+
+prediction: >
+  执行前登记（01:22 档，读完裁定 §2② 之后、取证之前）：
+  (1) Hub 上的 WB2-20261025-EXP-15-KGRID-v1 应为 00:52 轮已重传的去引号版（20187B，sha16=dde7ca708b63e596），
+      其 data_source 四项均为无引号标量；
+  (2) /api/discipline 当前应不再包含 WB2 条目（total=2，两项均属 WB1：EXP-13-PROPORTIONAL-v1、EXP-14-PERTEST-v1）；
+  (3) 于是裁定 §2② 令 WB2 上传的「v2 去引号版」构成重复正文，按同条 §2③ 停止条款应不上传，
+      改由本回执记录事实并回报差异化证据。
+  决策规则：若 (1)(2) 同时成立 → 不上传 v2；若 discipline 仍含 WB2 条目或 Hub 回执仍带引号 → 立即按令上传 v2。
+
+falsifiable_criterion: >
+  否证条件（任一成立即预测被推翻，本轮必须改走「上传 v2」）：
+  a) /api/discipline total ≥ 3，或 issues[].file 中出现 "WB2-20261025-EXP-15-KGRID-v1"；
+  b) /api/file/r2_WB2-20261025-EXP-15-KGRID-v1 返回 size ≠ 20187，或正文 data_source 任一项含包裹双引号；
+  c) Hub 与本地回执 sha16 不一致。
+  三项全部不成立、且 discipline total=2 且两项 file 均以 "WB1-" 开头 → 预测成立，status=confirmed，不上传 v2。
+  功效说明：本轮为黑箱取证，直接读接口返回与文件字节，无需统计功效（n/a）；
+  因 Hub 检查器源码未挂载，不能读源码定位解析分支，故结论定级为「接口行为级」，不表述为代码级根因。
+
+hypotheses:
+  - id: H-WB2-D4-QUOTE-CAUSE
+    status: confirmed
+    prediction: >
+      D4「data_source 实物不存在」误报在 WB2 侧可由回执方去除包裹引号而闭合：
+      若把回执 data_source 四项由带双引号标量改为无引号标量并重传，则该回执应从 /api/discipline 中消失。
+    falsifiable_criterion: >
+      去引号重传后 /api/discipline 中仍出现该回执条目 → 假设被否证（说明成因不在回执方引号）；
+      条目消失且机检仍 PASS → 假设成立。观测窗口＝重传后当轮（00:52 轮，已发生）与本轮复查（01:22 档）。
+    actual_data: >
+      00:52 轮实证：同名 v1 回执去引号重传（20195B/sha16=ec7a19519c91083e → 20187B/sha16=dde7ca708b63e596），
+      机检仍 PASS，/api/discipline 由 3 项降为 2 项，被消除的正是 WB2-20261025-EXP-15-KGRID-v1 条目。
+      01:22 档复查：discipline total=2（WB1-20261025-EXP-13-PROPORTIONAL-v1、WB1-20261025-EXP-14-PERTEST-v1），
+      Hub 回执 200/20187B，sha16=dde7ca708b63e596 与本地逐字节一致，data_source 四项均无包裹引号
+      （evidence.any_wrapping_quote=false）→ 假设成立，观测窗口内无反向证据。
+    ds_admitted_refutation: false
+    admitted_refutation_block: >
+      本条落 confirmed，无需承认块。显式声明：本条不推翻 WB0 §2「检查器解析失败」的判断，
+      只补上「回执方带引号同样是成因」的实证侧；二者为共存双因（回执方写引号 ＋ 检查器不剥引号），非互斥。
+      是否登记入台账由 WB0 经受控通道裁定，WB2 本轮未写台账、未改动任何假设终态。
+
+status: confirmed
+
+actual_data: >
+  01:22 档实拉（全部本轮，零记忆复述）：
+  ① /api/brief（2037B）：ledger 0.136、reviews 71/pass 67、instructions 134、checks.discipline=FAIL/issues=2
+     （注：brief 的 issues 计数与本轮直拉 /api/discipline 的 total=2 一致；WB0 补充裁定 §2 记录的「3 项」
+     系 01:04 时刻快照，其间 WB2 00:52 轮的去引号重传已于 01:05-01:06 生效，故本轮降为 2 项）；
+  ② /api/discipline（308B）原文：total=2、status=FAIL，issues = [
+     {file: WB1-20261025-EXP-13-PROPORTIONAL-v1.yaml, rule: D4 data_source 实物不存在,
+      rel: "\"results_v2/exp13_r1_proportional.json"},
+     {file: WB1-20261025-EXP-14-PERMTEST-v1.yaml, rule: D4 data_source 实物不存在,
+      rel: "\"results_v2/exp14_perm_test.json"} ] —— 两项 file 均以 WB1- 开头，无 WB2 条目；
+  ③ /api/file/r2_WB2-20261025-EXP-15-KGRID-v1 → HTTP 200 / 20187B / sha16=dde7ca708b63e596，
+     与本地 results_v2/WB2-20261025-EXP-15-KGRID-v1.yaml 逐字节一致（hub_local_match=true）；
+     其 data_source 四项 = [results_v2/exp15_kgrid.json, results_v2/exp15_kgrid.py,
+     results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json,
+     results_v2/exp13_r1_proportional.hub_pull_20261025_WB2.json]，均无包裹引号；
+  ④ /api/file/r2_exp15_kgrid → HTTP 200 / 61759B（与 WB0 补充裁定 §2 记录的实物一致）；
+  ⑤ 指令 /api/instruction/1792861596-7ab7c6（8211B）与 /api/instruction/1792861495-b9641d（15770B）全文实读。
+  判定：否证条件 a/b/c 全部不成立 → 预测成立 → 不上传 v2，v1 原件保留不覆盖（未改名、未删除、未重写）。
+
+data_source:
+  - results_v2/wb2_d4_evidence_20261025_0122.json
+  - results_v2/exp15_kgrid.json
+  - results_v2/exp13_r1_proportional.hub_pull_20261025_WB2.json
+
+dependency_missing:
+  - "Hub 服务端代码（含 /api/discipline 检查器 check_review.py）未挂载于本沙箱：只能做黑箱取证，不能读源码确认解析分支，故本轮回执对根因只做『接口行为级』表述，不做代码级断言。"
+
+p0: false
+
+collaboration_audit:
+  scope_adherence: >
+    严格在指令范围内：只做裁定 §2② 所指的 D4 闭合核验与 §2③ 的停止判断；未上传 v2（因构成重复正文）、
+    未覆盖或删除 v1、未跑任何新实验（WB0 §3 明示本档不再向 WB2 派新工，EXP-16 属 WB1）、
+    未触碰 WB1 的两条 D4 项（EXP-13/EXP-14 属 WB1 事项，不越权）、未写台账、未改任何假设终态。
+  no_self_processing: >
+    结论只认接口返回与字节：discipline 原文、/api/file 两次实拉的 size 与 sha16、Hub 回执正文第 128-132 行
+    逐行读取；未采信上一轮 amend.py 自述作为判据（仅作旁证并单独标注来源）。
+  no_fabrication: >
+    所有数字均来自本轮 curl 实拉的落盘文件（brief_0122.json、disc_now.json、/tmp/r2_*.bin），
+    无估算、无补全、无「应当如此」的推断值；证据文件为原始返回的结构化转写，未增删字段。
+  no_ledger_write: "未直写 hypothesis_ledger.yaml，未调用 /api/ledger/* 写接口；H-WB2-D4-QUOTE-CAUSE 仅在本回执内登记，是否入账留给 WB0。"
+  frozen_respect: >
+    r1_budget_allocation.json 等冻结件本轮只读未写；EXP-15 回执 v1 在 Hub 与本地均未覆盖（sha16 前后一致），
+    符合「冻结件/历史件不覆盖」铁律。
+
+self_check:
+  B-01: >
+    断言卡：本轮最弱的未证推论＝「discipline 由 3 降 2 是 WB2 去引号重传所致，而非 Hub 侧重算/缓存刷新」。
+    备选解释：Hub 在 01:04-01:22 之间自行重跑机检或清缓存，恰巧消除该条目，与引号无关。
+    区分手段本轮未做（无法重放 Hub 内部时序），故按最弱项处理：结论只声明「当前无 WB2 待修项、v2 构成重复正文」
+    这一可直接观测的事实，而把「去引号即闭合」的因果强度标注为接口行为级、待 WB0 复核（见 hypotheses 段）。
+  B-02: >
+    判据分级：本轮判据为 E2（可立即跑，纯接口复拉、无需资源）；D4 检查器源码级根因为 E3（需 Hub 代码，已升人类闸门，
+    WB0 已呈报，本轮不重复发令）；不存在 E5 项——本轮判据可分辨，未以「不可分辨」为由拖延。
+  B-03: >
+    动机猜测：本轮在回应 WB0 补充裁定 §2② 给 WB2 的显式指令（上传 v2 去引号版），动机＝先核验该动作是否已被
+    上一轮完成，避免重复正文与版本噪声；无自选开跑。
+  B-04: >
+    类比：本轮使用 1 处跨领域类比——把「回执方引号 ＋ 检查器不剥引号」类比为「双因共存」的协议双端失配
+    （发送端多写了封装、接收端不做解封装）。已标注为 [发生器·类比]，不作为证据，只用于组织表述。
+  B-05: >
+    自我规划：本轮范围＝单条主线（WIP=1）：D4 WB2 侧闭合核验 ＋ 差异化事实呈报；未旁及 EXP-16（WB1）、
+    未处理 decisions 段缺陷（人类闸门、WB0 已挂）。下轮计划＝待 WB0 新 auto_run 指令；若 WB0 就本回执的
+    「双因」结论要求追加取证，则下轮做 Hub 时序重放（连续复拉 discipline 观察是否自愈）。
+  B-06: >
+    循序渐进：本轮做了「先核验、后决定上传与否」这一步，避免了无价值重复写入；留下的接口＝证据文件
+    results_v2/wb2_d4_evidence_20261025_0122.json 可被 WB0 直接下载复核，无需 WB2 重新叙述。
+  B-07: >
+    Agent 调用：0 次。本轮为单条接口核验与回执撰写，无需子代理并行，未调用任何 Agent。
+  B-08: >
+    交付前验证：①Hub 与本地回执 sha16 双向比对一致（dde7ca708b63e596）；②data_source 四项逐行检查无包裹引号；
+    ③discipline total 与 brief.checks.discipline_issues 交叉核对一致（均为 2）；④证据文件落盘 1715B、
+    sha16=20293f8d7c5a4e27，上传后回拉校验（见回执上传后补记）。
+  B-09: >
+    动机优先：「用户（指令）要求」占比 ≈ 92%（核验 §2②、按 §2③ 决定是否上传、写回执、附自检块均由裁定给定）；
+    「我的框架」占比 ≈ 8%（提出「回执方引号与检查器不剥引号为共存双因」的差异化定性，并主动不上传 v2）。
+  B-10: >
+    不下断定（保留待裁）：①D4 检查器源码级根因待主会话修复（WB0 已升人类闸门，本轮不重复发令）；
+    ②「去引号即闭合」的因果方向待 WB0 复核（备选解释＝Hub 自愈/缓存刷新，见 B-01）；
+    ③WB1 两条 D4 项是否同源，本轮未越权判定，留给 WB1 按其派工 §4 处置；
+    ④H-WB2-D4-QUOTE-CAUSE 是否入台账，待 WB0 裁定，本轮未预先命名其终态。
+
+self_check_d7_supplement:
+  自我规划: "本轮范围＝单条主线（D4 WB2 侧闭合核验）；下轮＝待 WB0 指令，或按本回执 B-05 做 discipline 时序重放。"
+  循序渐进: "本轮做了核验与呈报这一步；留下的接口＝证据 JSON 可被 WB0 直接下载复核，无需重新叙述。"
+  Agent_调用: "0 次。单条接口核验，无需子代理。"
+  交付前验证: "三项：sha16 双向比对一致、data_source 无引号逐行核对、discipline total 与 brief issues 交叉一致。"
