@@ -1,0 +1,107 @@
+receipt_id: WB2-20261025-EXEC-0222-LEDGERCHECK-v1
+review_id: WB2-20261025-EXEC-0222-LEDGERCHECK-v1
+target: WB2
+date: 2026-10-25
+executor: WB2
+round: 2026-10-25 02:22 档
+kind: ops_inspection
+theme: E
+serves_north_star: false
+north_star_link: 无——本轮为 Hub 通道/索引一致性运维核查与 keepalive 自愈，不产出任何科研假设读数，按 M7/KPI 口径不计入北极星科研进展
+instruction_ref: 1792865336-919bd6
+idempotency_key: WB0-INSTR-20261025-0200-REVIEW-LEDGERCHECK
+rerun: false
+parent: WB0-INSTR-20261025-EXP-17-DEADZONE
+stage: E2
+runtime_sec: 0.0
+status: PASS
+
+prediction: |
+  P1（承接 02:00 档 §3h 指派——复核 /api/ledger 与 /api/brief 计数是否仍不一致）：若该差异是 Hub 端持续性缺陷（如 /api/ledger 缓存长期滞后），则本轮（02:26 CST）实拉 /api/ledger 应仍返回 ledger_version=0.132、假设合计 68 条，与 /api/brief 的 0.137 / 72 条显著不同。
+  P2（承接 02:00 档 §3d「WB2 01:52 档未见新产物」关注项）：若 WB2 01:52 档确为空档，则 results_v2 listing 中 WB2 不应存在 mtime 晚于 01:28:13 的新产物。
+  P3（D3 复核）：若 EXP-17 三件产物仍可追溯，则 /api/file/r2_<stem> 应返回 HTTP 200 且 size 与本地逐一相符。
+
+falsifiable_criterion: |
+  P1 refuted（差异为一次性/瞬时）：本轮同时刻实拉二端点，ledger_version 与 hypotheses 计数及五状态分布与 brief 完全逐项一致（version 差 0、总数差 0、五状态分布全等）→ 不持续，不发 open_item。
+  P1 confirmed（差异持续）：仍出现 version 或计数或分布任一项不等 → 按 §5.5 发 open_item 给主会话。
+  P2 refuted（WB2 非空档）：出现 ≥1 件 WB2 产物且 mtime > 01:28:13。P2 confirmed 则 WB2 真停滞，应接受 §3d 升级。
+  P3 refuted（产物不可独立追溯）：任一 /api/file/r2_<stem> 非 200 或 size 不符。
+  E5 撤回：端点不可达（非 200 且非 404）→ 不判“缺实物”，只写通道状态。
+  pending：仅本轮未取到对比所需的任一端点读数。
+
+actual_data: |
+  【0】keepalive 自愈（本轮第一步）：pgrep 无 wb2_keepalive_heartbeat 实例且日志末跳停在 01:52:32（缺 02:12 跳，判定已被回收）→ 复用既有 /workspace/wb2_keepalive_heartbeat.sh 重启，pid=10586，02:26:14 心跳 http=200 bytes=2163。interval=1200s，独立于 30 分触发，覆盖白天空档。
+  【数据表 A】二端点同时刻实拉（2026-10-25 02:26 CST）：
+    /api/brief  : version=0.137 files=293 reviews=76(PASS72/FAIL4) instructions=138 open_items=10/1
+                 hypotheses=72 {confirmed:30, refuted:21, e5_withdrawn:17, pending:3, verified_proxy:1}
+    /api/ledger : version=0.137 open_items=10 decisions=4
+                 hypotheses=72 {confirmed:30, refuted:21, e5_withdrawn:17, pending:3, verified_proxy:1}
+    → 逐项全等；WB0 02:00 档所报 0.132/68（confirmed28/refuted20/e5_16）差异**本轮不复现**。请求 size=108489B。
+  【数据表 B】results_v2 listing 最新 6 件（mtime 降序）：
+    02:09:18 16696 wb0_round_20261025_0200.md
+    02:05:09 28858 exp17_deadzone.py
+    02:05:09 11293 WB2-20261025-EXP-17-DEADZONE-v1.yaml
+    02:05:02 397407 exp17_deadzone.json
+    01:48:45 13080 WB1-20261025-EXEC-R0145-v1.yaml
+    → WB2 01:52 档**非空档**：3 件产物于 02:05:02–02:05:09 落盘（EXP-17 全额执行，回执已于上轮推送，done.json 已记 1792863416-657b0d）。WB0 02:00 档未见系观察时点早于落盘时点所致，非停滞。距本轮（02:26）21 分钟，远未越 45 分钟阈值。
+  【数据表 C】D3 实物双证（本轮重拉）：
+    /api/file/r2_exp17_deadzone        → http=200 size=397407 ；本地 exp17_deadzone.json 397407 ✔ 相符
+    /api/file/r2_exp17_deadzone_script → http=200 size=28858  ；本地 exp17_deadzone_script.py 28858 ✔ 字节级 cmp 通过
+    /api/file/results_v2/ex...py(全路径带扩展名) → http=404 {"detail":"file not found"}
+  【数据表 D】discipline 机检（本轮实拉，308B）：
+    status=FAIL issues=2，两条**均为 WB1 资产**（WB1-20261025-EXP-13-PROPORTIONAL-v1.yaml / WB1-20261025-EXP-14-PERMTEST-v1.yaml，rule=D4 data_source 实物不存在，rel 带转义双引号）。**无 WB2 项**，WB2 上轮回执 WB2-20261025-EXP-17-DEADZONE-v1 未进 FAIL 列表。
+
+conclusions:
+  C1_ledger_brief_diff:
+    claim: /api/ledger 与 /api/brief 的计数/版本不一致，本轮不复现
+    status: refuted（差异不再存在）
+    verdict_note: 只能断言“不再复现”，**不足以证实** WB0 猜测的根因“/api/ledger 缓存滞后”——若再复发需连拍两时刻才能定性。故根因一项另标 pending。
+  C2_wb2_0152_empty:
+    claim: WB2 01:52 档空档
+    status: refuted（确有 3 件产物落盘，见数据表 B）
+  C3_hub_index_stem_collision:
+    claim: Hub 文件索引 id 取 stem（去扩展名），同名不同扩展名文件共享同一 id
+    status: pending（观察到现象，未读 Hub 源码，不断言为缺陷定义）
+    evidence: |
+      listing 中 exp17_deadzone.py 与 exp17_deadzone.json 的 id 均为 "exp17_deadzone"；
+      GET /api/file/r2_exp17_deadzone 恒返回 .json（397407B），.py 本体经该 id **不可独立取回**；
+      GET /api/file/results_v2/exp17_deadzone.py（带扩展名全路径）返回 404 → 端点只按 stem 寻址。
+    impact: 影响 D3（同名脚本不可单独追溯）与 D5（P0 不可再生资产双通道归档的可用口径）。
+    mitigation_done: 不改冻结件、不覆盖，以独立 stem 另存重传 results_v2/exp17_deadzone_script.py（28858B，sha256 前缀 29aa95f46eaef4d1），现已 http=200 且字节级一致 → 脚本本体可追溯性已闭合。
+    open_for_wb0: 建议 Hub 端后续把 file id 改为含扩展名的全名（或对同名多扩展名加消歧后缀）；本轮不自决是否为缺陷，保留待裁。
+  C4_discipline_wb2_clean:
+    claim: WB2 名下无 discipline FAIL 项
+    status: confirmed（n=2 条 FAIL 全属 WB1，逐条实拉核对）
+
+dependency_missing: []
+p0: false
+
+data_source: results_v2/exp17_deadzone.json
+data_source_aux:
+  - results_v2/exp17_deadzone_script.py
+  - results_v2/WB2-20261025-EXP-17-DEADZONE-v1.yaml
+upload_probe:
+  results_v2/exp17_deadzone.json: {http: 200, size: 397407}
+  results_v2/exp17_deadzone_script.py: {http: 200, size: 28858}
+
+self_check_block:
+  B-01 断言卡: |
+    本轮最弱未证推论＝“ledger/brief 差异已自愈，属瞬时缓存”。备选解释：(a) WB0 02:00 的读数本身落在某次写入中间态；(b) 差异只在台账版本刚推进的窄窗口出现；(c) ledger 仍滞后但恰好在 02:26 前被刷新。三者均未被排除，故 C1 只写“不再复现”，不断言根因。
+  B-02 判据分级: |
+    C1/C2/C4 均为 E2（本轮端点可直读，30 秒内可复现）。C3 落 E2 观察 + E3 定性（定性需 Hub 源码/id 生成逻辑，本会话不可读 → 现象写到数据层，定性留给 WB0，不以猜测蒙判。
+  B-03 动机猜测: |
+    本轮由 30 分钟定时档触发；动机＝回应 02:00 档 §3h 明确指派的“下轮复核 ledger/brief 是否仍不一致”，以及 §3d 对 WB2 健康度的关注项。未自开任何新方向。
+  B-04 类比: |
+    跨领域类比 0 处——本轮全为端点读数比对与 property 校验，未使用 [发生器] 类比推演。
+  B-05 自我规划: |
+    本轮范围＝keepalive 自愈 + §3h 计数复核 + §3d 事实更正 + D3 重拉；下轮计划＝若无 WB2 新派工，则 idle 并提交最简运维回执（重复内容不重发）；若 C3 被 WB0 定为 Hub 缺陷，则按其指令统一改 id 命名。
+  B-06 循序渐进: |
+    本轮做了“证据补齐”这一步：把 .py 以独立 stem 另存重传，使 D3 双证从 2/3 提升到 3/3，并留下 stem 冲突这条待 WB0 定性的接口；未改任何既有判定与冻结件。
+  B-07 Agent 调用: |
+    0 次。本轮动作全由直连端点与本地 cmp/stat 完成，调用子 Agent 只会增加 token 与时间成本，无信息增益。
+  B-08 交付前验证: |
+    三项：①二端点读数由同一轮 curl 取得并 python 解析，零人工复述；②三件产物经 HTTP 状态 + size + cmp 字节比对三重核对；③discipline 逐条打印 'file/rule/rel' 原文，确认无 WB2 项后才写 C4。全部通过。
+  B-09 动机优先: |
+    「用户（指令）要求」≈95%（§3h 复核指派、§3d 关注项、D3 双证、D6 省 token、D7 十项自检均为任务书给定）；「我的框架」≈5%（自行决定把 .py 以独立 stem 另存重传以闭合可追溯性，系在执行既有 D3 规则，非新增标准）。
+  B-10 不下断定: |
+    四项保留待裁未命名：(1) ledger/brief 差异的根因是否“缓存滞后”；(2) Hub file id stem 化是否应判为缺陷；(3) 该差异是否会复发（本轮单点采样，n=1）；(4) 02:00 档观察到的 0.132 读数是写入中间态还是端点 bug。均不预先命名、不入账。
