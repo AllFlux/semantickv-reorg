@@ -1,0 +1,93 @@
+receipt_id: WB1-20261025-EXEC-R0145-v1
+review_id: WB1-20261025-EXEC-R0145-v1
+target: WB1
+date: "2026-10-25"
+executor: WB1
+round: "2026-10-25 01:45 档（纯夜间窗口错峰 :45，实例启动 01:44:5x CST）"
+kind: ops_inspection
+theme: E
+serves_north_star: false
+serves_north_star_text: "本档为运维/巡检/纪律复核（keepalive 自愈 + 裁定只读受理 + D4 实物复核），不产生北极星科研进展；按 0.6 段明示【非主线】。其保障价值＝维持执行器在纯夜间窗口的可拉取性与 Hub 纪律态可判读性，不计入科研计数（沿用 WB0 对 H-WB2-D4-QUOTE-CAUSE 的 M7 标注口径）。"
+instruction_ref: "1792863360-3e73ba（01:30 档裁定，target=ALL）+ 1792861596-7ab7c6（01:00 档补充裁定，target=ALL）；二者均无 auto_run 字段、均无 WB1 可执行 goal、均不含 long_run: true"
+idempotency_key: WB1-EXEC-20261025-0145
+boundary_ref: "《DS研究纲领与机制规范 v3》主题 E（元纲领/保障性）；R1 稀疏度匹配子线 H-R1-P-SPARSITY-ARTIFACT=e5_withdrawn 已由 WB0 01:30 裁定终态关闭、不得再派同族，本档未派同族；与已终态的 H-R1-BUDGET / H-R1-BUDGET-PROPORTIONAL(refuted)、H-R1-KGRID-ROBUST(confirmed)、H-WB2-E2E-01(verified_proxy) 无重叠、不改其状态。"
+
+status: confirmed
+status_note: "顶层 confirmed 严格限定为三项【本会话内可直接判定的事实】（本档无 WB1 派工；discipline 两条报错实物确在；keepalive 守护已重启且首跳真实 200），不含『跨会话持久存活』、『P0 瓶颈已解』、『检查器缺陷已修』——三者均属人类闸门/E3，见 B-10。"
+
+prediction: "（执行前预登记，对应执行器任务书 0/0.5/0.6/2/2b 段）①候选窗口（since=1792861596，target∈{WB1,ALL}）中若存在 WB1/ALL 且 auto_run=true 且不在 done.json 的实验指令，则须执行其 goal 并推回执；若两条均为裁定类且无 WB1 动作项，则本档为零实验巡检档，仅落板运行报告与回执作为执行器健康证据。②若 discipline 两条 D4 报错的 rel 实物在 Hub 存在（HTTP 200 且 size 与本地一致），则维持『检查器解析缺陷』判定，不重发修复令。③若 ps 无 keepalive 进程且日志无近 20 分钟内新跳，则重启既有等价脚本。"
+
+falsifiable_criterion: "①以 GET /api/instructions?brief=1&target=WB1|ALL&since=<last_seen> 的返回条数与逐条正文（/api/instruction/{id}）为准：出现 target=WB1 且 auto_run=true 的实验指令而未执行 → 本假设被否证；出现 target=WB2（如 EXP-17）而执行 → 违反规则 2，同样否证。②以 GET /api/file/r2_<stem> 的 HTTP 状态与 size 为准：任一实物 404 或 size 与本地不符 → 『解析缺陷』判定被否证，须改报真实缺失并发 open_item。③以 ps 命中与日志新增行为准：重启后 ps 仍 0 命中 → 假设否证，须改报 root cause。"
+
+actual_data:
+  head_line: "①候选窗口 target=WB1 与 target=ALL 双路各返回 2 条（665B/路），去重后同为 1792863360-3e73ba、1792861596-7ab7c6，均 target=ALL、author=WB0-scheduled-wake、均无 auto_run 字段；逐条取正文（10733B / 8211B）核验：均为验收/裁定类，致 WB1 动作项为空，唯一派工 EXP-17 为 target=WB2 → 本档零实验、零自选研究方向。②discipline 2 条 D4 报错实物探测：r2_exp13_r1_proportional=200/34773B、r2_exp14_perm_test=200/83062B，与本地同名文件 size 逐一同（本地 sha256 38d3c4a69ab1cc54… / 952df1ea55e2cb1b…）→ 维持『路径带引号致检查器解析失败』，实物不缺；附带复核 r2_exp16_sparse_matched=200/76046B、r2_exp15_kgrid=200/61759B。③keepalive：ps 无进程、日志末跳 00:45:44 后无第二跳 → setsid nohup 重启 wb1_keepalive.sh，ps 命中 pid 178038/178042/178043 运行态。"
+
+  candidate_pool: "since=1792861596；target=WB1 → [1792863360-3e73ba(5928B), 1792861596-7ab7c6(4296B)]；target=ALL → 同一组 2 条；无其他未 done 项。done.json 已收 83 条，本档新增 2 条。"
+
+  brief_snapshot: "now=2026-10-25 01:45｜ledger 0.137｜files 287｜reviews 75(PASS 71/FAIL 4)｜instructions 136｜hypotheses 72(confirmed 30 / refuted 21 / e5_withdrawn 17 / pending 3 / verified_proxy 1)｜open_items 10(open 1 = WB0-LEDGER-DECISIONS-STALE)｜discipline FAIL(2)｜contract PASS(0)｜silence in_window=false"
+
+  keepalive_evidence: "重启前：hub_state/keepalive.log 末行 [2026-10-25 00:45:44] keepalive 守护启动 pid=121330 interval=1200s，其后无 01:05 第二跳；ps -eo pid,cmd | grep wb1_keepalive → 0 命中。重启后：ps 命中 178038/178042(bash wb1_keepalive.sh)、178043(curl ... /?sharecode=V6GYQIUI7Z)，运行态。脚本 /workspace/semantickv-reorg/wb1_keepalive.sh 1127B（既有 setup_keepalive_research.sh 全盘 find 0 命中，改用本仓等价脚本）。本档不等第二跳（下跳 ≈02:05，由下档复核）。"
+
+  discipline_recheck: "GET /api/discipline → {total:2, status:FAIL}；条目：WB1-20261025-EXP-13-PROPORTIONAL-v1.yaml(rel 带双引号 results_v2/exp13_r1_proportional.json)、WB1-20261025-EXP-14-PERMTEST-v1.yaml(rel 带双引号 results_v2/exp14_perm_test.json)。实物逐项探测均 200 且 size 一致 → 与 WB0 01:00/01:30 两档裁定（H-WB2-D4-QUOTE-CAUSE=confirmed）及 WB2 D4CLOSE 一致；v1 原件保留不覆盖，引用走 v2+；遵 01:30 裁定 A3 不重发修复令。"
+
+  long_run_skip: "候选窗口 2 条均不含 long_run: true → 跳过 0 条；AB-01(1792564435-ee5050)/AB-02(1792566417-67614f) 不在窗口且已由 1792577801-70e614 关闭，本档未触碰、不得续跑。"
+
+  mainline_status: "本轮无 WB1 派工 → 主线可执行项 0；主线空转计数 1/2（上轮 01:15 档有 EXP-16 实质交付）；P0 资源阻塞（3B 权重蒸发 / LongBench / GSC 未挂载）持续，遵 A5 不再重复发同键指令 → 本档 open_item 0 条，仅在回报持续呈报。"
+
+hypotheses:
+  - hypothesis_id: H-WB1-0145-NO-ASSIGNMENT
+    text: "2026-10-25 01:45 档候选窗口中不存在可由 WB1 在 scope_guard 内执行的 auto_run 派工，故本档为零实验巡检档。"
+    prediction: "since=1792861596 的 target=WB1/ALL 候选去重后应仅含裁定类指令（无 WB1 goal），唯一派工 EXP-17 属 WB2。"
+    falsifiable_criterion: "若出现 target=WB1 且 auto_run=true 的实验指令而未执行，或执行了 target=WB2/WB0 的指令，则否证。"
+    actual_data: "候选 2 条（1792863360-3e73ba、1792861596-7ab7c6）经正文核验均为裁定类、致 WB1 动作项为空；EXP-17(1792863416-657b0d) target=WB2，本档未取正文未执行。→ 假设成立。"
+    status: confirmed
+    theme: E
+    serves_north_star: false
+
+  - hypothesis_id: H-WB1-D4-RESIDUAL-RECHECK-0145
+    text: "discipline 残余 2 项 D4 报错（WB1 EXP-13/EXP-14 的 v1 回执）的实物在 Hub 均存在，故属检查器解析缺陷而非实物缺失。"
+    prediction: "GET /api/file/r2_exp13_r1_proportional 与 r2_exp14_perm_test 均应 200 且 size 与本地一致（34773B / 83062B）。"
+    falsifiable_criterion: "任一 404 或 size 不符 → 改判真实缺失，须发 open_item(target=WB0) 并按 D4 登记。"
+    actual_data: "r2_exp13_r1_proportional=200/34773B、r2_exp14_perm_test=200/83062B，与本地 size 逐一同（本地 sha256 38d3c4a69ab1cc548ff93ab86b7632e9504dc32b9e45ec17c9db6b547a5e79af / 952df1ea55e2cb1b4086ee867397a40265f84648e164ac0fe8166c7acf2f5202）；附带 r2_exp16_sparse_matched=200/76046B、r2_exp15_kgrid=200/61759B。→ 假设成立；v1 保留、引用走 v2+，遵 A3 不重发修复令。"
+    status: confirmed
+    theme: E
+    serves_north_star: false
+    note: "与 WB0 已入账 H-WB2-D4-QUOTE-CAUSE=confirmed 同向，本档为独立复核（不同执行器、不同时点），非升级既有条目。"
+
+  - hypothesis_id: H-WB1-KEEPALIVE-0145
+    text: "01:45 档启动前 keepalive 守护未在运行（沙箱空闲回收复现），重启既有等价脚本后本会话内恢复心跳。"
+    prediction: "重启前 ps 应 0 命中且日志无近 20 分钟新跳；重启后 ps 应命中 bash wb1_keepalive.sh 与在飞 curl。"
+    falsifiable_criterion: "重启前 ps 命中（则无需重启，本档动作多余）或重启后 ps 仍 0 命中（则重启失败，须改报 root cause）。"
+    actual_data: "重启前 ps 0 命中、日志末跳 00:45:44（缺 01:05 第二跳）；重启后 ps 命中 178038/178042/178043，curl /?sharecode=V6GYQIUI7Z 在飞。→ 假设成立。口径限定：仅指本会话内重启成功且首跳为真实出站请求，不含跨会话持久存活（沙箱无 cron/systemd，历史已 2 次复现失效）与停摆根因修复。"
+    status: confirmed
+    theme: E
+    serves_north_star: false
+
+data_source:
+  - results_v2/wb1_exec_round_20261025_0145.md
+  - results_v2/WB1-20261025-EXEC-R0145-v1.yaml
+  - results_v2/exp13_r1_proportional.json
+  - results_v2/exp14_perm_test.json
+  - results_v2/exp16_sparse_matched.json
+
+dependency_missing: []
+p0: false
+
+collaboration_audit:
+  wb0_actions_not_taken: "①01:30 裁定 A1 台账新建 H-WB2-D4-QUOTE-CAUSE 为 WB0 已执行项，WB1 不代写台账；②A2 派发 EXP-17 target=WB2，WB1 不碰（规则 2）；③A3/A5 明示不再重复发令，本档未发修复令、未发 P0 open_item；④A6/A7 为 WB0 侧；⑤open_item WB0-LEDGER-DECISIONS-STALE 维持 open，WB1 不代改 Hub 代码。"
+  wb2_actions_not_taken: "EXP-15（WB2）confirmed 验收、EXP-17 执行、WB2 去引号 v2 上传均为 WB2 事项，WB1 不代跑不代判；本档仅对其 D4 观察在 WB1 自身两项上做独立复核。"
+  no_self_processing_loop: "本档未对 WB1 自己发出的 open_item 做任何处理（本档亦未发出任何 open_item）。"
+  frozen_artifacts: "未覆盖任何冻结件；v1/v2 回执原件均在位，新产物另存新名（wb1_exec_round_20261025_0145.md / WB1-20261025-EXEC-R0145-v1.yaml）。"
+  no_ledger_write: "未写 hypothesis_ledger.yaml（done.json 仅记指令 id）。"
+
+self_check:
+  B-01: "本轮最弱未证推论＝『keepalive 失效原因是沙箱空闲回收』；依据仅为 ps 0 命中 + 日志缺跳，未读平台侧日志；备选解释＝守护被上一会话退出时的进程组清理带走、或 curl 长时间阻塞后进程自退。已按最弱项处理——只重启并实证本会话内运行态，不断言跨会话存活。"
+  B-02: "判据分级：H-WB1-0145-NO-ASSIGNMENT 与 H-WB1-D4-RESIDUAL-RECHECK 为 E2（本轮可立即实测：API 元数据 + HTTP 探测）；H-WB1-KEEPALIVE 的『跨会话存活』部分为 E3（需平台侧托管能力，缺失资源），已显式剥离不计入 confirmed；无敌 E5 项。"
+  B-03: "动机猜测：本档由纯夜间 30 分钟定时触发（错峰 :45），动机＝先自愈保活、再按省 token 纪律筛指令、无派工时以最小动作落板健康证据；无自选开跑、无扩大范围。"
+  B-04: "跨领域类比：0 处显式类比（本档为运维/复核，未引入类比发生器）；若计『进程回收 ≈ 心跳失效』属直陈因果而非跨领域类比，故不标 [发生器]。"
+  B-05: "自我规划：本轮范围＝步骤0 保活 + 候选筛选 + 两条裁定只读受理 + D4 实物复核 + 双件落板；下轮计划（02:15 档）＝复核 keepalive 第二跳是否落日志、按新指令 FIFO 自取，若仍无主线派工则报『主线空转 2/2』并停止凑数。"
+  B-06: "循序渐进：本轮只做了『保活恢复 + 状态落板』一步；留下的接口＝回执中 P0 瓶颈与检查器缺陷两项呈报、下档可继续的 EXP-17 之外任何 WB1 派工槽位（未被占用）。"
+  B-07: "Agent 调用：0 次。本档全部动作为若干次直连 HTTP（brief 1 + instructions 2 + instruction 正文 2 + discipline 1 + file 探测 4）与本地 ps/sha256，无子 Agent 委托的必要与收益。"
+  B-08: "交付前验证：①YAML 本地解析器预校验通过（首交即满足顶层三字段 + 3 条 hypotheses×3 子字段）；②四条实物探测均 200 且 size 与本地一致；③keepalive 重启以 ps 命中而非脚本回显为准；④上传后按 D3 自查 GET /api/file/r2_<stem> 状态与 size。若机检 FAIL 则就地修正为 -v2 并保留 v1 不覆盖。"
+  B-09: "动机优先：『用户（任务书）要求』≈ 97%（保活步骤、省 token 读取纪律、筛选规则、long_run 跳过、open_item 规则、B-01~B-10 自检块均由指令给定）；『我的框架』≈ 3%（把本档定 theme=E 且 serves_north_star=false 并沿用 WB0 的 M7 不计入科研计数口径）。"
+  B-10: "不下断定（保留待裁）：①P0 资源三选一（3B 权重 / LongBench / GSC）仍待用户裁定；②discipline 检查器路径解析缺陷待主会话代码级修复；③keepalive 跨会话持久存活判 refuted（E2 实测），其根因归平台侧未终裁；④EXP-17 未跑，结论由 WB2 产出、WB0 验收；⑤本档未预先命名任何新假设方向，下一问选择权留 WB0。"
