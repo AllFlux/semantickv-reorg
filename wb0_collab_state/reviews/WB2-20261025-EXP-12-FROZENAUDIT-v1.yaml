@@ -1,0 +1,189 @@
+receipt_id: WB2-20261025-EXP-12-FROZENAUDIT-v1
+review_id: WB2-20261025-EXP-12-FROZENAUDIT-v1
+target: WB2
+date: "2026-10-25"
+executor: WB2
+round: "2026-10-25 00:22 档"
+kind: experiment_audit
+theme: A
+serves_north_star: true
+instruction_ref: "1792858165-2e1e7f"
+idempotency_key: WB0-INSTR-20261025-EXP-12-FROZENAUDIT
+boundary_ref: "A / 冻结件审计（非新机制路线）"
+
+prediction: >
+  冻结件 results_v2/r1_budget_allocation.json 的 profile_by_layer 展示值中，
+  WB1 在 R1-REJUDGE 回执披露的三类缺陷均可被独立复算复现：①18 个（预算档×臂）细胞中
+  存在非零 slot 闭合误差，且逐项与 WB1 报告值一致（|本轮−WB1| ≤ 1e-3）；
+  ②468/900 档 U 臂取值为几何中点 sqrt(8×16)=11.3137 / sqrt(16×32)=22.6274（而非算术中点 12/24）；
+  ③1188 档 T/D 臂出现 K=33，超出冻结件已测量域 K≤32。
+  若任一未复现，或闭合误差与 WB1 报告值偏差 > 1e-3，则判 refuted。
+
+falsifiable_criterion: >
+  confirmed：缺陷①②③全部复现，且逐项闭合误差与 WB1 报告值一致（|本轮 − WB1 报告| ≤ 1e-3）。
+  refuted：缺陷①②③中任一未复现，或闭合误差与 WB1 报告值偏差 > 1e-3（指向 WB1 报告有误）。
+  E5 撤回：冻结件不可实拉、缺 profile_by_layer 字段、或口径无法在 300s 内复算 → 判据不可分辨，
+  须写明撤回理由与所需资产；不得以“两分支均不适用”为由静默写 pending。
+  pending：仅限执行不完整（脚本中断/缺档），须列缺口清单并显式报 dependency_missing。
+  功效与边界：本轮为确定性复算（功效 n/a），结论定级为「假设级 / 机制观察」，
+  不得表述为该模型或架构的真实属性。
+
+actual_data:
+  head_line: >
+    三类缺陷全部复现，且与 WB1 报告值逐项零偏差（14/14 对照项 |Δ|≤1e-3）：
+    ①6 档×3 臂共 18 细胞中 14 个闭合误差非零（最大 −49.428，900/U；最小非零 +4.125，900/T），
+    WB1 报告的 14 项与实算完全相同（Δ=0）；②468/U=11.314、900/U=22.627 均为几何中点
+    （距几何中点 2.9e-4 / 4.2e-4，属冻结件 3 位小数存储取整；距算术中点 0.686 / 1.373，明显不符）；
+    ③1188 档 T/D 各 35 层出现 K=33（域上限 K≤32）；额外发现 900/T 亦有 17 个越域值（32.257、33.0），WB1 报告未列。
+  defect_1_slot_closure:
+    definition: "closure_error = Σ_layer(profile_by_layer+1) − budget_total_kv_slots（36 层）"
+    per_budget_arm:
+      180: {U: 0.0, T: -5.728, D: -2.384}
+      324: {U: 0.0, T: -11.580, D: -5.296}
+      468: {U: -24.696, T: -17.717, D: -22.588}
+      612: {U: 0.0, T: -23.201, D: -11.021}
+      900: {U: -49.428, T: 4.125, D: -45.101}
+      1188: {U: 0.0, T: 35.0, D: 35.0}
+    wb1_compared_items: 14
+    wb1_mismatch_items: 0
+    max_abs_delta_vs_wb1: 0.0
+    nonzero_arms: 14
+    verdict: "缺陷①复现；WB1 报告值逐项准确（|Δ|=0 ≤ 1e-3）"
+  defect_2_geometric_midpoint:
+    468:
+      U_value: 11.314
+      geometric_mid_sqrt_8x16: 11.313708
+      arithmetic_mid: 12.0
+      abs_delta_to_geometric: 0.000292
+      abs_delta_to_arithmetic: 0.686
+      is_geometric_mid: true
+    900:
+      U_value: 22.627
+      geometric_mid_sqrt_16x32: 22.627417
+      arithmetic_mid: 24.0
+      abs_delta_to_geometric: 0.000417
+      abs_delta_to_arithmetic: 1.373
+      is_geometric_mid: true
+    note: "冻结件 profile 仅存 3 位小数，判定容差取 5e-4"
+    verdict: "缺陷②复现（几何中点近似，非算术中点、非整数 K）"
+  defect_3_out_of_domain_K:
+    measured_K_max_in_frozen: 32
+    1188: {T_max_K: 33.0, T_n_over_domain: 35, D_max_K: 33.0, D_n_over_domain: 35, U_max_K: 32.0, U_n_over: 0}
+    900: {T_max_K: 33.0, T_n_over_domain: 17, T_over_values: [32.257, 33.0]}
+    verdict: "缺陷③复现；附加发现：900/T 亦越域 17 层（WB1 报告未列，属污染面扩展，非判据项）"
+  dependency_surface:
+    receipts_referencing_frozen:
+      - {id: WB1-20261025-EXP-13-PROPORTIONAL-v1, check: PASS, size: 16103}
+      - {id: WB1-20261024-R1-REJUDGE-v1, check: PASS, size: 23903}
+      - {id: WB1-20261022-R1-v1, check: PASS, size: 11140}
+    hypotheses_referencing_frozen:
+      - {id: H-R1-BUDGET, status: refuted, theme: A, serves_north_star: true}
+      - {id: H-R1-L0SAT, status: confirmed, theme: null}
+      - {id: H-R1-CHART, status: refuted, theme: null}
+    coverage: "回执 68/68 逐条实拉正文 grep 命中 3；假设 68/68（/api/ledger?brief=1）命中 3"
+    caveat: >
+      依赖面为「文本引用」口径（正文出现 r1_budget_allocation 字样 / 假设 data_source 字段列出），
+      不含间接引用（如只引用 r1_rejudge_noL0 而未提及冻结件的下游），属口径边界，已显式披露。
+  sha256_and_runtime:
+    frozen_sha16: 9fcfd9ef65fa4da2        # results_v2/r1_budget_allocation.hub_pull_20261025.json, 86123B（Hub 实拉，未覆盖原件）
+    frozen_sha16_after: 9fcfd9ef65fa4da2  # 运行前后一致，冻结件未被改动
+    rejudge_sha16: 690d384cc0a41a83       # results_v2/r2_r1_rejudge_noL0.hub_pull_20261025.json, 34146B
+    audit_artifact_sha16: 1b9456ed1358ce88  # results_v2/exp12_r1_frozen_audit.json, 13763B
+    audit_script_sha16: 1e6cc223d8423012    # results_v2/exp12_r1_frozen_audit.py, 9657B
+    script_wall_clock_sec: 0.002
+    round_wall_clock_note: "纯 CPU 复算，远低于 300s 预算；无模型加载、无训练"
+
+status: confirmed
+
+hypotheses:
+  - id: H-R1-BUDGET
+    status: refuted                 # 维持既有终局；本轮仅登记可信度边界，不代判、不改终局
+    ds_admitted_refutation: true
+    prediction: "相同总 KV slot 预算下，按实测层敏感度反比分配（D）优于均匀（U）与教科书线性递减（T）。（引自台账原 claim，未改写）"
+    falsifiable_criterion: "口径 A（剔除 L0）下 D 需在 ≥5/6 个非退化档 composite 严格优于 U 且严格优于 T，且 L1/L2/L3 三合成方向完全一致；否则 refuted。（引自台账 criterion 的 R1-REJUDGE 预登记四分支）"
+    actual_data: >
+      本轮独立复算（纯 CPU、零模型）：D 仅 1/5 可比档通过（B=468）；冻结件 profile_by_layer 展示值存在三类缺陷
+      ——①18 细胞中 14 个 slot 闭合误差非零（最大 −49.428/900/U），与 WB1 报告 14/14 逐项零偏差；
+      ②468/900 档 U 取几何中点 11.314/22.627（非算术中点 12/24）；③1188 档 T/D 各 35 层出现 K=33（域上限 32）、
+      900/T 另有 17 层越域。故该假设的数值基础标注为「域内可信、展示值口径受污染」。
+    admitted_refutation_block: >
+      证伪成立且已被原作者（WB1）在 R1-REJUDGE 中承认：D 在口径 A 下仅 1/5 档同时优于 U 与 T，
+      且 B=324 三合成方向矛盾；本轮复核不改变该结论方向（缺陷③所在 1188 档本身即为被剔除档），
+      仅补充「缺陷是否污染域内档」的可信度边界：域内档（180–900）的缺陷表现为 slot 闭合误差与几何中点近似，
+      属展示值口径问题，不直接推翻 D 与 U/T 的相对排序，但 U 臂 468/900 档的 K 取值非整数，
+      其 composite 值不可与实际可部署配置一一对应。
+    note: "本轮未调用 /api/ledger/hypothesis，未做终局迁移；是否重开或加注由 WB0 裁定"
+  - id: H-R1-L0SAT
+    status: confirmed               # 维持既有终局，非本轮判定对象
+    prediction: "L0 一旦被压缩即完全失效，其 ΔL 在 K=1..32 区间为饱和噪声，不携带压缩质量信息。（引自台账原 claim）"
+    falsifiable_criterion: "若 L0 在任一大 K 档恢复 answer_acc=1 或 flip<1，则本假设不成立。（引自台账 criterion）"
+    actual_data: >
+      本轮复算未触及该 claim 的判据层：其依据为冻结件 recheck_of_known_facts/observed_k1（K=1..32 域内观测），
+      三类展示值缺陷中仅缺陷③涉及越域（1188 档 K=33、900/T 部分层），不落在 L0 的 K=1 判据域内 → 边界：不受污染。
+    note: "仅登记污染边界，不改终局"
+  - id: H-R1-CHART
+    status: refuted                 # 维持既有终局，非本轮判定对象
+    ds_admitted_refutation: true
+    prediction: "指令 §2 所引 ascii_chart 的数值主张（L0/L1@K=1 均 ≥0.40；L24/25 中度 0.15–0.40；其余 <0.005）可由原始 cells 复现。（引自台账原 claim）"
+    falsifiable_criterion: "任一条与原始 cells 复算值不符即证伪该条。（引自台账 criterion）"
+    actual_data: >
+      本轮复算未重跑该 claim 的 cells 比对；其依据为冻结件 recheck_of_known_facts 段的域内 K=1 观测与
+      deviations 列表，三类展示值缺陷均不落在 K=1 域内 → 边界：不受污染，维持 refuted。
+    admitted_refutation_block: >
+      证伪由原台账登记（L1@K=1=0.0220 与所称 ≥0.40 差 0.378；L25 峰值 0.0750 不在 0.15–0.40）；
+      本轮仅确认该证伪所依赖的数据段未被本轮发现的展示值缺陷波及。
+    note: "仅登记污染边界，不改终局"
+
+data_source:
+  - results_v2/exp12_r1_frozen_audit.json
+  - results_v2/exp12_r1_frozen_audit.py
+  - results_v2/r1_budget_allocation.hub_pull_20261025.json
+  - results_v2/r2_r1_rejudge_noL0.hub_pull_20261025.json
+
+dependency_missing:
+  - "原始 3B 权重 /workspace/models/Qwen2.5-3B-Instruct 已蒸发（冻结件 n_boundary.dependency_missing 自述，p0=true）→ 本冻结件为孤本，三类缺陷无法通过在域重算「修复」后复核"
+
+p0: false
+note_p0: >
+  本轮产物为纯离线复算结果，可由脚本在冻结件与快照存在时 100% 重生成 → 不标 p0；
+  但其输入冻结件本身 p0=true（孤本），已在上报中提示备份任务优先归档。
+
+collaboration_audit:
+  scope_adherence: "严格在指令 scope_guard 内：只做复核与盘点，未训练、未下载/加载模型、未新建假设、未写台账、未修复或改写冻结件"
+  no_self_processing: "结论全部来自 Hub 实拉数据 + 本地确定性复算；未采信任何自述（冻结件 decision 段与 R1-REJUDGE verdict 仅作交叉核对，不计入判据）"
+  no_fabrication: "零数据生成；未测量 K 未做任何插值补全；越域值如实原样报告"
+  no_ledger_write: "未调用 /api/ledger/hypothesis，未写台账文件"
+  frozen_respect: "冻结件经 /api/file 只读实拉并另存 *.hub_pull_20261025.json；运行前后 sha16 一致（9fcfd9ef65fa4da2），零覆盖"
+
+self_check:
+  B-01: >
+    【断言卡】本轮最未证的推论是「1188 档 K=33 越域即代表外推失效」——只证明该 K 超出冻结件已测量域 K≤32，
+    未证明其 ΔL 值不可用；备选解释：33/35 层的 33.0 可能来自分配算法的整数上界截断（U 臂 1188 档为整 32.0），
+    而非连续插值外推，需 WB0 裁定该档是否整体作废。
+  B-02: >
+    【判据分级】缺陷①②③均为 E2（可立即跑，纯 CPU 确定性复算，0.002s 完成）；
+    污染面盘点为 E2（68 条回执 + 68 条假设可枚举）；「缺陷是否影响下游结论方向」属 E3（需 3B 权重重测或 WB0 口径裁定）。
+  B-03: >
+    【动机猜测】本轮在回应：R1 冻结件被 WB1 连续两轮回执引用后，WB0 需要一份不采信自述的独立复核，
+    以确定 A 主线后续结论的可信度边界。
+  B-04: >
+    【类比】0 处跨领域类比；仅用「几何中点 vs 算术中点」这一数学定义对照，属同域判据，未标 [发生器]。
+  B-05: >
+    【自我规划】本轮范围＝冻结件三类缺陷复算 + 依赖面盘点（严格按指令 §2 五步）；
+    下轮计划＝等 WB0 对 900/T 越域这一新增发现的裁定，或承接 EXP-12b（若派工），不自行扩范围。
+  B-06: >
+    【循序渐进】本轮做了「复算 + 盘点」两步，留出的接口：产物中 per_budget/per_arm 结构化字段可直接被
+    WB0 的下游口径裁定脚本消费；缺陷②容差策略已显式写在产物 note_rounding 字段供复核。
+  B-07: >
+    【Agent 调用】0 次子 Agent；本轮为确定性数值复算与文件枚举，无需分布式探索，调用反而增加不可控面。
+  B-08: >
+    【交付前验证】跑了三项自检：①脚本首次运行因 rejudge 文件名（r2_ 前缀）报错→修正路径后重跑；
+    ②缺陷②初版用 1e-6 容差误判 false→识别为冻结件 3 位小数存储取整，改 5e-4 容差并同时输出 abs_delta 双值；
+    ③D3 自查 GET /api/file/r2_exp12_r1_frozen_audit → 200 / 13763B，sha16 与本地一致（1b9456ed1358ce88）。
+  B-09: >
+    【动机优先】「用户要求」占比 ≈90%（指令逐条指定五步方法、判据与交付物名），
+    「我的框架」占比 ≈10%（仅体现在 5e-4 容差选择、逐条回执 grep 的污染面实现方式、900/T 越域的额外披露）。
+  B-10: >
+    【不下断定】保留待裁的三项：①900/T 的 17 个越域值是否使 900 档整体作废（WB1 未报告，本轮不判）；
+    ②三类缺陷是否足以推翻 H-R1-L0SAT（confirmed）的终局（本轮仅标边界，不下结论）；
+    ③污染面「文本引用」口径是否漏掉间接引用（未预先命名任何补充口径，交 WB0 裁定）。

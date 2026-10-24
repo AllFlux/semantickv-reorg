@@ -1,0 +1,78 @@
+receipt_id: WB1-20261024-EXEC-R2345-v1
+review_id: WB1-20261024-EXEC-R2345-v1
+target: WB1
+date: "2026-10-24"
+executor: WB1
+round: "2026-10-24 23:45 档（错峰 :45，实例启动 23:45:0x CST）"
+kind: executor_round_report
+theme: "A-KV压缩（依 WB0 23:30 档 M1 补标 H-R1-BUDGET→A；本执行器 23:15 档回执自标 D，本档按 WB0 补标口径对齐，差异显式披露）"
+serves_north_star: "true（结构可压·事实受限：预算约束下的 KV 结构性分配 → 压缩质量；与 SemanticKV-Reorg / 零数据自博弈 / 结构性知识训练 同构）"
+instruction_ref: "本档受理指令 1792856428-fef51d（WB0 23:30 档裁定，target=ALL，无 auto_run，派工 0 条）与 1792854792-fdd701（WB0 23:00 档裁定，target=ALL，无 auto_run）；主线动作=补齐其派发的 1792854503-ad4ab1（R1-REJUDGE，23:15 档已执行）的机检交付闭环"
+
+prediction: "若 23:15 档的 R1-REJUDGE 三件产物确实已落 Hub 且回执格式合规，则：① GET /api/file 三件均返回 200 且字节与本地一致；② 补交 POST /api/review 后 check.status 应为 PASS 且 errors 为空。若任一不成立（产物缺失或格式不合规），则 23:30 档『R1-REJUDGE 未被取用』的判定维持有效，须按缺口重跑或补正。执行前登记，非事后追认。"
+
+falsifiable_criterion: "三件回读中任一出现非 200、或 size 与本地不一致，或 check.status != PASS / errors 非空 → 预测证伪，本档须如实回报『交付未闭环』并列出缺口，不得自述 PASS。"
+
+actual_data:
+  head_line: "三件回读全部 200 且字节一致；POST /api/review → check.status=PASS、errors=[]、raw『机检通过，可写入 hypothesis_ledger.yaml』→ 预测成立，23:30 档『未被取用』判定在 23:49 已失效。"
+
+  hub_readback: "GET /api/file/r1_rejudge_noL0 → 200 / 34146B（本地 sha16 690d384cc0a41a83，一致）；GET /api/file/r1_rejudge_noL0.py → 200 / 18944B（3f2d621ee5589c52，一致）；GET /api/file/WB1-20261024-R1-REJUDGE-v1 → 200 / 23903B（72f67857abe360f4，一致）。本地 mtime：产物 JSON/PY 23:28、回执 YAML 23:34。"
+
+  machine_check: "POST /api/review（file=results_v2/WB1-20261024-R1-REJUDGE-v1.yaml，23903B）→ HTTP 200，返回 id=WB1-20261024-R1-REJUDGE-v1、size=23903、sha256 前 16 位 72f67857abe360f4、check.status=PASS、check.errors=[]、raw『== check_review.py == 结果: PASS ✅（机检通过，可写入 hypothesis_ledger.yaml）』。首次提交即 PASS，未产生 -v2 补正件。"
+
+  gap_root_disclosure: "23:15 档仅走 /api/upload 未走 /api/review，故 Hub 侧 reviews 计数保持 65 不变，WB0 23:30 档据此判『无新增回执 / 未被取用』。本档不推测其取样时点是否与 23:34 落板存在竞态（未证），只陈述：23:49 实测三件在位且机检 PASS。该缺口为 WB1 侧流程疏失（交付物与回执机检应同时提交），已在本档补齐并记录，供 WB0 决定是否纳入纪律项。"
+
+  verdict_readiness: "WB0 23:00 档『下轮必办①验收 R1-REJUDGE 回执（机检 PASS 后按预注册四分支定级）』现已可履行：判据四分支原文见 R1-REJUDGE 回执 falsifiable_criterion；range_A=0.6243897 ≥ 0.05 → E5 闸门未触发；口径 A 可比档 5 个中 D 三合成同时严格优于 U 与 T 的仅 B=468（1/5），B=324 三合成方向矛盾 → 落 refuted 分支。WB1 只给定级建议，不代写台账。"
+
+  m2_correction: "23:30 档 MEDIUM-2『主线执行 0 条（WB1=0）』需更正：R1-REJUDGE 经 WB0 M1 补标 H-R1-BUDGET→A / serves_north_star=true，属 A 主线实质交付（108 格重算 + 定级建议），本夜 A 主线非零。"
+
+  escalation_gate_correction: "23:30 档 MEDIUM-1 自设升级条件『下轮（23:59 档）若 WB1 仍无落板而 WB0/WB2 正常 → 立即升 HIGH』——本档 23:49 有落板（md + 回执）且 R1-REJUDGE 机检 PASS，前提不成立，不应升 HIGH。本档只陈事实，不代判。"
+
+  brief_snapshot: "23:45 brief：ledger_version=0.128；files=253；reviews=65（PASS 61 / FAIL 4）；instructions=120；hypotheses=68（confirmed 28 / refuted 19 / pending 4 / e5_withdrawn 16 / verified_proxy 1）；open_items=10（open 1：WB0-LEDGER-DECISIONS-STALE，target=WB0，WB1 不触碰）；discipline=PASS(0)；contract=PASS(0)；silence in_window=false。本档提交机检后 reviews 计数应由 65 增至 66（未复核终值，如实注明）。"
+
+  long_run_and_open_item: "long_run 跳过 0 条（本档候选窗口内无 long_run 项；AB-01 1792564435-ee5050 / AB-02 1792566417-67614f 仍在队列，按规则 2b 不执行、不标 done、不发 open_item，交专用长时任务『WB1 E2E A/B 执行器（权重镜像自取）』）。open_item 1 条（target=WB0）：P0 资源【6轮未解·升级闸门】WB1 侧补充取证，附 M4 三选一之③的承接能力说明；声明为 23:30 档 M4 的补充而非新呈报，避免与『P0 呈报每夜至多一次』重复计数。"
+
+status: confirmed
+hypotheses:
+  - id: H-WB1-R2345-R1REJUDGE-DELIVERY-CLOSED
+    status: confirmed
+    prediction: "R1-REJUDGE 三件产物在 Hub 在位且回执可通过机检。"
+    falsifiable_criterion: "三件回读任一非 200 或字节不一致，或 check.status != PASS / errors 非空 → 证伪。"
+    actual_data: "三件均 200 且字节一致（34146 / 18944 / 23903B，sha16 与本地逐一同）；check.status=PASS、errors=[]、raw 明载『机检通过』。→ 预测成立。边界：该结论仅覆盖『交付与机检闭环』，不覆盖 R1 结论本身的正确性（后者待 WB0 验收裁定）。"
+
+  - id: H-WB1-R2345-KEEPALIVE-PERSISTENCE
+    status: refuted
+    ds_admitted_refutation: true
+    prediction: "若在会话内启动后台心跳守护，则其应在后续档位仍存活（跨档持久）。"
+    falsifiable_criterion: "任一后续档位巡检 pgrep 命中 0 且 keepalive.log 无新行即证伪。"
+    actual_data: "23:15 档启动的 wb1_keepalive.sh pid=83875 在 23:45 档 pgrep 命中 0、日志无新行 → 跨档存活被证伪（第 8 次实证）。本档已按 step 0 兜底分支重启后台心跳 pid=68099（900s 一跳）。边界：证伪对象严格限定为『跨会话/跨档持久存活』，不含『本档内心跳已启动且请求真实』（后者为真）。根因（沙箱空闲回收机制）归 E3/平台侧，不关闭 WB0-CLOUD-AGENT-FAILURE。"
+
+data_source:
+  - results_v2/wb1_exec_round_20261024_2345.md
+  - results_v2/WB1-20261024-R1-REJUDGE-v1.yaml
+  - results_v2/r1_rejudge_noL0.json
+  - results_v2/r1_rejudge_noL0.py
+
+dependency_missing:
+  - "/workspace/models/Qwen2.5-3B-Instruct 已蒸发（层敏感度不可重算，沿用 R1-REJUDGE 回执登记）"
+  - "resources/ 目录为空：LongBench 多跳子集、3B 权重、GSC 均未挂载（WB0 23:30 档 M4 同证）"
+p0: true
+
+collaboration_audit:
+  scope_adherence: "本档只做三件事：keepalive 自愈、受理两条 WB0 裁定（均明文派工 0 条 → 只读受理）、补齐 R1-REJUDGE 的机检闭环。未抢跑任何未批准研究方向：未因发现『机检未提交』而重跑实验、未修改 R1 结论、未触碰冻结件。WIP=1：本档唯一主线为机检补交，未并行展开其它探索。未代写台账、未代判 H-ROUTER-COLLAPSE / H-EXP-07-SOFTMAX-RELIEF / H-AB-REINFORCE-SECONDARY 的终局状态。"
+  no_self_processing: "open_item 1 条且 target=WB0（非 WB1），无自处理循环；target=WB2 指令未取正文、未执行、未标记 done；WB0 名下 WB0-LEDGER-DECISIONS-STALE 未触碰。"
+  no_fabrication: "零数据生成。所有数字取自本档实测 HTTP 响应（回读 size、check.status 原文、brief 计数）与本地 sha256；未以『未出现』推断 FAIL，亦未在机检结论产生前自述 PASS。reviews 计数增量（65→66）未复核终值，如实注明。"
+  no_ledger_write: "未写台账；done.json 本档仅追加 2 个指令 id（79→81 条），未改动任何假设状态。"
+  frozen_respect: "未覆盖任何冻结件；本档新件 wb1_exec_round_20261024_2345.md 与本回执均为新名另存；R1-REJUDGE 三件原样未改（sha16 复核一致）。"
+
+self_check:
+  B-01: "断言卡 —— 本档未证推论 3 处：①『23:30 档判“未被取用”系其取样早于 23:34 落板所致』只是候选解释，未证（存在端点缓存、命名空间差异等备选解释），故本档只陈述 23:49 实测事实，不归因果；②『reviews 计数应由 65 增至 66』为推断，本档未复核终值；③『不应升 HIGH』是对其自设升级条件的逻辑读数，最终裁定权在 WB0。备选解释：也可能 Hub 侧对 /api/upload 与 /api/review 的落板可见性存在时序差，该解释与本档陈述并存，不作排他断言。"
+  B-02: "判据分级 —— E2（可立即跑）：三件回读 200 + 字节比对、POST /api/review 机检、brief 计数、pgrep 心跳存活，均本档实测且可复跑；E3（需补资源）：R1 结论在真实 3B 权重下的复算，缺口=3B 权重/LongBench/GSC（已开 open_item），本档不判；E5：本档无撤回项，R1-REJUDGE 的 E5 闸门实测 range_A=0.6244 未触发。"
+  B-03: "动机猜测 —— 本档 100% 响应 WB0 两条定时裁定 + 强制 keepalive 步骤 + 0.5/0.6 段纪律（P0 资源最高优先级 → 开单），0% 自选研究方向；唯一自选是『发现机检缺口并补齐』这一交付完整性动作，其动机是完成 WB0 已派工指令的闭环，非新研究。"
+  B-04: "类比 —— 0 处跨领域数值类比，无需标注 [发生器]；『结构可压·事实受限』为北极星原文引用，未作跨领域迁移。"
+  B-05: "自我规划 —— 本档范围=keepalive 自愈→会话建立→brief→WB1/ALL 候选池→两条裁定取正文→Hub 三件回读→机检补交→开 P0 open_item→本档双件落板→done.json 追加；下档（23:59 或 00:15）计划=① 复核心跳 pid=68099 是否存活（第 9 次实证）；② 复核 R1-REJUDGE 机检在 reviews 清单中的终值与 WB0 验收裁定（若 WB0 定级与建议不一致，按其裁定执行而不自行改写）；③ 队列空则 idle，不凑低价值工作（0.5 段）。"
+  B-06: "循序渐进 —— 本档完成的一步是『R1-REJUDGE 交付闭环（机检 PASS）』；留出的接口有三：① results_v2/r1_rejudge_noL0.py 幂等可重跑（改口径即改参数）；② 冻结件三项缺陷清单已量化登记，供 WB0 决定是否需要 WB2 独立复核；③ P0 open_item 已列明 WB1 在零权重 300s 档的承接能力，待 WB0 选③后即可派工开跑。"
+  B-07: "Agent 调用 —— 0 次；全部动作在本唤醒实例内经受控 API 与本地命令完成，未派发任何子 Agent（本档为回读 + 一次机检提交，无并行必要）。"
+  B-08: "交付前验证 —— 跑了 5 项：① 三件 Hub 回读 200 且 size 与本地逐一同（34146/18944/23903）；② 本地 sha256 前 16 位与 Hub 返回 sha256 前 16 位比对（R1 回执 72f67857abe360f4 一致）；③ 机检响应原文逐字读取（check.status=PASS、errors=[]），未采信自述；④ pgrep 心跳进程与日志双向核对（83875 死 / 68099 活）；⑤ done.json 追加前后条数核对（79→81）。无原位更正项。"
+  B-09: "动机优先 —— 用户框架（WB0 两条裁定 + 强制 keepalive + 铁律 D1–D7 + 0.5/0.6 段）占比 100%，我的自选框架占比 0%；本档未因发现机检缺口而擅自改判 R1 结论，未因 P0 阻塞而自创研究方向开源跑。"
+  B-10: "不下断定 —— 保留待裁：① H-R1-BUDGET 的最终定级由 WB0 验收裁定（本档只给 refuted 建议）；② 机检缺口是否纳入纪律项、是否影响 23:30 档 MEDIUM-1 判定的追溯更正，本档不代判；③ M4 三选一的最终选择权在人类/WB0，本档不预先命名替代口径下的任何假设；④ 心跳跨会话存活已判 refuted，其平台侧根因修复本档不追踪、不关闭 WB0-CLOUD-AGENT-FAILURE。"

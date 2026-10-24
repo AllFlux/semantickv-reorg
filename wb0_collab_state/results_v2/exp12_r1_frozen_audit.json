@@ -1,0 +1,491 @@
+{
+  "experiment": "EXP-12-FROZENAUDIT",
+  "instruction_ref": "1792858165-2e1e7f",
+  "idempotency_key": "WB0-INSTR-20261025-EXP-12-FROZENAUDIT",
+  "generated_at": "2026-10-25 00:25:46 +0800",
+  "inputs": {
+    "frozen_file": "results_v2/r1_budget_allocation.hub_pull_20261025.json",
+    "frozen_sha256_16": "9fcfd9ef65fa4da2",
+    "frozen_size_bytes": 86123,
+    "rejudge_file": "results_v2/r2_r1_rejudge_noL0.hub_pull_20261025.json",
+    "rejudge_sha256_16": "690d384cc0a41a83",
+    "rejudge_size_bytes": 34146,
+    "n_layers": 36,
+    "budgets": [
+      180,
+      324,
+      468,
+      612,
+      900,
+      1188
+    ]
+  },
+  "defect_1_slot_closure": {
+    "definition": "closure_error = Σ_layer(profile_by_layer + 1) − budget_total_kv_slots；非 0 即 slot 不闭合",
+    "per_budget": {
+      "180": {
+        "U": {
+          "closure_error": 0.0,
+          "n_layers": 36,
+          "sum_K_plus_1": 180.0,
+          "reported_total_slots_check": 180.0
+        },
+        "T": {
+          "closure_error": -5.728,
+          "n_layers": 36,
+          "sum_K_plus_1": 174.272,
+          "reported_total_slots_check": 180.0,
+          "wb1_reported": -5.728,
+          "delta_vs_wb1": -0.0,
+          "match_le_1e3": true
+        },
+        "D": {
+          "closure_error": -2.384,
+          "n_layers": 36,
+          "sum_K_plus_1": 177.616,
+          "reported_total_slots_check": 180.0,
+          "wb1_reported": -2.384,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        }
+      },
+      "324": {
+        "U": {
+          "closure_error": 0.0,
+          "n_layers": 36,
+          "sum_K_plus_1": 324.0,
+          "reported_total_slots_check": 324.0
+        },
+        "T": {
+          "closure_error": -11.58,
+          "n_layers": 36,
+          "sum_K_plus_1": 312.42,
+          "reported_total_slots_check": 324.0,
+          "wb1_reported": -11.58,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        },
+        "D": {
+          "closure_error": -5.296,
+          "n_layers": 36,
+          "sum_K_plus_1": 318.704,
+          "reported_total_slots_check": 324.0,
+          "wb1_reported": -5.296,
+          "delta_vs_wb1": -0.0,
+          "match_le_1e3": true
+        }
+      },
+      "468": {
+        "U": {
+          "closure_error": -24.696,
+          "n_layers": 36,
+          "sum_K_plus_1": 443.304,
+          "reported_total_slots_check": 468.0,
+          "wb1_reported": -24.696,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        },
+        "T": {
+          "closure_error": -17.717,
+          "n_layers": 36,
+          "sum_K_plus_1": 450.283,
+          "reported_total_slots_check": 468.0,
+          "wb1_reported": -17.717,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        },
+        "D": {
+          "closure_error": -22.588,
+          "n_layers": 36,
+          "sum_K_plus_1": 445.412,
+          "reported_total_slots_check": 468.0,
+          "wb1_reported": -22.588,
+          "delta_vs_wb1": -0.0,
+          "match_le_1e3": true
+        }
+      },
+      "612": {
+        "U": {
+          "closure_error": 0.0,
+          "n_layers": 36,
+          "sum_K_plus_1": 612.0,
+          "reported_total_slots_check": 612.0
+        },
+        "T": {
+          "closure_error": -23.201,
+          "n_layers": 36,
+          "sum_K_plus_1": 588.799,
+          "reported_total_slots_check": 612.0,
+          "wb1_reported": -23.201,
+          "delta_vs_wb1": -0.0,
+          "match_le_1e3": true
+        },
+        "D": {
+          "closure_error": -11.021,
+          "n_layers": 36,
+          "sum_K_plus_1": 600.979,
+          "reported_total_slots_check": 612.0,
+          "wb1_reported": -11.021,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        }
+      },
+      "900": {
+        "U": {
+          "closure_error": -49.428,
+          "n_layers": 36,
+          "sum_K_plus_1": 850.572,
+          "reported_total_slots_check": 900.0,
+          "wb1_reported": -49.428,
+          "delta_vs_wb1": -0.0,
+          "match_le_1e3": true
+        },
+        "T": {
+          "closure_error": 4.125,
+          "n_layers": 36,
+          "sum_K_plus_1": 904.125,
+          "reported_total_slots_check": 900.0,
+          "wb1_reported": 4.125,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        },
+        "D": {
+          "closure_error": -45.101,
+          "n_layers": 36,
+          "sum_K_plus_1": 854.899,
+          "reported_total_slots_check": 900.0,
+          "wb1_reported": -45.101,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        }
+      },
+      "1188": {
+        "U": {
+          "closure_error": 0.0,
+          "n_layers": 36,
+          "sum_K_plus_1": 1188.0,
+          "reported_total_slots_check": 1188.0
+        },
+        "T": {
+          "closure_error": 35.0,
+          "n_layers": 36,
+          "sum_K_plus_1": 1223.0,
+          "reported_total_slots_check": 1188.0,
+          "wb1_reported": 35.0,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        },
+        "D": {
+          "closure_error": 35.0,
+          "n_layers": 36,
+          "sum_K_plus_1": 1223.0,
+          "reported_total_slots_check": 1188.0,
+          "wb1_reported": 35.0,
+          "delta_vs_wb1": 0.0,
+          "match_le_1e3": true
+        }
+      }
+    },
+    "mismatch_vs_wb1_gt_1e3": [],
+    "n_arms_nonzero": 14,
+    "n_arms_compared": 14
+  },
+  "defect_2_geometric_midpoint": {
+    "468": {
+      "U_values_distinct": [
+        11.314
+      ],
+      "U_max": 11.3137,
+      "U_min": 11.3137,
+      "U_mean": 11.3137,
+      "expected_geometric_mid": 11.313708,
+      "expected_arithmetic_mid": 12.0,
+      "abs_delta_to_geometric": 0.000292,
+      "abs_delta_to_arithmetic": 0.686,
+      "is_geometric_mid": true,
+      "is_arithmetic_mid": false,
+      "is_integer_K": false,
+      "note_rounding": "frozen profile 值仅存 3 位小数；几何中点判定容差 5e-4"
+    },
+    "900": {
+      "U_values_distinct": [
+        22.627
+      ],
+      "U_max": 22.6274,
+      "U_min": 22.6274,
+      "U_mean": 22.6274,
+      "expected_geometric_mid": 22.627417,
+      "expected_arithmetic_mid": 24.0,
+      "abs_delta_to_geometric": 0.000417,
+      "abs_delta_to_arithmetic": 1.373,
+      "is_geometric_mid": true,
+      "is_arithmetic_mid": false,
+      "is_integer_K": false,
+      "note_rounding": "frozen profile 值仅存 3 位小数；几何中点判定容差 5e-4"
+    }
+  },
+  "defect_3_out_of_domain_K": {
+    "measured_K_max_in_frozen": 32,
+    "per_budget": {
+      "180": {
+        "U": {
+          "max_K": 4.0,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 0
+        },
+        "T": {
+          "max_K": 7.354,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 32
+        },
+        "D": {
+          "max_K": 4.173,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 34
+        }
+      },
+      "324": {
+        "U": {
+          "max_K": 8.0,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 0
+        },
+        "T": {
+          "max_K": 14.868,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 34
+        },
+        "D": {
+          "max_K": 8.39,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 34
+        }
+      },
+      "468": {
+        "U": {
+          "max_K": 11.314,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 36
+        },
+        "T": {
+          "max_K": 22.321,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 35
+        },
+        "D": {
+          "max_K": 12.171,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 35
+        }
+      },
+      "612": {
+        "U": {
+          "max_K": 16.0,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 0
+        },
+        "T": {
+          "max_K": 29.803,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 35
+        },
+        "D": {
+          "max_K": 16.807,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 35
+        }
+      },
+      "900": {
+        "U": {
+          "max_K": 22.627,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 36
+        },
+        "T": {
+          "max_K": 33.0,
+          "n_over_domain": 17,
+          "over_domain_values": [
+            32.257,
+            33.0
+          ],
+          "n_interpolated_or_extrapolated": 20
+        },
+        "D": {
+          "max_K": 24.374,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 35
+        }
+      },
+      "1188": {
+        "U": {
+          "max_K": 32.0,
+          "n_over_domain": 0,
+          "over_domain_values": [],
+          "n_interpolated_or_extrapolated": 0
+        },
+        "T": {
+          "max_K": 33.0,
+          "n_over_domain": 35,
+          "over_domain_values": [
+            33.0
+          ],
+          "n_interpolated_or_extrapolated": 0
+        },
+        "D": {
+          "max_K": 33.0,
+          "n_over_domain": 35,
+          "over_domain_values": [
+            33.0
+          ],
+          "n_interpolated_or_extrapolated": 0
+        }
+      }
+    },
+    "budgets_with_over_domain": {
+      "900": {
+        "T": {
+          "max_K": 33.0,
+          "n_over_domain": 17,
+          "over_domain_values": [
+            32.257,
+            33.0
+          ],
+          "n_interpolated_or_extrapolated": 20
+        }
+      },
+      "1188": {
+        "T": {
+          "max_K": 33.0,
+          "n_over_domain": 35,
+          "over_domain_values": [
+            33.0
+          ],
+          "n_interpolated_or_extrapolated": 0
+        },
+        "D": {
+          "max_K": 33.0,
+          "n_over_domain": 35,
+          "over_domain_values": [
+            33.0
+          ],
+          "n_interpolated_or_extrapolated": 0
+        }
+      }
+    }
+  },
+  "frozen_self_reported_decision": {
+    "status": "refuted",
+    "reason": "存在至少一个 (预算档, 合成方式) 组合，D 不优于 U",
+    "criterion_from_instruction": {
+      "confirmed": "L1/L2/L3 三种合成下 D 的 ΔL 均 < U 且 < T",
+      "refuted": "任一合成下 D 不优于 U",
+      "pending": "三种合成给出的排序互相矛盾"
+    }
+  },
+  "dependency_surface": {
+    "reviews": [
+      {
+        "receipt_id": "WB1-20261025-EXP-13-PROPORTIONAL-v1",
+        "check_status": "PASS",
+        "size": 16103,
+        "mtime": 1792858833,
+        "match": "body contains 'r1_budget_allocation'"
+      },
+      {
+        "receipt_id": "WB1-20261024-R1-REJUDGE-v1",
+        "check_status": "PASS",
+        "size": 23903,
+        "mtime": 1792856923,
+        "match": "body contains 'r1_budget_allocation'"
+      },
+      {
+        "receipt_id": "WB1-20261022-R1-v1",
+        "check_status": "PASS",
+        "size": 11140,
+        "mtime": 1792639412,
+        "match": "body contains 'r1_budget_allocation'"
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "H-R1-BUDGET",
+        "status": "refuted",
+        "theme": "A",
+        "serves_north_star": true,
+        "claim": "相同总 KV slot 预算下，按实测层敏感度反比分配（D）优于均匀（U）与教科书线性递减（T）。",
+        "data_source": [
+          "results_v2/r1_budget_allocation.json",
+          "results_v2/WB1-20261022-R1-v1.yaml",
+          "results_v2/r1_rejudge_noL0.json",
+          "results_v2/r1_rejudge_noL0.py",
+          "results_v2/WB1-20261024-R1-REJUDGE-v1.yaml"
+        ]
+      },
+      {
+        "id": "H-R1-L0SAT",
+        "status": "confirmed",
+        "theme": null,
+        "serves_north_star": null,
+        "claim": "L0 一旦被压缩即完全失效，其 ΔL 在 K=1..32 区间为饱和噪声，不携带压缩质量信息。",
+        "data_source": [
+          "results_v2/r1_budget_allocation.json",
+          "results_v2/WB1-20261022-R1-v1.yaml"
+        ]
+      },
+      {
+        "id": "H-R1-CHART",
+        "status": "refuted",
+        "theme": null,
+        "serves_north_star": null,
+        "claim": "指令 §2 所引 ascii_chart 的数值主张（L0/L1@K=1 均 ≥0.40；L24/25 中度 0.15–0.40；其余 <0.005）可由原始 cells 复现。",
+        "data_source": [
+          "results_v2/r1_budget_allocation.json",
+          "results_v2/WB1-20261022-R1-v1.yaml"
+        ]
+      }
+    ],
+    "coverage": {
+      "reviews_scanned": 68,
+      "reviews_hit": 3,
+      "hypotheses_scanned": 68,
+      "hypotheses_hit": 3,
+      "method": "回执侧：68 条回执正文经 /api/file/r2_<stem> 逐条实拉后全文 grep；假设侧：/api/ledger?brief=1 一次性实拉后本地字段匹配（未裸拉全量 ledger 正文）"
+    }
+  },
+  "rejudge_verdict_crosscheck": {
+    "status": "refuted",
+    "branch_text": "refuted：口径 A 下 4/5 个可比档 D 未同时优于 U 与 T；三合成方向矛盾档 [324]",
+    "n_budget_pass": 1,
+    "n_comparable": 5,
+    "budgets_pass": [
+      468
+    ],
+    "mode_direction_conflict_budgets": [
+      324
+    ],
+    "e5_gate": 0.05,
+    "range_A": 0.6243896736105445,
+    "counts": {
+      "budgets": 6,
+      "modes": 3,
+      "arms": 3,
+      "calibers": 2,
+      "cells": 108
+    }
+  },
+  "wall_clock_sec": 0.004
+}
