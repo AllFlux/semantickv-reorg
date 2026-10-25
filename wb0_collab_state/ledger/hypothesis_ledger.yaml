@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.139'
+ledger_version: '0.141'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -954,6 +954,26 @@ hypotheses:
   statement: Hub discipline 检查器对回执 data_source 的引号型与 list 型写法解析失败，产出「D4 实物不存在」假阳性
   evidence: WB0 23:20 档独立实测 5 个被判缺失 relpath 均 HTTP 200 且字节一致：exp13 34773 / exp14 83062 / exp18 47514 / exp15 61759 / exp16 76046
   source: WB1-20261025-DISC-FALSEPOS-CHECK-v2.yaml (机检 PASS)
+- id: H-R1-DEADZONE
+  claim: 存在结构性梯度死区——单单元 K ±20%（总预算守恒）不引起 composite 可分辨变化（|Δ|<0.01），且死区单元集中于实测低敏感度层（重合度按覆盖口径 |死区∩低敏|/|低敏| 计，WB0 23:40 档钉死）
+  status: confirmed
+  criterion: ≥5 个可闭合预算档中 ≥3 档出现 ≥3 个死区层单元（|Δ|<0.01）且重合度 ≥70% → confirmed；≤1 档出现死区单元或重合度 <30% → refuted；可闭合档<5 或 sd>0.05 或必需实物缺失 → E5 撤回
+  actual_data: EXP-17 v3（机检 PASS，sha256_16=31a614970fa26d42，16663B）：主读数 U/V3 臂 5/5 档死区单元数 33/34/34/34/34（阈值 ≥3）；实测低敏 12 层在 5 档中 100% 落入死区（覆盖口径 100%，集中度口径 35.3% 未覆盖带）；max sd=0.03204<0.05；n_comparable=5；四份必需实物全部实拉（86123B/61759B/76046B/34773B）。未获支持：第二子句「死区规模随预算收紧而扩大」Pearson r=+0.64（方向相反/持平），仅登记不入判据；D 臂 900 档 7 个死区单元（U/P/T=34）登记为边界异常。未决子项：「结构性死区 vs 测量方差淹没」在现有资产下不可分离（ΔL 无 per-prompt CI）
+  data_source: results_v2/exp17_deadzone.json
+  owner: WB2
+  theme: C
+  serves_north_star: true
+  adjudicated_by: WB0-VERDICT-20261025-2340
+- id: H-R1-HISENS-ALLOC
+  claim: 【E5 撤回·终态关闭】从死区层抽预算补给高敏感度层 L1/L24（总预算守恒）能否产生超过分辨阈的 composite 改善——在本资产下不可判，撤回并写明所需资产
+  status: e5_withdrawn
+  criterion: confirmed=≥3/5 档 |mean_d|≥0.01 且 95%CI 不跨 0 且方向 ≥3 档一致；refuted=≤1 档满足或全部档 |mean_d|<0.01 且方向不一致；E5=①与 EXP-15 P/T 臂重合 ②composite 合成 sd>0.05 不可分辨 ③必需实物缺失 ④可闭合档<5
+  actual_data: EXP-19 v1（机检 PASS，sha256_16=b9b264cb5c07f91c，15918B）：5/5 档点估计 |ΔL1|=0.018~0.661 远超 0.01 且 4/5 档同向为正，但 5/5 档 95%CI 跨 0（层维度 bootstrap 5000，L1 单点主导 sens=0.835 占 67%，sd_d 0.32~0.66>0.05）→ 命中 E5②；同时 n_budgets_hit=0 使 refuted 第一子句亦命中，构成判据分支冲突。WB0 23:40 档裁定：采 E5②、不采 refuted（refuted 语义会把「点估计远超阈值」误述为「无效应」，违反 D1）；维持原 CI 判据，不因点估计大新增点估计分支或下调阈值（属口径变更，须经人类闸门）。所需资产：① ΔL 的 per-prompt CI / 多种子重复测量 ② 判据冲突裁定（已裁）③ 留一层 jackknife 等替代不确定性度量（口径变更，待人类裁定）④ 更密实测 K 网格（现 ×2 稀疏）。保留事实（不因撤回抹去）：V3 通道（从死区层抽 20% 但不补给 L1）5 档 |Δ|≤0.0218、4/5 档 <0.005、sd≤0.023 —— 方向性支持 H-R1-DEADZONE；「接收端决定效应」为待命名机制，不作结论
+  data_source: results_v2/exp19_hisens_alloc.json
+  owner: WB1
+  theme: C
+  serves_north_star: true
+  adjudicated_by: WB0-VERDICT-20261025-2340
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -966,8 +986,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792941859
-  action: upsert H-WB1-DISC-FALSEPOS-QUOTE-LIST
+  at: 1792943778
+  action: upsert H-R1-HISENS-ALLOC
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'
