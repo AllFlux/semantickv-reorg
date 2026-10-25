@@ -1,0 +1,150 @@
+receipt_id: WB1-20261025-EXP-18-PAIRED-RESOLV-v1
+review_id: WB1-20261025-EXP-18-PAIRED-RESOLV-v1
+target: WB1
+date: 2026-10-25
+executor: WB1
+round: 2026-10-25 02:15 档
+kind: experiment
+theme: B
+serves_north_star: true
+north_star_link: 结构可压·事实受限——本问不判「哪个分配更好」，而判「现有评估口径能否分辨差异」；本轮结论为「现有落盘资产在 per-query 维度上不可判」，故可压/不可压边界仍需先补资产才能实测刻画
+instruction_ref: 1792865189-e25872
+idempotency_key: WB0-INSTR-20261025-EXP-18-PAIRED-RESOLV
+rerun: false
+runtime_sec_within_budget: true
+
+prediction: >
+  执行前预登记（§6）：若 EXP-14/16 的不可分辨性源于 composite 的聚合/合成方式（可救治），
+  则在配对差口径下 sd(d) 应显著低于非配对 sd(R)（降低 ≥50%），
+  且既有被判「不可分辨」的对照中 ≥2 组应转为 |mean(d)| ≥ 0.01 且 95%CI 不跨 0。
+
+falsifiable_criterion: >
+  原样抄写指令 §4 四分支：
+  confirmed（救治有效）：同时满足 ①n ≥ 30 可配对样本；②sd(d) < 0.05；③sd(d) 相较非配对 sd(R) 降低 ≥50%；
+  ④至少 3 组既有「不可分辨」对照中 ≥2 组在配对口径下转为 |mean(d)| ≥ 0.01 且 95%CI 不跨 0。
+  refuted（救治无效·方差来自测量本身）：sd(d) ≥ 0.05，或降低幅度 < 20%。
+  E5 撤回：per-query 级 composite 明细缺失（仅有聚合值）→ 终态关闭本问并写明所需资产；
+  或可配对样本 n < 30 且无法扩容 → 写明功效不足所需样本量。
+  pending：仅执行不完整（超时/中断），须写明已完成部分与续跑入口。
+
+status: e5_withdrawn
+
+actual_data:
+  step1_granularity_audit:
+    per_query_detail_present: false
+    finest_available_unit: 层单元（r1 sensitivity_curve.curves 逐层 × 6 档 K 的实测 delta_loss_answer，36 层）
+    query_named_arrays_found: {exp15: 0, exp16: 0, r1: 0}
+    r1_n_boundary: n=1 种子 / 1 needle 任务 / 8 段落 / 2613 tokens / 1 模型 (Qwen2.5-3B-Instruct, CPU bf16)
+    r1_consequence: 只能表述为假设级；bootstrap CI 仅反映 8 段落二项抽样不确定度，不含种子/任务/prompt 方差
+    exp15_finest: 预算档 × arm 的 composite（L1/L2/L3），无逐样本数组
+    exp16_finest: 预算档 × 合成的族 A 聚合统计（mean/sd/p2.5/p97.5/min/max；n_used=200 但逐次 composite 值未落盘）
+    r1_finest: 层 × K 档 的 ΔL_answer / flip_rate 聚合值（8 段落级明细未落盘）
+    conclusion: per-query（per-prompt / per-segment）级 composite 明细在三文件中均不存在，且源数据上 n=1 无法扩容
+  step2_recompute_check_vs_exp15:
+    layer_mapping: exp15 profile_by_layer[i] -> r1 curves[str(i+1)]（caliber_A = L1..L35，剔除 L0）
+    max_abs_diff_all_budgets_arms_synths: 1.1102230246251565e-16
+    all_match: true
+    interpolation_used: false
+    note: exp15 的 K 网格 {1,2,4,8,16,32} 全部落在冻结件已测点上，ΔL 一律取实测值，无插值/外推/反推
+    meaning: 本轮 ΔL 提取口径与 exp15 落盘口径严格一致（浮点极限内），配对分析建立在已验证的同一数据源上
+  step3_paired_analysis_layer_unit:
+    caliber_change_disclosure: >
+      【D2 显式披露】指令 §2.3 的配对键为「同 query + 同预算档 + 同层单元」；本轮 per-query 维度不存在，
+      配对键退化为 (budget, layer)，配对单元 = 层（n=35，口径 A 剔除 L0）。
+      故 sd(d) 度量的是「两 arm ΔL 差异在层维度上的离散度」（结构效应的空间分布），
+      与非配对 sd(R)（随机 K 向量抽样分布上的 composite 离散）不属于同一抽样空间，
+      两者之比不能直接解读为测量噪声下降。以下数值仅为可行性上限估计，不构成判据。
+    d_definition: d_l = ΔL_l(K_l^A) − ΔL_l(K_l^B)，ΔL 全部取自冻结件实测点
+    ci_method: bootstrap 5000 次，seed=20261026（未使用配对 t，口径已写明）
+    n_paired_units_per_budget: 35
+    mean_sd_d: 0.030138
+    min_sd_d: 0.00346
+    max_sd_d: 0.14153
+    mean_sd_R_exp16_familyA: 0.168757
+    reduction_pct: 82.14
+    sd_d_lt_0_05_mean: true
+    reduction_ge_50pct: true
+    selected_cases:
+      - {case: 180/L1 · D-U, n: 35, mean_d: 0.0064808, sd_d: 0.0277339, ci95: [-0.000241, 0.017242], sdR_exp16: 0.1350816, reduction_pct: 79.5, abs_d_ge_0.01: false, ci_excludes_0: false, turned_resolvable: false}
+      - {case: 180/L1 · T-U, n: 35, mean_d: 0.0077891, sd_d: 0.0311525, ci95: [0.000173, 0.019632], sdR_exp16: 0.1350816, reduction_pct: 76.9, abs_d_ge_0.01: false, ci_excludes_0: true, turned_resolvable: false}
+      - {case: 180/L1 · P-U, n: 35, mean_d: -0.0010112, sd_d: 0.0039768, ci95: [-0.002468, 0.000164], sdR_exp16: 0.1350816, reduction_pct: 97.1, abs_d_ge_0.01: false, ci_excludes_0: false, turned_resolvable: false}
+      - {case: 324/L1 · T-U, n: 35, mean_d: 0.0233500, sd_d: 0.1374300, ci95: [-0.000090, 0.070020], sdR_exp16: 0.0985444, reduction_pct: -39.5, abs_d_ge_0.01: true, ci_excludes_0: false, turned_resolvable: false}
+      - {case: 468/L1 · D-U, n: 35, mean_d: 0.0075200, sd_d: 0.0291600, ci95: [0.000180, 0.018850], sdR_exp16: 0.1830902, reduction_pct: 84.1, abs_d_ge_0.01: false, ci_excludes_0: true, turned_resolvable: false}
+      - {case: 468/L1 · P-U, n: 35, mean_d: -0.0002400, sd_d: 0.0043300, ci95: [-0.001720, 0.001270], sdR_exp16: 0.1830902, reduction_pct: 97.6, abs_d_ge_0.01: false, ci_excludes_0: false, turned_resolvable: false}
+    all_cases_summary: {n_cases_checked: 30, n_turned_resolvable: 0}
+  step4_criteria_evaluation:
+    C1_n_ge_30: true
+    C2_sd_d_lt_0_05: true
+    C3_reduction_ge_50pct: true
+    C4_at_least_2_of_3_turned: false
+    refuted_branch_sd_d_ge_0_05: false
+    refuted_branch_reduction_lt_20pct: false
+    e5_branch_per_query_missing: true
+    note: >
+      即便退让到层单元口径，四分支仍不闭合：C4 = 0/30（无一组同时满足 |mean(d)|≥0.01 与 CI 不跨 0），
+      而 refuted 两条件（sd(d)≥0.05 或降低<20%）亦均不成立。
+      即「换配对口径」在本资产上既不能证实也不能证伪救治有效性——这正是 E5 分支所指的不可判，
+      不得以「方差降了 82%」为由写成 confirmed。
+  decision_note: >
+    主结论按 §4 E5 分支：三输入文件均无 per-query 级 composite 明细，最细可得单元为「层 × K 档」实测 ΔL，
+    per-query 维度在源数据上即不存在（n=1 种子 / 1 任务，8 段落未落盘段落级值），无法扩容，
+    故终态关闭本问，不再追打。层单元配对结果作为「所需资产到位后是否值得重跑」的可行性上限估计附后，不构成判据。
+  required_assets:
+    - per-prompt / per-segment 级 composite（或 ΔL_answer）逐样本落盘：至少 n>=30 个独立 prompt/段落单元，且同一单元在多 arm 下均有实测值
+    - 多种子重复测量（>=3 seed）以分离测量噪声与结构效应
+    - 3B 权重 /workspace/models/Qwen2.5-3B-Instruct（P0，已蒸发）或等价可重算环境，用于补齐上述逐样本落盘
+  scope_guard_selfcheck:
+    禁伪造: 未插值/未外推/未反推/未插补；ΔL 全部取自冻结件已测点，复算与 exp15 落盘一致（diff 1.1e-16）
+    禁回溯改写: 未改写 EXP-13/14/15/16/17 任何既有落点；未触碰 EXP-17 产物
+    禁动冻结件: r1_budget_allocation 系列只读（sha256_16 = 9fcfd9ef65fa4da2 未变）；semantic_router.pt 未触碰
+    禁越资源: 未下载/加载 3B 权重、未请求 GPU、未跑前向；纯 CPU 离线重算
+    禁写台账: 未调用 /api/ledger/hypothesis；台账只由 WB0 写入
+    禁触碰闸门: 未触碰 H-WB2-E2E-01 闸门与已终态关闭的 R1 分配优劣子线（本问只判口径分辨力，未判分配优劣）
+    data_source 纪律: 一律裸路径，不加引号
+
+hypotheses:
+  - id: H-R1-RESOLV-PAIRED
+    prediction: 若不可分辨源于合成方式，则配对差口径 sd(d) 显著低于 sd(R)，且既有不可分辨对照转为可分辨
+    falsifiable_criterion: 见顶层 falsifiable_criterion（§4 四分支原样抄写）
+    actual_data: >
+      per-query 明细缺失 → E5；退让层单元口径下 n=35、mean sd(d)=0.030138、mean sd(R)_exp16=0.168757、
+      降低 82.14%，但 30 组既有不可分辨对照中 0 组转为可分辨（C4 不成立），refuted 两条件亦不成立，四分支不闭合
+    status: e5_withdrawn
+    data_source: [results_v2/exp18_paired_resolv.json, results_v2/exp18_paired_resolv.py, results_v2/exp15_kgrid.json, results_v2/exp16_sparse_matched.json, results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json]
+
+data_source: [results_v2/exp18_paired_resolv.json, results_v2/exp18_paired_resolv.py, results_v2/exp15_kgrid.json, results_v2/exp16_sparse_matched.json, results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json]
+
+dependency_missing: [per-query / per-prompt / per-segment 级 composite 明细（三输入文件均无，见 granularity_audit）, 多种子（>=3）重复测量的逐样本 composite 落盘, /workspace/models/Qwen2.5-3B-Instruct（P0，r1 n_boundary 明示已蒸发，无法重算逐样本值）]
+
+p0: false
+p0_reason: 产物可由脚本在三个 Hub 实物上幂等重跑复现（seed=20261026 固定），非不可再生资产；输入侧 r1 冻结件本身为 P0 孤本（已由 r1 n_boundary 标注），本轮仅只读使用、未改动
+
+self_check:
+  B-01: >
+    未证推论：本轮最弱的一条推法是「sd(d) 比 sd(R) 降 82% ⇒ 配对口径救治有效」。
+    备选解释：层单元配对把抽样空间从「随机 K 向量」换成「层」，降的是结构差异的空间离散度而非测量噪声；
+    且 0/30 组转可分辨，说明降方差并未带来可分辨性——故该推论未证，本轮不予采用。
+  B-02: >
+    判据分级：本问落 E5（per-query 明细缺失且源数据 n=1 无法扩容），非 E3。
+    退让到层单元口径后仍属「原则上不可判」——四分支不闭合（C4=0/30，refuted 两条件均不成立），故撤回而非留驻 E3 拖延。
+  B-03: 动机猜测：本轮在回应「EXP-14/16 连续因 sd(R)>0.05 落 E5，需先判明是口径问题还是资产问题」这一前置机制需求。
+  B-04: >
+    类比：本轮未使用跨领域类比（0 处）；未标 [发生器]。方法上沿用 EXP-15/16 既有 composite 与冻结件 ΔL 口径，未新创口径。
+  B-05: >
+    范围：只做三文件粒度审计 + 冻结件 ΔL 提取 + 层单元配对差统计，不判分配优劣、不触碰 EXP-17。
+    下轮计划：等 WB0 对 E5 与所需资产的裁定；若派发新主线（如资源到位后的 per-query 重测设计）再执行。
+  B-06: >
+    本轮完成的一步：把「不可分辨」归因拆成「聚合方式」与「资产粒度」两路，并用复算一致性校验（diff 1.1e-16）锁死数据链路。
+    留下的接口：exp18_paired_resolv.py 幂等可重跑，per-query 明细一旦落盘，替换输入即可直接续跑同一判据。
+  B-07: Agent 调用 0 次；本轮为纯本地 CPU 计算（<5s），无需外部子代理，避免不必要开销。
+  B-08: >
+    交付前验证：①三文件 sha256_16 与 size 登记并与指令给定字节数一致（61759 / 76046 / 86123）；
+    ②用冻结件 ΔL 复算 exp15 全部 6 档 × 4 臂 × 3 合成 composite，max_abs_diff=1.11e-16、all_match=true；
+    ③产物 JSON 落盘后回读解析成功（47514B）。
+  B-09: >
+    动机占比：「用户（WB0 指令）要求」约 85%（判据、口径、交付物均由指令给定）；
+    「我的框架」约 15%（粒度审计的自动化扫描设计与层单元退让分析，均已在回执中显式标注为非判据）。
+  B-10: >
+    保留待裁：①层单元口径下 82.14% 的方差降低是否值得在资产到位后优先重跑——不作结论，交 WB0；
+    ②「换配对口径」与「换合成方式」何者才是真正的救治路径——本轮不预先命名，待 per-query 资产到位后由数据裁定；
+    ③本问与 R1 分配优劣子线是否构成同族——本轮按指令 §8 判定为不同族（判口径非判分配），若 WB0 认为仍属同族追打，请明示停机待裁。

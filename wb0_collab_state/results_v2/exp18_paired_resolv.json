@@ -1,0 +1,1418 @@
+{
+  "task": "WB0-INSTR-20261025-EXP-18-PAIRED-RESOLV",
+  "idempotency_key": "WB0-INSTR-20261025-EXP-18-PAIRED-RESOLV",
+  "instruction_ref": "1792865189-e25872",
+  "executor": "WB1",
+  "theme": "B",
+  "serves_north_star": "结构可压·事实受限——判『评估口径能否分辨差异』而非『哪个分配更好』",
+  "seed": 20261026,
+  "n_boot": 5000,
+  "inputs": {
+    "results_v2/exp15_kgrid.json": {
+      "size": 61759,
+      "sha256_16": "b1068b12ffece6d5"
+    },
+    "results_v2/exp16_sparse_matched.json": {
+      "size": 76046,
+      "sha256_16": "2a72c3ad91adfa4d"
+    },
+    "results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json": {
+      "size": 86123,
+      "sha256_16": "9fcfd9ef65fa4da2"
+    }
+  },
+  "granularity_audit": {
+    "question": "三个输入文件是否存在 per-query（per-prompt / per-segment）级 composite 原始明细",
+    "r1_n_boundary": "1 种子 / 1 needle 任务 / 8 段落 / 2613 tokens / 1 模型 (Qwen2.5-3B-Instruct, CPU bf16)",
+    "r1_note": "本结果只能表述为'假设级'，不得表述为该模型或该架构的真实层敏感度；bootstrap CI 仅反映 8 段落二项抽样不确定度，不含种子/任务/prompt 方差。",
+    "query_named_arrays": {
+      "exp15": [],
+      "exp16": [],
+      "r1": []
+    },
+    "numeric_sample_dims": {
+      "exp15": [
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/180/per_arm/U/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/180/per_arm/T/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/180/per_arm/D/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/180/per_arm/P/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/324/per_arm/U/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/324/per_arm/T/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/324/per_arm/D/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/324/per_arm/P/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/468/per_arm/U/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/468/per_arm/T/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/468/per_arm/D/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        },
+        {
+          "path": "exp15/caliber_A_noL0/per_budget/468/per_arm/P/profile_by_layer",
+          "len": 35,
+          "numeric": true,
+          "name_hint": true
+        }
+      ],
+      "exp16": [],
+      "r1": []
+    },
+    "per_query_detail_present": false,
+    "finest_available_unit": "层单元（layer）：r1 sensitivity_curve.curves 逐层 × 6 档 K 的实测 delta_loss_answer（36 层）",
+    "per_query_absence_reason": "r1 n_boundary 明示 n=1 种子 / 1 needle 任务 / 8 段落，且落盘仅到『层 × K 档』聚合 ΔL 与 flip rate，无段落级（per-segment / per-prompt）composite 数组；exp15 只到『预算档 × arm』composite；exp16 只到『预算档 × 合成』的族 A 聚合统计（mean/sd/分位/min/max，n_used=200 但逐次值未落盘）。"
+  },
+  "recompute_check_vs_exp15": {
+    "layer_mapping": "exp15 profile_by_layer[i] -> curves[str(i+1)]（caliber_A = L1..L35，剔除 L0）",
+    "max_abs_diff_all_budgets_arms_synths": 1.1102230246251565e-16,
+    "all_match": true,
+    "detail_sample": {
+      "180": {
+        "U": {
+          "calc": {
+            "L1_linear_sum": 0.143584,
+            "L2_max": 0.031595,
+            "L3_euclid": 0.053891036620202434
+          },
+          "reported": {
+            "L1_linear_sum": 0.14358399999999996,
+            "L2_max": 0.031595,
+            "L3_euclid": 0.053891036620202434
+          },
+          "abs_diff": {
+            "L1_linear_sum": 2.7755575615628914e-17,
+            "L2_max": 0.0,
+            "L3_euclid": 0.0
+          }
+        },
+        "T": {
+          "calc": {
+            "L1_linear_sum": 0.416202,
+            "L2_max": 0.170646,
+            "L3_euclid": 0.22785913805682667
+          },
+          "reported": {
+            "L1_linear_sum": 0.4162020000000001,
+            "L2_max": 0.170646,
+            "L3_euclid": 0.22785913805682667
+          },
+          "abs_diff": {
+            "L1_linear_sum": 1.1102230246251565e-16,
+            "L2_max": 0.0,
+            "L3_euclid": 0.0
+          }
+        },
+        "D": {
+          "calc": {
+            "L1_linear_sum": 0.370411,
+            "L2_max": 0.181266,
+            "L3_euclid": 0.20247413207864356
+          },
+          "reported": {
+            "L1_linear_sum": 0.370411,
+            "L2_max": 0.181266,
+            "L3_euclid": 0.20247413207864356
+          },
+          "abs_diff": {
+            "L1_linear_sum": 0.0,
+            "L2_max": 0.0,
+            "L3_euclid": 0.0
+          }
+        },
+        "P": {
+          "calc": {
+            "L1_linear_sum": 0.108192,
+            "L2_max": 0.025478,
+            "L3_euclid": 0.0437178189300427
+          },
+          "reported": {
+            "L1_linear_sum": 0.108192,
+            "L2_max": 0.025478,
+            "L3_euclid": 0.0437178189300427
+          },
+          "abs_diff": {
+            "L1_linear_sum": 0.0,
+            "L2_max": 0.0,
+            "L3_euclid": 0.0
+          }
+        }
+      },
+      "324": {
+        "U": {
+          "calc": {
+            "L1_linear_sum": 0.157529,
+            "L2_max": 0.05291,
+            "L3_euclid": 0.07010469609805038
+          },
+          "reported": {
+            "L1_linear_sum": 0.157529,
+            "L2_max": 0.05291,
+            "L3_euclid": 0.07010469609805037
+          },
+          "abs_diff": {
+            "L1_linear_sum": 0.0,
+            "L2_max": 0.0,
+            "L3_euclid": 1.3877787807814457e-17
+          }
+        },
+        "T": {
+          "calc": {
+            "L1_linear_sum": 0.9749339999999999,
+            "L2_max": 0.835212,
+            "L3_euclid": 0.837915053982204
+          },
+          "reported": {
+            "L1_linear_sum": 0.974934,
+            "L2_max": 0.835212,
+            "L3_euclid": 0.8379150539822039
+          },
+          "abs_diff": {
+            "L1_linear_sum": 1.1102230246251565e-16,
+            "L2_max": 0.0,
+            "L3_euclid": 1.1102230246251565e-16
+          }
+        },
+        "D": {
+          "calc": {
+            "L1_linear_sum": 0.37601700000000005,
+            "L2_max": 0.181266,
+            "L3_euclid": 0.20247344985207325
+          },
+          "reported": {
+            "L1_linear_sum": 0.37601700000000005,
+            "L2_max": 0.181266,
+            "L3_euclid": 0.20247344985207325
+          },
+          "abs_diff": {
+            "L1_linear_sum": 0.0,
+            "L2_max": 0.0,
+            "L3_euclid": 0.0
+          }
+        },
+        "P": {
+          "calc": {
+            "L1_linear_sum": 0.099942,
+            "L2_max": 0.043501,
+            "L3_euclid": 0.05248540435206726
+          },
+          "reported": {
+            "L1_linear_sum": 0.099942,
+            "L2_max": 0.043501,
+            "L3_euclid": 0.05248540435206726
+          },
+          "abs_diff": {
+            "L1_linear_sum": 0.0,
+            "L2_max": 0.0,
+            "L3_euclid": 0.0
+          }
+        }
+      }
+    }
+  },
+  "paired_analysis": {
+    "pairing_unit": "层单元（同预算档、同层、两 arm 的 K 分配差异）",
+    "pairing_key": "(budget, layer)",
+    "d_definition": "d_l = ΔL_l(K_l^A) − ΔL_l(K_l^B)，ΔL 全部取自冻结件实测点",
+    "n_units_per_budget": 35,
+    "ci_method": "bootstrap 5000 次，seed=20261026（配对 t 未使用，口径已写明）",
+    "per_budget": {
+      "180": {
+        "D-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.006480771428571429,
+          "sd_d": 0.027733941171196624,
+          "ci95_L1_bootstrap5000": [
+            -0.00024093999999999993,
+            0.017241926428571412
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.15809193247810432,
+              "sd_Rprime_exp16_familyA": 0.13508163988232494
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.11724946135915165,
+              "sd_Rprime_exp16_familyA": 0.09689804522728085
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.11922263700728371,
+              "sd_Rprime_exp16_familyA": 0.09894400045089495
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.7946875593503545
+        },
+        "T-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.007789085714285715,
+          "sd_d": 0.031152535443383422,
+          "ci95_L1_bootstrap5000": [
+            0.00017318000000000002,
+            0.019632159999999996
+          ],
+          "ci_excludes_zero": true,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.15809193247810432,
+              "sd_Rprime_exp16_familyA": 0.13508163988232494
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.11724946135915165,
+              "sd_Rprime_exp16_familyA": 0.09689804522728085
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.11922263700728371,
+              "sd_Rprime_exp16_familyA": 0.09894400045089495
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.7693799433400301
+        },
+        "P-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.0010111999999999996,
+          "sd_d": 0.003976759660829403,
+          "ci95_L1_bootstrap5000": [
+            -0.0024680314285714278,
+            0.00016435499999999909
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.15809193247810432,
+              "sd_Rprime_exp16_familyA": 0.13508163988232494
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.11724946135915165,
+              "sd_Rprime_exp16_familyA": 0.09689804522728085
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.11922263700728371,
+              "sd_Rprime_exp16_familyA": 0.09894400045089495
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.9705603243764754
+        },
+        "D-T": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.0013083142857142857,
+          "sd_d": 0.02872168626027402,
+          "ci95_L1_bootstrap5000": [
+            -0.012089851428571427,
+            0.006625916428571421
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.15809193247810432,
+              "sd_Rprime_exp16_familyA": 0.13508163988232494
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.11724946135915165,
+              "sd_Rprime_exp16_familyA": 0.09689804522728085
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.11922263700728371,
+              "sd_Rprime_exp16_familyA": 0.09894400045089495
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.7873753510447856
+        },
+        "P-D": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.007491971428571428,
+          "sd_d": 0.029583713125026508,
+          "ci95_L1_bootstrap5000": [
+            -0.01900622142857143,
+            -3.0207142857147346e-05
+          ],
+          "ci_excludes_zero": true,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.15809193247810432,
+              "sd_Rprime_exp16_familyA": 0.13508163988232494
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.11724946135915165,
+              "sd_Rprime_exp16_familyA": 0.09689804522728085
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.11922263700728371,
+              "sd_Rprime_exp16_familyA": 0.09894400045089495
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.7809938260240394
+        }
+      },
+      "324": {
+        "D-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.006242514285714286,
+          "sd_d": 0.029053441874031572,
+          "ci95_L1_bootstrap5000": [
+            -0.001499890714285714,
+            0.01748964857142856
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.10152693820500201,
+              "sd_Rprime_exp16_familyA": 0.09854438817173138
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.06492741188213243,
+              "sd_Rprime_exp16_familyA": 0.0657764577970612
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.06721641215557081,
+              "sd_Rprime_exp16_familyA": 0.06703076249587132
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.7051740600043028
+        },
+        "T-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.023354428571428568,
+          "sd_d": 0.1374343239312093,
+          "ci95_L1_bootstrap5000": [
+            -9.123285714285708e-05,
+            0.070019005
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": true,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.10152693820500201,
+              "sd_Rprime_exp16_familyA": 0.09854438817173138
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.06492741188213243,
+              "sd_Rprime_exp16_familyA": 0.0657764577970612
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.06721641215557081,
+              "sd_Rprime_exp16_familyA": 0.06703076249587132
+            }
+          },
+          "reduction_vs_sdRprime_L1": -0.39464384000949093
+        },
+        "P-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.001645342857142857,
+          "sd_d": 0.0037313858483919654,
+          "ci95_L1_bootstrap5000": [
+            -0.003012874285714285,
+            -0.0005966507142857145
+          ],
+          "ci_excludes_zero": true,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.10152693820500201,
+              "sd_Rprime_exp16_familyA": 0.09854438817173138
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.06492741188213243,
+              "sd_Rprime_exp16_familyA": 0.0657764577970612
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.06721641215557081,
+              "sd_Rprime_exp16_familyA": 0.06703076249587132
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.9621349737146944
+        },
+        "D-T": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.01711191428571428,
+          "sd_d": 0.14153040653417107,
+          "ci95_L1_bootstrap5000": [
+            -0.06914700499999998,
+            0.014251252142857133
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": true,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.10152693820500201,
+              "sd_Rprime_exp16_familyA": 0.09854438817173138
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.06492741188213243,
+              "sd_Rprime_exp16_familyA": 0.0657764577970612
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.06721641215557081,
+              "sd_Rprime_exp16_familyA": 0.06703076249587132
+            }
+          },
+          "reduction_vs_sdRprime_L1": -0.4362097036670296
+        },
+        "P-D": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.007887857142857143,
+          "sd_d": 0.03026460533862157,
+          "ci95_L1_bootstrap5000": [
+            -0.019651647142857144,
+            6.322571428571022e-05
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.10152693820500201,
+              "sd_Rprime_exp16_familyA": 0.09854438817173138
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.06492741188213243,
+              "sd_Rprime_exp16_familyA": 0.0657764577970612
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.06721641215557081,
+              "sd_Rprime_exp16_familyA": 0.06703076249587132
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.6928835228457653
+        }
+      },
+      "468": {
+        "D-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.007520857142857143,
+          "sd_d": 0.029158689516206333,
+          "ci95_L1_bootstrap5000": [
+            0.000175647142857143,
+            0.01885066714285714
+          ],
+          "ci_excludes_zero": true,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.19570358532197923,
+              "sd_Rprime_exp16_familyA": 0.1830901865238616
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.1808068847244456,
+              "sd_Rprime_exp16_familyA": 0.1723053068657332
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.17721427466004483,
+              "sd_Rprime_exp16_familyA": 0.1681691934241954
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.8407413850528457
+        },
+        "T-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 7.085714285714288e-05,
+          "sd_d": 0.0034558810670478565,
+          "ci95_L1_bootstrap5000": [
+            -0.0012262185714285714,
+            0.0010307721428571425
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.19570358532197923,
+              "sd_Rprime_exp16_familyA": 0.1830901865238616
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.1808068847244456,
+              "sd_Rprime_exp16_familyA": 0.1723053068657332
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.17721427466004483,
+              "sd_Rprime_exp16_familyA": 0.1681691934241954
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.9811247061753501
+        },
+        "P-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.0002441714285714287,
+          "sd_d": 0.00433162034269825,
+          "ci95_L1_bootstrap5000": [
+            -0.0017227014285714284,
+            0.0012728349999999997
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.19570358532197923,
+              "sd_Rprime_exp16_familyA": 0.1830901865238616
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.1808068847244456,
+              "sd_Rprime_exp16_familyA": 0.1723053068657332
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.17721427466004483,
+              "sd_Rprime_exp16_familyA": 0.1681691934241954
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.9763416028737634
+        },
+        "D-T": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.007450000000000001,
+          "sd_d": 0.028145642141003138,
+          "ci95_L1_bootstrap5000": [
+            0.00016245714285714288,
+            0.018233402142857146
+          ],
+          "ci_excludes_zero": true,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.19570358532197923,
+              "sd_Rprime_exp16_familyA": 0.1830901865238616
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.1808068847244456,
+              "sd_Rprime_exp16_familyA": 0.1723053068657332
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.17721427466004483,
+              "sd_Rprime_exp16_familyA": 0.1681691934241954
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.846274436247106
+        },
+        "P-D": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.007765028571428574,
+          "sd_d": 0.03030600008199281,
+          "ci95_L1_bootstrap5000": [
+            -0.019465489285714288,
+            0.00021102285714285647
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.19570358532197923,
+              "sd_Rprime_exp16_familyA": 0.1830901865238616
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.1808068847244456,
+              "sd_Rprime_exp16_familyA": 0.1723053068657332
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.17721427466004483,
+              "sd_Rprime_exp16_familyA": 0.1681691934241954
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.8344750166167801
+        }
+      },
+      "612": {
+        "D-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.007614342857142857,
+          "sd_d": 0.029129091470195077,
+          "ci95_L1_bootstrap5000": [
+            0.00026805000000000004,
+            0.018925024999999998
+          ],
+          "ci_excludes_zero": true,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.22968020718717402,
+              "sd_Rprime_exp16_familyA": 0.23016969833563572
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.21868614417786517,
+              "sd_Rprime_exp16_familyA": 0.21790893934718011
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.21443409992188628,
+              "sd_Rprime_exp16_familyA": 0.21398733814789217
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.8734451507699387
+        },
+        "T-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": -7.35142857142857e-05,
+          "sd_d": 0.003196123593018382,
+          "ci95_L1_bootstrap5000": [
+            -0.0012876421428571424,
+            0.0007474471428571426
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.22968020718717402,
+              "sd_Rprime_exp16_familyA": 0.23016969833563572
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.21868614417786517,
+              "sd_Rprime_exp16_familyA": 0.21790893934718011
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.21443409992188628,
+              "sd_Rprime_exp16_familyA": 0.21398733814789217
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.9861140557765438
+        },
+        "P-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": -9.67714285714286e-05,
+          "sd_d": 0.004334471648959104,
+          "ci95_L1_bootstrap5000": [
+            -0.0015779042857142855,
+            0.001418586428571428
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.22968020718717402,
+              "sd_Rprime_exp16_familyA": 0.23016969833563572
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.21868614417786517,
+              "sd_Rprime_exp16_familyA": 0.21790893934718011
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.21443409992188628,
+              "sd_Rprime_exp16_familyA": 0.21398733814789217
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.9811683654264579
+        },
+        "D-T": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.007687857142857143,
+          "sd_d": 0.028115329530287187,
+          "ci95_L1_bootstrap5000": [
+            0.0004571157142857142,
+            0.01851010642857143
+          ],
+          "ci_excludes_zero": true,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.22968020718717402,
+              "sd_Rprime_exp16_familyA": 0.23016969833563572
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.21868614417786517,
+              "sd_Rprime_exp16_familyA": 0.21790893934718011
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.21443409992188628,
+              "sd_Rprime_exp16_familyA": 0.21398733814789217
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.8778495617208085
+        },
+        "P-D": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.007711114285714285,
+          "sd_d": 0.030316307911721695,
+          "ci95_L1_bootstrap5000": [
+            -0.019449275000000002,
+            0.000289689285714285
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.22968020718717402,
+              "sd_Rprime_exp16_familyA": 0.23016969833563572
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.21868614417786517,
+              "sd_Rprime_exp16_familyA": 0.21790893934718011
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.21443409992188628,
+              "sd_Rprime_exp16_familyA": 0.21398733814789217
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.8682871458278832
+        }
+      },
+      "900": {
+        "D-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.008174399999999998,
+          "sd_d": 0.02862392384023834,
+          "ci95_L1_bootstrap5000": [
+            0.0010889464285714287,
+            0.01918073214285714
+          ],
+          "ci_excludes_zero": true,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.2169066884875972,
+              "sd_Rprime_exp16_familyA": 0.2721477034672704
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.20347157970577942,
+              "sd_Rprime_exp16_familyA": 0.2575909218858561
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.19941179636984416,
+              "sd_Rprime_exp16_familyA": 0.2537151716891398
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.8948221003684466
+        },
+        "T-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.000997628571428571,
+          "sd_d": 0.006086082493910928,
+          "ci95_L1_bootstrap5000": [
+            -6.691642857142856e-05,
+            0.0030849492857142856
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.2169066884875972,
+              "sd_Rprime_exp16_familyA": 0.2721477034672704
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.20347157970577942,
+              "sd_Rprime_exp16_familyA": 0.2575909218858561
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.19941179636984416,
+              "sd_Rprime_exp16_familyA": 0.2537151716891398
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.977636840523099
+        },
+        "P-U": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.000801742857142857,
+          "sd_d": 0.006149785306357102,
+          "ci95_L1_bootstrap5000": [
+            -0.00040375214285714273,
+            0.003003068571428571
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.2169066884875972,
+              "sd_Rprime_exp16_familyA": 0.2721477034672704
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.20347157970577942,
+              "sd_Rprime_exp16_familyA": 0.2575909218858561
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.19941179636984416,
+              "sd_Rprime_exp16_familyA": 0.2537151716891398
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.9774027661155822
+        },
+        "D-T": {
+          "n_paired_units": 35,
+          "mean_d_L1": 0.00717677142857143,
+          "sd_d": 0.02922038764396985,
+          "ci95_L1_bootstrap5000": [
+            -0.00021198357142857124,
+            0.01855855999999999
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.2169066884875972,
+              "sd_Rprime_exp16_familyA": 0.2721477034672704
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.20347157970577942,
+              "sd_Rprime_exp16_familyA": 0.2575909218858561
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.19941179636984416,
+              "sd_Rprime_exp16_familyA": 0.2537151716891398
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.8926304088857248
+        },
+        "P-D": {
+          "n_paired_units": 35,
+          "mean_d_L1": -0.007372657142857143,
+          "sd_d": 0.029690479717899336,
+          "ci95_L1_bootstrap5000": [
+            -0.01896694785714286,
+            8.274642857142387e-05
+          ],
+          "ci_excludes_zero": false,
+          "abs_mean_d_ge_0_01": false,
+          "unpaired_baseline_sd_R": {
+            "L1_linear_sum": {
+              "sd_R_exp14_perm": 0.2169066884875972,
+              "sd_Rprime_exp16_familyA": 0.2721477034672704
+            },
+            "L2_max": {
+              "sd_R_exp14_perm": 0.20347157970577942,
+              "sd_Rprime_exp16_familyA": 0.2575909218858561
+            },
+            "L3_euclid": {
+              "sd_R_exp14_perm": 0.19941179636984416,
+              "sd_Rprime_exp16_familyA": 0.2537151716891398
+            }
+          },
+          "reduction_vs_sdRprime_L1": 0.890903067196119
+        }
+      }
+    },
+    "caliber_change_disclosure": "【D2 口径披露】指令 §2.3 的配对键为『同 query + 同预算档 + 同层单元』；本轮 per-query 维度不存在（r1 n=1 种子/1 任务，无段落级落盘），配对键退化为 (budget, layer)。故 sd(d) 度量的是『两 arm 的 ΔL 差异在层维度上的离散度』（结构效应的空间分布），与非配对 sd(R)（随机 K 向量抽样分布的 composite 离散）不属于同一抽样空间，两者之比的『降低幅度』不能直接解读为测量噪声下降。此项已显式披露，不作为 confirmed 依据。"
+  },
+  "previously_indistinguishable_cases": {
+    "n_cases_checked": 30,
+    "n_turned_resolvable": 0,
+    "note": "取自 exp16 verdict.e5_diagnostics.sd_table 中 sd>0.05 的不可分辨单元；逐组登记",
+    "cases": [
+      {
+        "case": "180/L1_linear_sum · arm pair D-U",
+        "sd_R_exp16": 0.13508163988232494,
+        "n": 35,
+        "mean_d": 0.006480771428571429,
+        "sd_d": 0.027733941171196624,
+        "ci95": [
+          -0.00024093999999999993,
+          0.017241926428571412
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L1_linear_sum · arm pair T-U",
+        "sd_R_exp16": 0.13508163988232494,
+        "n": 35,
+        "mean_d": 0.007789085714285715,
+        "sd_d": 0.031152535443383422,
+        "ci95": [
+          0.00017318000000000002,
+          0.019632159999999996
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L1_linear_sum · arm pair P-U",
+        "sd_R_exp16": 0.13508163988232494,
+        "n": 35,
+        "mean_d": -0.0010111999999999996,
+        "sd_d": 0.003976759660829403,
+        "ci95": [
+          -0.0024680314285714278,
+          0.00016435499999999909
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L1_linear_sum · arm pair D-T",
+        "sd_R_exp16": 0.13508163988232494,
+        "n": 35,
+        "mean_d": -0.0013083142857142857,
+        "sd_d": 0.02872168626027402,
+        "ci95": [
+          -0.012089851428571427,
+          0.006625916428571421
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L1_linear_sum · arm pair P-D",
+        "sd_R_exp16": 0.13508163988232494,
+        "n": 35,
+        "mean_d": -0.007491971428571428,
+        "sd_d": 0.029583713125026508,
+        "ci95": [
+          -0.01900622142857143,
+          -3.0207142857147346e-05
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L2_max · arm pair D-U",
+        "sd_R_exp16": 0.09689804522728085,
+        "n": 35,
+        "mean_d": 0.006480771428571429,
+        "sd_d": 0.027733941171196624,
+        "ci95": [
+          -0.00024093999999999993,
+          0.017241926428571412
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L2_max · arm pair T-U",
+        "sd_R_exp16": 0.09689804522728085,
+        "n": 35,
+        "mean_d": 0.007789085714285715,
+        "sd_d": 0.031152535443383422,
+        "ci95": [
+          0.00017318000000000002,
+          0.019632159999999996
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L2_max · arm pair P-U",
+        "sd_R_exp16": 0.09689804522728085,
+        "n": 35,
+        "mean_d": -0.0010111999999999996,
+        "sd_d": 0.003976759660829403,
+        "ci95": [
+          -0.0024680314285714278,
+          0.00016435499999999909
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L2_max · arm pair D-T",
+        "sd_R_exp16": 0.09689804522728085,
+        "n": 35,
+        "mean_d": -0.0013083142857142857,
+        "sd_d": 0.02872168626027402,
+        "ci95": [
+          -0.012089851428571427,
+          0.006625916428571421
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L2_max · arm pair P-D",
+        "sd_R_exp16": 0.09689804522728085,
+        "n": 35,
+        "mean_d": -0.007491971428571428,
+        "sd_d": 0.029583713125026508,
+        "ci95": [
+          -0.01900622142857143,
+          -3.0207142857147346e-05
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L3_euclid · arm pair D-U",
+        "sd_R_exp16": 0.09894400045089495,
+        "n": 35,
+        "mean_d": 0.006480771428571429,
+        "sd_d": 0.027733941171196624,
+        "ci95": [
+          -0.00024093999999999993,
+          0.017241926428571412
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L3_euclid · arm pair T-U",
+        "sd_R_exp16": 0.09894400045089495,
+        "n": 35,
+        "mean_d": 0.007789085714285715,
+        "sd_d": 0.031152535443383422,
+        "ci95": [
+          0.00017318000000000002,
+          0.019632159999999996
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L3_euclid · arm pair P-U",
+        "sd_R_exp16": 0.09894400045089495,
+        "n": 35,
+        "mean_d": -0.0010111999999999996,
+        "sd_d": 0.003976759660829403,
+        "ci95": [
+          -0.0024680314285714278,
+          0.00016435499999999909
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L3_euclid · arm pair D-T",
+        "sd_R_exp16": 0.09894400045089495,
+        "n": 35,
+        "mean_d": -0.0013083142857142857,
+        "sd_d": 0.02872168626027402,
+        "ci95": [
+          -0.012089851428571427,
+          0.006625916428571421
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "180/L3_euclid · arm pair P-D",
+        "sd_R_exp16": 0.09894400045089495,
+        "n": 35,
+        "mean_d": -0.007491971428571428,
+        "sd_d": 0.029583713125026508,
+        "ci95": [
+          -0.01900622142857143,
+          -3.0207142857147346e-05
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L1_linear_sum · arm pair D-U",
+        "sd_R_exp16": 0.09854438817173138,
+        "n": 35,
+        "mean_d": 0.006242514285714286,
+        "sd_d": 0.029053441874031572,
+        "ci95": [
+          -0.001499890714285714,
+          0.01748964857142856
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L1_linear_sum · arm pair T-U",
+        "sd_R_exp16": 0.09854438817173138,
+        "n": 35,
+        "mean_d": 0.023354428571428568,
+        "sd_d": 0.1374343239312093,
+        "ci95": [
+          -9.123285714285708e-05,
+          0.070019005
+        ],
+        "abs_mean_d_ge_0_01": true,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L1_linear_sum · arm pair P-U",
+        "sd_R_exp16": 0.09854438817173138,
+        "n": 35,
+        "mean_d": -0.001645342857142857,
+        "sd_d": 0.0037313858483919654,
+        "ci95": [
+          -0.003012874285714285,
+          -0.0005966507142857145
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L1_linear_sum · arm pair D-T",
+        "sd_R_exp16": 0.09854438817173138,
+        "n": 35,
+        "mean_d": -0.01711191428571428,
+        "sd_d": 0.14153040653417107,
+        "ci95": [
+          -0.06914700499999998,
+          0.014251252142857133
+        ],
+        "abs_mean_d_ge_0_01": true,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L1_linear_sum · arm pair P-D",
+        "sd_R_exp16": 0.09854438817173138,
+        "n": 35,
+        "mean_d": -0.007887857142857143,
+        "sd_d": 0.03026460533862157,
+        "ci95": [
+          -0.019651647142857144,
+          6.322571428571022e-05
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L2_max · arm pair D-U",
+        "sd_R_exp16": 0.0657764577970612,
+        "n": 35,
+        "mean_d": 0.006242514285714286,
+        "sd_d": 0.029053441874031572,
+        "ci95": [
+          -0.001499890714285714,
+          0.01748964857142856
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L2_max · arm pair T-U",
+        "sd_R_exp16": 0.0657764577970612,
+        "n": 35,
+        "mean_d": 0.023354428571428568,
+        "sd_d": 0.1374343239312093,
+        "ci95": [
+          -9.123285714285708e-05,
+          0.070019005
+        ],
+        "abs_mean_d_ge_0_01": true,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L2_max · arm pair P-U",
+        "sd_R_exp16": 0.0657764577970612,
+        "n": 35,
+        "mean_d": -0.001645342857142857,
+        "sd_d": 0.0037313858483919654,
+        "ci95": [
+          -0.003012874285714285,
+          -0.0005966507142857145
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L2_max · arm pair D-T",
+        "sd_R_exp16": 0.0657764577970612,
+        "n": 35,
+        "mean_d": -0.01711191428571428,
+        "sd_d": 0.14153040653417107,
+        "ci95": [
+          -0.06914700499999998,
+          0.014251252142857133
+        ],
+        "abs_mean_d_ge_0_01": true,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L2_max · arm pair P-D",
+        "sd_R_exp16": 0.0657764577970612,
+        "n": 35,
+        "mean_d": -0.007887857142857143,
+        "sd_d": 0.03026460533862157,
+        "ci95": [
+          -0.019651647142857144,
+          6.322571428571022e-05
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L3_euclid · arm pair D-U",
+        "sd_R_exp16": 0.06703076249587132,
+        "n": 35,
+        "mean_d": 0.006242514285714286,
+        "sd_d": 0.029053441874031572,
+        "ci95": [
+          -0.001499890714285714,
+          0.01748964857142856
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L3_euclid · arm pair T-U",
+        "sd_R_exp16": 0.06703076249587132,
+        "n": 35,
+        "mean_d": 0.023354428571428568,
+        "sd_d": 0.1374343239312093,
+        "ci95": [
+          -9.123285714285708e-05,
+          0.070019005
+        ],
+        "abs_mean_d_ge_0_01": true,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L3_euclid · arm pair P-U",
+        "sd_R_exp16": 0.06703076249587132,
+        "n": 35,
+        "mean_d": -0.001645342857142857,
+        "sd_d": 0.0037313858483919654,
+        "ci95": [
+          -0.003012874285714285,
+          -0.0005966507142857145
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": true,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L3_euclid · arm pair D-T",
+        "sd_R_exp16": 0.06703076249587132,
+        "n": 35,
+        "mean_d": -0.01711191428571428,
+        "sd_d": 0.14153040653417107,
+        "ci95": [
+          -0.06914700499999998,
+          0.014251252142857133
+        ],
+        "abs_mean_d_ge_0_01": true,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      },
+      {
+        "case": "324/L3_euclid · arm pair P-D",
+        "sd_R_exp16": 0.06703076249587132,
+        "n": 35,
+        "mean_d": -0.007887857142857143,
+        "sd_d": 0.03026460533862157,
+        "ci95": [
+          -0.019651647142857144,
+          6.322571428571022e-05
+        ],
+        "abs_mean_d_ge_0_01": false,
+        "ci_excludes_zero": false,
+        "turned_resolvable": false
+      }
+    ]
+  },
+  "verdict": {
+    "hypothesis": "H-R1-RESOLV-PAIRED",
+    "status": "e5_withdrawn",
+    "criteria": {
+      "C1_n_ge_30": true,
+      "C2_sd_d_lt_0_05": true,
+      "C3_reduction_ge_50pct": true,
+      "C4_at_least_2_of_3_turned": false,
+      "refuted_branch_sd_d_ge_0_05": false,
+      "refuted_branch_reduction_lt_20pct": false,
+      "e5_branch_per_query_missing": true,
+      "values": {
+        "n_paired_units_per_budget": 35,
+        "mean_sd_d": 0.030137704619705632,
+        "min_sd_d": 0.003196123593018382,
+        "max_sd_d": 0.14153040653417107,
+        "mean_sd_R_exp16": 0.16875731691412862,
+        "reduction_pct": 82.14,
+        "n_cases_checked": 30,
+        "n_turned_resolvable": 0
+      }
+    },
+    "decision_note": "主结论按 §4 E5 分支：三输入文件均无 per-query（per-prompt/per-segment）级 composite 明细，最细可得单元为『层 × K 档』实测 ΔL；per-query 维度在源数据上即不存在（n=1 种子/1 任务，仅 8 段落且未落盘段落级值），无法扩容，故终态关闭本问。层单元配对结果作为『所需资产到位后是否值得重跑』的可行性上限估计附后，不构成判据。",
+    "required_assets": [
+      "per-prompt / per-segment 级 composite（或 ΔL_answer）逐样本落盘：至少 n>=30 个独立 prompt/段落单元，且同一单元在多 arm 下均有实测值",
+      "多种子重复测量（>=3 seed）以分离测量噪声与结构效应",
+      "3B 权重 /workspace/models/Qwen2.5-3B-Instruct（P0，已蒸发）或等价可重算环境，用于补齐上述逐样本落盘"
+    ],
+    "auxiliary_layer_unit_observation": {
+      "non_binding": true,
+      "mean_sd_d": 0.030137704619705632,
+      "mean_sd_R_exp16": 0.16875731691412862,
+      "reduction_pct": 82.14,
+      "n_turned_resolvable": 0,
+      "n_cases_checked": 30,
+      "caveat": "该观察换用了层单元口径（非 per-query），且 sd(d) 与非配对 sd(R) 不同抽样空间；即使 sd(d) < 0.05，也只能说明『两 arm 差异在层维度上较均匀』，不能说明测量噪声被消除。按 D1 不作为 confirmed/refuted 依据。"
+    }
+  },
+  "dependency_missing": [
+    "per-query / per-prompt / per-segment 级 composite 明细（三输入文件均无，见 granularity_audit）",
+    "多种子（>=3）重复测量的逐样本 composite 落盘",
+    "/workspace/models/Qwen2.5-3B-Instruct（P0，r1 n_boundary 明示已蒸发，无法重算逐样本值）"
+  ],
+  "p0": false,
+  "p0_reason": "产物可由本脚本在 Hub 三实物上幂等重跑复现（seed 固定），非不可再生资产",
+  "frozen_dl_table": {
+    "n_layers": 36,
+    "k_grid": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32
+    ],
+    "layers_with_incomplete_k_grid": [],
+    "interpolation_used": false,
+    "note": "exp15 的 K 网格 {1,2,4,8,16,32} 全部落在冻结件已测点上，无需插值/外推"
+  }
+}

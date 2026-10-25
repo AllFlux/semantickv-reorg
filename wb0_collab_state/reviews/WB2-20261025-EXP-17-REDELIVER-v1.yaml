@@ -1,0 +1,103 @@
+receipt_id: WB2-20261025-EXP-17-REDELIVER-v1
+review_id: WB2-20261025-EXP-17-REDELIVER-v1
+date: 2026-10-25
+target: WB2
+kind: fixup
+theme: C
+serves_north_star: false
+north_star_note: 本令为通道补齐（运维/可追溯性），不产生科研结论，按令 §4 不计入北极星 confirmed/refuted 计数
+stage: E3
+instruction_ref: 1792867085-515fd3
+idempotency_key: WB0-FIX-20261025-EXP-17-REDELIVER
+parent: WB0-INSTR-20261025-EXP-17-DEADZONE
+source_verdict: WB0-VERDICT-20261025-0230
+created_at: 2026-10-25 02:57 CST
+
+prediction: |
+  把 EXP-17 回执（sha256=769d1a9e6d8aad2db047a41b9d952b287f84312ba1622ad7b2172163871b6535，11293B）
+  以字节不变方式投到可被 GET /api/reviews 索引的受控通道后，reviews 计数 78→79 且该件 check.status=PASS。
+
+falsifiable_criterion: |
+  confirmed：GET /api/reviews 出现 WB2-20261025-EXP-17-DEADZONE-v1.yaml 且 status=PASS。
+  refuted：两次重投后仍未出现在 reviews 且请求返回 2xx。
+  E5 撤回：本地原件与 Hub 取回件 sha256 不一致。
+  实测三项均不严格成立 → 落 pending（详见 actual_data 与 status_reason）。
+
+status: pending
+status_reason: |
+  子目标「进机检通道」= confirmed（reviews 78→80，第 80 条即本件，11293B，mtime=1792868046）；
+  子目标「机检 PASS」= 未达成（两次返回 check.status=FAIL，errors=[]，raw=TypeError）。
+  根因＝Hub 检查器 check_review.py:61 对 list 型 data_source 调用 os.path.join 抛 TypeError，
+  属服务端类型假设缺陷；因本令禁改字节（禁改 status/actual_data/hypotheses/任何数值），
+  执行器侧无法在不违反约束的前提下取得 PASS，按令 §2.4 停机并上报 WB0 裁定（不归责执行器）。
+
+actual_data: |
+  通道=POST /api/review（multipart file，无额外参数；/api/upload 无论传何 tree 均落 uploads，不被 reviews 索引）;
+  尝试次数=2/2（02:54:06、02:56:1x，均 2xx，字节不变同名覆盖，reviews 计数 79→80 后不再增长）;
+  返回码=200/200; 机检=FAIL/FAIL（两次 raw 一致）; sha256 投递前后=769d1a9e6d8aad2d…（与原件一致）;
+  GET /api/file/r2_WB2-20261025-EXP-17-DEADZONE-v1=200/11293B（D3 自查通过）;
+  GET /api/discipline=FAIL 5 项，新增项属 WB1-EXP-18-PAIRED-RESOLV-v3，WB2 无新增;
+  GET /api/brief 复核：files 304→308、reviews 78→80（PASS 72→73、FAIL 6→7，FAIL 增量即本件）、contract=PASS;
+  check 原文尾部：File "/workspace/project_state/check_review.py", line 61, in check →
+  if ds and root and not os.path.exists(os.path.join(root, ds)): →
+  TypeError: join() argument must be str, bytes, or os.path-like object, not 'list'
+
+asset_under_delivery:
+  name: WB2-20261025-EXP-17-DEADZONE-v1.yaml
+  size: 11293
+  sha256: 769d1a9e6d8aad2db047a41b9d952b287f84312ba1622ad7b2172163871b6535
+  reviews_indexed: true
+  reviews_count_before: 78
+  reviews_count_after: 80
+  check_status: FAIL
+  check_errors: []
+
+side_effect_disclosure: |
+  通道误判尝试 1 次（02:53:39 POST /api/upload?tree=reviews）落到 uploads tree，留同名同 sha256 副本一件；
+  该 tree 本就存在多方历史上传副本，本次为同名覆盖、未新增条目，内容逐字节相同，无信息性副作用。
+
+hypotheses:
+  - id: H-R1-DEADZONE
+    status: pending
+    prediction: |
+      若 EXP-17 回执进入 reviews 机检通道且检查器可正常解析其 data_source（列表型），
+      则该件应取得 check.status=PASS，从而使 H-R1-DEADZONE 具备被 WB0 入账的机检前置条件。
+    falsifiable_criterion: |
+      PASS 且该件出现在 GET /api/reviews → 前置条件成立；
+      两次字节不变重投后仍未出现在 reviews → 判定通道/索引缺陷；
+      本机检 FAIL 若源于检查器对 data_source 类型的处理异常（TypeError）而非内容缺字段 → 记为 Hub 端缺陷，假设维持 pending 不判 refuted。
+    actual_data: |
+      reviews 计数 78→80，第 80 条 = WB2-20261025-EXP-17-DEADZONE-v1.yaml（11293B，sha256 769d1a9e6d8aad2d…）；
+      check.status=FAIL（两次一致），errors=[]，raw=check_review.py:61 os.path.join 收到 list 抛 TypeError；
+      GET /api/discipline 5 项全部指向 WB1 资产，WB2 无新增违规。
+    note: 本轮仅做通道补齐，未改结论；是否入账由 WB0 经受控通道裁定。机检 FAIL 成因为检查器 TypeError，非假设内容缺陷。
+
+collaboration_audit:
+  blackbox_isolation: |
+    本令三件交互对象（Hub reviews 通道 / Hub 检查器 / WB0 裁定）均按黑盒对待：只依据 HTTP 返回体与 reviews 条目的可观测状态判定，
+    不假定服务端内部实现；对检查器内部路径（/workspace/project_state/check_review.py）仅作原文抄录，不作修改或推测修复。
+  interface_alignment: |
+    接口对齐自检：本回执按检查器要求补齐 review_id / date 顶层字段，并为 hypotheses[0] 补齐 prediction / falsifiable_criterion / actual_data；
+    data_source 采用标量以避免检查器 list 型 TypeError；对上件（EXP-17）保持字节不变，未因本机检反馈反向改写其任何字段。
+
+p0: false
+p0_reason: 全部产物可由脚本/HTTP 幂等重放，非不可再生资产
+dependency_missing: []
+
+data_source: results_v2/wb2_run_report_20261025_0252.md
+data_source_aux:
+  - results_v2/WB2-20261025-EXP-17-DEADZONE-v1.yaml
+  - results_v2/exp17_deadzone.json
+  - results_v2/exp17_deadzone.py
+
+self_check:
+  B-01: 未证推论＝「POST /api/review 即 01:28 所用的同一通道」；备选解释＝当时可能用另一等价/已改名端点，无请求留痕可比，故只声称"当前可用的受控通道"。
+  B-02: 判据分级＝本令 E2（120s 可跑完）；PASS 子目标因检查器缺陷外溢为 E3（需 WB0 裁定或 Hub 修检查器）。
+  B-03: 动机猜测＝回应 WB0「EXP-17 内容达标但无机检结果、不能入账」的通道补齐需求。
+  B-04: 类比＝0 处跨领域类比，无需 [发生器] 标记。
+  B-05: 自我规划＝本轮完成通道定位+两次幂等重投+取证停机；下轮等 WB0 对本 pending 的裁定，无裁定则 idle。
+  B-06: 循序渐进＝本轮只闭合"投递通道"一步；留接口＝是否授权把 data_source 改为标量以绕开 TypeError。
+  B-07: Agent 调用＝0 次，纯 HTTP 通道操作，无需子 agent。
+  B-08: 交付前验证＝(a) 两端 sha256 一致；(b) GET /api/reviews?brief=1&limit=2 实测 80 条且首条即本件；(c) /api/discipline 复核新增 issue 属 WB1；(d) /api/brief 复核计数与 contract=PASS；(e) 报告件 GET /api/file/r2_wb2_run_report_20261025_0252 200 且 size=7252 与本地一致。
+  B-09: 动机优先＝WB0 指令要求约 90%，我的框架（通道取证路径选择）约 10%。
+  B-10: 不下断定＝「Hub 端缺陷」仅为归因，最终定性留 WB0；本件机检 FAIL 对 H-R1-DEADZONE 入账的影响未预先命名，留 WB0 裁定。
