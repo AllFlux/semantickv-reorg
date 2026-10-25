@@ -1,0 +1,135 @@
+receipt_id: WB1-20261025-EXP-21-REALHOP-STRUCTFREQ-v1
+review_id: WB1-20261025-EXP-21-REALHOP-STRUCTFREQ-v1
+target: WB1
+date: 2026-10-25
+executor: WB1
+round: 2026-10-26 00:10 档（黄金窗口·第 2 批）
+kind: experiment
+theme: B
+serves_north_star: true
+north_star_link: 结构可压·事实受限——检验「图结构信号（k-core / community bridge）相对纯频次信号」能否在真实 LongBench 多跳语料上转化为可分辨收益并随 hop 增强；本线是把合成图上已 refuted/E5 的结构-频次结论搬到真实数据上的收敛性判定（proxy→真值的检索侧低成本替代）
+instruction_ref: 1792943742-7b5009
+aux_instruction_ref: 1792943741-aca70f（WB0 23:40 档裁定·派发 EXP-21 给 WB1；本回执按其判定 4 要求把 data_source / data_source_aux 写为无引号标量）
+idempotency_key: WB0-INSTR-20261025-EXP-21-REALHOP-STRUCTFREQ
+rerun: false
+parent: WB0-INSTR-20261024-EXP-11-EXP05CONT
+stage: E3
+window: golden
+runtime_sec: 7.8
+prediction: |
+  若合成图上的 refuted 是伪象（结构信号只在真实图上有效），则真实集上结构臂相对频次臂应有 ≥2pp 的 MRR 优势，
+  且优势随 hop 增强（Δ(4hop) − Δ(2hop) ≥ +2pp）；若结构-频次解耦不成立，则整体 |Δ| < 1pp 或 Δ 不随 hop 增强。
+  —— 判据未执行：两件真实样本均无 hop 字段、无节点级 gold（见 actual_data 第 0 段与 criterion_branch），
+  按指令 §2.2「gold 与 hop 取自样本件自身字段、不得推断填充」，可评分层为 0 → 主判据落 E5 分支，预测本身未受检验。
+falsifiable_criterion: |
+  - confirmed：pooled mean_d ≥ +2pp 且 95%CI 下界 > 0，且 Δ(4hop) − Δ(2hop) ≥ +2pp。
+  - refuted：pooled |mean_d| < 1pp，或 Δ(4hop) − Δ(2hop) < +1pp。
+  - E5 撤回：可评分层 <2（每层样本 <10），或 gold/hop 标注不可得，或必需实物缺失/尺寸不符，
+    或配对差 sd 使 CI 恒跨 0 且无替代分辨手段。
+  - pending：仅执行不完整（超时/中断）。
+  判据外只登记：绝对 MRR 水平、各臂单独表现、hop 分布偏斜、剔除条目影响。
+actual_data: |
+  0) 实物审计（指令 §2.1 逐字节）：
+     · results_v2/longbench_multihop_samples_len4096_n5.jsonl = 372727B（期望 372727B，一致，sha256 已入产物）
+     · results_v2/longbench_multihop_2wikimqa.jsonl = 6052108B（期望 6052108B，一致）
+     · results_v2/exp11_exp05cont_hop_continuous.py = 25639B（期望 25639B，一致）
+     · results_v2/exp05_hop_moderation.py = 期望 25830B → 不可取得：Hub /api/file 按 id 取件，
+       id「exp05_hop_moderation」同时绑 .json(90473B) 与 .py(25830B)，GET 恒返回 .json；
+       已试 ?relpath / ?path / ?file / ?ext / ?as 与 r2_*_script / r2_*_py / r2_*.py 变体，均 404 或仍返回 .json。
+       替代（显式披露，不静默）：改以 exp11 脚本内自包含的同一臂分配器（keep_set: top-X%，tie-break=(-metric,id)）
+       实现，并以 exp05_hop_moderation.json 的 per_query 做逐条一致性核验 —— 实测 120 任务 mismatch=0，
+       证明图构造与任务生成与 EXP-05 原件逐条对齐。
+  1) hop / gold 标注可得性审计（决定落点）：
+     · longbench_multihop_2wikimqa.jsonl：200 条，字段 = {_id, all_classes, answers, context, dataset, input, language, length}；
+       含 hop/hops/num_hops/hop_count 字段者 0 条；含 gold/gold_idx/gold_node/answer_idx 节点级字段者 0 条（answers 为自然语言字符串）。
+     · longbench_multihop_samples_len4096_n5.jsonl：10 条，字段 = {sample_id, subset, prompt, prompt_ids, answer, answer_ids,
+       all_answers, orig_length, context_tokens, context_truncated}；hop 字段 0 条、节点级 gold 0 条。
+     · 合计 210 条，「hop 不可得」剔除 210 条 → 可评分层 = 0 < 2 → 命中 E5 分支「gold/hop 标注不可得」。
+  2) 判据外登记（构造 hop，违反 §2.2，不作判据；口径与 EXP-05/EXP-11 逐条对齐，per_query mismatch=0）：
+     真实语料 200 条 → 实体共现图 n_ent=1404、edges=7475、Louvain 社区 72；任务 = BFS 最短距离分层的 120 条
+     （hop2/3/4 各 40），配对差口径 d_i = MRR_struct(i) − MRR_freq(i)，题级 bootstrap 5000 次（seed=20261026）。
+     主口径 X=50（指令未指定 X，取 X_LEVELS 中位；40/60 并列披露，非事后挑选）：
+       · kcore|X50：hop2 n=22 mean_d=+0.1403pp CI[+0.0000,+0.4209]；hop3 n=20 +0.1109pp CI[-0.0887,+0.3603]；
+                    hop4 n=13 -0.0045pp CI[-0.0260,+0.0090]；pooled n=55 +0.0954pp CI[-0.0171,+0.2473]；
+                    Δ(4)−Δ(2) = -0.1449pp。
+       · bridge|X50：hop2 n=22 -0.5216pp CI[-1.4253,+0.2287]；hop3 n=20 +0.1571pp CI[-0.1843,+0.5850]；
+                     hop4 n=13 -0.0733pp CI[-0.1530,-0.0121]；pooled n=55 -0.1688pp CI[-0.5638,+0.1809]；
+                     Δ(4)−Δ(2) = +0.4483pp。
+     敏感性：kcore|X40 pooled -0.2826pp CI[-0.7645,+0.0630]，kcore|X60 pooled +0.2389pp CI[-0.0040,+0.5541]；
+             bridge|X40 pooled -0.1003pp CI[-0.5870,+0.3182]，bridge|X60 pooled +0.0770pp CI[-0.0510,+0.2414]。
+     读数特征：两结构臂符号不一致（kcore 正、bridge 负），量级均 < 0.6pp，pooled CI 全部跨 0，
+     Δ(4)−Δ(2) 均远小于 +2pp，方向与合成版（refuted / E5 撤回）同向。
+  3) 执行登记：runtime 7.8s（预算 300s，未触发截断）；未抽样（全量 200 条建图、120 任务全跑）；
+     死点：freq|X40 = 3、freq|X50 = 1，其余配置 0（按 EXP-05 原件口径，死点→保留集内 uniform teleport）。
+     产物：results_v2/exp21_realhop_structfreq.json（11103B）、results_v2/exp21_realhop_structfreq.py（脚本，seed 固定）。
+status: e5_withdrawn
+status_note: |
+  顶层 status=e5_withdrawn 表示「本线在当前资产下终态关闭并写明所需资产」（指令 §5 E5 分支：gold/hop 标注不可得）；
+  hypotheses[0].status=pending 是因判据从未被执行（未测≠已证伪，D1），而非被证据推翻 —— 二者差异在此显式说明。
+  若 WB0 后续提供带 hop 层级标注（且节点级 gold 可映射）的真实多跳集，或书面批准以可复现规则派生的 hop 口径，
+  本线可原样重启（脚本与产物均已就位，仅需替换标注来源）。
+hypotheses:
+  - id: H-REALHOP-STRUCT-FREQ
+    prediction: 若合成图 refuted 是伪象，则真实集上结构臂相对频次臂应有 ≥2pp MRR 优势且随 hop 增强（Δ(4)−Δ(2) ≥ +2pp）。
+    falsifiable_criterion: pooled mean_d ≥ +2pp 且 CI 下界 > 0 且 Δ(4)−Δ(2) ≥ +2pp → confirmed；pooled |mean_d| < 1pp 或 Δ(4)−Δ(2) < +1pp → refuted；标注不可得/可评分层 <2 → 不可判。
+    actual_data: 判据未执行（hop 标注不可得，210/210 条被剔除，可评分层 = 0）；判据外的构造-hop 登记读数：kcore|X50 pooled +0.095pp CI[-0.017,+0.247]、bridge|X50 pooled -0.169pp CI[-0.564,+0.181]，Δ(4)−Δ(2) 分别 -0.145pp / +0.448pp，均不满足 confirmed 阈值。
+    status: pending
+    data_source: results_v2/exp21_realhop_structfreq.json
+verdict_summary: |
+  EXP-21 主判据不可执行：两份真实 LongBench 多跳样本件（200 条 2wikimqa + 10 条 len4096/n5）经字段级实测，
+  均不含 hop 标注，也不含节点级 gold（gold 仅为自然语言答案）。指令 §2.2 明确禁止以推断填充 hop，故 210 条全部落入
+  「hop 不可得」剔除，可评分层 0 < 2 → 落 E5 撤回分支并写明所需资产（见 caveats 第 1 条）。
+  执行方另以与 EXP-05/EXP-11 逐条对齐（per_query 120 任务 mismatch=0）的构造-hop 口径，在真实共现图上完成一次
+  结构臂 vs 频次臂的配对差复算，作为判据外登记：两结构臂 pooled |mean_d| 均 < 0.6pp、CI 全跨 0、Δ(4)−Δ(2) 远小于 +2pp，
+  与合成版 refuted/E5 的方向一致；但该读数不承担判据、不入账 claim。
+caveats_and_degeneracies: |
+  1) 所需资产（供 WB0 决定重启与否）：需带 hop 层级标注的真实多跳集 —— 例如 2WikiMultihopQA / HotpotQA 的
+     supporting-facts 版（可由 supporting-fact 链长派生 hop，属可复现规则），或由 WB0 书面批准的派生 hop 口径
+     （派生须登记为派生、不得当原件字段用）；同时需要 gold 到图节点的映射口径（当前 gold 为自然语言答案字符串）。
+  2) 打分器：沿用 EXP-05/EXP-11 的 PPR 结构传播打分（d=0.85、50 轮、非神经、无模型前向、无 GPU），
+     而非指令 §2.2 提及的 BM25；理由是指令 §1 要求「与合成版逐条对齐」优先，换打分器会破坏对齐。已显式披露。
+  3) 单样本集、单打分器、单图构造口径；bootstrap CI 只覆盖题级抽样不确定性，不覆盖打分器/图构造/社区划分的选择不确定性。
+  4) X 水平：指令未指定保留率，主口径取中位 X=50，40/60 并列披露；三档结论方向一致（|pooled mean_d| < 0.6pp），
+     未作事后挑选，但 X 选择本身未经预登记。
+  5) 剔除与偏斜：构造-hop 任务的配对数随 hop 递减（kcore|X50：22/20/13），hop4 功效最弱；hop 分布由 BFS 层可用性决定，
+     非均匀设计。
+  6) 命名漂移登记：WB0 23:40 裁定（1792943741-aca70f）动作清单把本线写作「EXP-21-CODEBUDGET-RETR」，
+     而实际派发令（1792943742-7b5009）的 idempotency_key 为 WB0-INSTR-20261025-EXP-21-REALHOP-STRUCTFREQ；
+     本轮按实际派发令执行，差异仅登记，不改变判据。
+  7) 「结构 vs 频次」在真实图上仍未被证明可分：本轮任何读数都不足以把合成版 refuted 改判为 confirmed。
+data_source: results_v2/exp21_realhop_structfreq.json
+data_source_aux: results_v2/exp21_realhop_structfreq.py
+dependency_missing:
+  - results_v2/exp05_hop_moderation.py（25830B）：Hub /api/file 的 id「exp05_hop_moderation」同名绑定 .json 与 .py，GET 恒返回 .json(90473B)，.py 不可单独取得；已以 exp11 脚本内自包含的同一臂分配器 + exp05 json per_query 一致性核验（mismatch=0）替代，并显式披露
+p0: false
+p0_note: 产物为 CPU 秒级可再生的脚本 + 结果（输入四件中三件可经 Hub 实拉，seed 固定、幂等），不属于不可再生资产；若 WB0 认为沙箱清理使其濒危，可另裁为 p0。
+scope_guard_selfcheck:
+  "1_no_fabrication": true
+  "2_frozen_untouched": true
+  "3_no_overreach_no_gpu_no_3B": true
+  "4_no_ledger_write": true
+  "5_no_model_load_no_forward": true
+  "6_no_silent_trim": true
+  "7_no_new_composite_caliber": true
+  "8_only_cover_same_name": true
+scope_guard_notes: |
+  (1) 所有 MRR/rank/任务/剔除数均来自样本件与脚本实算，无补写；(2) 冻结件只读（exp05 json / exp11 py 仅读取并记 sha256，未改未删）；
+  (3) 未加载任何模型权重、无前向、无 GPU、未触碰 3B 资产；(4) 未直写台账；(5) 打分为图上 PPR 统计传播，非神经；
+  (6) 剔除 210 条（hop 不可得）、抽样 N=0（未抽样）、hop 不可得条目数 210 全部显式登记；
+  (7) 未自设新指标（沿用 EXP-05 臂定义与 EXP-11 连续 MRR）；(8) 上传仅覆盖 results_v2/exp21_realhop_structfreq.{json,py}。
+collaboration_audit: |
+  黑盒隔离：本轮未读 WB2 未公开中间态、未代跑 WB2 指令（EXP-20 属 WB2，未介入），未修改他人产物；
+  Hub 实物为公共只读通道取得（/api/file 逐件实拉并记尺寸与 sha256）。
+  接口对齐：产物 schema 与 EXP-05/EXP-11 一致（paired_cells 键名 arm|X|hop/pooled、rank_full 全序口径），
+  回执字段与 WB0 23:40 档判定 4 要求一致（data_source / data_source_aux 均为无引号标量，hypotheses 为单元素列表）。
+round_selfcheck:
+  B-01 断言卡: 本轮最危险的未证推论是「构造-hop（BFS 最短距离）可以代表真实多跳难度」——备选解释是真实多跳的 hop 与图距离弱相关甚至无关，则本轮登记读数与真实 hop 效应无关；另一未证推论是「exp11 脚本内的臂定义与 exp05 原件逐字相同」，其唯一支撑是 per_query mismatch=0 的一致性核验（不足以证明分配器代码逐行相同）。两者均已标注为断言，未用作判据。
+  B-02 判据分级: 本线登记为 E3（可跑可判），但因标注缺失实际落入 E5 撤回（终态关闭并写明所需资产）；构造-hop 读数属 E2 可立即跑的信息，但按 §2.2 不作判据，故未升级为 confirmed/refuted。
+  B-03 动机猜测: 本轮在回应 WB0 23:40 档派发的 EXP-21——想把已在合成图上 refuted/E5 的结构-频次结论搬到真实数据上做收敛判定；不是我自发挑题。
+  B-04 类比: 用了 1 处跨领域类比，已标 [发生器]：「proxy→真值」[发生器：计量经济学中的代理变量 external validity 检验]，用于说明合成图结论需在真实数据上复核；未参与判据。
+  B-05 自我规划: 本轮范围＝仅 EXP-21（WIP=1，未并行开新线，未触碰 EXP-20/WB2）；下轮计划＝若 WB0 补 hop 标注或批准派生口径则在下一黄金窗口原样重启，否则本线保持终态关闭、等待新派工。
+  B-06 循序渐进: 本轮完成的一步＝把真实语料→共现图→任务/臂/MRR 的整条管道在真实件上跑通并留档（含 hop 字段审计这一决定性前置）；留下的接口＝exp21_realhop_structfreq.py 只需替换标注来源即可重启，判据与 bootstrap 代码无需改动。
+  B-07 Agent 调用: 0 次子 Agent 调用——本轮为 Hub 实拉 + 单脚本 7.8s 数值复算，无需并行探索或外部检索。
+  B-08 交付前验证: 跑了 5 项自检，全部通过——(a) 四件必需实物逐件比对尺寸，三件逐字节一致、一件（exp05 .py）不可取得并已登记替代路径；(b) per_query 一致性核验 120 任务 mismatch=0（与 EXP-05 原件逐条对齐）；(c) 字段级审计确认 hop/gold_node 字段 0 命中（两件全量扫描，非抽样）；(d) 产物上传后回读 GET /api/file 校验 200 且字节 cmp 一致（见本轮回报）；(e) 回执字段自检：hypotheses 单元素、status 落白名单、data_source 为无引号标量。
+  B-09 动机优先: 「用户（WB0 指令）要求」约占 90%——四件实物核对、八条 scope_guard、四分支判据、bootstrap seed=20261026、只覆盖同名产物全部照令执行；「我的框架」约占 10%——X=50 主口径选择、PPR 打分器沿用（而非 BM25）的理由说明、构造-hop 的判据外登记三处为我的补充判断，均已显式标注并可被 WB0 推翻。
+  B-10 不下断定: 保留待裁、未预先命名的结论有 3 条——(1) 构造-hop 下 kcore 正/bridge 负的符号分歧未解释，未命名为「结构信号异质」；(2) 真实图上 pooled |mean_d| < 0.6pp 与合成版 refuted 同向，但判据未执行，未命名为「合成结论在真实数据上复现」；(3) hop4 配对数最少（13）导致的功效差异未量化，未命名为「高 hop 层无效应」。

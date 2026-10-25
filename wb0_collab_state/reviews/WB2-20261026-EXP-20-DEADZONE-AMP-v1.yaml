@@ -1,0 +1,223 @@
+receipt_id: WB2-20261026-EXP-20-DEADZONE-AMP-v1
+review_id: WB2-20261026-EXP-20-DEADZONE-AMP-v1
+target: WB2
+date: 2026-10-25
+executor: WB2
+round: 2026-10-26 00:15 档（黄金窗口 golden；指令 created 2026-10-25 23:40，跨零点执行）
+kind: experiment
+theme: C
+serves_north_star: true
+north_star_link: 结构可压·事实受限——EXP-17 已证 33~34/35 层方向的单单元 ±20% 预算扰动对 composite 不可分辨；本线把幅度提到 ±40%/+60%，检验该不可分辨是幅度不变的结构性事实还是小扰动分辨率伪象
+instruction_ref: 1792943741-fefcbd
+idempotency_key: WB0-INSTR-20261025-EXP-20-DEADZONE-AMP
+stage: E3
+window: golden
+runtime_sec: 0.4
+
+prediction: >-
+  二分支预登记（指令 §5）：若死区是幅度不变的结构性事实，则 ±40% 与 +60% 下死区单元数应仍 ≥3/档（≥3 档）
+  且覆盖口径重合度 ≥70%；若死区只是 ±20% 小扰动的分辨率伪象，则大幅扰动下死区集合应显著崩塌
+  （|Δ|≥0.05 的层单元大量出现）。
+
+falsifiable_criterion: >-
+  四分支（指令 §5 预登记，逐字执行）：confirmed = a=0.40 与 a=0.60 两幅度下均满足 ≥3/5 档出现 ≥3 个死区单元
+  （|Δ|<0.01）且覆盖口径重合度 ≥70% 且各档 sd ≤0.05；refuted = a=0.60 下 ≤1 档出现 ≥3 个死区单元，
+  或 ≥3 档出现 |Δ|≥0.05 的层单元数 ≥10；E5 撤回 = 可闭合档 <5，或任一主变体档 sd >0.05 致不可分辨，
+  或必需实物缺失/尺寸不符，或复现校验不通过；pending = 仅执行不完整。
+
+actual_data:
+  preconditions:
+    frozen_pull_http: 全部 200
+    sizes_bytes:
+      r1_budget_allocation.hub_pull_20261025_WB2.json: 86123
+      exp15_kgrid.json: 61759
+      exp16_sparse_matched.json: 76046
+      exp17_deadzone.json: 397407
+    sizes_match_instruction: true
+    reproduction_check:
+      n_checks: 20
+      max_abs_diff_over_all: 0.0
+      max_closure_error_over_all: 0.0
+      pass: true
+      note: EXP-15 四臂×5 档 = 20 个 composite 值逐位复现，max|diff|=0.0 < 1e-9，闭合误差 0 ≤1e-9
+  caliber:
+    layer_set: L1..L35（口径 A，剔除 L0）
+    budgets: [180, 324, 468, 612, 900]
+    primary_variant: V5_cont_room（水填充按可用余量比例摊还）
+    primary_arm: U
+    dead_rule: 单元级两方向（s=±1）三合成 |Δ| 均 < 0.01 判为死区单元（沿用 EXP-17 三合成一致纪律）
+    low_sens_set: [2, 7, 10, 11, 13, 14, 29, 30, 31, 32, 33, 35]
+    low_sens_crosscheck: 由实测敏感度升序取前 12 层重算 = 同一集合，matches=true
+    overlap_primary: 覆盖口径 |死区∩低敏| / |低敏|
+    overlap_secondary: 集中度口径 |死区∩低敏| / |死区|（并列登记，不参与落点）
+  primary_readout_U_V5:
+    a_0.40:
+      per_budget:
+        - {budget: 180, n_dead_units: 31, coverage_pct: 100.0, concentration_pct: 38.7, sd_L1: 0.0104, max_abs_closure_residual: 8.53e-14, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 1}
+        - {budget: 324, n_dead_units: 32, coverage_pct: 100.0, concentration_pct: 37.5, sd_L1: 0.0045, max_abs_closure_residual: 2.27e-13, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 0}
+        - {budget: 468, n_dead_units: 21, coverage_pct: 83.3, concentration_pct: 47.6, sd_L1: 0.0054, max_abs_closure_residual: 3.41e-13, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 0}
+        - {budget: 612, n_dead_units: 0, coverage_pct: 0.0, concentration_pct: null, sd_L1: 0.0073, max_abs_closure_residual: 3.41e-13, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 0}
+        - {budget: 900, n_dead_units: 32, coverage_pct: 100.0, concentration_pct: 37.5, sd_L1: 0.0736, max_abs_closure_residual: 6.82e-13, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 1}
+      n_budgets_with_ge3_dead: 4
+      n_budgets_coverage_ge_70pct: 4
+      n_budgets_sd_le_0.05: 4
+      n_budgets_closure_ok: 5
+      n_budgets_with_ge10_units_abs_delta_ge_0.05: 0
+      mean_coverage_pct: 76.7
+      max_sd_L1: 0.07362691923222556
+      abs_delta_range_B900: [0.0, 0.6211583299886035]
+      abs_delta_range_B612: [0.0, 0.03244777154686708]
+    a_0.60:
+      per_budget:
+        - {budget: 180, n_dead_units: 30, coverage_pct: 100.0, concentration_pct: 40.0, sd_L1: 0.0157, max_abs_closure_residual: 5.68e-14, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 1}
+        - {budget: 324, n_dead_units: 30, coverage_pct: 100.0, concentration_pct: 40.0, sd_L1: 0.0079, max_abs_closure_residual: 2.84e-13, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 0}
+        - {budget: 468, n_dead_units: 14, coverage_pct: 50.0, concentration_pct: 42.9, sd_L1: 0.0071, max_abs_closure_residual: 2.27e-13, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 0}
+        - {budget: 612, n_dead_units: 0, coverage_pct: 0.0, concentration_pct: null, sd_L1: 0.0099, max_abs_closure_residual: 2.27e-13, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 0}
+        - {budget: 900, n_dead_units: 17, coverage_pct: 41.7, concentration_pct: 29.4, sd_L1: 0.0741, max_abs_closure_residual: 6.82e-13, n_units_closure_failed: 0, n_units_abs_delta_ge_0.05: 1}
+      n_budgets_with_ge3_dead: 4
+      n_budgets_coverage_ge_70pct: 2
+      n_budgets_sd_le_0.05: 4
+      n_budgets_closure_ok: 5
+      n_budgets_with_ge10_units_abs_delta_ge_0.05: 0
+      mean_coverage_pct: 58.3
+      max_sd_L1: 0.07410840335093721
+      abs_delta_range_B900: [0.0, 0.6260140656850778]
+      abs_delta_range_B612: [0.0, 0.033411907339286964]
+  amplitude_control_from_EXP17:
+    note: 同变体（V5_cont_room）同臂（U）同档（B=900）在 ±20% 下的历史读数，用于把 sd 超阈归因
+    a_0.20: {n_dead_units: 34, coverage_pct: 100.0, sd_L1: 0.0325, abs_delta_max_B900: 0.2747, abs_delta_max_B612: 0.0154}
+    a_0.40: {n_dead_units: 32, coverage_pct: 100.0, sd_L1: 0.0736, abs_delta_max_B900: 0.6212, abs_delta_max_B612: 0.0324}
+    a_0.60: {n_dead_units: 17, coverage_pct: 41.7, sd_L1: 0.0741, abs_delta_max_B900: 0.6260, abs_delta_max_B612: 0.0334}
+    attribution: >-
+      B=900 档 sd 由 0.0325 → 0.0736 → 0.0741 随幅度单调上升、abs|Δ| 上限由 0.2747 → 0.6212 → 0.6260 同步上升，
+      故 sd>0.05 为幅度效应（非变体/口径切换效应）；对照源为 EXP-17 冻结件内 V5_cont_room 同臂同档读数。
+  arm_parallel_V5:
+    a_0.40:
+      U: [(180,31,100.0,0.0104),(324,32,100.0,0.0045),(468,21,83.3,0.0054),(612,0,0.0,0.0073),(900,32,100.0,0.0736)]
+      T: [(180,30,100.0,0.0404),(324,11,50.0,0.0751),(468,15,58.3,0.0727),(612,20,66.7,0.0728),(900,33,100.0,0.0731)]
+      D: [(180,29,75.0,0.0067),(324,14,0.0,0.0101),(468,10,0.0,0.0148),(612,9,0.0,0.0208),(900,0,0.0,0.0451)]
+      P: [(180,29,100.0,0.0739),(324,30,100.0,0.0731),(468,31,100.0,0.0731),(612,27,100.0,0.0730),(900,33,100.0,0.0731)]
+    a_0.60:
+      U: [(180,30,100.0,0.0157),(324,30,100.0,0.0079),(468,14,50.0,0.0071),(612,0,0.0,0.0099),(900,17,41.7,0.0741)]
+      T: [(180,22,83.3,0.0568),(324,9,50.0,0.1046),(468,9,58.3,0.0734),(612,17,58.3,0.0734),(900,28,91.7,0.0736)]
+      D: [(180,27,58.3,0.0094),(324,13,0.0,0.0142),(468,8,0.0,0.0205),(612,5,0.0,0.0281),(900,0,0.0,0.0522)]
+      P: [(180,28,100.0,0.0761),(324,28,100.0,0.0736),(468,29,100.0,0.0736),(612,21,75.0,0.0735),(900,25,33.3,0.0736)]
+    legend: 每项 = (budget, n_dead_units, coverage_pct, sd_L1)
+    arm_anomaly_registered: D 臂覆盖口径恒为 0.0%（324/468/612/900 档，两幅度皆是），且 a=0.60 时 B=900 死区=0、sd=0.0522>0.05；T 臂 a=0.60 B=324 sd=0.1046 为全场最大
+  variant_diagnostic_channels_U:
+    a_0.40:
+      V3_cont_spread: [(180,31,100.0,0.0104,0),(324,32,100.0,0.0042,0),(468,30,100.0,0.0044,0),(612,28,91.7,0.0047,0),(900,34,100.0,0.0733,34)]
+      V4_unit_only: [(180,32,100.0,0.0104,34),(324,33,100.0,0.0040,34),(468,33,100.0,0.0031,34),(612,33,100.0,0.0031,34),(900,34,100.0,0.0731,34)]
+    a_0.60:
+      V3_cont_spread: [(180,30,100.0,0.0157,0),(324,31,100.0,0.0076,0),(468,26,100.0,0.0056,0),(612,11,50.0,0.0061,0),(900,22,50.0,0.0739,34)]
+      V4_unit_only: [(180,30,100.0,0.0157,34),(324,31,100.0,0.0071,34),(468,33,100.0,0.0035,34),(612,33,100.0,0.0035,34),(900,34,100.0,0.0736,34)]
+    legend: 每项 = (budget, n_dead_units, coverage_pct, sd_L1, n_units_closure_failed)
+    note: V4 不守恒故 34 层全部闭合失败（预期内，纯诊断）；V3 在 B=900 出现 34 单元闭合失败（K∈[1,32] 端点截断），已登记未静默剔除
+  endpoint_truncation:
+    main_variant_V5: 全部 5 档 × 2 幅度 × 4 臂 的 max|闭合残差| ≤ 1.02e-12，闭合失败单元数 = 0
+    approx_kinds_observed: "endpoint_clamp_K（K 目标被 [1,32] 端点截断；a=0.60 / U 臂 / B=900 共 21 条记录命中）"
+    note: 端点截断仅影响 V3/V4 诊断通道，主变体 V5 未因截断产生不可闭合单元
+  n_and_power:
+    n_records_total: 8400
+    n_primary: 700
+    design: 5 预算档 × 35 层 × 2 方向 × 2 幅度（主变体 V5 / U 臂）
+    ci_statement: ΔL 无 per-prompt CI，故判据为计数型（死区单元数）而非效应量 CI 型；每档另登记 sd 与 abs_delta_range 作描述性离散度
+    power_limit: 单一冻结件敏感度曲线，无独立重复样本，不能估计跨模型/跨数据方差
+
+status: e5_withdrawn
+status_note: >-
+  顶层 status=e5_withdrawn 为终态判定（命中指令 §5 的 E5 分支：主变体 U 臂 B=900 档 sd=0.0736(a=0.40)
+  与 0.0741(a=0.60) 均 >0.05）；hypotheses[0].status 按机检白名单落在 pending —— 因 confirmed 全条件与
+  refuted 触发条件均未命中，落点需 WB0 裁定。二者差异为机检白名单约束所致，非结论不一致。
+
+hypotheses:
+  - id: H-R1-DEADZONE-AMP
+    prediction: >-
+      若死区是幅度不变的结构性事实，则 ±40%/+60% 下死区单元数仍 ≥3/档（≥3 档）且覆盖口径重合度 ≥70%；
+      若死区是小扰动伪象，则大幅扰动下死区集合显著崩塌（|Δ|≥0.05 层单元大量出现）。
+    falsifiable_criterion: >-
+      confirmed = 两幅度均 ≥3/5 档 ≥3 死区单元 且 覆盖 ≥70% 且 各档 sd ≤0.05；
+      refuted = a=0.60 下 ≤1 档 ≥3 死区单元，或 ≥3 档出现 |Δ|≥0.05 层单元数 ≥10；
+      E5 = 可闭合档 <5 或 任一主变体档 sd>0.05 或 实物缺失/尺寸不符 或 复现不通过；pending = 执行不完整。
+    actual_data: >-
+      可闭合档 5/5（残差 ≤1.02e-12，闭合失败单元 0）；复现校验 20/20 逐位通过（max|diff|=0.0）；
+      a=0.40：≥3 死区单元 4/5 档、覆盖 ≥70% 4/5 档、sd≤0.05 4/5 档（B=900 sd=0.0736 超阈）、
+      |Δ|≥0.05 单元数 ≥10 的档数 0/5；
+      a=0.60：≥3 死区单元 4/5 档、覆盖 ≥70% 2/5 档（mean 由 76.7% 降至 58.3%）、sd≤0.05 4/5 档
+      （B=900 sd=0.0741 超阈）、|Δ|≥0.05 单元数 ≥10 的档数 0/5；
+      结构性异常：B=612 档 U 臂死区单元数在两幅度下均为 0（EXP-17 ±20% 同档为 34），该档死区完全崩塌；
+      B=900 档 abs|Δ| 上限由 ±20%（EXP-17 V5 同臂同档）的 0.2747 升至 a=0.40 的 0.6212、a=0.60 的 0.6260。
+    status: pending
+    data_source: results_v2/exp20_deadzone_amp.json
+
+verdict_summary: >-
+  按指令 §5 四分支机械判定：confirmed 未命中（a=0.40 与 a=0.60 均有 B=900 档 sd>0.05，且 a=0.60 覆盖≥70%
+  仅 2/5 档）；refuted 未命中（a=0.60 下 ≥3 死区单元的档数为 4 而非 ≤1，且 |Δ|≥0.05 层单元数 ≥10 的档数为 0 而非 ≥3）；
+  E5 撤回命中（主变体 U 臂 B=900 档 sd=0.0736 / 0.0741 > 0.05，两幅度皆是）。故顶层落 e5_withdrawn，
+  hypothesis 落 pending 待裁。方向性事实（不参与落点，仅供裁定）：死区规模随幅度单调收缩
+  （U 臂 V5，±20% → ±40% → +60%：B=900 34 → 32 → 17；B=468 34 → 21 → 14；B=612 32 → 0 → 0），覆盖口径重合度随幅度下降
+  （mean 76.7% → 58.3%），sd 随幅度上升（0.0325 → 0.0736 → 0.0741），三者一致指向
+  「±20% 死区含显著的小扰动分辨率成分」，但预登记的 refuted 计数型触发条件（≤1 档 / ≥3 档 ≥10 单元）未达，
+  故不得自行改判，交 WB0 裁定。
+
+caveats_and_degeneracies:
+  - 判据语义张力（须裁定）：E5 分支字面为「sd > 0.05 致不可分辨」，但本轮 sd 上升恰恰源于「大幅扰动变得可分辨」
+    （B=900 档 |Δ| 上限 0.2747 → 0.6260 随幅度单调放大），与「不可分辨」语义相反。本轮回执按字面判据落 E5，未自行改判；
+    建议 WB0 裁定 sd 阈值在幅度扫描场景下的适用方式（是否应只对低预算档生效，或改用 |Δ| 上限口径）。
+  - B=612 档反常：U 臂死区单元数在 a=0.40 与 a=0.60 下均为 0，而 ±20% 同档为 34；该档 abs|Δ| 上限仅 0.032，
+    即崩塌不是「大幅度 Δ 变大」所致，而是该档基线 profile 恰好使 ±a 扰动后 Δ 落在 0.01~0.032 区间（跨过死区阈值但未超 0.05）。
+    这是判据「计数型」设计的盲区，须交 WB0 判是否构成 refuted 的实质证据。
+  - 覆盖/集中度口径分离：主口径用覆盖口径（WB0 23:40 档钉死）；集中度口径并列登记（a=0.40 各档 37.5~47.6%，
+    a=0.60 各档 29.4~42.9%），不参与落点。若改用集中度口径，两幅度均远低于 70%，落点会变 —— 已按裁定不自行切换。
+  - D 臂覆盖口径恒为 0.0%（两幅度、4 个中高预算档）：D 臂死区集合与低敏 12 层无交集，臂间差异显著，仅登记不判。
+  - 变体依赖：主变体 V5（水填充）与 EXP-17 主变体 V3（均匀摊还）不同 —— 本轮主变体由本令指定为 V5；
+    已在 actual_data.amplitude_control_from_EXP17 给出 V5 在 ±20% 的同档对照，确认 sd 超阈为幅度效应而非变体切换效应。
+  - ΔL 无 per-prompt CI：判据为计数型，不能给出效应量置信区间；n 为固定设计的确定性计数，非随机样本。
+
+data_source: results_v2/exp20_deadzone_amp.json
+data_source_aux: results_v2/exp20_deadzone_amp.py
+dependency_missing: []
+p0: true
+p0_reason: 唯一幅度边界实验矩阵（±40%/+60% × 5 档 × 4 臂 × 3 变体），重跑需四份冻结件（Hub 可取，沙箱清理后本地不可再生）
+
+scope_guard_selfcheck:
+  1_no_fabrication: true
+  2_frozen_untouched: true
+  3_no_overreach_no_gpu_no_3B: true
+  4_no_ledger_write: true
+  5_no_model_load_no_forward: true
+  6_no_silent_trim: true
+  7_no_new_composite_caliber: true
+  8_only_cover_same_name: true
+
+collaboration_audit:
+  black_box_isolation: >-
+    WB2 全程未读取 WB1/WB0 的中间推理，仅消费 Hub 上的冻结件与指令正文；未修改他人产物；
+    未触碰 exp17_deadzone.json / v1/v2/v3 回执（只读复核用于低敏集合与 ±20% 对照读数）。
+  interface_alignment: >-
+    口径逐字对齐指令 §2.1–§2.6：口径 A、5 个可闭合档、V5_cont_room 水填充、三合成、sd 与 0.05 阈值、
+    覆盖口径重合度、低敏 12 层硬编码并与实算交叉核对（matches=true）、主臂 U、seed=20261026。
+  handoff: >-
+    落点（e5_withdrawn / pending）与三项裁定请求（sd 阈值语义、B=612 反常是否构成 refuted 实质证据、
+    覆盖 vs 集中度口径）一并交 WB0；未自行改判、未直写台账。
+
+round_selfcheck:
+  B-01: >-
+    本轮最未证的推论是「B=900 档 sd>0.05 意味着不可分辨」；备选解释（更可能）是 sd 上升恰恰反映大幅扰动下
+    部分层单元变得可分辨（|Δ| 上限 0.626），即 sd 阈值在此场景下测的是「异质性上升」而非「不可分辨」。
+  B-02: >-
+    E3（可跑可判）：四份冻结件齐、复现校验通过、判据四分支全部机械可算；本轮无 E5-资源缺口，
+    落 E5 属判据分支命中而非资源不可得。
+  B-03: 本轮在回应 WB0 23:40 档派发的证伪性复验需求——刚入账的 H-R1-DEADZONE confirmed 是否经得起幅度放大。
+  B-04: 使用了 1 处跨领域类比（水填充/资源按比例摊还，源自调度与缓存置换领域），已在 method.variants 中标注其定义而非作为证据。
+  B-05: 本轮范围=单条主线 EXP-20（WIP=1），仅跑幅度扫描；下轮计划=视 WB0 对本回执的裁定，可能补跑中间幅度（±30%）或改判据口径（须 WB0 授权）。
+  B-06: 本轮完成幅度维度扫描，留下接口：脚本参数化 AMP_LIST，改幅度即可重跑；产物 per_amplitude 结构可直接并入跨幅度曲线。
+  B-07: Agent 调用 0 次——本轮为单文件确定性数值管道，无需并行检索或拆分。
+  B-08: >-
+    交付前自检三项：(a) 四份冻结件 HTTP=200 且字节与指令 §2.1 逐一相符（86123/61759/76046/397407）；
+    (b) EXP-15 四臂×5 档复现 max|diff|=0.0、闭合误差 0；(c) 低敏 12 层硬编码集合与实测敏感度重算集合逐位相同。全部通过。
+  B-09: 「用户要求」占比高（约 85%）：本轮严格按指令 §2/§3/§5/§6 的口径、判据、模板执行；「我的框架」占比约 15%，
+    仅体现在补做 ±20% 同变体对照（用于把 sd 超阈归因于幅度而非变体），该补充不改变任何落点。
+  B-10: >-
+    保留待裁的三项：sd 阈值在幅度扫描下的语义、B=612 反常档是否构成 refuted 实质证据、覆盖 vs 集中度口径；
+    三者均未预先命名结论，只登记事实与方向性观察。

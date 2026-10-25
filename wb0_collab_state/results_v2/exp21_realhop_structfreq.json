@@ -1,0 +1,383 @@
+{
+ "schema": "exp21_realhop_structfreq/v1",
+ "instruction_id": "1792943742-7b5009",
+ "idempotency_key": "WB0-INSTR-20261025-EXP-21-REALHOP-STRUCTFREQ",
+ "created_at": "2026-10-26T00:15:00+0800",
+ "executor": "WB1",
+ "seeds": {
+  "task": 20261022,
+  "louvain": 20261022,
+  "bootstrap": 20261026,
+  "bootstrap_n": 5000
+ },
+ "caliber": {
+  "metric": "MRR=mean(1/rank_full) 连续口径（EXP-11）",
+  "arms": [
+   "kcore",
+   "community_bridge",
+   "frequency"
+  ],
+  "keep_rule": "top-X% by metric, tie-break=(-metric, id)（EXP-05 原件）",
+  "ppr": "d=0.85, 50 iters, dead-end->uniform teleport within keep（EXP-05 原件）"
+ },
+ "asset_audit": {
+  "required": {
+   "results_v2/longbench_multihop_samples_len4096_n5.jsonl": {
+    "expected_B": 372727,
+    "actual_B": 372727
+   },
+   "results_v2/longbench_multihop_2wikimqa.jsonl": {
+    "expected_B": 6052108,
+    "actual_B": 6052108
+   },
+   "results_v2/exp11_exp05cont_hop_continuous.py": {
+    "expected_B": 25639,
+    "actual_B": 25639
+   },
+   "results_v2/exp05_hop_moderation.py": {
+    "expected_B": 25830,
+    "actual_B": null,
+    "note": "Hub /api/file 按 id 取件，id 'exp05_hop_moderation' 同时绑 .json(90473B) 与 .py(25830B)，GET 恒返回 .json；尝试 ?relpath/?path/?file/?ext/?as 与 r2_*_script 等变体均为 404 或返回 .json。故 .py 不可经 Hub 单独取得 → 臂定义改以 exp11 脚本内自包含的同一分配器实现 + exp05 json per_query 一致性核验替代（显式披露，不静默）"
+   }
+  },
+  "aux_actually_used": {
+   "results_v2/exp05_hop_moderation.json": {
+    "B": 90473,
+    "sha256": "6538f66e9614271267d442ac53d85cc998e3ff93688c12f6e098977d312a4d2d"
+   },
+   "results_v2/exp11_exp05cont_hop_continuous.py": {
+    "B": 25639,
+    "sha256": "f9e9b502ff575b9b03bf684f6ea6af723fc66d48c3998543fe42827e170f8cbb"
+   },
+   "results_v2/longbench_multihop_2wikimqa.jsonl": {
+    "B": 6052108,
+    "sha256": "dda279cf93a99e1e5bfa3291fb199fd55978d10a1feb31822953cf77a1742e37"
+   },
+   "results_v2/longbench_multihop_samples_len4096_n5.jsonl": {
+    "B": 372727,
+    "sha256": "e676bb26a1219ee09025072525ce7db543f6651b9ea0b8effa5220e7da6ac398"
+   }
+  },
+  "hop_field_audit": {
+   "longbench_multihop_2wikimqa.jsonl": {
+    "n_records": 200,
+    "keys": [
+     "_id",
+     "all_classes",
+     "answers",
+     "context",
+     "dataset",
+     "input",
+     "language",
+     "length"
+    ],
+    "records_with_hop_field": 0,
+    "records_with_gold_node_field": 0,
+    "sample_keys": [
+     "_id",
+     "all_classes",
+     "answers",
+     "context",
+     "dataset",
+     "input",
+     "language",
+     "length"
+    ]
+   },
+   "longbench_multihop_samples_len4096_n5.jsonl": {
+    "n_records": 10,
+    "keys": [
+     "all_answers",
+     "answer",
+     "answer_ids",
+     "context_tokens",
+     "context_truncated",
+     "orig_length",
+     "prompt",
+     "prompt_ids",
+     "sample_id",
+     "subset"
+    ],
+    "records_with_hop_field": 0,
+    "records_with_gold_node_field": 0,
+    "sample_keys": [
+     "all_answers",
+     "answer",
+     "answer_ids",
+     "context_tokens",
+     "context_truncated",
+     "orig_length",
+     "prompt",
+     "prompt_ids",
+     "sample_id",
+     "subset"
+    ]
+   },
+   "verdict": "两件均无 hop/hops/num_hops/hop_count 字段；gold 仅为自然语言答案字符串（answers / answer），非图节点 id。故样本件自身不提供 hop 分层标注，也不提供节点级 gold。"
+  }
+ },
+ "graph": {
+  "n_entities": 1404,
+  "n_edges": 7475,
+  "n_communities": 72,
+  "n_tasks": 120,
+  "per_hop": {
+   "2": 40,
+   "3": 40,
+   "4": 40
+  }
+ },
+ "consistency_vs_exp05_json": {
+  "n": 120,
+  "mismatch": 0,
+  "detail": []
+ },
+ "dead_nodes": {
+  "kcore|X40": 0,
+  "kcore|X50": 0,
+  "kcore|X60": 0,
+  "community_bridge|X40": 0,
+  "community_bridge|X50": 0,
+  "community_bridge|X60": 0,
+  "frequency|X40": 3,
+  "frequency|X50": 1,
+  "frequency|X60": 0
+ },
+ "paired_cells": {
+  "kcore|X40|hop2": {
+   "n_pairs": 14,
+   "mrr_struct": 0.02137046599554346,
+   "mrr_freq": 0.023380455137364885,
+   "mean_d": -0.002009989141821427,
+   "sd_d": 0.010511775585222014,
+   "ci95_lo": -0.008071258019057333,
+   "ci95_hi": 0.0024857728639241248,
+   "delta_pp": -0.20099891418214264
+  },
+  "kcore|X40|hop3": {
+   "n_pairs": 18,
+   "mrr_struct": 0.008021229619381304,
+   "mrr_freq": 0.013989654630411368,
+   "mean_d": -0.0059684250110300634,
+   "sd_d": 0.019841086151454145,
+   "ci95_lo": -0.01626310584585396,
+   "ci95_hi": 0.00110118878796121,
+   "delta_pp": -0.5968425011030063
+  },
+  "kcore|X40|hop4": {
+   "n_pairs": 11,
+   "mrr_struct": 0.007644506474942225,
+   "mrr_freq": 0.0063653516768611635,
+   "mean_d": 0.0012791547980810609,
+   "sd_d": 0.003486017006626552,
+   "ci95_lo": -0.00011621764857173464,
+   "ci95_hi": 0.0035504198556098846,
+   "delta_pp": 0.12791547980810616
+  },
+  "community_bridge|X40|hop2": {
+   "n_pairs": 14,
+   "mrr_struct": 0.02314123254043712,
+   "mrr_freq": 0.023380455137364885,
+   "mean_d": -0.00023922259692776813,
+   "sd_d": 0.015529907444346245,
+   "ci95_lo": -0.008005240849502758,
+   "ci95_hi": 0.007664405957757889,
+   "delta_pp": -0.02392225969277649
+  },
+  "community_bridge|X40|hop3": {
+   "n_pairs": 20,
+   "mrr_struct": 0.011927967413478829,
+   "mrr_freq": 0.013848600559775295,
+   "mean_d": -0.0019206331462964636,
+   "sd_d": 0.019899148604333342,
+   "ci95_lo": -0.011420232989842209,
+   "ci95_hi": 0.005343007800003934,
+   "delta_pp": -0.1920633146296466
+  },
+  "community_bridge|X40|hop4": {
+   "n_pairs": 11,
+   "mrr_struct": 0.006058924417655945,
+   "mrr_freq": 0.0063653516768611635,
+   "mean_d": -0.00030642725920521714,
+   "sd_d": 0.00422310498283677,
+   "ci95_lo": -0.002421370222870606,
+   "ci95_hi": 0.0024815579309038316,
+   "delta_pp": -0.030642725920521866
+  },
+  "kcore|X40|pooled": {
+   "n_pairs": 43,
+   "mean_d": -0.0028255998931430103,
+   "sd_d": 0.014328461591956299,
+   "ci95_lo": -0.0076445664232645755,
+   "ci95_hi": 0.0006301267090118401,
+   "delta_pp": -0.28255998931430104
+  },
+  "community_bridge|X40|pooled": {
+   "n_pairs": 45,
+   "mean_d": -0.001002943980759454,
+   "sd_d": 0.015715909727896778,
+   "ci95_lo": -0.005869637518881745,
+   "ci95_hi": 0.003181960911855701,
+   "delta_pp": -0.1002943980759454
+  },
+  "kcore|X50|hop2": {
+   "n_pairs": 22,
+   "mrr_struct": 0.025053315678652988,
+   "mrr_freq": 0.02364981700382285,
+   "mean_d": 0.00140349867483014,
+   "sd_d": 0.006578644779350807,
+   "ci95_lo": 2.9248674099105e-07,
+   "ci95_hi": 0.004209022205514812,
+   "delta_pp": 0.14034986748301392
+  },
+  "kcore|X50|hop3": {
+   "n_pairs": 20,
+   "mrr_struct": 0.014761637550564009,
+   "mrr_freq": 0.013653025381961587,
+   "mean_d": 0.0011086121686024225,
+   "sd_d": 0.0053977033094962015,
+   "ci95_lo": -0.0008865895325848979,
+   "ci95_hi": 0.0036032048146009805,
+   "delta_pp": 0.11086121686024221
+  },
+  "kcore|X50|hop4": {
+   "n_pairs": 13,
+   "mrr_struct": 0.00577106003788629,
+   "mrr_freq": 0.0058162915689135225,
+   "mean_d": -4.523153102723153e-05,
+   "sd_d": 0.00036701028817069935,
+   "ci95_lo": -0.0002604614466798076,
+   "ci95_hi": 8.978284930296036e-05,
+   "delta_pp": -0.004523153102723235
+  },
+  "community_bridge|X50|hop2": {
+   "n_pairs": 22,
+   "mrr_struct": 0.018433964090036503,
+   "mrr_freq": 0.02364981700382285,
+   "mean_d": -0.005215852913786351,
+   "sd_d": 0.020047605902150167,
+   "ci95_lo": -0.014253417124032112,
+   "ci95_hi": 0.0022871017617160437,
+   "delta_pp": -0.5215852913786345
+  },
+  "community_bridge|X50|hop3": {
+   "n_pairs": 20,
+   "mrr_struct": 0.015224364257606185,
+   "mrr_freq": 0.013653025381961587,
+   "mean_d": 0.0015713388756446011,
+   "sd_d": 0.009076331267431497,
+   "ci95_lo": -0.001842915152579154,
+   "ci95_hi": 0.005849618180921532,
+   "delta_pp": 0.15713388756445987
+  },
+  "community_bridge|X50|hop4": {
+   "n_pairs": 13,
+   "mrr_struct": 0.005083221388491145,
+   "mrr_freq": 0.0058162915689135225,
+   "mean_d": -0.0007330701804223757,
+   "sd_d": 0.0013589809882398568,
+   "ci95_lo": -0.0015299978452386152,
+   "ci95_hi": -0.00012051121021607485,
+   "delta_pp": -0.07330701804223773
+  },
+  "kcore|X50|pooled": {
+   "n_pairs": 55,
+   "mean_d": 0.0009538400784537731,
+   "sd_d": 0.005238635480311297,
+   "ci95_lo": -0.0001708637954385708,
+   "ci95_hi": 0.0024730931022049355,
+   "delta_pp": 0.0953840078453773
+  },
+  "community_bridge|X50|pooled": {
+   "n_pairs": 55,
+   "mean_d": -0.0016882163442890653,
+   "sd_d": 0.013961283298726807,
+   "ci95_lo": -0.005637535230033167,
+   "ci95_hi": 0.001808552675565134,
+   "delta_pp": -0.16882163442890652
+  },
+  "kcore|X60|hop2": {
+   "n_pairs": 29,
+   "mrr_struct": 0.032234517082774444,
+   "mrr_freq": 0.027214239461663146,
+   "mean_d": 0.005020277621111299,
+   "sd_d": 0.01715053205748428,
+   "ci95_lo": -0.0002614383772588485,
+   "ci95_hi": 0.012266897078350854,
+   "delta_pp": 0.5020277621111298
+  },
+  "kcore|X60|hop3": {
+   "n_pairs": 26,
+   "mrr_struct": 0.013695353310443897,
+   "mrr_freq": 0.01362866546487192,
+   "mean_d": 6.668784557197772e-05,
+   "sd_d": 0.005678021069488528,
+   "ci95_lo": -0.0020260292425903666,
+   "ci95_hi": 0.0024704283702699052,
+   "delta_pp": 0.006668784557197632
+  },
+  "kcore|X60|hop4": {
+   "n_pairs": 14,
+   "mrr_struct": 0.00861777881056868,
+   "mrr_freq": 0.007363975604293831,
+   "mean_d": 0.0012538032062748491,
+   "sd_d": 0.006300094154328556,
+   "ci95_lo": -0.00104803873959168,
+   "ci95_hi": 0.005022712165743379,
+   "delta_pp": 0.12538032062748483
+  },
+  "community_bridge|X60|hop2": {
+   "n_pairs": 29,
+   "mrr_struct": 0.028319509198900496,
+   "mrr_freq": 0.027214239461663146,
+   "mean_d": 0.0011052697372373502,
+   "sd_d": 0.007048125257124514,
+   "ci95_lo": -0.0004742956810587396,
+   "ci95_hi": 0.00387311821749939,
+   "delta_pp": 0.110526973723735
+  },
+  "community_bridge|X60|hop3": {
+   "n_pairs": 26,
+   "mrr_struct": 0.014847785924927885,
+   "mrr_freq": 0.01362866546487192,
+   "mean_d": 0.0012191204600559638,
+   "sd_d": 0.0074773807285114305,
+   "ci95_lo": -0.0011086824260729078,
+   "ci95_hi": 0.004350940549421522,
+   "delta_pp": 0.12191204600559644
+  },
+  "community_bridge|X60|hop4": {
+   "n_pairs": 15,
+   "mrr_struct": 0.006781244476987424,
+   "mrr_freq": 0.0074380156487533385,
+   "mean_d": -0.0006567711717659142,
+   "sd_d": 0.0012522242488894756,
+   "ci95_lo": -0.0013277572063241808,
+   "ci95_hi": -0.00014092146521444505,
+   "delta_pp": -0.06567711717659144
+  },
+  "kcore|X60|pooled": {
+   "n_pairs": 69,
+   "mean_d": 0.0023894953606514047,
+   "sd_d": 0.012076333442907846,
+   "ci95_lo": -4.024786450686834e-05,
+   "ci95_hi": 0.005541084275088003,
+   "delta_pp": 0.23894953606514047
+  },
+  "community_bridge|X60|pooled": {
+   "n_pairs": 70,
+   "mean_d": 0.0007699769537835641,
+   "sd_d": 0.006426510738158442,
+   "ci95_lo": -0.0005098979482084362,
+   "ci95_hi": 0.0024138070120447454,
+   "delta_pp": 0.0769976953783564
+  }
+ },
+ "hop_provenance": {
+  "source": "BFS 最短距离（EXP-05/EXP-11 任务构造），非样本件字段",
+  "compliant_with_instruction_2_2": false,
+  "note": "指令 §2.2 禁止推断填充 hop → 本分层仅作判据外登记，不承担主判据"
+ },
+ "runtime_sec": 7.8,
+ "runtime_truncated": false
+}
