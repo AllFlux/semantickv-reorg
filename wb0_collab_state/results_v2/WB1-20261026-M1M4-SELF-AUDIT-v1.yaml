@@ -1,0 +1,128 @@
+review_id: WB1-20261026-M1M4-SELF-AUDIT-v1
+receipt_id: WB1-20261026-M1M4-SELF-AUDIT-v1
+idempotency_key: WB1-20261026-M1M4-SELF-AUDIT
+supersedes: null
+supersedes_reason: 本键下首份回执，无前序版本
+version: v1
+author: WB1-executor
+executor: WB1
+target: WB0
+date: 2026-10-26
+round: 2026-10-26 00:50 黄金窗口（第 3 批；非末批）
+window: golden
+theme: E
+serves_north_star: false
+serves_north_star_text: 非主线治理件——不做科学论断，只修复取证链路；其价值是防止北极星 claims 建立在不可复核证据之上（间接支撑，不计 KPI）
+instruction_ids:
+  - 1792946711-fb78ac
+  - 1792946384-990266
+triggered_by: WB0 更正裁定 1792946711 §4「M-1~M-4 面向全体执行器写死、即刻生效」＋ 1792946384 §C.f／§G.B-01（要求追到 prediction/falsifiable_criterion 原文而非只抽结论字段）
+
+prediction: |
+  预登记件 results_v2/wb1_predecl_m1m4_audit_20261026_0050.yaml（抽取任何字段前落盘，ts=1792947246）。
+  P1：WB1 自身存在 >=1 组「同一 idempotency_key 对应多份回执」（幂等破裂），来源为 EXP-18 v1->v4 与
+      DISC-FALSEPOS-CHECK v1->v2 两条重投链。
+  P2：非 v1 版本（v2/v3/v4）的回执未带 supersedes 字段，违反 M-3。
+  已披露先验：作预测前仅经 ls 看过回执文件名，未读取任何 YAML 正文。
+
+falsifiable_criterion: |
+  P1：对全部 WB1 回执抽取分组键（优先自声明 idempotency_key，缺失时以 receipt_id 去 -vN/-utf8 后缀的代理键，
+      代理行为已显式披露，影响 35/49 份）；dup_groups>=1 -> confirmed；==0 -> refuted；回执不可取得或字段
+      普遍缺失 -> e5_withdrawn（pending，不得写成 refuted）。
+  P2：receipt_id 版本后缀 >v1 的回执集合中，缺 supersedes 比例 ==100% -> confirmed；0%<比例<100% ->
+      partial_confirmed；==0% -> refuted；无法抽取版本后缀 -> e5_withdrawn。
+  附加自检项（非判据，仅度量）：以 actual_data 段 JSON 规范序列化（sort_keys=True）后 sha256 前 8 位判断
+      同键各版本的读数是否真变，避免只用 status 字段下结论。
+
+status: confirmed
+status_note: 本件为双假设：H1（P1）confirmed、H2（P2）refuted；顶层 status 取主假设 P1 的落点，不得被读作「两条都成立」（D1）
+
+hypotheses:
+  - id: H-M1M4-P1-DUPGROUPS
+    claim: WB1 历史回执中存在同一 idempotency_key（含代理键）对应多份回执的情形
+    prediction: WB1 自身存在 >=1 组「同一分组键对应多份回执」（幂等破裂），来源为 EXP-18 v1->v4 与 DISC-FALSEPOS-CHECK v1->v2 两条重投链。
+    falsifiable_criterion: dup_groups>=1 -> confirmed；dup_groups==0 -> refuted；回执不可取得或分组键普遍无法抽取 -> e5_withdrawn（pending，不得写成 refuted）。
+    actual_data: dup_groups=7 / total_keys=40；逐组文件、版本、顶层 status、hypotheses 状态与 actual_data hash 见顶层 actual_data.dup_groups_detail。
+    data_source: results_v2/wb1_idempotency_selfaudit_20261026_0050.md
+    status: confirmed
+  - id: H-M1M4-P2-MISSING-SUPERSEDES
+    claim: 非 v1 版本的回执缺 supersedes 字段
+    prediction: 非 v1 版本（v2/v3/v4）的回执未带 supersedes 字段，违反 M-3。
+    falsifiable_criterion: receipt_id 版本后缀 >v1 的回执集合中，缺 supersedes 比例 ==100% -> confirmed；0%<比例<100% -> partial_confirmed；==0% -> refuted；无法抽取版本后缀 -> e5_withdrawn。
+    actual_data: 版本后缀 >v1 的回执 9 份，缺 supersedes 0 份（0%）=> 原预测不成立。
+    data_source: results_v2/wb1_idempotency_selfaudit_20261026_0050.md
+    ds_admitted_refutation: true
+    refutation_admission: WB1 自己的预测被自己的数据否证——历史非 v1 回执已 100% 带 supersedes，M-3 在 WB1 侧早已到位；本项如实记为 refuted，不改写判据、不换口径挽救预测。
+    status: refuted
+
+actual_data:
+  scan_scope: results_v2/*.yaml 共 50 份，其中 49 份含 review_id/receipt_id，判为回执
+  receipts_scanned: 49
+  idempotency_key_declared: 14
+  idempotency_key_missing_used_proxy: 35
+  dup_groups: 7
+  dup_groups_detail:
+    EXP-01B: v1 与 v1-utf8 双份（皆 refuted，hash d1c4b98c）——纯编码重传造成的字面重复，无任何 supersedes
+    EXEC-R1120: v1 confirmed(hash f8103ab2) -> v2 refuted(hash 224ff35a)——顶层 status 翻转，但 v1/v2 的
+      prediction 与 falsifiable_criterion 并非同一命题（v1＝"无待执行指令且交付物在位"，v2＝"1120 档双件落板
+      且机检 PASS"），逐原文比对后为口径重新界定，非同一判据下的读数冲突
+    EXEC-R2350: v1/v2 皆 confirmed，hash c4875d26 一致
+    DISC-FALSEPOS: v1/v2 皆 confirmed，hash 7e414595 一致
+    EXP-13: v1/v2 皆 refuted，hash 463bf148 一致
+    EXP-14: v1/v2 皆 e5_withdrawn，hash 2bdcec5c 一致
+    EXP-18: v1..v4 皆 e5_withdrawn，actual_data hash 四份全等 eae42c59；但 hypotheses[0].status 自 v3 起由
+      e5_withdrawn 改为 pending——又一处「只动结论字段、数据零改动」的版本差异
+  nonv1_receipts: 9
+  nonv1_missing_supersedes: 0
+  m2_same_name_overwrite_risk:
+    shared_data_source_paths: 8
+    worst_case: results_v2/exp18_paired_resolv.json 被 4 份回执共用
+    hub_evidence: GET /api/file/r2_exp18_paired_resolv -> 200 / 47514B，与本地 exp18_paired_resolv.json 47514B 一致；
+      本地 mtime = 2026-10-25 02:22（v1 时代）=> 该实物自 v1 起从未被后续版本覆盖，本例无证据损失，
+      但结构上是未爆的同名覆盖风险，自本轮起强制 -vN 另存
+  cross_support_to_wb0:
+    - 支持 1792946711 §5 自纠规则：EXEC-R1120 是「只读结论字段会得出错误一致性判断」的独立实证
+    - 支持 1792946384 §B-3：EXP-18 v1..v4 的 actual_data 全等 SHA 前缀，独立印证 v4 为零数值改动件
+  remediation_executed:
+    - 生成 hub_state/idempotency_index.json（23189B，纯派生：只聚合回执已声明字段，不含任何 adjudication），
+      供此后每轮执行前做 M-1 幂等前置检查
+    - 产物一律 -vN 另存；非 v1 回执必带 supersedes（历史 100% 合规，本轮维持）
+    - 未删、未改任何历史回执一个字节（禁回溯改写）
+
+data_source: results_v2/wb1_idempotency_selfaudit_20261026_0050.md
+data_source_aux: results_v2/wb1_predecl_m1m4_audit_20261026_0050.yaml
+dependency_missing: []
+p0: false
+p0_reason: 全部产物为本地秒级可再生文件，无训练权重/不可再生资源依赖
+boundary_ref: null
+
+collaboration_audit: |
+  黑盒隔离：本轮未读取 WB2 任何未公开中间态，未代跑 WB2 指令（EXP-22 属 WB2，未介入），未修改他人产物；
+  仅对 WB1 自身历史回执做扫描，他人回执一律不碰。Hub 实物为公共只读通道取得
+  （GET /api/file/r2_exp18_paired_resolv 实回 200/47514B 并记录与本地一致）。
+  接口对齐：回执字段遵循 WB0 00:20 档更正裁定 1792946711 §4 的 M-1~M-4（idempotency_key / supersedes / -vN
+  命名）与 §C.f 的十项自检要求；data_source / data_source_aux 为无引号标量；hypotheses 每条自带 prediction /
+  falsifiable_criterion / actual_data / data_source，M-3 要求的 supersedes 在首版时为 null 并附 reason。
+
+self_check:
+  B-01: 断言卡——本轮最危险的未证推论是「代理键分组等价于真实 idempotency_key 分组」。35/49 份回执未自声明
+    idempotency_key，我用 receipt_id 去版本后缀作代理；备选解释：部分回执可能对应同一条指令却用了不同命名
+    （如 WB1-20261022-EXP-01B-ENCODE-v1 未被并入 EXP-01B 组），会使 dup_groups 被低估而非高估。
+  B-02: 判据分级——两条假设均为 E2（本地在位实物即可立即跑），均给出三元闭合判据；无一例把 E3/E5 降级为可判，
+    也无一例把「测不出」写成 refuted（P2 之所以能判 refuted 是因为缺字段是可枚举的 0/9 事实，非测不出）。
+  B-03: 动机猜测——回应 WB0 更正裁定 §4「M-1~M-4 即刻生效」这一明确要求，非自发挑题；本轮无 WB1 专属新派工，
+    故按优先级取「机制救治」而非「新探索」（后者需获批，禁止抢跑）。
+  B-04: 类比——使用跨领域类比 0 处。[无类比]
+  B-05: 自我规划——本轮范围＝M-1~M-4 在 WB1 侧的落地与自查，WIP=1；下轮计划＝按 01:10 档拉取新指令，
+    若仍无 WB1 派工则按 v3 规则回报「主线空转」，不凑低价值工作。
+  B-06: 循序渐进——完成的一步＝把「幂等/版本」从口头规则变成可机检的本地索引；留下的接口＝
+    hub_state/idempotency_index.json 可被后续每轮直接复用，也可由 WB0 直接读取校验。
+  B-07: Agent 调用——0 次子 Agent。本轮为本地文件扫描加单次 Hub 交叉取证，无需并行探索。
+  B-08: 交付前验证——跑了 4 项自检：(a) 扫描脚本对 50 份 YAML 全解析成功，无 PARSE_ERR；
+    (b) Hub 侧交叉件 r2_exp18_paired_resolv 实回 200/47514B 与本地逐字节一致（D3）；
+    (c) 分组结果与判据关键数字（dup 7/40 组、缺字段 0/9）可由原脚本复算；(d) 上传后逐件 GET /api/file/r2_<stem> 回读 200 且 size 一致。
+  B-09: 动机优先——用户/WB0 约束占比约 90%（M-1~M-4 即刻生效、省 token 的 Hub 读取纪律、结论三分、禁伪造、
+    B-01~B-10 必写）；我的补充判断约 10%（把 P1 分裂为「剂数/结论字段」两层度量，以及先落预登记再扫描的顺序）。
+  B-10: 不下断定——保留未命名项 3 条：(1) WB1-20261022-EXP-01B-ENCODE-v1 是否应与 EXP-01B 并组，未断定；
+    (2) EXEC-R1120 v1 的 confirmed 是否曾进入过任何台账 KPI（未查 ledger，未断定）；
+    (3) 35 份缺 idempotency_key 的历史回执是否需要批量补标，需 WB0 裁定后再动，本轮不做。

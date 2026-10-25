@@ -1,0 +1,768 @@
+{
+ "generated_ts": 1792947246,
+ "generated_local": "2026-10-26 00:54 CST",
+ "generator": "WB1-executor",
+ "purpose": "M-1 幂等前置检查的本地派生索引（仅聚合回执已声明字段，不含任何 adjudication/结论）",
+ "note": "每次取到候选指令后先查本表：若 target key 已存在 status=PASS/confirmed 的回执则跳过，不得再次落盘",
+ "entries": {
+  "proxy:WB1-20261021-AUTOEXEC01": {
+   "idempotency_key": "proxy:WB1-20261021-AUTOEXEC01",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261021-AUTOEXEC01-v3",
+     "file": "WB1-20261021-AUTOEXEC01-v3.yaml",
+     "status": "refuted",
+     "supersedes": "WB1-20261021-AUTOEXEC01-v2",
+     "data_source": "results_v2/wb1_autoexec_round01_status.md"
+    }
+   ]
+  },
+  "proxy:WB1-20261021-AUTOEXEC02": {
+   "idempotency_key": "proxy:WB1-20261021-AUTOEXEC02",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261021-AUTOEXEC02-v1",
+     "file": "WB1-20261021-AUTOEXEC02-v1.yaml",
+     "status": "refuted",
+     "supersedes": null,
+     "data_source": "results_v2/wb1_autoexec_round02_status.md"
+    }
+   ]
+  },
+  "proxy:WB1-20261021-EXP-01-BLOCKED": {
+   "idempotency_key": "proxy:WB1-20261021-EXP-01-BLOCKED",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261021-EXP-01-BLOCKED-v1",
+     "file": "WB1-20261021-EXP-01-BLOCKED-v1.yaml",
+     "status": "pending",
+     "supersedes": null,
+     "data_source": "results_v2/e0_phase_sensitivity_blocked.json"
+    }
+   ]
+  },
+  "proxy:WB1-20261021-EXP-01B": {
+   "idempotency_key": "proxy:WB1-20261021-EXP-01B",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261021-EXP-01B-v1",
+     "file": "WB1-20261021-EXP-01B-v1-utf8.yaml",
+     "status": "refuted",
+     "supersedes": null,
+     "data_source": "results_v2/e1_chunk_vs_semantic_retrieval.json"
+    },
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261021-EXP-01B-v1",
+     "file": "WB1-20261021-EXP-01B-v1.yaml",
+     "status": "refuted",
+     "supersedes": null,
+     "data_source": "results_v2/e1_chunk_vs_semantic_retrieval.json"
+    }
+   ]
+  },
+  "proxy:WB1-20261021-GATE-ROLLBACK": {
+   "idempotency_key": "proxy:WB1-20261021-GATE-ROLLBACK",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261021-GATE-ROLLBACK-v1",
+     "file": "WB1-20261021-GATE-ROLLBACK-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": "results_v2/wb1_gate_rollback_ack.md"
+    }
+   ]
+  },
+  "proxy:WB1-20261021-LIB-01": {
+   "idempotency_key": "proxy:WB1-20261021-LIB-01",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261021-LIB-01-v1",
+     "file": "WB1-20261021-LIB-01-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": "results_v2/wb1_lib01_discipline_ack.md"
+    }
+   ]
+  },
+  "proxy:WB1-20261022-EXEC-R0320": {
+   "idempotency_key": "proxy:WB1-20261022-EXEC-R0320",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-EXEC-R0320-v1",
+     "file": "WB1-20261022-EXEC-R0320-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261022_0320.md"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261022-EXEC-R0420": {
+   "idempotency_key": "proxy:WB1-20261022-EXEC-R0420",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-EXEC-R0420-v1",
+     "file": "WB1-20261022-EXEC-R0420-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261022_0420.md"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261022-EXEC-R0520": {
+   "idempotency_key": "proxy:WB1-20261022-EXEC-R0520",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-EXEC-R0520-v1",
+     "file": "WB1-20261022-EXEC-R0520-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261022_0520.md"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261022-EXEC-R1320": {
+   "idempotency_key": "proxy:WB1-20261022-EXEC-R1320",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-EXEC-R1320-v1",
+     "file": "WB1-20261022-EXEC-R1320-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261022_1320.md",
+      "results_v2/wb1_exec_round_20261022_0320.md"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261022-EXP-01B-ENCODE": {
+   "idempotency_key": "proxy:WB1-20261022-EXP-01B-ENCODE",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-EXP-01B-ENCODE-v1",
+     "file": "WB1-20261022-EXP-01B-ENCODE-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": "results_v2/WB1-20261022-EXP-01B-ENCODE-v1.yaml"
+    }
+   ]
+  },
+  "proxy:WB1-20261022-EXP-07": {
+   "idempotency_key": "proxy:WB1-20261022-EXP-07",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-EXP-07-v1",
+     "file": "WB1-20261022-EXP-07.yaml",
+     "status": "pending",
+     "supersedes": null,
+     "data_source": "results_v2/exp07_router_relief.json"
+    }
+   ]
+  },
+  "proxy:WB1-20261022-FIXUP": {
+   "idempotency_key": "proxy:WB1-20261022-FIXUP",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-FIXUP-v1",
+     "file": "WB1-20261022-FIXUP-v1.yaml",
+     "status": "delivered",
+     "supersedes": null,
+     "data_source": "results_v2/r2_router_collapse_tanh_appendix.json"
+    }
+   ]
+  },
+  "proxy:WB1-20261022-R1": {
+   "idempotency_key": "proxy:WB1-20261022-R1",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-R1-v1",
+     "file": "WB1-20261022-R1-v1.yaml",
+     "status": "pending",
+     "supersedes": null,
+     "data_source": "results_v2/r1_budget_allocation.json"
+    }
+   ]
+  },
+  "proxy:WB1-20261022-R2-ERRATUM": {
+   "idempotency_key": "proxy:WB1-20261022-R2-ERRATUM",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-R2-ERRATUM-v1",
+     "file": "WB1-20261022-R2-ERRATUM-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": "results_v2/r2_router_collapse_erratum_zscore_cells.json"
+    }
+   ]
+  },
+  "proxy:WB1-20261022-R2": {
+   "idempotency_key": "proxy:WB1-20261022-R2",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261022-R2-v1",
+     "file": "WB1-20261022-R2-v1.yaml",
+     "status": "pending",
+     "supersedes": null,
+     "data_source": "results_v2/r2_router_collapse.json"
+    }
+   ]
+  },
+  "proxy:WB1-20261023-EXEC-R0020": {
+   "idempotency_key": "proxy:WB1-20261023-EXEC-R0020",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261023-EXEC-R0020-v1",
+     "file": "WB1-20261023-EXEC-R0020-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": "results_v2/wb1_exec_round_20261023_0020.md"
+    }
+   ]
+  },
+  "proxy:WB1-20261023-EXEC-R0040": {
+   "idempotency_key": "proxy:WB1-20261023-EXEC-R0040",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261023-EXEC-R0040-v1",
+     "file": "WB1-20261023-EXEC-R0040-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": "results_v2/wb1_exec_round_20261023_0420.md"
+    }
+   ]
+  },
+  "proxy:WB1-20261023-EXEC-R0041": {
+   "idempotency_key": "proxy:WB1-20261023-EXEC-R0041",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261023-EXEC-R0041-v1",
+     "review_id": null,
+     "file": "WB1-20261023-EXEC-R0041-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261023_0520.md"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261023-EXEC-R1120": {
+   "idempotency_key": "proxy:WB1-20261023-EXEC-R1120",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261023-EXEC-R1120-v1",
+     "review_id": "WB1-20261023-EXEC-R1120-v1",
+     "file": "WB1-20261023-EXEC-R1120-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261023_1120.md"
+     ]
+    },
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261023-EXEC-R1120-v2",
+     "file": "WB1-20261023-EXEC-R1120-v2.yaml",
+     "status": "refuted",
+     "supersedes": "WB1-20261023-EXEC-R1120-v1（原件不删除、不覆盖；本件为合规 schema 重传）",
+     "data_source": [
+      "results_v2/wb1_exec_round_20261023_1120.md",
+      "results_v2/WB1-20261023-EXEC-R1120-v1.yaml"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261023-EXEC-R2320": {
+   "idempotency_key": "proxy:WB1-20261023-EXEC-R2320",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261023-EXEC-R2320-v1",
+     "file": "WB1-20261023-EXEC-R2320-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261023_2320.md",
+      "results_v2/wb1_exec_round_20261023_1120.md",
+      "results_v2/WB1-20261023-EXEC-R1120-v2.yaml"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261023-EXEC-R2330": {
+   "idempotency_key": "proxy:WB1-20261023-EXEC-R2330",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261023-EXEC-R2330-v1",
+     "file": "WB1-20261023-EXEC-R2330-v1.yaml",
+     "status": "pending",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261023_2330.md",
+      "results_v2/wb1_exec_round_20261023_2320.md"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261023-EXEC-R2350": {
+   "idempotency_key": "proxy:WB1-20261023-EXEC-R2350",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261023-EXEC-R2350-v1",
+     "review_id": "WB1-20261023-EXEC-R2350-v1",
+     "file": "WB1-20261023-EXEC-R2350-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261023_2350.md",
+      "results_v2/WB1-20261023-EXEC-R1120-v1.yaml"
+     ]
+    },
+    {
+     "receipt_id": "WB1-20261023-EXEC-R2350-v2",
+     "review_id": "WB1-20261023-EXEC-R2350-v2",
+     "file": "WB1-20261023-EXEC-R2350-v2.yaml",
+     "status": "confirmed",
+     "supersedes": "WB1-20261023-EXEC-R2350-v1",
+     "data_source": [
+      "results_v2/wb1_exec_round_20261023_2350.md",
+      "results_v2/WB1-20261023-EXEC-R1120-v1.yaml"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261023-EXP-08": {
+   "idempotency_key": "proxy:WB1-20261023-EXP-08",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261023-EXP-08-v1",
+     "file": "WB1-20261023-EXP-08.yaml",
+     "status": "pending",
+     "supersedes": null,
+     "data_source": "results_v2/exp08_metric_arbitration.json"
+    }
+   ]
+  },
+  "proxy:WB1-20261023-KEEPALIVE-RESTART": {
+   "idempotency_key": "proxy:WB1-20261023-KEEPALIVE-RESTART",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": null,
+     "review_id": "WB1-20261023-KEEPALIVE-RESTART",
+     "file": "WB1-20261023-KEEPALIVE-RESTART.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261023_2330.md",
+      "results_v2/wb1_keepalive.sh"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261024-EXEC-R0010": {
+   "idempotency_key": "proxy:WB1-20261024-EXEC-R0010",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261024-EXEC-R0010-v1",
+     "review_id": "WB1-20261024-EXEC-R0010-v1",
+     "file": "WB1-20261024-EXEC-R0010-v1.yaml",
+     "status": "pending",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261024_0010.md",
+      "results_v2/WB1-20261023-EXEC-R2350-v2.yaml"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261024-EXEC-R0030": {
+   "idempotency_key": "proxy:WB1-20261024-EXEC-R0030",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261024-EXEC-R0030-v1",
+     "review_id": "WB1-20261024-EXEC-R0030-v1",
+     "file": "WB1-20261024-EXEC-R0030-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261024_0030.md",
+      "results_v2/WB1-20261024-EXEC-R0030-v1.yaml"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261024-EXEC-R0050": {
+   "idempotency_key": "proxy:WB1-20261024-EXEC-R0050",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261024-EXEC-R0050-v1",
+     "review_id": "WB1-20261024-EXEC-R0050-v1",
+     "file": "WB1-20261024-EXEC-R0050-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261024_0050.md",
+      "results_v2/WB1-20261024-EXEC-R0050-v1.yaml"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261024-EXEC-R0110": {
+   "idempotency_key": "proxy:WB1-20261024-EXEC-R0110",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261024-EXEC-R0110-v1",
+     "review_id": "WB1-20261024-EXEC-R0110-v1",
+     "file": "WB1-20261024-EXEC-R0110-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261024_0110.md",
+      "results_v2/WB1-20261024-EXEC-R0110-v1.yaml"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261024-EXEC-R0150": {
+   "idempotency_key": "proxy:WB1-20261024-EXEC-R0150",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261024-EXEC-R0150-v1",
+     "review_id": "WB1-20261024-EXEC-R0150-v1",
+     "file": "WB1-20261024-EXEC-R0150-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261024_0150.md",
+      "results_v2/WB1-20261024-EXEC-R0150-v1.yaml"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261024-EXEC-R2345": {
+   "idempotency_key": "proxy:WB1-20261024-EXEC-R2345",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261024-EXEC-R2345-v1",
+     "review_id": "WB1-20261024-EXEC-R2345-v1",
+     "file": "WB1-20261024-EXEC-R2345-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261024_2345.md",
+      "results_v2/WB1-20261024-R1-REJUDGE-v1.yaml",
+      "results_v2/r1_rejudge_noL0.json",
+      "results_v2/r1_rejudge_noL0.py"
+     ]
+    }
+   ]
+  },
+  "proxy:WB1-20261024-R1-REJUDGE": {
+   "idempotency_key": "proxy:WB1-20261024-R1-REJUDGE",
+   "source": "proxy_from_receipt_id",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261024-R1-REJUDGE-v1",
+     "review_id": "WB1-20261024-R1-REJUDGE-v1",
+     "file": "WB1-20261024-R1-REJUDGE-v1.yaml",
+     "status": "refuted",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/r1_budget_allocation.json",
+      "results_v2/r1_rejudge_noL0.json",
+      "results_v2/r1_rejudge_noL0.py",
+      "results_v2/r1_budget_allocation.hub_pull_20261024.json"
+     ]
+    }
+   ]
+  },
+  "WB1-20261025-2310-DISC-FALSEPOS-CHECK": {
+   "idempotency_key": "WB1-20261025-2310-DISC-FALSEPOS-CHECK",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261025-DISC-FALSEPOS-CHECK-v1",
+     "review_id": "WB1-20261025-DISC-FALSEPOS-CHECK-v1",
+     "file": "WB1-20261025-DISC-FALSEPOS-CHECK-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": "results_v2/wb1_exec_round_20261025_2310.md"
+    },
+    {
+     "receipt_id": "WB1-20261025-DISC-FALSEPOS-CHECK-v2",
+     "review_id": "WB1-20261025-DISC-FALSEPOS-CHECK-v2",
+     "file": "WB1-20261025-DISC-FALSEPOS-CHECK-v2.yaml",
+     "status": "confirmed",
+     "supersedes": "WB1-20261025-DISC-FALSEPOS-CHECK-v1.yaml",
+     "data_source": "results_v2/wb1_exec_round_20261025_2310.md"
+    }
+   ]
+  },
+  "WB1-EXEC-20261025-0145": {
+   "idempotency_key": "WB1-EXEC-20261025-0145",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261025-EXEC-R0145-v1",
+     "review_id": "WB1-20261025-EXEC-R0145-v1",
+     "file": "WB1-20261025-EXEC-R0145-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/wb1_exec_round_20261025_0145.md",
+      "results_v2/WB1-20261025-EXEC-R0145-v1.yaml",
+      "results_v2/exp13_r1_proportional.json",
+      "results_v2/exp14_perm_test.json",
+      "results_v2/exp16_sparse_matched.json"
+     ]
+    }
+   ]
+  },
+  "WB0-INSTR-20261025-EXP-13-PROPORTIONAL": {
+   "idempotency_key": "WB0-INSTR-20261025-EXP-13-PROPORTIONAL",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261025-EXP-13-PROPORTIONAL-v1",
+     "review_id": "WB1-20261025-EXP-13-PROPORTIONAL-v1",
+     "file": "WB1-20261025-EXP-13-PROPORTIONAL-v1.yaml",
+     "status": "refuted",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/exp13_r1_proportional.json",
+      "results_v2/exp13_r1_proportional.py",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB1.json"
+     ]
+    },
+    {
+     "receipt_id": "WB1-20261025-EXP-13-PROPORTIONAL-v2",
+     "review_id": "WB1-20261025-EXP-13-PROPORTIONAL-v2",
+     "file": "WB1-20261025-EXP-13-PROPORTIONAL-v2.yaml",
+     "status": "refuted",
+     "supersedes": "WB1-20261025-EXP-13-PROPORTIONAL-v1",
+     "data_source": [
+      "results_v2/exp13_r1_proportional.json",
+      "results_v2/exp13_r1_proportional.py",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB1.json"
+     ]
+    }
+   ]
+  },
+  "WB0-INSTR-20261025-EXP-14-PERMTEST": {
+   "idempotency_key": "WB0-INSTR-20261025-EXP-14-PERMTEST",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261025-EXP-14-PERMTEST-v1",
+     "review_id": "WB1-20261025-EXP-14-PERMTEST-v1",
+     "file": "WB1-20261025-EXP-14-PERMTEST-v1.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/exp14_perm_test.json",
+      "results_v2/exp14_perm_test.py",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB1.json",
+      "results_v2/exp13_r1_proportional.hub_pull_20261025.json"
+     ]
+    },
+    {
+     "receipt_id": "WB1-20261025-EXP-14-PERMTEST-v2",
+     "review_id": "WB1-20261025-EXP-14-PERMTEST-v2",
+     "file": "WB1-20261025-EXP-14-PERMTEST-v2.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": "WB1-20261025-EXP-14-PERMTEST-v1",
+     "data_source": [
+      "results_v2/exp14_perm_test.json",
+      "results_v2/exp14_perm_test.py",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB1.json",
+      "results_v2/exp13_r1_proportional.hub_pull_20261025.json"
+     ]
+    }
+   ]
+  },
+  "WB0-INSTR-20261025-EXP-16-SPARSE-MATCHED": {
+   "idempotency_key": "WB0-INSTR-20261025-EXP-16-SPARSE-MATCHED",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261025-EXP-16-SPARSE-MATCHED-v1",
+     "review_id": "WB1-20261025-EXP-16-SPARSE-MATCHED-v1",
+     "file": "WB1-20261025-EXP-16-SPARSE-MATCHED-v1.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/exp16_sparse_matched.json",
+      "results_v2/exp16_sparse_matched.py",
+      "results_v2/exp14_perm_test.json",
+      "results_v2/exp13_r1_proportional.json",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB1.json"
+     ]
+    }
+   ]
+  },
+  "WB0-INSTR-20261025-EXP-18-PAIRED-RESOLV": {
+   "idempotency_key": "WB0-INSTR-20261025-EXP-18-PAIRED-RESOLV",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261025-EXP-18-PAIRED-RESOLV-v1",
+     "review_id": "WB1-20261025-EXP-18-PAIRED-RESOLV-v1",
+     "file": "WB1-20261025-EXP-18-PAIRED-RESOLV-v1.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": null,
+     "data_source": [
+      "results_v2/exp18_paired_resolv.json",
+      "results_v2/exp18_paired_resolv.py",
+      "results_v2/exp15_kgrid.json",
+      "results_v2/exp16_sparse_matched.json",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json"
+     ]
+    },
+    {
+     "receipt_id": "WB1-20261025-EXP-18-PAIRED-RESOLV-v2",
+     "review_id": "WB1-20261025-EXP-18-PAIRED-RESOLV-v2",
+     "file": "WB1-20261025-EXP-18-PAIRED-RESOLV-v2.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": "WB1-20261025-EXP-18-PAIRED-RESOLV-v1.yaml",
+     "data_source": [
+      "results_v2/exp18_paired_resolv.json",
+      "results_v2/exp18_paired_resolv.py",
+      "results_v2/exp15_kgrid.json",
+      "results_v2/exp16_sparse_matched.json",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json"
+     ]
+    },
+    {
+     "receipt_id": "WB1-20261025-EXP-18-PAIRED-RESOLV-v3",
+     "review_id": "WB1-20261025-EXP-18-PAIRED-RESOLV-v3",
+     "file": "WB1-20261025-EXP-18-PAIRED-RESOLV-v3.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": "WB1-20261025-EXP-18-PAIRED-RESOLV-v2.yaml",
+     "data_source": [
+      "results_v2/exp18_paired_resolv.json",
+      "results_v2/exp18_paired_resolv.py",
+      "results_v2/exp15_kgrid.json",
+      "results_v2/exp16_sparse_matched.json",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json"
+     ]
+    },
+    {
+     "receipt_id": "WB1-20261025-EXP-18-PAIRED-RESOLV-v4",
+     "review_id": "WB1-20261025-EXP-18-PAIRED-RESOLV-v4",
+     "file": "WB1-20261025-EXP-18-PAIRED-RESOLV-v4.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": "WB1-20261025-EXP-18-PAIRED-RESOLV-v3.yaml",
+     "data_source": [
+      "results_v2/exp18_paired_resolv.json",
+      "results_v2/exp18_paired_resolv.py",
+      "results_v2/exp15_kgrid.json",
+      "results_v2/exp16_sparse_matched.json",
+      "results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json"
+     ]
+    }
+   ]
+  },
+  "WB0-INSTR-20261025-EXP-19-HISENS-ALLOC": {
+   "idempotency_key": "WB0-INSTR-20261025-EXP-19-HISENS-ALLOC",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261025-EXP-19-HISENS-ALLOC-v1",
+     "review_id": "WB1-20261025-EXP-19-HISENS-ALLOC-v1",
+     "file": "WB1-20261025-EXP-19-HISENS-ALLOC-v1.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": null,
+     "data_source": null
+    }
+   ]
+  },
+  "WB0-INSTR-20261025-EXP-21-REALHOP-STRUCTFREQ": {
+   "idempotency_key": "WB0-INSTR-20261025-EXP-21-REALHOP-STRUCTFREQ",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261025-EXP-21-REALHOP-STRUCTFREQ-v1",
+     "review_id": "WB1-20261025-EXP-21-REALHOP-STRUCTFREQ-v1",
+     "file": "WB1-20261025-EXP-21-REALHOP-STRUCTFREQ-v1.yaml",
+     "status": "e5_withdrawn",
+     "supersedes": null,
+     "data_source": "results_v2/exp21_realhop_structfreq.json"
+    }
+   ]
+  },
+  "WB1-20261026-M1M4-SELF-AUDIT": {
+   "idempotency_key": "WB1-20261026-M1M4-SELF-AUDIT",
+   "source": "declared",
+   "receipts": [
+    {
+     "receipt_id": "WB1-20261026-M1M4-SELF-AUDIT-v1",
+     "review_id": "WB1-20261026-M1M4-SELF-AUDIT-v1",
+     "file": "WB1-20261026-M1M4-SELF-AUDIT-v1.yaml",
+     "status": "confirmed",
+     "supersedes": null,
+     "data_source": "results_v2/wb1_idempotency_selfaudit_20261026_0050.md"
+    }
+   ]
+  }
+ },
+ "refreshed_ts": 1792947815,
+ "refresh_note": "派生状态刷新：加入本轮回执 WB1-20261026-M1M4-SELF-AUDIT-v1（非证据件，纯派生）"
+}

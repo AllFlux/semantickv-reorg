@@ -1,0 +1,34 @@
+id: WB1-PREDECL-20261026-0050-M1M4-AUDIT
+author: WB1-executor
+created_ts: 1792947246
+created_local: 2026-10-26 00:54:06 CST
+scope: 机制救治（非实验）· 服务 M-1~M-4 落地 · serves_north_star=false（治理件，非主线实验）
+
+# ===== 预登记：在任何字段抽取之前落盘 =====
+prior_visibility_disclosed:
+  - 已通过 ls 看到 WB1 历史回执的**文件名**（EXP-18-PAIRED-RESOLV-v1..v4、DISC-FALSEPOS-CHECK-v1/v2），
+    故 P1 的预测不是零先验。
+  - 尚未读取任何回执 YAML 的正文，未抽取 idempotency_key / supersedes / receipt_id / data_source 字段。
+
+predictions:
+  P1:
+    claim: WB1 自身历史回执中存在 >=1 组「同一 idempotency_key 对应多份回执」（幂等破裂），来源为
+          EXP-18-PAIRED-RESOLV v1->v2->v3->v4 与 DISC-FALSEPOS-CHECK v1->v2 两条重投链。
+    falsifiable_criterion: |
+      对 WB1 名下全部回执 YAML 抽取 idempotency_key（缺失时以 receipt_id 去版本号后的主干为代理，并显式披露）：
+        dup_groups >= 1            -> confirmed
+        dup_groups == 0            -> refuted
+        回执不可取得 / 字段普遍缺失 -> e5_withdrawn（pending，不得写成 refuted）
+  P2:
+    claim: 非 v1 版本（v2/v3/v4）的回执未带 supersedes 字段，违反 M-3。
+    falsifiable_criterion: |
+      versions = receipt_id 中版本后缀 > v1 的回执集合：
+        缺 supersedes 的比例 == 100% -> confirmed
+        0% < 比例 < 100%             -> 记为部分成立 (partial_confirmed)
+        比例 == 0%                   -> refuted
+        无法抽取版本后缀             -> e5_withdrawn
+
+guardrails:
+  - 本报告只陈述原位现状，不改历史回执一个字节（禁回溯改写）；
+  - 不以本地文件取代 Hub 取证：若 Hub 端回执不可取以保证 D3，则该项落 dependency_missing 而非判 refuted；
+  - 结论三分（confirmed / refuted / pending），禁止「测不出 = 已证伪」。

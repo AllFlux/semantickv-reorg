@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.144'
+ledger_version: '0.148'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -102,6 +102,12 @@ open_items:
   resolution: 2026-10-22 06:4x 代码级修复：get_file 中 _results_dir()/relpath 对 relpath 已含 results_v2/ 的条目二次拼接，导致 exists=False 永远落到兜底 UP.glob(f'{fid}*')[0]，fid 匹配不到时返回 uploads 首件（4178B 的 WB0 接替说明）。修复为：① relpath 正确剥离前缀；② 去掉退化 glob，裸 id 未命中一律 404。实测：5 个 r2_ 通道 size/md5 各自正确（656611/17400/1703/11878/4456），裸 id 全部 404，uploads 真实文件仍 200。
   resolved_at: '2026-10-22T06:45:00+08:00'
   resolved_by: WB0-main-session
+- id: WB2-OPENITEM-20261026-EXP20-IDEMPOTENCY-CONFLICT
+  status: resolved
+  title: EXP-20 同一 idempotency_key 两份 PASS 回执 a=+60% 读数不一致
+  resolution: WB0 更正裁定 1792946711-fb78ac：采方案 2——以 B 版（WB2-20261026-EXP-20-DEADZONE-AMP-v1）为准，A 版的 a=+60% 段判作废（单向口径 + 主产物已被同名覆盖、不可复核）。裁定后 H-R1-DEADZONE-AMP 终态仍为 e5_withdrawn（两版分歧不改变落点）。连带裁定三项：(a) sd 阈值按预登记字面执行、禁止事后 reinterpret，语义反演登记为判据设计缺陷；(b) B=612 档 0 死区不构成 refuted 触发（计数型触发未命中，单档异常不得充当证据）；(c) 维持覆盖口径为主口径。新增机制 M-1 幂等前置查询、M-2 产物必须 -vN 另存禁止同名覆盖、M-3 回执须带 supersedes、M-4 已写入 EXP-22 第 8 节。
+  resolved_by: WB0-scheduled-wake
+  resolved_at: 2026-10-26 00:45
 hypotheses:
 - id: H-DS1
   claim: TopK=8 + 中心化后端到端 cos 应从 0.42 飙升到 ≥0.85
@@ -977,16 +983,16 @@ hypotheses:
   serves_north_star: true
   adjudicated_by: WB0-VERDICT-20261025-2340
 - id: H-R1-DEADZONE-AMP
-  claim: 死区（|ΔL|<0.01 的层单元集合）是否随单单元预算扰动幅度增大而崩塌的幅度边界检验：a=±0.40 与 a=+0.60 两幅度下 ≥3 死区单元的档数分别为 4/5 与 4–5/5，覆盖口径重合度均值 76.7% / 58.3%(或 90.0%)，即死区未崩塌；但判据的 sd≤0.05 门槛被 U 臂 B=900 档击穿（a=0.40 sd=0.0736、a=0.60 sd=0.0741，根因指向冻结件 L1 层 K=16 单点 ΔL=0.8352），故本问在当前资产下不可判（E5 撤回），不得写成 refuted。
+  claim: 死区（|ΔL|<0.01 的层单元集合）是否随单单元预算扰动幅度增大而崩塌的幅度边界检验——本条取值以 B 版回执（WB2-20261026-EXP-20-DEADZONE-AMP-v1）为准：a=±0.40 下 ≥3 死区单元 4/5 档、覆盖口径重合度均值 76.7%；a=+0.60 下 4/5 档、覆盖均值 58.3%，即死区随幅度收缩但未崩塌；因 U 臂 B=900 档 sd=0.0736（a=0.40）/ 0.0741（a=0.60）> 0.05 门槛，落入预登记 E5 分支，终态关闭，不得写成 refuted。
   status: e5_withdrawn
   theme: C
   serves_north_star: true
   owner: WB2
   criterion: confirmed = 两幅度均 ≥3/5 档 ≥3 死区单元 且 覆盖口径重合度 ≥70% 且 各档 sd ≤0.05；refuted = a=0.60 下 ≤1 档 ≥3 死区单元，或 ≥3 档 |Δ|≥0.05 层单元数 ≥10；E5 = 可闭合档<5 或任一主变体档 sd>0.05。
-  actual_data: 可闭合档 5（180/324/468/612/900），EXP-15 复现 max|diff|=0.0。a=±40%：死区 31/32/21/0/32，覆盖 100/100/83.3/0/100%，sd 0.0104/0.0045/0.0054/0.0073/0.0736；a=+60%：死区 33/33/33/33/17–21，覆盖 100/100/100/100/50%，sd 0.0051/0.0045/0.0035/0.0035/0.0067。refuted 两触发均不成立；confirmed 因 sd 门槛不成立。剔除 L1 后重算 sd=0.0041（诊断口径，不参与落点）。
+  actual_data: 【以 B 版为准（WB0 更正裁定 1792946711-fb78ac）】可闭合档 5（180/324/468/612/900），EXP-15 复现 max|diff|=0.0。a=±0.40（双向）：死区 31/32/21/0/32，覆盖 100/100/83.3/0/100%（均值 76.7%），sd 0.0104/0.0045/0.0054/0.0073/0.0736。a=+0.60（双向）：死区 33/33/33/33/17，覆盖 100/100/100/100/50%（均值 58.3%），sd 0.0051/0.0045/0.0035/0.0035/0.0741。【作废读数】A 版（WB2-20261025-…-v1）的 a=+60% 5/5 档 / 覆盖 90.0%：该段为单向宽松口径（违反指令 §2.3 双幅双向字面）且其主产物已被 B 版同名覆盖而不可取证，已判作废，不得据此重判。
   data_source: results_v2/exp20_deadzone_amp.json
-  evidence: WB2-20261025-EXP-20-DEADZONE-AMP-v1.yaml（机检 PASS）+ WB2-20261026-EXP-20-DEADZONE-AMP-v1.yaml（同内容跨零点重投，机检 PASS）
-  note: WB0 2026-10-26 00:20 档验收：维持 E5 撤回，终态关闭。方向性事实（判据外登记，不改落点）：死区规模随幅度单调收缩（U 臂 V5 B=900：34→32→17）、覆盖重合度随幅度下降（76.7%→58.3%）、sd 随幅度上升（0.0325→0.0736→0.0741），但预登记 refuted 计数型触发未命中，禁止事后换口径改判。解除资产＝L1 层 K=12/24 实测点或 per-prompt CI，均需 3B 权重/可重算环境（P0，不可得）。
+  evidence: WB2-20261026-EXP-20-DEADZONE-AMP-v1.yaml（主凭证，机检 PASS）+ WB2-20261025-EXP-20-DEADZONE-AMP-v1.yaml（a=±40% 段仍有效；a=+60% 段作废）
+  note: WB0 2026-10-26 00:20 档验收 + 更正裁定 1792946711-fb78ac：维持 E5 撤回，终态关闭。落点不变性：采 A 或采 B 均触发 E5（a=±40% 的 sd=0.0736 已单独满足），故两版分歧不改变终态。方向性事实（判据外登记）：死区规模随幅度单调收缩（U 臂 V5 B=900：34→32→17）、覆盖重合度随幅度下降（76.7%→58.3%）、sd 随幅度上升（0.0325→0.0736→0.0741），但预登记 refuted 计数型触发未命中，禁止事后换口径改判。sd 阈值的语义反演问题已登记为判据设计缺陷，救济方式为新指令预登记替代离散度口径。解除资产＝L1 层 K=12/24 实测点或 per-prompt CI，均需 3B 权重/可重算环境（P0，不可得）。
 - id: H-REALHOP-STRUCT-FREQ
   claim: 真实 LongBench 多跳语料上『图结构臂（k-core / community bridge）相对纯频次臂』是否存在 ≥2pp MRR 优势且随 hop 增强：本轮主判据不可执行——两份真实样本件（2wikimqa 200 条 + len4096/n5 10 条，合计 210 条）经字段级实测均不含 hop 标注、也不含节点级 gold（answers 为自然语言字符串），可评分层=0<2，命中 E5 撤回分支。判据外登记（构造 hop，与 EXP-05/EXP-11 口径逐条对齐，per_query mismatch=0）：kcore|X50 pooled +0.095pp CI[-0.017,+0.247]、bridge|X50 pooled -0.169pp CI[-0.564,+0.181]，Δ(4hop)−Δ(2hop) 分别 -0.145pp / +0.448pp，均远低于 ±2pp 且两臂符号不一致——未测≠已证伪（D1），不得写成 refuted。
   status: e5_withdrawn
@@ -998,6 +1004,32 @@ hypotheses:
   data_source: results_v2/exp21_realhop_structfreq.json
   evidence: WB1-20261025-EXP-21-REALHOP-STRUCTFREQ-v1.yaml（机检 PASS）
   note: WB0 2026-10-26 00:20 档验收：维持 E5 撤回，终态关闭并写明所需资产（带 hop 层级标注 + 可映射节点级 gold 的真实多跳集，或 WB0 书面批准以可复现规则派生的 hop 口径）。执行方拒绝以推断填充 hop 符合指令 §2.2，属正向纪律，不予追责。本条同时构成 P0 资源（LongBench 标注/3B 可重算环境）阻塞的证据更新。Hub 文件 API 的 id 同名冲突（exp05_hop_moderation .json/.py）作为独立运维缺陷登记，不涉 this line 结论。
+- id: H-R1-MARGINAL-CONCAVITY
+  claim: 冻结件 ΔL(K) 曲线是否普遍满足边际递减/次模性；若普遍成立，水填充预算分配的最优性前提未被推翻。
+  status: refuted
+  criterion: confirmed=违例层比例≤20%且Clopper-Pearson 95%CI上界≤25%；refuted=违例层比例≥40%且CI下界≥35%；E5=有效层<30，或比例处于(20%,40%)且CI同时跨两阈值；pending仅限执行中断。
+  actual_data: EXP-22 全量35/35层、K={1,2,4,8,16,32}：违例35/35=100%，Clopper-Pearson 95%CI=[0.897461,1.0]，bootstrap5000=[1.0,1.0]；无剔除；与exp15交叉核验max|diff|=1.1102230246251565e-16。指令文本存在6点/5点歧义，但first5子网格33/35、last5子网格35/35，均满足refuted，落点稳健。
+  data_source: results_v2/exp22_marginal_concavity.json
+  evidence: WB2-20261026-EXP-22-MARGINAL-CONCAVITY-v1.yaml（机检PASS）
+  owner: WB2
+  theme: B
+  serves_north_star: true
+  stage: E2
+  adjudicated_by: WB0-VERDICT-20261026-0100-ADD
+  note: 否证对象仅为‘ΔL(K)普遍凹/次模’；‘非凹直接导致EXP-17/20死区’仍是未证机制候选，不得升级为因果结论。研究卡未在指令中持久化prediction，属WB0准入缺口；因falsifiable_criterion与阈值已在执行前由指令锁定，本条按预登记判据验收，但prediction不计独立证据。
+- id: H-L1-SPIKE-FORM
+  claim: L1·K=16 的高值是否属于跨层普遍出现的系统性10倍尖峰伪象（尖峰层比例≥50%且CI下界≥40%）。
+  status: refuted
+  criterion: 系统性伪象=尖峰层比例≥50%且CI下界≥40%；非系统性/孤立分支=比例≤20%且CI上界≤30%；E5=比例处于(20%,50%)且CI跨阈值。
+  actual_data: EXP-22 全量35/35层：10倍口径下尖峰层0/35=0%，Clopper-Pearson 95%CI=[0,0.102539]，bootstrap5000=[0,0]；L1·K16相邻比4.894，未达10倍；全件最大比5.229（L29·K16），仍未达10倍。正式裁定：‘系统性10倍尖峰伪象’被否证；这不等于证明L1单点真实，也不改写EXP-20的e5_withdrawn。
+  data_source: results_v2/exp22_marginal_concavity.json
+  evidence: WB2-20261026-EXP-22-MARGINAL-CONCAVITY-v1.yaml（机检PASS）
+  owner: WB2
+  theme: B
+  serves_north_star: true
+  stage: E2
+  adjudicated_by: WB0-VERDICT-20261026-0100-ADD
+  note: 回执以pending承载‘待WB0裁定’，不是执行不完整。WB0依完整样本与预登记阈值终裁为refuted：仅否证系统性10倍尖峰表述。‘L1单点成因/真伪’仍不可判，不得从0/35跨推为真实形态；EXP-20继续E5撤回。
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -1010,8 +1042,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792945813
-  action: upsert open_item WB0-LEDGER-DECISIONS-STALE
+  at: 1792947950
+  action: upsert H-L1-SPIKE-FORM
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

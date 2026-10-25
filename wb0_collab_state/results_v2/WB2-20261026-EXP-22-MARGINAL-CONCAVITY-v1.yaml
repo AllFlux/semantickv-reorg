@@ -1,0 +1,223 @@
+receipt_id: WB2-20261026-EXP-22-MARGINAL-CONCAVITY-v1
+review_id: REV-WB2-20261026-EXP-22-MARGINAL-CONCAVITY-v1
+target: WB2
+date: 2026-10-26
+executor: WB2
+round: "WB2 黄金窗口 2026-10-26 00:55 档（:55）"
+kind: experiment
+theme: B
+serves_north_star: true
+north_star_link: 结构可压·事实受限——B 线 Router 机制：检验「注水式（水填充）预算分配」所依赖的 ΔL(K) 边际递减/次模性前提是否成立；若非凹为系统性，则 EXP-17/EXP-20 观测到的大面积死区应解释为贪心注水停在伪 plateau 的几何后果，而非「结构可压」的正面证据。
+instruction_ref: 1792946231-9b6eab
+idempotency_key: WB0-INSTR-20261026-EXP-22-MARGINAL-CONCAVITY
+rerun: false
+supersedes: null
+stage: E3
+window: golden
+runtime_sec: 0.073
+boundary_ref: null
+
+prediction: >-
+  【Q1 · H-R1-MARGINAL-CONCAVITY】执行前预登记：预期 refuted（非凹为系统性）。理由：EXP-17/EXP-20 已观测到大面积
+  死区（单单元 ±20%~±60% 预算扰动对 composite 不可分辨），若 ΔL(K) 严格凹则死区需另寻解释；本轮先验倾向「死区即非凹
+  几何的表现」，故预期违例层比例 ≥40% 且 CP 下界 ≥35%。
+  【Q2 · H-L1-SPIKE-FORM】执行前预登记：将待裁假设表述为「L1·K=16 尖峰属系统性伪象（≥50% 有效层为尖峰层且 CP 下界
+  ≥40%）」，预期该表述被 refuted，落「孤立形态」分支。
+  【诚实性声明·prediction_timing】上述 prediction 与 actual_data 在同一执行轮内产生（本轮未在执行前落盘预登记文件）。
+  已如实标注，不作事后叙事；不得据此放宽任何判据阈值。
+
+falsifiable_criterion: |
+  原样抄写指令第 3 节，阈值未改动。
+  Q1（次模性 / 边际递减）：
+    · confirmed（凹性普遍成立，水填充最优性前提未被推翻，死区需另寻机制解释）：
+        违例层比例 ≤ 20%（≤7/35 有效层），且 CI 上界 ≤ 25%。
+    · refuted（非凹为系统性，贪心注水的 plateau 即死区来源，属机制救治线索）：
+        违例层比例 ≥ 40%（≥14/35 有效层），且 CI 下界 ≥ 35%。
+    · E5 撤回：有效层 < 30；或违例层比例落在 (20%, 40%) 开区间且 CI 同时跨两阈值
+        （本样本量下判据无分辨力）：终态关闭并写明所需样本量。
+    · pending：仅执行不完整（300s 止损 / 中断），须写明已完成部分与续跑入口。
+  Q2（L1·K=16 尖峰形态）：
+    · 系统性伪象（支持判定为测量/记录异常）：尖峰层比例 ≥ 50%（≥18/35），且 CI 下界 ≥ 40%。
+    · 孤立形态（不可判伪，维持 EXP-20 的 E5 落点不变）：尖峰层比例 ≤ 20%（≤7/35），且 CI 上界 ≤ 30%。
+    · E5 不可判：比例落在 (20%, 50%) 开区间且 CI 跨阈值：写明所需资产（补 K=12/24 实测或多批次重复测量）。
+
+actual_data:
+  inputs_verified:
+    - {path: results_v2/r1_budget_allocation.hub_pull_20261025_WB2.json, hub_endpoint: /api/file/r2_r1_budget_allocation.hub_pull_20261025_WB2, http: 200, size_bytes: 86123, size_expected: 86123, size_match: true, sha256_16: 9fcfd9ef65fa4da2}
+    - {path: results_v2/exp15_kgrid.json, hub_endpoint: /api/file/r2_exp15_kgrid, http: 200, size_bytes: 61759, size_expected: 61759, size_match: true, sha256_16: b1068b12ffece6d5}
+  caliber: A（L1..L35，剔除 L0）
+  k_grid: [1, 2, 4, 8, 16, 32]
+  n_valid_layers: 35
+  n_excluded_layers: 0
+  excluded_layers: []
+  runtime_sec: 0.073
+  stopped_early: false
+  Q1_marginal_concavity:
+    n_violation: 35
+    n_valid: 35
+    proportion: 1.0
+    cp95: [0.8974610346562581, 1.0]
+    bootstrap95_seed20261026_n5000: [1.0, 1.0]
+    violation_layers: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35]
+    branch_hit: refuted
+    branch_check: 比例 1.0 ≥ 0.40 且 CP 下界 0.8975 ≥ 0.35 → 双条件均满足
+  Q2_spike_form:
+    n_spike: 0
+    n_valid: 35
+    proportion: 0.0
+    cp95: [0.0, 0.10253896534374185]
+    bootstrap95_seed20261026_n5000: [0.0, 0.0]
+    spike_layers: []
+    branch_hit: 孤立形态
+    branch_check: 比例 0.0 ≤ 0.20 且 CP 上界 0.1025 ≤ 0.30 → 双条件均满足
+    L1_measured:
+      delta_loss_answer_L1: [0.022035, 0.048634, 0.126833, 0.170646, 0.835212, 0.004948]
+      marginal_gains_L1: [0.0265990, 0.0781990, 0.0438130, 0.6645660, -0.8302640]
+      rising_interval_positions_L1: [1, 3]
+      is_spike_L1: false
+      L1_K16_neighbour_ratio: 4.894
+      note: >-
+        L1·K=16 的 ΔL=0.835212 相对邻居 max(0.170646, 0.004948) 仅 4.894 倍，未达指令 2.3 预登记的 10 倍尖峰阈值，
+        故 L1 本身在给定口径下不构成「尖峰层」。全冻结件逐层逐内点扫描的最大观测倍数为 5.229（L29 · K=16），
+        亦 < 10 → 尖峰层集合在 10 倍口径下为空集，而非「稀疏但存在」。此项为实测事实，已显式披露，不用于改判据。
+  crosscheck_vs_exp15:
+    layer_mapping: exp15 profile_by_layer[i] -> r1 curves[str(i+1)]（caliber_A = L1..L35，剔除 L0）
+    max_abs_diff_all_budgets_arms_synths: 1.1102230246251565e-16
+    n_comparisons: 60
+    consistent_with_exp18: true
+    note: 与 WB1-20261025-EXP-21 及 EXP-18 报告的 1.1102230246251565e-16 逐值一致（浮点极限内）。
+  hub_defect_disclosure:
+    - >-
+      已知 Hub 缺陷（指令 2.1 明示）：/api/file 按 id 取件时 .json/.py 同名 id 冲突。本轮实测：
+      id `r2_r1_budget_allocation.hub_pull_20261025` 与 `r2_r1_budget_allocation.hub_pull_20261025_WB2`
+      均返回 86123B 且 sha256_16 同为 9fcfd9ef65fa4da2（与本地既有件同指纹），未触发错件；
+      本轮两件目标均为 .json，未发生静默换件。已登记，未用于替代数据。
+  caliber_ambiguity_disclosure:
+    issue: >-
+      指令 §2.2 显式枚举 K 网格 {1,2,4,8,16,32}（6 点 / 5 间隔），而 §2.3 文案写「每层 5 个点、4 个相邻间隔」
+      且上升检测限定 i∈{1,2,3}。二者不可同时满足，属指令内部口径歧义。
+    resolution: >-
+      主口径取 §2.2 的显式枚举（6 点 → 5 个边际增益 m_1..m_5，上升检测 i∈{1..4}）；5 点子网格的两种可能读法
+      仅作判据外敏感性登记，不进入落点。此歧义未用于放宽任何阈值。
+    sensitivity_variants:
+      first5_K1_16: {k_used: [1,2,4,8,16], n_violation: 33, n_valid: 35, proportion: 0.9428571428571428, cp95: [0.8039599314688677, 0.9950917319259557]}
+      last5_K2_32:  {k_used: [2,4,8,16,32], n_violation: 35, n_valid: 35, proportion: 1.0, cp95: [0.8974610346562581, 1.0]}
+    robustness: 两种子网格读法下 Q1 落点同为 refuted，结论对口径歧义稳健。
+  registry_only_not_in_verdict:
+    rising_interval_histogram: {"1": 18, "2": 20, "3": 18, "4": 25}
+    first_rise_position_per_layer: 见产物 per_layer[*].rising_interval_positions
+    endpoint_values: 见产物 registry_only_not_in_verdict.endpoint_values（K=1 与 K=32 的 ΔL 水平值）
+    per_layer_abs_magnitude_rank: 见产物 registry_only_not_in_verdict.per_layer_abs_magnitude_rank
+    exp17_low_sens_set: [2,7,10,11,13,14,29,30,31,32,33,35]
+    overlap_violation_with_low_sens: [2,7,10,11,13,14,29,30,31,32,33,35]
+    overlap_spike_with_low_sens: []
+    note: 违例层与 EXP-17 已确认的「低敏 12 层」集合重合 12/12（100%）；因本轮违例层为全集 35/35，该重合不构成独立的区辨证据，仅登记。
+
+status: refuted
+status_note: >-
+  顶层 status=refuted 取自 Q1（主问）落点：ΔL(K) 边际递减/次模性被否证（35/35 违例层，CP95 下界 0.8975）。
+  Q2 落点为「孤立形态」（尖峰层 0/35，CP95 上界 0.1025），维持 EXP-20 的 E5 落点不变；Q2 的 refuted 仅表示
+  「系统性伪象」这一待裁表述被否证，不代表执行不完整。两问不同向，顶层以主问为准。
+  Hub 机检白名单仅接受 confirmed/refuted/pending，故 Q2 的「孤立形态」以 hypotheses[].status=pending 承载，
+  并在该条 status_note 内显式说明其与「执行不完整 pending」的差异。
+
+hypotheses:
+  - id: H-R1-MARGINAL-CONCAVITY
+    question: Q1
+    prediction: 预期 refuted（非凹为系统性，违例层比例 ≥40% 且 CP 下界 ≥35%）。
+    falsifiable_criterion: >-
+      confirmed：违例层比例 ≤20%（≤7/35）且 CI 上界 ≤25%；refuted：比例 ≥40%（≥14/35）且 CI 下界 ≥35%；
+      E5：有效层 <30，或比例落在 (20%,40%) 开区间且 CI 同时跨两阈值；pending：仅执行不完整。
+    actual_data: {n_valid: 35, n_violation: 35, proportion: 1.0, cp95: [0.8974610346562581, 1.0], bootstrap95: [1.0, 1.0], crosscheck_max_abs_diff: 1.1102230246251565e-16}
+    status: refuted
+    ds_admitted_refutation: true
+    status_note: >-
+      双条件（比例 ≥0.40、CP 下界 ≥0.35）均满足，且 bootstrap 与两种 K 子网格敏感性读法同向，结论稳健。
+      ds_admitted_refutation=true 表示本执行者明确承认该假设被本轮实测否证，非「测不出」；
+      否证的是「ΔL(K) 边际递减/次模性普遍成立」，不等于否证「结构可压」北极星本身——后者需由 WB0 在机制层裁定。
+    data_source: results_v2/exp22_marginal_concavity.json
+  - id: H-L1-SPIKE-FORM
+    question: Q2
+    prediction: >-
+      待裁表述「L1·K=16 尖峰属系统性伪象（尖峰层 ≥50% 且 CP 下界 ≥40%）」预期被否证。
+    falsifiable_criterion: >-
+      系统性伪象：尖峰层比例 ≥50%（≥18/35）且 CI 下界 ≥40%；孤立形态：比例 ≤20%（≤7/35）且 CI 上界 ≤30%；
+      E5：比例落在 (20%,50%) 开区间且 CI 跨阈值。
+    actual_data: {n_valid: 35, n_spike: 0, proportion: 0.0, cp95: [0.0, 0.10253896534374185], bootstrap95: [0.0, 0.0], L1_K16_neighbour_ratio: 4.894, max_ratio_observed_all_layers: 5.229, max_ratio_layer: L29, max_ratio_K: 16}
+    status: pending
+    status_note: >-
+      依指令 §3 Q2，本条真实落点为「孤立形态」（不可判伪，维持 EXP-20 的 E5 落点不变）。
+      因 Hub 白名单仅接受 confirmed/refuted/pending，此处 pending 表示「待 WB0 裁定是否据此改写 EXP-20 的 E5 落点」，
+      绝非「执行不完整」——本问 35/35 层全量实测、bootstrap 5000 完成、runtime 0.073s 远低于 300s 止损线，无未完成部分。
+      另需显式登记：10 倍尖峰阈值下尖峰层集合为空集（全件最大观测倍数 5.229 < 10），即「尖峰」作为预登记形态在本口径下不存在，
+      比「孤立存在」更强；是否改写 EXP-20 落点由 WB0 裁定，本轮不给权威断言。
+
+data_source: results_v2/exp22_marginal_concavity.json
+data_source_aux: results_v2/exp22_marginal_concavity.py
+dependency_missing:
+  - >-
+    原始 3B 权重 /workspace/models/Qwen2.5-3B-Instruct 已蒸发（沿用冻结件既有 dependency_missing 登记）。
+    本轮纯冻结件确定性复算，未加载任何模型权重、未跑任何前向，故 ΔL 数值本身可完整复现，不构成对本轮结论的阻断性依赖。
+  - >-
+    两份输入件的本地工作副本位于沙箱 scratch 目录（/root/.codebuddy/artifact/.../wb2_inputs/），
+    沙箱清理后需由 Hub /api/file/r2_r1_budget_allocation.hub_pull_20261025_WB2 与 /api/file/r2_exp15_kgrid 重新拉取；
+    Hub 原始件为本轮的权威实物来源，非孤本。
+p0: false
+p0_note: >-
+  本轮产物为纯冻结件确定性复算（runtime 0.073s、seed 固定、无随机训练），可在任一持有两份冻结件的环境中逐字节重跑复现，
+  属可再生产物；故 p0=false。真实不可再生资产为已蒸发的 3B 权重（见 dependency_missing）。
+
+scope_guard_selfcheck:
+  g1_no_fabrication: true   # 零插值/零外推/零平滑/零插补；35/35 层六个 K 点全部实测齐备，无一剔除、无一补值；未用任何他实验数值替代
+  g2_frozen_untouched: true # 两份输入件只读，sha256_16 前后一致（9fcfd9ef65fa4da2 / b1068b12ffece6d5）；results_v2 既有文件未改名未覆盖；semantic_router.pt 未触碰
+  g3_no_overreach: true     # 未加载 3B 权重、未请求 GPU
+  g4_no_ledger_write: true  # 未经 /api/ledger/* 写台账
+  g5_no_model_load_no_forward: true # 纯标准库 Python 数值管线，无任何模型前向
+  g6_no_silent_trim: true   # 剔除清单为空（0 层剔除）；口径歧义与 Hub 缺陷均已逐条显式登记
+  g7_no_new_composite_caliber: true # 未引入新 composite 口径；本轮不计算 composite（交叉核验仅复算 EXP-15 既有 L1/L2/L3 三合成以重跑 EXP-18 的 max|diff| 核验）
+  g8_only_cover_same_name: true # 本轮仅新建 results_v2/exp22_marginal_concavity.json 与 results_v2/exp22_marginal_concavity.py（+ 本回执同名 YAML），未新建/覆盖其他 results_v2 文件
+
+collaboration_audit:
+  scope_adherence: 仅执行指令 Q1/Q2 两问；未触碰 EXP-20/EXP-21 的落点，未改写任何既有回执。
+  no_self_processing: 未自审自批；回执提交 /api/review 由 Hub 机检裁定。
+  no_fabrication: 全部数值取自两份冻结件实测点；无生成、无替代、无推断填补。
+  no_ledger_write: 未写台账，入账权归 WB0。
+  frozen_respect: 两份冻结件 sha256_16 执行前后一致，只读。
+
+round_selfcheck:
+  B-01: >-
+    【断言卡】本轮最强的未证推论是「ΔL(K) 非凹 ⇒ 贪心注水的 plateau 即 EXP-17/EXP-20 死区来源」——指令本身把它列为机制候选而非已证结论。
+    备选解释：ΔL(K) 序列在 6 点粗网格上表现为非凹，可能来自 (a) 每档 K 的 ΔL 由 n=1 种子/1 needle/8 段落聚合而来的抽样噪声，
+    (b) KV 槽位整数化（kv_slots=K+1）与预算闭合带来的离散化锯齿，而非曲面本身非凹。二者均无法用现有落盘数据排除。
+  B-02: >-
+    【判据分级】本轮为 E2（可立即跑）：两份冻结件齐备、35/35 层六点全实测，runtime 0.073s。
+    Q1 落 refuted 为 E2 级实判；Q2 落「孤立形态」为 E2 级实判但附 E5 边界（10 倍阈值下空集）。
+    真正的 E3 项是「补 K=12/24 实测或多批次重复测量」（需新实验资产，本轮未申请）。
+  B-03: >-
+    【动机猜测】本轮在回应 WB0 的一个具体需求：为「水填充预算分配」的最优性前提做一次可证伪的体检，
+    并顺带裁定 L1·K=16 单点尖峰是不是系统性伪象，以决定 EXP-20 的 E5 落点是否改写。
+  B-04: >-
+    【类比】本轮使用 2 处跨领域类比：(1) 水填充/注水式预算分配（信息论注水算法 → KV 预算分配）[发生器]；
+    (2) 次模性/边际递减（经济学边际效用 → ΔL(K) 曲率）[发生器]。两处均已标注 [发生器]，即只用于生成假设，不作证据。
+  B-05: >-
+    【自我规划】本轮范围：仅 EXP-22 两问，WIP=1，队列内无其他 auto_run 指令。
+    下轮计划：若 WB0 依 Q1 落点派发「非凹 → 死区」的机制救治实验（如补 K=12/24 实测、或多批次重复测量以分离噪声与真非凹），
+    则按新指令执行；无新指令则 idle，不凑低价值工作。
+  B-06: >-
+    【循序渐进】本轮只做了第 1 步：在既有冻结件上给出 Q1/Q2 的实测判别。
+    留出的接口：产物 exp22_marginal_concavity.json 内含 per_layer 全量明细、上升间隔位置直方图、
+    口径歧义的两种子网格敏感性读法，供后续实验直接取用；机制因果（是否真由非凹导致死区）尚未验证。
+  B-07: >-
+    【Agent 调用】本轮 0 次子 Agent 调用。理由：本任务为单文件确定性数值复算（runtime 0.073s），
+    无需并行探索或跨目录检索，调用子 Agent 只会增加 token 与不确定性。
+  B-08: >-
+    【交付前验证】跑了四项自检：(1) 两份输入件 size 与指令声明逐字节比对（86123 / 61759 均 match，sha256_16 已记）；
+    (2) 交叉核验复算 EXP-15 三合成 max|diff| = 1.1102230246251565e-16（60 次比对），与 EXP-18 报告值逐值一致；
+    (3) Clopper–Pearson 用 k=0 与 k=n 边界情形验证（Q2 得上界 0.1025、Q1 得下界 0.8975，均为非退化精确解）；
+    (4) 尖峰阈值敏感性：扫描全件最大观测倍数 5.229 < 10，确认空集结论非阈值擦边。四项均通过。
+  B-09: >-
+    【动机优先】本轮「用户（WB0 指令）要求」占比约 90%，「我的框架」占比约 10%
+    （10% 体现在：对 §2.2/§2.3 口径歧义的识别与主动敏感性登记、对 10 倍阈值下空集的额外披露，二者均为指令未要求的补充自查）。
+  B-10: >-
+    【不下断定】以下结论保留待裁，本轮不预先命名：(a)「非凹 ⇒ 死区」的因果链未验证，仅登记为机制候选；
+    (b) 非凹究竟来自真曲面形态还是 n=1 抽样噪声/整数化锯齿，本轮无法分辨；(c) 是否据此改写 EXP-20 的 E5 落点，交 WB0 裁定。
