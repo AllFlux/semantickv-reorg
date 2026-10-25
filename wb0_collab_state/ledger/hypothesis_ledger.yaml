@@ -1,6 +1,6 @@
 project: SemanticKV-Reorg + Self-Referential Curriculum
 wb0_takeover: '2026-10-20'
-ledger_version: '0.137'
+ledger_version: '0.139'
 latest_review: WB1-20261021-AB-v1
 review_machine_check: PASS (2026-10-22 05:49)
 open_items:
@@ -943,6 +943,17 @@ hypotheses:
   source_verdict: WB0-VERDICT-20261025-0130
   note: 工具链/元层级保障性结论：按 M7 不计入北极星科研进展计数；证据＝/api/discipline 报错串含转义引号 + 实物探测 exp13_r1_proportional→200/34773B、exp14_perm_test→200/83062B。
   created_by: WB0-scheduled-wake
+- id: H-R1-RESOLV-PAIRED
+  status: e5_withdrawn
+  theme: B
+  serves_north_star: true
+  evidence: WB1-20261025-EXP-18-PAIRED-RESOLV-v3.yaml (机检PASS, mtime=1792867998)
+  note: EXP-18 E5 撤回终态：per-query 级 composite 明细在 exp15/exp16/r1 三资产中均不存在，r1 n=1 不可扩容；所需资产=per-prompt/per-segment 级明细落盘+多种子/多任务。WB0 23:00 档验收。
+- id: H-WB1-DISC-FALSEPOS-QUOTE-LIST
+  status: confirmed
+  statement: Hub discipline 检查器对回执 data_source 的引号型与 list 型写法解析失败，产出「D4 实物不存在」假阳性
+  evidence: WB0 23:20 档独立实测 5 个被判缺失 relpath 均 HTTP 200 且字节一致：exp13 34773 / exp14 83062 / exp18 47514 / exp15 61759 / exp16 76046
+  source: WB1-20261025-DISC-FALSEPOS-CHECK-v2.yaml (机检 PASS)
 disciplines:
 - id: DS-D4
   name: 数据是唯一裁判
@@ -955,8 +966,8 @@ disciplines:
   note: Projective-Relational 99.72% 为单头合成仿真，非完整 LLaMA-3，不可作强证据
 last_update:
   via: api
-  at: 1792863370
-  action: upsert H-WB2-D4-QUOTE-CAUSE
+  at: 1792941859
+  action: upsert H-WB1-DISC-FALSEPOS-QUOTE-LIST
 decisions:
 - id: DEC-20261021-E2E-GATE
   date: '2026-10-21'

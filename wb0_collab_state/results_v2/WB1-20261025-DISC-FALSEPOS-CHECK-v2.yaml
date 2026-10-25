@@ -1,0 +1,133 @@
+receipt_id: WB1-20261025-DISC-FALSEPOS-CHECK-v2
+review_id: WB1-20261025-DISC-FALSEPOS-CHECK-v2
+target: WB1
+date: 2026-10-25
+executor: WB1
+round: 2026-10-25 23:10 档
+window: golden
+kind: mechanism_check
+theme: E
+serves_north_star: false
+north_star_link: 本轮不推进结构可压边界本身，只核验收尾通道（机检）是否可信；机检假阳性会使 E2 判据被误判为 D4 违规，进而污染主线结论的可判性，故属「机制可判性」保障，非科研进展
+instruction_ref: none
+idempotency_key: WB1-20261025-2310-DISC-FALSEPOS-CHECK
+supersedes: WB1-20261025-DISC-FALSEPOS-CHECK-v1.yaml
+diff: >
+  v1 机检 FAIL 缺口为「hypotheses[0] 缺失 prediction / falsifiable_criterion / actual_data」三字段（检查器要求逐条假设自带三件套）。
+  v2 仅在该条假设内补齐三字段（内容与顶层 prediction/falsifiable_criterion/actual_data 一致引用，不新增、不改动任何结论与数值），
+  v1 原件保留不覆盖不删除。
+rerun: false
+runtime_sec_within_budget: true
+note: >
+  本轮 WB1 指令队列为空（since=1792830000 的 15 条候选全部已在 done.json），故按 0.5 段「队列空不凑数」原则
+  不自开新实验方向，仅执行零成本、可立即判的机检假阳性核验（E2）。本件为运维/机制档，不计科研进展。
+
+prediction: >
+  Hub discipline 机检当前 5 项 FAIL（全部命中 WB1 回执，规则「D4 data_source 实物不存在」）为**假阳性**：
+  其成因是检查器对被判回执中 data_source 字段的引号（前导 " 未剥离）与 list 型（整体未拆解）解析失败，
+  而非 data_source 实物缺失。若成立，则 5 个 relpath 在 Hub 上均应可下载（HTTP 200）且字节数与本地实物一致。
+
+falsifiable_criterion: >
+  对 5 个被报缺失的 relpath 逐个执行 GET /api/file/r2_<stem>?sharecode=...：
+  refuted 条件——任一路径返回非 200，或返回字节数与本地 find 结果不一致（即确为实物缺失/字节漂移，FAIL 为真阳性）；
+  confirmed 条件——5/5 均 200 且字节数逐项相同；
+  pending 条件——Hub 不可达或超时（本轮若发生则写 pending，不得判 refuted）。
+
+status: confirmed
+
+actual_data:
+  discipline_snapshot:
+    total_issues: 5
+    rule: D4 data_source 实物不存在
+    hit_files:
+      - WB1-20261025-EXP-13-PROPORTIONAL-v1.yaml
+      - WB1-20261025-EXP-14-PERMTEST-v1.yaml
+      - WB1-20261025-EXP-18-PAIRED-RESOLV-v1.yaml
+      - WB1-20261025-EXP-18-PAIRED-RESOLV-v2.yaml
+      - WB1-20261025-EXP-18-PAIRED-RESOLV-v3.yaml
+    rel_shape_observed: 单字符串型带前导未剥离引号（EXP-13/14-v1）；list 型整体未拆解（EXP-18-v1/v2/v3）
+  hub_pull_check:
+    - path: results_v2/exp18_paired_resolv.json
+      hub_http: 200
+      hub_bytes: 47514
+      local_bytes: 47514
+      match: true
+    - path: results_v2/exp15_kgrid.json
+      hub_http: 200
+      hub_bytes: 61759
+      local_bytes: 61759
+      match: true
+    - path: results_v2/exp16_sparse_matched.json
+      hub_http: 200
+      hub_bytes: 76046
+      local_bytes: 76046
+      match: true
+    - path: results_v2/exp13_r1_proportional.json
+      hub_http: 200
+      hub_bytes: 34773
+      local_bytes: 34773
+      match: true
+    - path: results_v2/exp14_perm_test.json
+      hub_http: 200
+      hub_bytes: 83062
+      local_bytes: 83062
+      match: true
+  conclusion: 5/5 在位且字节一致 → 该 5 项 FAIL 为检查器解析缺陷所致假阳性，非实物缺失
+  cross_reference: 与 WB2 已发 open_item 1792868289-a52f12（target=WB0，list 型 data_source 类型解析缺陷）同源
+  decision: 不重发 open_item（同因已在案且 target=WB0；避免 WB1 自处理循环与重复呈报）
+  contract_note: contract FAIL 唯一项 = 1792868289-a52f12 缺 B-05/B-06 自检块，属 WB2 指令问题，WB1 不介入
+  p0_bottleneck: 3B 权重 / LongBench / GSC 仍缺；人类闸门第 2 次呈报 1792867086-5263d4 在案，本轮不重复发 open_item
+
+data_source: results_v2/wb1_exec_round_20261025_2310.md
+dependency_missing: []
+p0: false
+
+hypotheses:
+  - id: H-WB1-DISC-FALSEPOS-QUOTE-LIST
+    statement: >
+      Hub discipline 检查器对回执 data_source 的引号型与 list 型写法解析失败，产出「D4 实物不存在」假阳性。
+    prediction: >
+      同本回执顶层 prediction：若 5 项 FAIL 为解析缺陷所致假阳性，则 5 个 relpath 在 Hub 上均应 HTTP 200 且字节与本地一致。
+    falsifiable_criterion: >
+      同本回执顶层 falsifiable_criterion：任一路径非 200 或字节不一致即判 refuted（真阳性）；Hub 不可达则 pending。
+    actual_data: >
+      同本回执顶层 actual_data.hub_pull_check：5/5 均 200 且字节逐项一致（47514 / 61759 / 76046 / 34773 / 83062）。
+    status: confirmed
+    evidence: 5/5 relpath 在 Hub 均 200 且字节与本地一致（47514 / 61759 / 76046 / 34773 / 83062）
+    residual_unresolved: >
+      根因代码位置未定（引号剥离缺失与 list 拆解缺失是同一处还是两处未裁），保留待裁，不预先命名。
+
+collaboration_audit:
+  scope_adherence: >
+    本轮无 WB1/ALL 未处理指令，故只做保活与机检核验；未执行任何未批准研究方向、未新建假设子线、
+    未下载或加载 3B 权重、未请求 GPU、未改冻结件。
+  no_self_processing: >
+    未处理任何 WB1 自己发出的 open_item；本轮新发 open_item 数 = 0（discipline 同因已由 WB2 呈报 WB0；
+    P0 资源已有两次人类闸门呈报在案）。
+  no_fabrication: >
+    所有返回码与字节数均为真实 HTTP 请求实测（curl -w %{http_code}/%{size_download}），
+    本地字节数来自 find -printf %s；无任何估算、插值或事后补写。
+  no_ledger_write: >
+    未直写 hypothesis_ledger.yaml；台账只由 WB0 写入；done.json 本轮无新指令 id 可追加，未改动。
+  frozen_respect: >
+    冻结件（exp15_kgrid、exp16_sparse_matched、r1_budget_allocation 等）只读；
+    本轮新产物另存新名（wb1_exec_round_20261025_2310.md、本回执 v1），未覆盖任何既有件。
+
+self_check:
+  B-01: >
+    未证推论：最弱一条是「5 项 FAIL 全属同一解析缺陷」。备选解释：检查器按上传时快照判定，
+    而我核验的是当前 Hub 状态，若文件曾晚于快照上传则属时序问题而非解析问题。
+    可判别据：EXP-17 字节不变重投即转 PASS（1792868289 旁证），倾向解析缺陷；但未在本轮直接复现，故标为残留未定。
+  B-02: 判据分级：本核验为 E2（纯 HTTP 状态与字节比对，可立即跑）；P0 真值实验仍为 E3（缺权重/数据）；本轮无 E5 撤回项。
+  B-03: 动机猜测：本轮在回应「为什么 discipline 长期 FAIL 而内容确已交付」这一可判性质疑，而非推进新假设。
+  B-04: 类比：0 处跨领域类比，无 [发生器] 标注。
+  B-05: >
+    范围：保活 + 队列扫描 + discipline 假阳性核验。下轮（23:30）计划：若仍无 WB1 指令则继续 idle 且不再重复本核验；
+    02:40 末批产出 golden_final 汇总档。
+  B-06: 本轮完成的一步是把 FAIL 拆成「实物缺失」与「解析失败」两类并给出判别程序；留下的接口是可复用的 5 行字节比对表。
+  B-07: Agent 调用 0 次；本轮为确定性 HTTP 核验，无需子代理。
+  B-08: >
+    交付前验证：①done.json 结构复核（初判误用顶层 keys 导致 4 条指令假 NEW，已更正为 done list 比对，避免误重跑）；
+    ②5 项 Hub 200/字节比对全通过；③回执 data_source 采用无引号裸字符串以规避已知解析缺陷。
+  B-09: 动机占比：用户（指令）要求约 100%，我的框架约 0%（本轮未自选研究方向）。
+  B-10: 保留待裁：检查器根因的代码位置（引号剥离 vs list 拆解）、以及是否需 WB1 单独补发 open_item，均不作结论。

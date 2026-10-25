@@ -1,0 +1,126 @@
+receipt_id: WB2-20261025-EXP-17-DEADZONE-v2
+review_id: WB2-20261025-EXP-17-DEADZONE-v2
+target: WB2
+date: 2026-10-25
+executor: WB2
+round: 2026-10-25 23:15 档
+kind: fix
+theme: C
+serves_north_star: false
+north_star_note: 运维修复（解除已达标结论的入账阻塞本身不产生新科研结论；被解除的 H-R1-DEADZONE 才服务北极星「结构可压·事实受限」的可压/不可压边界刻画）
+north_star_link: 结构可压·事实受限——死区定位回答「哪些 KV 结构预算变动不影响可压性」，直接刻画可压/不可压边界
+instruction_ref: 1792941214-1858bd
+idempotency_key: WB0-INSTR-20261025-EXP-17-DEADZONE
+rerun: true
+parent: WB2-20261025-EXP-17-DEADZONE-v1.yaml
+stage: E3
+runtime_sec: 0.0
+diff: |
+  【唯一授权改动·逐条声明】
+  (1) hypotheses[0].data_source: [results_v2/exp17_deadzone.json, results_v2/exp17_deadzone.py]  ->  results_v2/exp17_deadzone.json（list -> 标量字符串），并新增 data_source_aux: results_v2/exp17_deadzone.py。
+      依据：WB0-FIX-20261025-EXP-17-DEADZONE-V2 §3.2（一次性豁免，作用域仅限该字段；check_review.py L61 对 list 抛 TypeError）。
+  (2) 管理字段同步：receipt_id/review_id v1->v2、round->2026-10-25 23:15 档、kind experiment->fix、serves_north_star true->false（+north_star_note）、instruction_ref->1792941214-1858bd、rerun false->true、parent->v1 文件名、runtime_sec->本轮实测、diff/self_check 为本轮新增、v1 原件保留不覆盖。
+  (3) 字节不变声明（逐项核对，未改一字）：prediction、falsifiable_criterion、actual_data（含 5 档 33/34/34/34/34 死区读数、重合度 100.0%、sd、r=+0.64）、status: confirmed、hypotheses[0].id/prediction/falsifiable_criterion/actual_data/status、verdict_summary、caveats_and_degeneracies、assets_required、dependency_missing、p0/p0_reason、scope_guard_selfcheck、顶层 data_source 列表、idempotency_key（沿用 WB0-INSTR-20261025-EXP-17-DEADZONE）。
+  (4) 口径钉死复核（本令 §3.4）：重合度＝覆盖率口径 |死区∩低敏|/|低敏| = 100%（5 档一致）已在 v1 采用；集中度口径 35.3% 仅登记于 caveats(1)，落点未改 -> 无需改动即符合钉死口径。
+
+prediction: 若存在结构性梯度死区，则对每个可闭合预算档做单单元 K_l ±20% 局部扰动（总预算守恒）后，composite 变化 |Δ| < 0.01 的层单元应大量出现（≥3 个/档，且出现在 ≥3 档），且这些死区单元应集中于实测低敏感度层（重合度 ≥70%），死区规模随预算收紧而扩大
+falsifiable_criterion: |
+  confirmed：≥5 个可闭合预算档中 ≥3 档出现 ≥3 个死区层单元（|Δ| < 0.01），且死区层与实测低敏感度层集合重合度 ≥70%
+  refuted：≤1 档出现死区单元，或重合度 <30%（死区位置与层敏感度无关）
+  E5 撤回：可闭合档 <5，或 composite 合成方差 sd > 0.05 致不可分辨（与 EXP-14/16 同症状），或必需实物缺失 → 终态关闭并写明所需资产
+  pending：仅执行不完整（超时/中断），须写明已完成部分与续跑入口
+
+actual_data: |
+  口径 A（L1..L35，35 层，剔除 L0，沿用 EXP-15）；可闭合档 5 个 [180,324,468,612,900]，1188 沿用 EXP-15 单列剔除（n_comparable=5，不 <5）。
+  管道自检：EXP-15 四臂×5 档的 20 个 composite 值全部逐位复现（max|diff| < 1e-9），闭合误差 ≤1e-9。
+  主读数（臂 U 均匀——R1 反比/正比与之比较的参照基线；变体 V3_cont_spread：连续分辨率 + 单单元 ±20% + 补偿均匀摊还至其余 34 层）：
+    180: dead=33/35，重合度 100.0%，|Δ|_L1∈[0.00000,0.03772]，sd=0.00460，非死区 L20,L24
+    324: dead=34/35，重合度 100.0%，|Δ|_L1∈[0.00000,0.00960]，sd=0.00204，非死区 L20
+    468: dead=34/35，重合度 100.0%，|Δ|_L1∈[0.00000,0.01218]，sd=0.00215，非死区 L20
+    612: dead=34/35，重合度 100.0%，|Δ|_L1∈[0.00000,0.01227]，sd=0.00235，非死区 L20
+    900: dead=34/35，重合度 100.0%，|Δ|_L1∈[0.00000,0.26946]，sd=0.03204，非死区 L1
+  实测低敏感度层集合（sens_l=|max ΔL_answer| 升序前 12/35）：L2,7,10,11,13,14,29,30,31,32,33,35 —— 5 档中 100% 落入死区。
+  交叉变体（同 ±20%、同三合成、同闭合规则，仅扰动实现方式不同）：
+    V1_grid_nearest（指令 §2.3 字面：整数网格最近邻可行点）：±20% ≡ 0.263 log2 < 网格半间距 0.5 log2（网格 ×2）→ 最近邻网格点恒为原点 → Δ≡0（20 个 档×臂 全为 35/35 死区，零判别力，已单列登记）
+    V2_cont_hi（指令字面补偿规则：补回到最高敏感度层 L1）：dead=0,1,1,1,20；max|Δ|=0.059~0.266 → Δ 由 L1 补偿通道主导，与被测单元无关 → 已并列登记，主读数不采用
+    V4_unit_only（仅单元 ±20%，不守恒，纯诊断）：dead=34,34,35,35,34
+    V5_cont_room（补偿按可用余量比例摊还，Σ(K+1)=B 精确闭合，残差 ≤1e-12）：dead=33,34,34,32,34；重合度 100/100/100/91.7/100%
+  臂间稳健性（V3）：U=33~34，P=34（恒），T=31~34，D=33,31,27,22,7（大预算档显著偏低，登记为 D 臂边界）
+  E5 项：可闭合档 5（不 <5）；max sd(L1)=0.03204（<0.05，未触发）；四个必需实物全部实拉（86123B/61759B/76046B/34773B，尺寸与清单一致，未缺失）
+  预测第二子句「死区规模随预算收紧而扩大」：n_dead 与 budget 的 Pearson r=+0.64（方向相反/持平），不获支持；该子句不在 §4 判据内，仅方向性登记
+  摊还补偿的端点截断：V3 在 900 档因 K∈[1,32] 端点截断产生最大 3.576 槽位残差（70 条中 36 条 |res|≤1）；V5 以水填充精确闭合后 900 档仍为 34 → 落点不受影响
+
+status: confirmed
+
+hypotheses:
+  - id: H-R1-DEADZONE
+    prediction: 存在结构性梯度死区——单单元 K ±20%（守恒）不引起 composite 可分辨变化（|Δ|<0.01），且死区单元集中于实测低敏感度层
+    falsifiable_criterion: ≥5 档中 ≥3 档出现 ≥3 个死区层单元（|Δ|<0.01）且重合度 ≥70% → confirmed；≤1 档或重合度 <30% → refuted；可闭合档<5 或 sd>0.05 或必需实物缺失 → E5
+    actual_data: 主读数 U/V3：5/5 档死区单元数 33,34,34,34,34（均 ≥3）；低敏感度 12 层在 5 档中 100% 落入死区，平均重合度 100.0%；max sd=0.03204；n_comparable=5；四个实物全在 → 落入 confirmed 分支
+    status: confirmed
+    data_source: results_v2/exp17_deadzone.json
+    data_source_aux: results_v2/exp17_deadzone.py
+
+verdict_summary: |
+  confirmed（按 §4 预登记判据逐条落点，未放宽阈值）。
+  机制读数：35 个层单元中 33~34 个的单单元 ±20% 预算内扰动对 composite 的改变量 <0.01；实测敏感度质量高度集中（L1 独占 max-sens 总量的 67%，L24 14.5%，二者合计 81.5%），
+  27/35 层在全部 6 档 K 上 |ΔL| ≤ 0.005（冻结件 negligible 档）。故 KV 预算在 33~34 个方向上的重分配对可压性不可分辨——这为 R1「反比/正比分配不能稳定优于均匀」提供了机制解释：
+  不是方向错，而是除少数高敏感度层外该方向上的梯度本就不存在。
+  未决子项（不影响本轮落点）：「结构性死区」与「测量方差淹没」在现有资产下不可分离（ΔL 无 per-prompt CI；冻结件自述 CI 仅对 flip 可用），见 assets_required。
+
+caveats_and_degeneracies: |
+  (1) 饱和：死区集合达 33~35/35，故「重合度」在两种分母下读值不同——|死区∩低敏|/|低敏|=100%（本轮采用，与 prediction「死区集中于低敏感度层」的覆盖口径一致），
+      |死区∩低敏|/|死区|=35.3%（集中度口径，落在 30~70% 判据未覆盖带）。请 WB0 钉死分母；若钉为集中度口径，则落点应改判为判据未覆盖（非 confirmed 亦非 refuted）。
+  (2) 变体依赖：V2（指令字面补偿规则把补偿压到最高敏感度层 L1）给出 0~20 死区，与主读数相反；该差异源于补偿通道而非被测单元，已按 §2.3 要求显式登记。
+  (3) V1 字面网格读数 Δ≡0（分辨率塌缩），与主读数同向但不携带判别信息，不作落点依据。
+  (4) 臂间不一致：D 臂在 900 档仅 7 个死区单元（U/P/T 为 34），主读数取 U 臂；臂未在指令中指定，已并列登记四臂。
+  (5) 预测第二子句（死区规模随预算收紧而扩大）不获支持（r=+0.64，实际持平）。
+
+assets_required:
+  - per-prompt ΔL 的 CI（冻结件仅对 flip 提供二项 CI，ΔL 无 CI）→ 无法把 |Δ|<0.01 与测量噪声分离，「结构性 vs 方差淹没」不可判
+  - 多种子/多 prompt 批次重复测量，以给出 composite 的真实合成方差（本轮 sd 为枚举散布，非测量方差）
+  - 更密的实测 K 点（现为 ×2 稀疏网格，±20% 低于其分辨率）
+  - 指令未钉死的三项：补偿放置约定（V2/V3/V5）、重合度分母、基准臂
+
+data_source:
+  - results_v2/exp17_deadzone.json
+  - results_v2/exp17_deadzone.py
+dependency_missing:
+  - results_v2/exp14_perm_test.json（未实拉；sd 公式取自 EXP-16 声明口径，非本轮必需）
+p0: false
+p0_reason: 产物由脚本幂等重跑可复现（seed=20261026 固定、无随机抽样），非不可再生资产
+
+scope_guard_selfcheck:
+  1_no_fabrication: true
+  2_frozen_untouched: true
+  3_no_overreach_no_gpu_no_3B: true
+  4_no_ledger_write: true
+  5_no_model_load_no_forward: true
+  6_no_silent_trim: true
+  7_no_new_composite_caliber: true
+  8_only_cover_same_name: true
+
+self_check:
+  B-01 断言卡: |
+    本轮唯一弱断言是「把 data_source 由 list 改为标量后，回执的语义等价性不受损」。备选解释：副产物 exp17_deadzone.py 从受检字段移入 data_source_aux 后，检查器不再校验其存在性；
+    该脚本已另行以独立 stem 重传（r2_exp17_deadzone_script），故可追溯性仍成立，但「检查器覆盖度」这一环确实变弱，属表达层取舍而非科学结论变化。
+  B-02 判据分级: |
+    本修复令完成判据为 E2（可立即跑，纯字段改写 + 一次 POST）；底层的 H-R1-DEADZONE 本身为 E3（判据依赖未钉死的补偿放置/重合度分母/基准臂约定），
+    「结构性 vs 方差淹没」为 E5，已在 v1 登记为未决子项，本轮不触及、不撤回、不升级。
+  B-03 动机猜测: |
+    回应 WB0 23:00 档裁定对 open_item 1792868289-a52f12 的三选一：BW0 采「授权改写 + 主会话根治」，本轮是被授权的那一次最小改写，目的是让已达标结论不再长期卡在 pending 之外。
+  B-04 类比: |
+    0 处新增跨领域类比。本轮为字段形态修复，未引入任何新隐喻；v1 中的「水填充」「欠采样」两处 [发生器] 类比原样保留不予复用。
+  B-05 自我规划: |
+    本轮范围：仅 WB0-FIX-...-V2 一条（WIP=1），budget_sec=120。下轮计划：若 v2 机检 PASS，则本线闭合，队列空则 idle；若再 FAIL 且非 data_source 类缺口，按 §4 停机发 open_item，不自行第三次改写。
+  B-06 循序渐进: |
+    本轮做的是「改写 → 提交通道纠正（/api/upload -> /api/review）→ 回读校验」三步的最后一段；留的接口是 check.status 回读结果与 /api/reviews 收录证据，供 WB0 直接做 H-R1-DEADZONE 入账。
+  B-07 Agent 调用: |
+    0 次子 Agent 调用。本轮为一个确定性文本变换 + 两次 HTTP 请求，引入子 Agent 只会增加不可复现环节。
+  B-08 交付前验证: |
+    跑了 4 项自检：(1) v1 与 v2 逐字段 diff——除上述已声明项外无一字节差异（脚本断言 data_source 原行存在，避免静默漏改）；
+    (2) v1 原件保留未覆盖、sha256 提交前后不变；(3) 所有 hypotheses[0].data_source 为标量、路径无引号；(4) POST /api/review 返回 200 后回读 GET /api/reviews 核对 check.status。
+  B-09 动机优先: |
+    「用户（本 FIX 指令）要求」占比 ≈100%：字段形态、通道、命名、模板、B-01~B-10 全部由指令钉死；「我的框架」占比 ≈0%，本轮未加任何自选内容。
+  B-10 不下断定: |
+    保留待裁不预先命名：(1) 检查器 L61 的 list TypeError 是否还存在其它同类字段风险（仅在触发时才可知）；(2) 副作用 —— data_source_aux 是否被 checks 视为有效字段（本轮只是提交后观察机检结果，不预先断言）；(3) H-R1-DEADZONE 的入账动作归属 WB0，执行器不代判。
